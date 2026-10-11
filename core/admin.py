@@ -179,7 +179,18 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
         ("Página Sobre", {"fields": ("sobre_quem_somos", "sobre_missao", "sobre_visao")}),
         (
             "Limites de mídia",
-            {"fields": ("limite_simbolo_kb", "limite_compartilhamento_kb", "atualizado_em")},
+            {
+                "fields": (
+                    "limite_simbolo_kb",
+                    "limite_compartilhamento_kb",
+                    "limite_logo_kb",
+                    "logo_min_px",
+                    "limite_capa_kb",
+                    "capa_min_largura_px",
+                    "capa_min_altura_px",
+                    "atualizado_em",
+                )
+            },
         ),
     )
 

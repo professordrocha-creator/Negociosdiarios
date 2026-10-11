@@ -2,10 +2,12 @@
 
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
+from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 
 from anunciantes.forms import MotivoStatusForm
@@ -61,20 +63,53 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
     list_select_related = ("cidade", "usuario")
     prepopulated_fields = {"slug": ("nome_publico",)}
     autocomplete_fields = ("usuario",)
-    readonly_fields = ("status", "motivo_status", "demo", "criado_em", "atualizado_em")
+    readonly_fields = ("status", "motivo_status", "demo", "criado_em", "atualizado_em", "previa_imagens")
     fieldsets = (
         ("Loja", {"fields": ("usuario", "tipo", "nome_publico", "slug", "sigla", "cor", "cidade")}),
         ("Verificação", {"fields": ("documento_tipo", "documento_numero", "status", "motivo_status")}),
+        (
+            "Página da loja",
+            {
+                "fields": (
+                    "previa_imagens",
+                    "sobre",
+                    "endereco_publico",
+                    "mostrar_no_mapa",
+                    "horario",
+                    "instagram",
+                    "site",
+                )
+            },
+        ),
         ("Contato público", {"fields": ("whatsapp", "email_publico")}),
         ("Registro", {"fields": ("demo", "criado_em", "atualizado_em")}),
     )
     actions = ["aprovar_selecionados", "suspender_selecionados"]
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        """Campos de URL: endereço sem esquema vira https:// (padrão do Django 6)."""
+        if isinstance(db_field, models.URLField):
+            kwargs["assume_scheme"] = "https"
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """No campo cidade, só cidades liberadas de estados liberados."""
         if db_field.name == "cidade":
             kwargs["queryset"] = Cidade.objects.filter(liberada=True, uf__liberado=True).select_related("uf")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    @admin.display(description="logo e capa")
+    def previa_imagens(self, anunciante: Anunciante) -> str:
+        """Logo (96 px) e capa (800 px) já processados, ou o aviso de processamento."""
+        if anunciante.imagens_processando:
+            return "Imagens sendo processadas pelo Celery."
+        if not (anunciante.logo_mini or anunciante.capa_media):
+            return "Sem logo e sem capa (a página usa o monograma e a cor da loja)."
+        return format_html(
+            '<img src="{}" width="64" height="64" alt="logo"> <img src="{}" height="64" alt="capa">',
+            anunciante.logo_mini.url if anunciante.logo_mini else "",
+            anunciante.capa_media.url if anunciante.capa_media else "",
+        )
 
     @admin.display(description="e-mail confirmado", boolean=True, ordering="usuario__email_confirmado_em")
     def email_confirmado(self, anunciante: Anunciante) -> bool:

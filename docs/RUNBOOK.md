@@ -26,6 +26,14 @@ aprovada" com o link de `/entrar/`. Suspender manda "Sua loja foi suspensa" com 
 - **Nenhum e-mail sai:** o `worker` está de pé? (`docker compose ps`; ver "E-mails e tarefas do Celery").
   Depois de instalar pacote novo, reconstruir as imagens: `docker compose up -d --build web worker`.
 
+## Página da loja (logo e capa)
+- Logo e capa enviados ficam "sendo otimizados" até o `worker` gerar os WebP (segundos). Se o aviso não
+  some, o worker está parado: `docker compose ps` / `docker compose logs --tail=50 worker`.
+- Imagem recusada: o painel diz o motivo (formato, tamanho em KB ou dimensões mínimas). Os limites ficam em
+  Admin → Identidade do site → *Limites de mídia*.
+- A loja não aparece em `/lojas/` ou dá 404: ela precisa estar **ativa** e numa cidade **liberada**; loja
+  de demonstração só aparece com `MOSTRAR_DEMO=True`.
+
 ## Identidade do site, textos de ajuda e cidades (admin)
 - **Trocar nome, slogan, símbolos, contatos ou textos da Sobre:** Admin → Core → *Identidade do site*
   (abre direto o formulário). Salvou, o site muda na hora (o cache é limpo). Símbolo: SVG simples ou PNG

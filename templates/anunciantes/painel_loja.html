@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Painel › Página da loja (convertido de prototipo/painel-loja.html). Sempre a loja de quem está logado. #}
+{# Prévia ao vivo: static/js/painel-loja.js (arquivo próprio, sem script inline, por causa da futura CSP). #}
+
+{% block titulo %}Página da loja · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Edite a página pública da sua loja.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9">
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <h1 class="h4 m-0 me-auto">Página da loja</h1>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'anunciantes:loja' anunciante.slug %}" target="_blank" rel="noopener">Ver como o cliente vê ›</a>
+      </div>
+      <div class="mb-3">{% include "_ajuda.html" %}</div>
+      {% if messages %}{% for m in messages %}<div class="alert alert-success py-2" role="status">{{ m }}</div>{% endfor %}{% endif %}
+      {% if anunciante.imagens_processando %}
+        <div class="alert alert-info py-2" role="status">{% icone "relogio" %} Estamos otimizando as imagens enviadas. Recarregue a página em alguns segundos.</div>
+      {% endif %}
+
+      <div class="row g-4">
+        <form method="post" enctype="multipart/form-data" class="col-xl-7 d-grid gap-3" id="form-loja" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="alert alert-warning">{{ form.non_field_errors }}</div>{% endif %}
+
+          <div class="nd-caixa d-grid gap-3">
+            <h2 class="h6 m-0">Logo e capa</h2>
+            {% include "anunciantes/_campo.html" with campo=form.logo_envio %}
+            {% include "anunciantes/_campo.html" with campo=form.capa_envio %}
+            <fieldset>
+              <legend class="form-label">Cor da loja (capa e logo sem imagem)</legend>
+              <div class="d-flex gap-2 flex-wrap">
+                {% for opcao in form.cor %}
+                  <label class="nd-cor-opcao" title="{{ opcao.choice_label }}">{{ opcao.tag }}<span class="nd-cor-amostra nd-cor-{{ opcao.data.value }}"></span></label>
+                {% endfor %}
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="nd-caixa row g-3 mx-0">
+            <h2 class="h6 m-0 col-12 px-0">Dados públicos</h2>
+            <div class="col-12 px-0">{% include "anunciantes/_campo.html" with campo=form.nome_publico %}</div>
+            <div class="col-12 px-0">
+              <label class="form-label" for="{{ form.slug.id_for_label }}">Endereço da página</label>
+              <div class="input-group"><span class="input-group-text small">{{ endereco_base }}</span>{{ form.slug }}</div>
+              <div class="form-text">{{ form.slug.help_text }}</div>
+              {% for erro in form.slug.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+            </div>
+            <div class="col-12 px-0">
+              {% include "anunciantes/_campo.html" with campo=form.sobre %}
+              <div class="form-text"><span id="sobre-n">{{ form.sobre.value|default:""|length }}</span>/500 caracteres</div>
+            </div>
+            <div class="col-md-6 ps-md-0">{% include "anunciantes/_campo.html" with campo=form.whatsapp %}</div>
+            <div class="col-md-6 pe-md-0">{% include "anunciantes/_campo.html" with campo=form.horario %}</div>
+            <div class="col-12 px-0">{% include "anunciantes/_campo.html" with campo=form.endereco_publico %}</div>
+            <div class="col-12 form-check form-switch ms-2">{{ form.mostrar_no_mapa }} <label class="form-check-label" for="{{ form.mostrar_no_mapa.id_for_label }}">{{ form.mostrar_no_mapa.label }}</label>
+              <div class="form-text">{{ form.mostrar_no_mapa.help_text }}</div></div>
+            <div class="col-md-6 ps-md-0">{% include "anunciantes/_campo.html" with campo=form.instagram %}</div>
+            <div class="col-md-6 pe-md-0">{% include "anunciantes/_campo.html" with campo=form.site %}</div>
+          </div>
+
+          <div class="nd-caixa d-flex flex-wrap gap-2 align-items-center">
+            <span class="small text-suave me-auto">{% icone "verificado" %} {{ anunciante.get_tipo_display }} · {{ anunciante.get_documento_tipo_display }} verificado ({{ anunciante.documento_numero }}). Para alterar CRECI ou CNPJ, <a href="{% url 'core:contato' %}">fale com a gente</a>.</span>
+            <button class="btn btn-nd" type="submit">Salvar alterações</button>
+          </div>
+        </form>
+
+        {# Prévia ao vivo (atualizada pelo painel-loja.js enquanto a pessoa digita/escolhe arquivos) #}
+        <div class="col-xl-5">
+          <div class="nd-previa-loja d-grid gap-2">
+            <span class="form-label m-0">Prévia</span>
+            <div class="nd-caixa p-0 overflow-hidden">
+              <div id="prev-capa" class="nd-previa-capa nd-cor-{{ anunciante.cor }}">{% if anunciante.capa_media %}<img src="{{ anunciante.capa_media.url }}" alt="">{% endif %}</div>
+              <div class="px-3 pb-3 nd-previa-corpo">
+                <span id="prev-logo" class="nd-monograma nd-previa-logo nd-cor-{{ anunciante.cor }}">{% if anunciante.logo %}<img src="{{ anunciante.logo.url }}" alt="">{% else %}{{ anunciante.iniciais }}{% endif %}</span>
+                <b class="d-block mt-2 fs-5" id="prev-nome">{{ anunciante.nome_publico }}</b>
+                <span class="selo selo-verificado mt-1">{% icone "verificado" %} {{ anunciante.get_documento_tipo_display }} verificado</span>
+                <p class="small text-suave mt-2 mb-0">{{ endereco_base }}<span id="prev-slug">{{ anunciante.slug }}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/painel-loja.js' %}" defer></script>{% endblock %}

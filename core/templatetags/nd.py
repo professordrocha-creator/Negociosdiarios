@@ -1,9 +1,12 @@
 """Tags de template do site (carregar com `{% load nd %}`)."""
 
+import json
 from decimal import ROUND_HALF_UP, Decimal
 
 from django import template
-from django.utils.html import format_html
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.html import _json_script_escapes, format_html
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -59,3 +62,16 @@ def icone(nome: str, classe: str = "ico") -> str:
     vier de uma variável.
     """
     return format_html('<svg class="{}" aria-hidden="true"><use href="#i-{}"></use></svg>', classe, nome)
+
+
+@register.filter
+def json_ld(dados: dict) -> str:
+    """Bloco <script type="application/ld+json"> (schema.org) seguro para dados digitados pelo usuário.
+
+    Usa a mesma tabela de escape do `json_script` do Django: <, > e & viram \u003c etc., então
+    nenhum texto (ex.: "sobre" da loja) consegue fechar o <script>. O mark_safe é sobre o JSON
+    JÁ escapado para esse contexto (é o que o próprio json_script faz); o tipo ld+json é o que os
+    buscadores leem, e o json_script do Django só gera "application/json".
+    """
+    texto = json.dumps(dados, cls=DjangoJSONEncoder, ensure_ascii=False).translate(_json_script_escapes)
+    return format_html('<script type="application/ld+json">{}</script>', mark_safe(texto))  # noqa: S308

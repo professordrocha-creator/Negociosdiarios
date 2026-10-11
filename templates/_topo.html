@@ -13,7 +13,7 @@
     <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
       <a class="px-1 py-2{% if atual == 'imoveis' %} ativo{% endif %}" href="{% url 'core:imoveis' %}"{% if atual == 'imoveis' %} aria-current="page"{% endif %}>Imóveis</a>
       <a class="px-1 py-2{% if atual == 'veiculos' %} ativo{% endif %}" href="{% url 'core:veiculos' %}"{% if atual == 'veiculos' %} aria-current="page"{% endif %}>Veículos</a>
-      <a class="px-1 py-2{% if atual == 'lojas' %} ativo{% endif %}" href="{% url 'core:lojas' %}"{% if atual == 'lojas' %} aria-current="page"{% endif %}>Lojas</a>
+      <a class="px-1 py-2{% if atual == 'lojas' %} ativo{% endif %}" href="{% url 'anunciantes:lojas' %}"{% if atual == 'lojas' %} aria-current="page"{% endif %}>Lojas</a>
     </nav>
     {# "Anunciar" leva aos planos. #}
     <a class="btn btn-sm btn-ipe" href="{% url 'core:planos' %}">{% icone "mais" %} Anunciar</a>

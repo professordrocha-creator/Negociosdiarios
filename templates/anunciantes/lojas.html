@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load nd %}
+{# /lojas/: lojas verificadas (ativas, em cidade atendida) com filtro por tipo e cidade. #}
+
+{% block titulo %}Lojas verificadas{% endblock %}
+{% block descricao %}Imobiliárias, corretores e revendas verificados no {{ site.nome }}: cada loja com sua página, anúncios e contato pelo WhatsApp.{% endblock %}
+
+{% block conteudo %}
+{% if mostrar_demo %}
+<div class="nd-faixa-demo" role="note">{% icone "alerta" %} <b>Dados de demonstração:</b> lojas marcadas como demo são fictícias.</div>
+{% endif %}
+<main class="container mt-4">
+  <div class="d-flex flex-wrap gap-2 align-items-end mb-3">
+    <div class="me-auto"><h1 class="h2 mb-1">Lojas verificadas</h1>
+      <p class="text-suave mb-0">Só anunciam corretores com CRECI e empresas com CNPJ conferidos.</p></div>
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+      <div><label class="form-label" for="f-tipo">Tipo</label>
+        <select id="f-tipo" name="tipo" class="form-select">
+          <option value="">Todos</option>
+          {% for valor, rotulo in tipos %}<option value="{{ valor }}"{% if valor == tipo_escolhido %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+        </select></div>
+      <div><label class="form-label" for="f-cidade">Cidade</label>
+        <select id="f-cidade" name="cidade" class="form-select">
+          <option value="">Todas</option>
+          {% for cidade in cidades %}<option value="{{ cidade.pk }}"{% if cidade.pk|stringformat:"s" == cidade_escolhida %} selected{% endif %}>{{ cidade.nome }}</option>{% endfor %}
+        </select></div>
+      <button class="btn btn-nd" type="submit">Filtrar</button>
+    </form>
+  </div>
+
+  {% if lojas_vitrine %}
+    <div class="nd-lojas">{% for loja in lojas_vitrine %}{% include "_loja_mini.html" %}{% endfor %}</div>
+    {% if pagina.has_other_pages %}
+    <nav class="mt-4 d-flex gap-2 justify-content-center" aria-label="Páginas">
+      {% if pagina.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?tipo={{ tipo_escolhido }}&amp;cidade={{ cidade_escolhida }}&amp;pagina={{ pagina.previous_page_number }}">‹ Anterior</a>{% endif %}
+      <span class="small text-suave align-self-center">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+      {% if pagina.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?tipo={{ tipo_escolhido }}&amp;cidade={{ cidade_escolhida }}&amp;pagina={{ pagina.next_page_number }}">Próxima ›</a>{% endif %}
+    </nav>
+    {% endif %}
+  {% else %}
+    <div class="nd-banner"><b>Nenhuma loja encontrada</b>Tente outro tipo ou outra cidade.</div>
+  {% endif %}
+
+  <section class="nd-caixa d-flex flex-column flex-md-row align-items-md-center gap-3 mt-5">
+    <div class="me-auto"><h2 class="h5 mb-1">É corretor ou tem uma revenda?</h2><p class="mb-0 text-suave">Ganhe uma página própria para sua loja.</p></div>
+    <a class="btn btn-ipe" href="{% url 'anunciantes:cadastro' %}">Cadastrar minha loja</a>
+  </section>
+</main>
+{% endblock %}

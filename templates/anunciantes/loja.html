@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Vitrine pública da loja (convertida de prototipo/loja.html). Só lojas visíveis chegam aqui (o resto é 404). #}
+{# WhatsApp: o link passa por /loja/<slug>/whatsapp/ e o número não fica em texto no HTML (ARQUITETURA §5). #}
+
+{% block titulo %}{{ anunciante.nome_publico }} · {{ anunciante.get_tipo_display }} em {{ anunciante.cidade.nome }}{% endblock %}
+{% block descricao %}{{ descricao }}{% endblock %}
+{% block og_titulo %}{{ anunciante.nome_publico }} · {{ anuncios|length }} anúncio{{ anuncios|length|pluralize }} no {{ site.nome }}{% endblock %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ url_canonica }}">
+  <meta property="og:type" content="profile">
+  <meta property="og:url" content="{{ url_canonica }}">
+  {% if imagem_og %}<meta property="og:image" content="{{ imagem_og }}">{% endif %}
+  {{ schema|json_ld }}
+{% endblock %}
+
+{% block conteudo %}
+{% if mostrar_demo %}
+<div class="nd-faixa-demo" role="note">{% icone "alerta" %} <b>Dados de demonstração:</b> esta loja e os anúncios dela são fictícios.</div>
+{% endif %}
+
+{# Capa: imagem 1600/800 px (srcset) ou faixa na cor da loja #}
+<div class="nd-capa nd-cor-{{ anunciante.cor }}">
+  {% if anunciante.capa %}<img src="{{ anunciante.capa.url }}" srcset="{{ anunciante.capa_media.url }} 800w, {{ anunciante.capa.url }} 1600w" sizes="100vw" alt="" class="nd-capa-img">{% endif %}
+</div>
+
+<main class="container">
+  <div class="nd-loja-cab d-flex flex-column flex-md-row gap-3 align-items-md-end">
+    {% if anunciante.logo %}<img class="nd-monograma nd-loja-logo nd-monograma-img" src="{{ anunciante.logo.url }}" width="112" height="112" alt="Logo de {{ anunciante.nome_publico }}">
+    {% else %}<span class="nd-monograma nd-loja-logo nd-cor-{{ anunciante.cor }}" aria-hidden="true">{{ anunciante.iniciais }}</span>{% endif %}
+    <div class="me-auto pb-md-2">
+      <h1 class="h2 mb-1">{{ anunciante.nome_publico }}</h1>
+      <div class="d-flex flex-wrap gap-2 align-items-center small">
+        <span class="selo selo-verificado">{% icone "verificado" %} {{ anunciante.get_documento_tipo_display }} verificado</span>
+        <span class="text-suave">{{ anunciante.get_tipo_display }} · {{ anunciante.cidade }}</span>
+      </div>
+    </div>
+    <div class="d-flex gap-2 pb-md-2">
+      <a class="btn btn-zap" href="{% url 'anunciantes:loja_whatsapp' anunciante.slug %}" rel="nofollow noopener" target="_blank">{% icone "zap" %} WhatsApp da loja</a>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <aside class="col-lg-3 d-grid gap-3 align-content-start">
+      {% if anunciante.sobre %}
+      <div class="nd-caixa"><h2 class="h6">Sobre a loja</h2><p class="small mb-0 nd-texto-livre">{{ anunciante.sobre }}</p></div>
+      {% endif %}
+      <div class="nd-caixa small d-grid gap-2">
+        {% if anunciante.mostrar_no_mapa and anunciante.endereco_publico %}<div>{% icone "pin" %} {{ anunciante.endereco_publico }} · {{ anunciante.cidade }}</div>{% endif %}
+        {% if anunciante.horario %}<div>{% icone "relogio" %} {{ anunciante.horario }}</div>{% endif %}
+        {% if anunciante.instagram %}<div>{% icone "olho" %} <a href="https://instagram.com/{{ anunciante.instagram|urlencode }}" rel="nofollow noopener" target="_blank">@{{ anunciante.instagram }}</a></div>{% endif %}
+        {% if anunciante.site %}<div>{% icone "loja" %} <a href="{{ anunciante.site }}" rel="nofollow noopener" target="_blank">{{ anunciante.site|cut:"https://"|cut:"http://" }}</a></div>{% endif %}
+        <div class="text-suave">{% icone "verificado" %} {{ anunciante.get_documento_tipo_display }} conferido pela equipe do {{ site.nome }}.</div>
+      </div>
+      <div class="nd-caixa small"><div class="d-flex justify-content-between"><span>Anúncios ativos</span><b class="tabular">{{ anuncios|length }}</b></div></div>
+    </aside>
+
+    <div class="col-lg-9">
+      <h2 class="h5 mb-3">Anúncios da loja</h2>
+      {% if anuncios %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+          {% for anuncio in anuncios %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+        </div>
+      {% else %}
+        <div class="nd-banner"><b>Nenhum anúncio no ar</b>Os anúncios desta loja vão aparecer aqui.</div>
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}

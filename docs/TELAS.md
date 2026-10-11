@@ -31,7 +31,9 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Início | `/` | Busca rápida, destaques, vitrine de lojas, publicidade |
 | Busca | `/imoveis/mt/tangara-da-serra/` | Filtros, lista, mapa, anúncio nativo |
 | Anúncio | `/anuncio/<codigo>-<slug>/` | Fotos, ficha, mapa aproximado, WhatsApp, denúncia |
-| Loja | `/loja/<slug>/` | Vitrine da empresa e seus anúncios |
+| Loja | `/loja/<slug>/` | Vitrine da empresa: capa, logo ou monograma, selo verificado, sobre, horário, endereço (se a loja permitir), WhatsApp (sem número no HTML) e anúncios. SEO: title, description, canonical, Open Graph, schema.org; 404 se não estiver ativa |
+| Lojas | `/lojas/` | Lojas verificadas, filtro por tipo e cidade, 24 por página |
+| Sitemap e robots | `/sitemap.xml`, `/robots.txt` | Páginas públicas e lojas ativas; robots esconde painel e login |
 | Anuncie sua marca | `/anuncie/` | Mídia kit para patrocinadores |
 | Planos | `/planos/` | Planos e cadastro de anunciante |
 | Sobre | `/sobre/` | Quem somos, missão, visão, valores (textos do painel) |
@@ -55,7 +57,7 @@ os demais itens do menu aparecem como "em breve".
 | Novo/editar anúncio | Formulário por categoria, fotos, localização (exata/aproximada) |
 | Importar anúncios | Envio de XML/planilha, prévia com erros, confirmação |
 | Estatísticas | Visualizações e cliques no WhatsApp por anúncio e por período |
-| Página da loja | Logo, capa, cor, dados públicos, prévia ao vivo |
+| Página da loja (`/painel/loja/`) | Logo e capa (validados; WebP pelo Celery), cor (paleta), nome, endereço da página, sobre, WhatsApp, horário, endereço e "mostrar no mapa", Instagram, site; prévia ao vivo (`static/js/painel-loja.js`). CRECI/CNPJ só leitura |
 | Meu plano | Plano atual, upgrade/downgrade, escolha de anúncios a manter |
 | Faturas | Histórico, Pix, comprovantes, notas fiscais |
 | Meus dados (LGPD) | Ver, baixar e excluir dados; encerrar conta |

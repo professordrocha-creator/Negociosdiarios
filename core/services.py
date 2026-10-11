@@ -253,7 +253,6 @@ ARQUIVO_DEMO = DIR_DADOS / "demo.json"
 LIMITE_DESTAQUES = 4
 LIMITE_RECEM_ANUNCIADOS = 8
 MAX_POR_LOJA_RECEM = 2  # rodízio justo: nenhuma loja grande ocupa a home (ARQUITETURA §9)
-LIMITE_LOJAS_HOME = 6
 
 ROTULOS_TIPO_LOJA = {
     "corretor_autonomo": "Corretor",
@@ -276,6 +275,7 @@ class LojaVitrine:
     cidade: str
     total_anuncios: int
     url: str | None = None  # None = página ainda não existe ("em breve")
+    logo: str = ""  # URL do logo 96 px; vazio = monograma
 
     @property
     def tipo_rotulo(self) -> str:
@@ -439,13 +439,6 @@ def recem_anunciados(
         if len(resultado) == limite:
             break
     return resultado
-
-
-def lojas_verificadas(limite: int = LIMITE_LOJAS_HOME) -> list[LojaVitrine]:
-    """Lojas verificadas com anúncios no ar, as com mais anúncios primeiro."""
-    _, lojas = _vitrine_demo()
-    com_anuncio = [loja for loja in lojas if loja.total_anuncios]
-    return sorted(com_anuncio, key=lambda loja: (-loja.total_anuncios, loja.nome))[:limite]
 
 
 @dataclass(frozen=True)
@@ -622,12 +615,6 @@ PAGINAS_EM_BREVE = {
         "descricao": "Carros, caminhonetes e motos de revendas verificadas da região.",
         "quando": "A busca de veículos com filtros chega em breve.",
         "icone": "carro",
-    },
-    "lojas": {
-        "titulo": "Lojas",
-        "descricao": "Todas as imobiliárias, corretores e revendas verificados, cada um com sua página.",
-        "quando": "A lista de lojas e a página de cada uma chegam em breve.",
-        "icone": "loja",
     },
     "denunciar": {
         "titulo": "Denunciar anúncio",

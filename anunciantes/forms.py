@@ -7,7 +7,9 @@ from django.contrib.auth.password_validation import validate_password
 from anunciantes.models import Anunciante
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
 from contas.services import normalizar_email
+from core import imagens
 from core.models import Cidade
+from core.services import configuracao
 
 
 class MotivoStatusForm(forms.Form):
@@ -152,3 +154,95 @@ class CadastroForm(forms.Form):
                     )
                 dados["documento_tipo"], dados["documento_numero"] = documento_tipo, numero
         return dados
+
+
+class PaginaLojaForm(forms.ModelForm):
+    """Painel › Página da loja: dados públicos, logo e capa. CRECI/CNPJ não aparecem (verificados).
+
+    Logo e capa são validados aqui (tipo real, tamanho e dimensões mínimas da Configuracao)
+    e processados depois pelo Celery (WebP, sem EXIF; o envio original é apagado).
+    """
+
+    logo_envio = forms.FileField(
+        label="Logo",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg,image/webp"}),
+    )
+    # Endereço digitado sem esquema vira https:// (o padrão do Django 6).
+    site = forms.URLField(
+        label="Site", required=False, assume_scheme="https", help_text="Ex.: www.sualoja.com.br"
+    )
+    capa_envio = forms.FileField(
+        label="Capa",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg,image/webp"}),
+    )
+
+    class Meta:
+        model = Anunciante
+        fields = [
+            "nome_publico",
+            "slug",
+            "cor",
+            "sobre",
+            "whatsapp",
+            "endereco_publico",
+            "mostrar_no_mapa",
+            "horario",
+            "instagram",
+            "site",
+        ]
+        widgets = {"sobre": forms.Textarea(attrs={"rows": 4, "maxlength": 500})}
+
+    def __init__(self, *args, **kwargs):
+        """Textos de ajuda com os limites atuais e classes do Bootstrap."""
+        super().__init__(*args, **kwargs)
+        config = configuracao()
+        self.fields["logo_envio"].help_text = (
+            f"Quadrada, mínimo {config.logo_min_px}×{config.logo_min_px} px, "
+            f"até {config.limite_logo_kb // 1024} MB. "
+            "PNG, JPG ou WebP."
+        )
+        self.fields["capa_envio"].help_text = (
+            f"Ideal 1600×400 px (4:1); mínimo {config.capa_min_largura_px}×{config.capa_min_altura_px} px, "
+            f"até {config.limite_capa_kb // 1024} MB. Evite texto nas bordas: no celular elas são cortadas."
+        )
+        self.fields[
+            "slug"
+        ].help_text = "Só letras minúsculas, números e hífen. Mudar quebra links já compartilhados."
+        self.fields["cor"].widget = forms.RadioSelect(choices=self.fields["cor"].choices)
+        for nome, campo in self.fields.items():
+            if nome == "mostrar_no_mapa":
+                campo.widget.attrs["class"] = "form-check-input"
+            elif nome != "cor":
+                campo.widget.attrs.setdefault("class", "form-control")
+
+    def clean_logo_envio(self):
+        """JPG/PNG/WebP de verdade, no limite de tamanho e com o lado mínimo."""
+        arquivo = self.cleaned_data.get("logo_envio")
+        if arquivo:
+            config = configuracao()
+            imagens.validar_foto(arquivo, config.limite_logo_kb, config.logo_min_px, config.logo_min_px)
+        return arquivo
+
+    def clean_capa_envio(self):
+        """JPG/PNG/WebP de verdade, no limite de tamanho e com as dimensões mínimas."""
+        arquivo = self.cleaned_data.get("capa_envio")
+        if arquivo:
+            config = configuracao()
+            imagens.validar_foto(
+                arquivo, config.limite_capa_kb, config.capa_min_largura_px, config.capa_min_altura_px
+            )
+        return arquivo
+
+    def clean_whatsapp(self) -> str:
+        """WhatsApp em E.164."""
+        return normalizar_whatsapp(self.cleaned_data["whatsapp"])
+
+    def clean_instagram(self) -> str:
+        """Só o usuário, sem @ nem endereço."""
+        valor = self.cleaned_data.get("instagram", "").strip()
+        for prefixo in ("https://www.instagram.com/", "https://instagram.com/", "instagram.com/", "@"):
+            if valor.lower().startswith(prefixo):
+                valor = valor[len(prefixo) :]
+        return valor.strip("/")

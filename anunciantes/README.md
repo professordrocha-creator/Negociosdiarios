@@ -34,7 +34,12 @@ Formulário `CadastroForm` com campo-armadilha `site_empresa` (honeypot).
 atendida, cria `SolicitacaoCidade` (pendente). `liberar_cidade_da_solicitacao` libera a cidade e atende
 todos os pedidos dela; `recusar_solicitacao` exige motivo e manda e-mail. `aprovar` exige cidade liberada.
 
-**Telas:** `/cadastro/`, `/cadastro/obrigado/`, `/cadastro/confirmar/<token>/` (e `.../reenviar/`), `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
+**Página da loja (Sprint 2):** `PaginaLojaForm` (dados públicos + logo/capa validados em `core/imagens.py`),
+`processar_imagem_loja(anunciante, tipo)` (tarefa Celery `tasks.processar_imagem_loja`: WebP nos tamanhos
+do TELAS, sem EXIF, apaga o original e as versões antigas), `lojas_visiveis()`, `loja_para_vitrine()`,
+`lojas_verificadas()` (home), `listar_lojas(tipo, cidade)`, `gerar_imagens_demo()`.
+
+**Telas:** `/painel/loja/`, `/loja/<slug>/` (+ `/whatsapp/`), `/lojas/`, `/cadastro/`, `/cadastro/obrigado/`, `/cadastro/confirmar/<token>/` (e `.../reenviar/`), `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
 de `request.user.anunciante`, nunca da URL). Login do cliente em `/entrar/` (app `contas`).
 
 **Admin:** lista com filtro por status/tipo/demo; status e motivo só mudam pelas ações

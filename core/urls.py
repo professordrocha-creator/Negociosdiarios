@@ -19,8 +19,8 @@ urlpatterns = [
     # Ainda em construção: "Em breve" em vez de 404. Cada sprint troca a sua rota pela de verdade.
     path("imoveis/", views.em_breve, {"pagina": "imoveis"}, name="imoveis"),
     path("veiculos/", views.em_breve, {"pagina": "veiculos"}, name="veiculos"),
-    path("lojas/", views.em_breve, {"pagina": "lojas"}, name="lojas"),
     path("denunciar/", views.em_breve, {"pagina": "denunciar"}, name="denunciar"),
     path("saude/", views.saude, name="saude"),
     path("favicon.ico", views.favicon, name="favicon"),
+    path("robots.txt", views.robots, name="robots"),
 ]

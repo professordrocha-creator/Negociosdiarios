@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import TYPE_CHECKING
@@ -12,7 +14,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.core import signing
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
@@ -20,9 +22,11 @@ from django.utils.text import slugify
 
 from anunciantes.models import Anunciante, SolicitacaoCidade
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
+from core import imagens
 from core.models import Cidade
 from core.services import (
     AnuncioVitrine,
+    LojaVitrine,
     PlanoVitrine,
     anuncios_demo_da_loja,
     configuracao,
@@ -32,6 +36,8 @@ from core.services import (
 
 if TYPE_CHECKING:
     from contas.models import Usuario
+
+logger = logging.getLogger(__name__)
 
 # Mensagens mostradas no login e no painel para quem não pode entrar (dizem o que fazer).
 MENSAGENS_SEM_ACESSO = {
@@ -194,6 +200,18 @@ def criar_anunciantes_demo(lojas: list[dict], senha: str) -> int:
                 "demo": True,
             },
         )
+        demo = {
+            "sobre": f"{loja['nome']} é uma loja de demonstração do {configuracao().nome}. "
+            "Os dados e anúncios desta página são fictícios.",
+            "horario": "Seg a sex 8h–18h · Sáb 8h–12h",
+            "endereco_publico": "Av. Brasil, 1.000 · Centro",
+            "mostrar_no_mapa": True,
+        }
+        for campo, valor in demo.items():
+            if not getattr(anunciante, campo):
+                setattr(anunciante, campo, valor)
+        anunciante.save(update_fields=[*demo, "atualizado_em"])
+        gerar_imagens_demo(anunciante)
         if not cidade.liberada:  # como no cadastro real: cidade não atendida vira solicitação
             SolicitacaoCidade.objects.get_or_create(
                 anunciante=anunciante,
@@ -449,3 +467,146 @@ def recusar_solicitacao(
         },
     )
     return solicitacao
+
+
+# --- Página da loja: imagens, visibilidade e vitrine (Sprint 2) ---------------------------
+
+# Tamanhos gerados (docs/TELAS.md §1): campo -> largura do WebP. Proporção: logo 1:1, capa 4:1.
+TAMANHOS_IMAGEM = {
+    "logo": {"proporcao": 1.0, "saidas": {"logo": 400, "logo_mini": 96}},
+    "capa": {"proporcao": 4.0, "saidas": {"capa": 1600, "capa_media": 800}},
+}
+
+
+def processar_imagem_loja(anunciante: Anunciante, tipo: str) -> bool:
+    """Gera os WebP do logo ou da capa a partir do envio, apaga o envio e as versões antigas.
+
+    Roda no Celery (`anunciantes.tasks.processar_imagem_loja`). A foto é aberta na posição
+    certa e sem EXIF (`core.imagens.abrir_limpa`), recortada pelo centro na proporção e
+    reduzida (nunca ampliada). Devolve False se não havia envio ou se a imagem não abriu
+    (nesse caso o envio é descartado e o log não leva dados pessoais).
+    """
+    regra = TAMANHOS_IMAGEM[tipo]
+    original = getattr(anunciante, f"{tipo}_original")
+    if not original:
+        return False
+    try:
+        with original.open("rb") as arquivo:
+            recortada = imagens.recortar_proporcao(imagens.abrir_limpa(arquivo), regra["proporcao"])
+    except Exception:
+        logger.exception(
+            "Imagem da loja não pôde ser processada (anunciante id=%s, %s).", anunciante.pk, tipo
+        )
+        original.delete(save=False)
+        anunciante.save(update_fields=[f"{tipo}_original"])
+        return False
+    for campo, largura in regra["saidas"].items():
+        antigo = getattr(anunciante, campo)
+        if antigo:
+            antigo.delete(save=False)  # não deixa versões velhas ocupando o storage
+        getattr(anunciante, campo).save(f"{campo}.webp", imagens.webp(recortada, largura, campo), save=False)
+    original.delete(save=False)  # o original nunca é servido (docs/SEGURANCA.md)
+    anunciante._change_reason = f"{tipo.capitalize()} da loja processado."
+    anunciante.save(update_fields=[f"{tipo}_original", *regra["saidas"], "atualizado_em"])
+    return True
+
+
+def lojas_visiveis() -> QuerySet[Anunciante]:
+    """Lojas que o público pode ver: ativas, em cidade liberada de estado liberado.
+
+    Lojas de demonstração só com MOSTRAR_DEMO (nunca misturadas a lojas reais sem o aviso).
+    Pendente, suspensa ou fora da área atendida não aparece em lugar nenhum (e a página dá 404).
+    """
+    lojas = Anunciante.objects.filter(
+        status=Anunciante.Status.ATIVO, cidade__liberada=True, cidade__uf__liberado=True
+    ).select_related("cidade", "cidade__uf")
+    return lojas if settings.MOSTRAR_DEMO else lojas.filter(demo=False)
+
+
+def total_anuncios(anunciante: Anunciante) -> int:
+    """Anúncios no ar da loja (hoje só lojas demo têm, no demo.json; Sprint 3: banco)."""
+    return len(anuncios_da_loja(anunciante))
+
+
+def loja_para_vitrine(anunciante: Anunciante) -> LojaVitrine:
+    """Converte o anunciante no formato usado pelo parcial _loja_mini.html."""
+    return LojaVitrine(
+        slug=anunciante.slug,
+        nome=anunciante.nome_publico,
+        tipo=anunciante.tipo,
+        sigla=anunciante.iniciais,
+        cor=anunciante.cor,
+        cidade=anunciante.cidade.nome,
+        total_anuncios=total_anuncios(anunciante),
+        url=reverse("anunciantes:loja", args=[anunciante.slug]),
+        logo=anunciante.logo_mini.url if anunciante.logo_mini else "",
+    )
+
+
+def lojas_verificadas(limite: int = 6) -> list[LojaVitrine]:
+    """Vitrine de lojas da home: lojas visíveis, as com mais anúncios primeiro."""
+    lojas = [loja_para_vitrine(a) for a in lojas_visiveis()]
+    return sorted(lojas, key=lambda loja: (-loja.total_anuncios, loja.nome))[:limite]
+
+
+def listar_lojas(tipo: str = "", cidade_id: str = "") -> QuerySet[Anunciante]:
+    """Lojas de /lojas/ com os filtros opcionais por tipo e cidade (valores inválidos são ignorados)."""
+    lojas = lojas_visiveis().order_by("nome_publico")
+    if tipo in Anunciante.Tipo.values:
+        lojas = lojas.filter(tipo=tipo)
+    if str(cidade_id).isdigit():
+        lojas = lojas.filter(cidade_id=int(cidade_id))
+    return lojas
+
+
+def cidades_com_lojas() -> QuerySet[Cidade]:
+    """Cidades do filtro de /lojas/: só as que têm loja visível."""
+    return Cidade.objects.filter(anunciantes__in=lojas_visiveis()).distinct().order_by("nome")
+
+
+# Cores da paleta das lojas (as mesmas classes nd-cor-1..6 do nd.css), para as imagens demo.
+CORES_DEMO = {
+    1: (14, 74, 87),
+    2: (155, 77, 52),
+    3: (77, 122, 78),
+    4: (91, 103, 121),
+    5: (138, 106, 58),
+    6: (47, 95, 105),
+}
+
+
+def gerar_imagens_demo(anunciante: Anunciante) -> None:
+    """Logo (iniciais sobre a cor da loja) e capa (degradê) feitos com Pillow, sem baixar nada.
+
+    Passam pelo MESMO processamento das imagens reais (WebP, tamanhos, sem EXIF), só que na
+    hora, sem Celery, para o comando terminar com tudo pronto. Lojas que já têm logo ficam como estão.
+    """
+    if anunciante.logo:
+        return
+    from django.core.files.base import ContentFile
+    from PIL import Image, ImageDraw, ImageFont
+
+    cor = CORES_DEMO.get(anunciante.cor, CORES_DEMO[1])
+    clara = tuple(min(255, c + 70) for c in cor)
+
+    logo = Image.new("RGB", (512, 512), cor)
+    desenho = ImageDraw.Draw(logo)
+    fonte = ImageFont.load_default(size=220)
+    desenho.text((256, 256), anunciante.iniciais, fill=(255, 255, 255), font=fonte, anchor="mm")
+    desenho.ellipse((380, -60, 620, 180), fill=(242, 183, 5))  # toque amarelo-ipê da identidade
+
+    capa = Image.new("RGB", (1600, 400), cor)
+    desenho = ImageDraw.Draw(capa)
+    for x in range(1600):  # degradê horizontal da cor da loja para um tom mais claro
+        mistura = x / 1599
+        desenho.line(
+            [(x, 0), (x, 400)],
+            fill=tuple(round(a + (b - a) * mistura) for a, b in zip(cor, clara, strict=True)),
+        )
+    desenho.ellipse((1250, -150, 1700, 300), fill=(242, 183, 5))
+
+    for tipo, imagem in (("logo", logo), ("capa", capa)):
+        saida = io.BytesIO()
+        imagem.save(saida, format="PNG")
+        getattr(anunciante, f"{tipo}_original").save(f"{tipo}.png", ContentFile(saida.getvalue()), save=True)
+        processar_imagem_loja(anunciante, tipo)

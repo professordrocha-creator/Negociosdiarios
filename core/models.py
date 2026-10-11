@@ -234,6 +234,18 @@ class Configuracao(models.Model):
     limite_compartilhamento_kb = models.PositiveIntegerField(
         "limite da imagem de compartilhamento (KB)", default=1024
     )
+    # Logo e capa das lojas (docs/TELAS.md §1).
+    limite_logo_kb = models.PositiveIntegerField("limite do logo da loja (KB)", default=2048)
+    logo_min_px = models.PositiveIntegerField(
+        "lado mínimo do logo (px)",
+        default=400,
+        help_text="O logo é recortado em quadrado a partir do centro.",
+    )
+    limite_capa_kb = models.PositiveIntegerField("limite da capa da loja (KB)", default=4096)
+    capa_min_largura_px = models.PositiveIntegerField("largura mínima da capa (px)", default=1200)
+    capa_min_altura_px = models.PositiveIntegerField(
+        "altura mínima da capa (px)", default=300, help_text="A capa é recortada na proporção 4:1 (1600×400)."
+    )
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
 
     class Meta:

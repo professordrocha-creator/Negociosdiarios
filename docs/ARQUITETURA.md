@@ -97,11 +97,12 @@ classe CSS, sem estilo inline), `documento_tipo` + `documento_numero` (CNPJ só 
 CRECI no padrão `CRECI/UF 12345-F`; corretor autônomo = CRECI, demais = CNPJ; único), `whatsapp` (E.164),
 `email_publico`, `cidade` (FK, só liberada), `status` pendente | ativo | suspenso, `motivo_status`, `demo`
 (MarcaDemo), `criado_em`, `atualizado_em` e histórico (django-simple-history). O status só muda pelas ações do
-admin (Aprovar/Suspender, com motivo). Planejado para as próximas sprints:
-- `tipo`: corretor_autonomo | imobiliaria | revenda | concessionaria | garagem
-- `logo`, `capa`, `sobre`,
-  editados pelo próprio anunciante em `/painel/loja/` com prévia ao vivo, `whatsapp`, `telefone`, `email_publico`
-- `endereco_publico`, `ponto` (PointField opcional), `horario`, `redes_sociais`
+admin (Aprovar/Suspender, com motivo).
+Sprint 2 (página da loja), editados pelo anunciante em `/painel/loja/` com prévia ao vivo: `sobre` (500),
+`endereco_publico` + `mostrar_no_mapa`, `horario`, `instagram`, `site`, `logo` (WebP 400) + `logo_mini` (96),
+`capa` (WebP 1600, 4:1) + `capa_media` (800). O envio fica em `logo_original`/`capa_original` até o Celery
+gerar os WebP (`anunciantes.tasks.processar_imagem_loja`); depois o original é apagado.
+Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 - `status`: + inadimplente (Sprint 6) e encerrado (Sprint 7)
 
 ### Anuncio
@@ -145,13 +146,20 @@ admin (Aprovar/Suspender, com motivo). Planejado para as próximas sprints:
 
 - URL: `/loja/<slug>/` (subdomínio `<slug>.negociosdiarios.com.br` fica para V2+).
 - Capa, logo, selo "Verificado", sobre, endereço, mapa, horário, botão WhatsApp.
-- Lista de anúncios da loja com filtros próprios.
+- Lista de anúncios da loja com filtros próprios (filtros na Sprint 4).
+- Implementado na Sprint 2: `anunciantes.views.loja` (só `lojas_visiveis()`: ativa, cidade liberada; demo só com
+  MOSTRAR_DEMO; o resto é 404), canonical, Open Graph, JSON-LD (`|json_ld`, escapado como o `json_script`),
+  `/sitemap.xml` (`config/sitemaps.py`) e `/robots.txt`. WhatsApp via `/loja/<slug>/whatsapp/` (302 para o
+  wa.me; o número não vai no HTML). `/lojas/` com filtro por tipo e cidade; a vitrine da home lê do banco.
 - SEO: `<title>`, meta description, Open Graph (prévia bonita ao compartilhar
   no WhatsApp), schema.org `RealEstateAgent` / `AutoDealer`, entrada no `sitemap.xml`.
 - Vitrine de lojas na home (logos), como no Usado Fácil.
 
 ## 8. Imagens
 
+Logo e capa da loja (Sprint 2) já seguem este fluxo (`core/imagens.py`: tipo real, dimensões mínimas,
+limites da `Configuracao`, rotação do EXIF aplicada e EXIF descartado, recorte pelo centro, WebP sem ampliar).
+Fotos de anúncio (Sprint 3):
 Upload → Celery redimensiona (1600px + miniatura 400px), converte para WebP,
 **remove EXIF** e grava no storage (pasta local em dev, R2 em produção). Original é descartado.
 Limites: 10 fotos por anúncio, 8 MB por arquivo, só JPEG/PNG/WebP/HEIC.

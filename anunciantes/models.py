@@ -1,5 +1,8 @@
 """Modelos do app anunciantes: a "loja" de cada corretor ou revenda (docs/ARQUITETURA.md §4)."""
 
+import uuid
+from pathlib import PurePath
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -8,6 +11,16 @@ from simple_history.models import HistoricalRecords
 
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
 from core.models import Cidade, MarcaDemo
+
+
+def caminho_original(instancia, nome_arquivo: str) -> str:
+    """Envio ainda não processado: nome aleatório; apagado depois que o Celery gera os WebP."""
+    return f"originais/{uuid.uuid4().hex}{PurePath(nome_arquivo).suffix.lower()}"
+
+
+def caminho_loja(instancia, nome_arquivo: str) -> str:
+    """WebP gerados para a loja: pasta lojas/, nome aleatório (nunca o nome enviado)."""
+    return f"lojas/{uuid.uuid4().hex}{PurePath(nome_arquivo).suffix.lower()}"
 
 
 class Anunciante(MarcaDemo):
@@ -93,6 +106,28 @@ class Anunciante(MarcaDemo):
         blank=True,
         help_text="Registrado pelas ações Aprovar/Suspender do admin.",
     )
+    # Página da loja (Sprint 2): editados pelo próprio anunciante em /painel/loja/.
+    sobre = models.TextField(
+        "sobre a loja", max_length=500, blank=True, help_text="Até 500 caracteres. Texto puro."
+    )
+    endereco_publico = models.CharField(
+        "endereço da loja", max_length=200, blank=True, help_text="Ex.: Av. Brasil, 1.250 · Centro."
+    )
+    mostrar_no_mapa = models.BooleanField(
+        "mostrar endereço e mapa", default=False, help_text="Desmarcado, o endereço não aparece na página."
+    )
+    horario = models.CharField(
+        "horário de atendimento", max_length=120, blank=True, help_text="Ex.: Seg a sex 8h–18h · Sáb 8h–12h."
+    )
+    instagram = models.CharField("Instagram", max_length=30, blank=True, help_text="Só o usuário, sem @.")
+    site = models.URLField("site", blank=True, help_text="Endereço completo, com https://.")
+    # Imagens: o envio fica em *_original até o Celery gerar os WebP; aí o original é apagado.
+    logo_original = models.FileField(upload_to=caminho_original, blank=True, editable=False)
+    capa_original = models.FileField(upload_to=caminho_original, blank=True, editable=False)
+    logo = models.FileField("logo (400 px)", upload_to=caminho_loja, blank=True, editable=False)
+    logo_mini = models.FileField("logo (96 px)", upload_to=caminho_loja, blank=True, editable=False)
+    capa = models.FileField("capa (1600 px)", upload_to=caminho_loja, blank=True, editable=False)
+    capa_media = models.FileField("capa (800 px)", upload_to=caminho_loja, blank=True, editable=False)
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
 
@@ -119,6 +154,17 @@ class Anunciante(MarcaDemo):
             return self.sigla.upper()
         palavras = [p for p in self.nome_publico.split() if p[:1].isalnum()]
         return "".join(p[0] for p in palavras[:2]).upper() or "?"
+
+    @property
+    def imagens_processando(self) -> bool:
+        """Há logo ou capa enviados esperando o Celery gerar os WebP."""
+        return bool(self.logo_original or self.capa_original)
+
+    @property
+    def tipo_schema(self) -> str:
+        """Tipo do schema.org para buscadores: imobiliária/corretor ou revenda de veículos."""
+        imoveis = (self.Tipo.CORRETOR_AUTONOMO, self.Tipo.IMOBILIARIA)
+        return "RealEstateAgent" if self.tipo in imoveis else "AutoDealer"
 
     @property
     def ativo(self) -> bool:

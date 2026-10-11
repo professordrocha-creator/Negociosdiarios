@@ -3,9 +3,11 @@
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
+from anunciantes.services import lojas_verificadas
 from core.models import ValorEmpresa
 from core.services import (
     PAGINAS_EM_BREVE,
@@ -15,7 +17,6 @@ from core.services import (
     dados_do_site,
     destaques,
     formatos_publicidade,
-    lojas_verificadas,
     planos,
     recem_anunciados,
     textos_ajuda,
@@ -112,6 +113,19 @@ def favicon(request: HttpRequest) -> HttpResponseRedirect:
     troca o símbolo, e um 301 ficaria guardado no navegador para sempre.
     """
     return HttpResponseRedirect(dados_do_site()["favicon_ico"])
+
+
+@require_GET
+def robots(request: HttpRequest) -> HttpResponse:
+    """robots.txt: tudo liberado, menos áreas privadas; aponta o sitemap (com o domínio da requisição)."""
+    linhas = [
+        "User-agent: *",
+        "Disallow: /painel/",
+        "Disallow: /entrar/",
+        "Disallow: /cadastro/confirmar/",
+        f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
+    ]
+    return HttpResponse("\n".join(linhas) + "\n", content_type="text/plain; charset=utf-8")
 
 
 @never_cache

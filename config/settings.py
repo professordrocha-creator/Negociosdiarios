@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.gis",  # GeoDjango: campos geográficos (PostGIS)
+    "django.contrib.sitemaps",  # /sitemap.xml (config/sitemaps.py)
     "django_otp",  # base dos códigos de verificação do admin
     "django_otp.plugins.otp_email",  # código de 6 dígitos por e-mail (navegador novo, em produção)
     "django_otp.plugins.otp_static",  # código de emergência gerado no servidor (docs/RUNBOOK.md)

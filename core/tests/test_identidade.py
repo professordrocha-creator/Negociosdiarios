@@ -73,6 +73,11 @@ def postar_config(client, **mudancas):
             "sobre_visao",
             "limite_simbolo_kb",
             "limite_compartilhamento_kb",
+            "limite_logo_kb",
+            "logo_min_px",
+            "limite_capa_kb",
+            "capa_min_largura_px",
+            "capa_min_altura_px",
         ]
     }
     dados.update(mudancas)

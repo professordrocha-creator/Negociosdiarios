@@ -40,9 +40,10 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] Formulários Django para tudo (validação no servidor, nunca só no JS)
 - [ ] CSRF ativo em todas as views (inclusive HTMX — enviar header `X-CSRFToken`)
 - [ ] Sem `|safe` / `mark_safe` em conteúdo do usuário; descrição do anúncio é texto puro
-- [ ] **Uploads:** validar com Pillow (abre e re-salva), checar tamanho, renomear com UUID,
+- [ ] **Uploads** (*feito para identidade do site e logo/capa das lojas*, `core/imagens.py`; *falta*: fotos de anúncio, Sprint 3):
+      validar com Pillow (abre e re-salva), checar tamanho, renomear com UUID,
       **remover EXIF**, nunca servir o arquivo original, storage sem execução
-- [ ] Validação de CNPJ (dígitos verificadores) e de formato de CRECI
+- [x] Validação de CNPJ (dígitos verificadores) e de formato de CRECI (`anunciantes/validators.py`, Sprint 1)
 
 ### Cabeçalhos e navegador
 - [ ] `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS` (começar com 1 dia, subir para 1 ano)

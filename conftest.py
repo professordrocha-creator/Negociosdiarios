@@ -14,7 +14,7 @@ from core.models import Cidade, Estado
 
 
 @pytest.fixture(autouse=True)
-def ambiente_de_teste_previsivel(settings):
+def ambiente_de_teste_previsivel(settings, tmp_path):
     """Padrões dos testes, independentes do .env de quem roda (dev, CI):
 
     - código por e-mail do admin desligado (os testes de acesso ligam com o fixture `producao`);
@@ -27,6 +27,7 @@ def ambiente_de_teste_previsivel(settings):
     settings.CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
     cache.clear()
     settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    settings.MEDIA_ROOT = tmp_path / "media"  # uploads e imagens geradas nunca caem na media/ do projeto
     celery_app.conf.task_always_eager = True
     celery_app.conf.task_eager_propagates = True
     yield

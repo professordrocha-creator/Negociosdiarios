@@ -13,6 +13,7 @@ from django.core.management import CommandError, call_command
 from django.template import Context, Template
 from django.urls import reverse
 
+from anunciantes.services import lojas_verificadas
 from config.settings import validar_mostrar_demo
 from contas.models import Usuario
 from core.models import Cidade, Estado
@@ -23,7 +24,6 @@ from core.services import (
     criar_dados_demo,
     destaques,
     ler_demo,
-    lojas_verificadas,
     recem_anunciados,
 )
 
@@ -124,6 +124,13 @@ def demo_ligada(settings, cidades_demo):
     settings.MOSTRAR_DEMO = True
 
 
+@pytest.fixture
+def lojas_demo(demo_ligada, settings):
+    """Demo completa no banco (as lojas da vitrine vêm do banco desde a Sprint 2)."""
+    settings.DEBUG = True
+    criar_dados_demo(SENHA_DEMO)
+
+
 def test_sem_mostrar_demo_nao_ha_vitrine(cidades_demo):
     """Com MOSTRAR_DEMO desligado as três listas ficam vazias (a home mostra "em breve")."""
     assert destaques() == recem_anunciados() == lojas_verificadas() == []
@@ -152,8 +159,8 @@ def test_recem_anunciados_no_maximo_2_por_loja(demo_ligada):
     assert all(sum(1 for b in lista if b.loja_slug == a.loja_slug) <= 2 for a in lista)
 
 
-def test_lojas_verificadas_com_mais_anuncios_primeiro(demo_ligada):
-    """6 lojas, ordenadas por quantidade de anúncios e depois pelo nome."""
+def test_lojas_verificadas_com_mais_anuncios_primeiro(lojas_demo):
+    """6 lojas ativas do banco (as pendentes não), por quantidade de anúncios e depois pelo nome."""
     lojas = [(loja.nome, loja.total_anuncios) for loja in lojas_verificadas()]
 
     assert lojas == [
@@ -166,7 +173,7 @@ def test_lojas_verificadas_com_mais_anuncios_primeiro(demo_ligada):
     ]
 
 
-def test_cidade_desligada_some_da_vitrine(demo_ligada):
+def test_cidade_desligada_some_da_vitrine(lojas_demo):
     """Como no site real: cidade não liberada não mostra anúncios nem lojas, mesmo na demonstração."""
     Cidade.objects.filter(codigo_ibge=BARRA_DO_BUGRES).update(liberada=False)
 
@@ -218,7 +225,7 @@ def test_filtro_moeda(valor, esperado):
 # --- Home com e sem demonstração ---------------------------------------------------------
 
 
-def test_home_com_demo_mostra_faixa_cards_e_lojas(client, demo_ligada):
+def test_home_com_demo_mostra_faixa_cards_e_lojas(client, lojas_demo):
     """Faixa de aviso, cards com preço formatado, aluguel com /mês e vitrine de lojas."""
     resposta = client.get(reverse("core:inicio"))
     html = resposta.content.decode()

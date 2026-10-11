@@ -1,4 +1,4 @@
-"""Validação e processamento das imagens da identidade do site (símbolos, compartilhamento, favicon).
+"""Validação e processamento de imagens: identidade do site (símbolos, favicon) e fotos das lojas.
 
 Regras do projeto (CLAUDE.md, docs/SEGURANCA.md): validar o tipo REAL do arquivo (não a
 extensão), limitar o tamanho, reprocessar e remover EXIF. SVG é texto e pode carregar
@@ -12,7 +12,7 @@ from pathlib import PurePath
 from defusedxml import ElementTree
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 # Trechos que tornam um SVG perigoso (scripts, eventos, links externos, entidades XML).
 _SVG_PROIBIDO = re.compile(
@@ -128,3 +128,68 @@ def favicons(simbolo) -> dict[str, ContentFile]:
     base.save(saida, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
     arquivos["favicon_ico"] = ContentFile(saida.getvalue(), name="favicon.ico")
     return arquivos
+
+
+# --- Fotos enviadas por anunciantes (logo e capa da loja; fotos de anúncio na Sprint 3) ----
+
+FORMATOS_FOTO = {"JPEG", "PNG", "WEBP"}
+
+
+def validar_foto(arquivo, limite_kb: int, min_largura: int, min_altura: int) -> None:
+    """JPG, PNG ou WebP de verdade (Pillow), até `limite_kb` e com as dimensões mínimas.
+
+    As dimensões consideram a rotação gravada pelo celular (EXIF), como a imagem aparece.
+    Mensagens dizem o que fazer (docs/TELAS.md).
+    """
+    _tamanho_ok(arquivo, limite_kb)
+    arquivo.seek(0)
+    try:
+        with Image.open(arquivo) as imagem:
+            formato = imagem.format
+            imagem.verify()
+        arquivo.seek(0)
+        with Image.open(arquivo) as imagem:
+            largura, altura = ImageOps.exif_transpose(imagem).size
+    except (UnidentifiedImageError, OSError) as erro:
+        raise ValidationError("Imagem inválida ou corrompida. Envie JPG, PNG ou WebP.") from erro
+    finally:
+        arquivo.seek(0)
+    if formato not in FORMATOS_FOTO:
+        raise ValidationError(f"Formato {formato} não aceito. Envie JPG, PNG ou WebP.")
+    if largura < min_largura or altura < min_altura:
+        raise ValidationError(
+            f"Imagem de {largura}×{altura} px: o mínimo é {min_largura}×{min_altura} px. "
+            "Envie uma imagem maior."
+        )
+
+
+def abrir_limpa(arquivo) -> Image.Image:
+    """Abre a foto já na posição certa (rotação do EXIF) e sem nenhum metadado (GPS, câmera)."""
+    arquivo.seek(0)
+    with Image.open(arquivo) as original:
+        girada = ImageOps.exif_transpose(original)
+        modo = "RGBA" if girada.mode in ("RGBA", "LA", "P") else "RGB"
+        convertida = girada.convert(modo)
+        return Image.frombytes(modo, convertida.size, convertida.tobytes())
+
+
+def recortar_proporcao(imagem: Image.Image, proporcao: float) -> Image.Image:
+    """Recorta pelo centro na proporção largura/altura pedida (1 = quadrado, 4 = capa 4:1)."""
+    largura, altura = imagem.size
+    if largura / altura > proporcao:  # larga demais: corta as laterais
+        nova = round(altura * proporcao)
+        esquerda = (largura - nova) // 2
+        return imagem.crop((esquerda, 0, esquerda + nova, altura))
+    nova = round(largura / proporcao)  # alta demais: corta em cima e embaixo
+    topo = (altura - nova) // 2
+    return imagem.crop((0, topo, largura, topo + nova))
+
+
+def webp(imagem: Image.Image, largura: int, nome: str) -> ContentFile:
+    """WebP com a largura pedida (mantendo a proporção), sem nunca ampliar imagem pequena."""
+    if imagem.width > largura:
+        altura = round(imagem.height * largura / imagem.width)
+        imagem = imagem.resize((largura, altura), Image.LANCZOS)
+    saida = io.BytesIO()
+    imagem.save(saida, format="WEBP", quality=82, method=4)
+    return ContentFile(saida.getvalue(), name=f"{nome}.webp")

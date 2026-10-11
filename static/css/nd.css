@@ -235,3 +235,26 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-campo-curto { max-width: 280px; }
 /* Campo-armadilha (honeypot): fora da tela para pessoas, mas presente no HTML para robôs. */
 .nd-armadilha { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+/* ---------- Vitrine da loja (/loja/<slug>/; prototipo/loja.html) ---------- */
+.nd-capa { height: 180px; position: relative; overflow: hidden; }
+.nd-capa::after { content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(242,183,5,.35), transparent 70%); }
+.nd-capa-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.nd-capa:has(.nd-capa-img)::after { display: none; }
+.nd-loja-cab { margin-top: -56px; position: relative; z-index: 1; }
+.nd-loja-logo { width: 112px; height: 112px; border-radius: 18px; border: 4px solid var(--nd-papel); font-size: 38px; }
+.nd-monograma-img { object-fit: cover; background: var(--nd-papel); }
+.nd-texto-livre { white-space: pre-line; }
+.btn-zap { --bs-btn-bg: var(--nd-zap); --bs-btn-border-color: var(--nd-zap); --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #17803f; --bs-btn-hover-border-color: #17803f; --bs-btn-hover-color: #fff; font-weight: 700; }
+
+/* ---------- Painel › Página da loja: cor e prévia ao vivo ---------- */
+.nd-cor-opcao { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.nd-cor-opcao input { accent-color: var(--nd-petroleo); }
+.nd-cor-amostra { width: 28px; height: 28px; border-radius: 8px; display: inline-block; }
+.nd-previa-loja { position: sticky; top: 90px; }
+.nd-previa-capa { height: 96px; position: relative; overflow: hidden; }
+.nd-previa-capa img { width: 100%; height: 100%; object-fit: cover; }
+.nd-previa-corpo { margin-top: -36px; position: relative; }
+.nd-previa-logo { width: 72px; height: 72px; font-size: 26px; border: 3px solid var(--nd-papel); overflow: hidden; }
+.nd-previa-logo img { width: 100%; height: 100%; object-fit: cover; }
