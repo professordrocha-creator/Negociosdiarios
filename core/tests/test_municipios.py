@@ -177,11 +177,11 @@ def test_liberar_cidades_conta_so_as_que_mudaram(arquivos):
     assert Cidade.objects.filter(uf_id="MT", liberada=True).count() == 2
 
 
-def test_acao_do_admin_libera_cidades_selecionadas(client, arquivos):
+def test_acao_do_admin_libera_cidades_selecionadas(client, entrar_no_admin, arquivos):
     """A ação em massa do admin libera só as cidades marcadas e avisa sobre estado bloqueado."""
     carregar_municipios(*arquivos)
     admin = Usuario.objects.create_superuser(email="admin@exemplo.com", password=SENHA, nome="Admin")
-    client.force_login(admin)
+    entrar_no_admin(admin)
     selecionadas = Cidade.objects.filter(codigo_ibge__in=[5107958, 2414001])
 
     resposta = client.post(
@@ -202,11 +202,11 @@ def test_acao_do_admin_libera_cidades_selecionadas(client, arquivos):
 @pytest.mark.parametrize(
     "rota", ["admin:core_cidade_changelist", "admin:core_estado_changelist", "admin:core_cidade_change"]
 )
-def test_paginas_do_admin_abrem(client, arquivos, rota):
+def test_paginas_do_admin_abrem(client, entrar_no_admin, arquivos, rota):
     """Listas e edição de cidade abrem; busca e filtros funcionam."""
     carregar_municipios(*arquivos)
     admin = Usuario.objects.create_superuser(email="admin@exemplo.com", password=SENHA, nome="Admin")
-    client.force_login(admin)
+    entrar_no_admin(admin)
     args = [Cidade.objects.get(codigo_ibge=5107958).pk] if rota.endswith("change") else []
 
     resposta = client.get(reverse(rota, args=args), {"q": "tang"} if not args else {})

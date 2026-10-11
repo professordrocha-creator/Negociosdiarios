@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{# Página mostrada pelo django-axes (status 429) quando o login é bloqueado após 5 senhas erradas. #}
+{# Não diz se o e-mail existe nem dá detalhes ao atacante; o desbloqueio está no docs/RUNBOOK.md. #}
+
+{% block titulo %}Acesso bloqueado{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-largura-texto mx-auto">
+    <h1 class="h4">Acesso bloqueado temporariamente</h1>
+    <p class="mb-0">Houve muitas tentativas de login com dados errados. Por segurança, novas tentativas
+      ficam bloqueadas por um tempo. Aguarde e tente de novo mais tarde.</p>
+  </div>
+</main>
+{% endblock %}

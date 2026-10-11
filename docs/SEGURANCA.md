@@ -8,9 +8,23 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 
 ### Autenticação e contas
 - [ ] Login por e-mail; senhas com **Argon2** (`argon2-cffi`) e validadores de força
-- [ ] **2FA obrigatório** para equipe/admin (`django-otp`); opcional para anunciantes
-- [ ] Bloqueio por tentativas de login (`django-axes`): 5 erros → espera progressiva
-- [ ] Admin do Django em URL não óbvia (ex.: `/painel-nd-<aleatorio>/`), só com 2FA
+- [ ] **Segundo fator** para equipe/admin. **Decisão de 2026-10-11:** em vez de app
+      autenticador (TOTP), considerado complicado, o admin usa e-mail + senha e, em
+      **navegador novo**, um código de 6 dígitos por e-mail (`django-otp`/`otp_email`:
+      10 min, uso único, espera progressiva após erros, 1 min entre envios). Acertando,
+      o navegador fica confiável por 30 dias (cookie assinado, HttpOnly, Secure, SameSite=Lax,
+      só no caminho do admin, ligado ao usuário e invalidado ao trocar a senha).
+      Em dev (DEBUG) não há código. Teste: `contas/tests/test_acesso_admin.py`.
+      **Risco aceito até a etapa 6:** sem envio de e-mail configurado, `ADMIN_CODIGO_EMAIL=False`
+      e o admin fica só com senha (+ endereço secreto + axes) também em produção. Ligar o
+      código antes do lançamento é obrigatório. Risco que permanece depois: quem invadir o
+      e-mail da equipe passa no código (por isso o e-mail precisa de senha forte e 2FA no provedor).
+      Para anunciantes: opcional (Sprint 1)
+- [x] Bloqueio por tentativas de login (`django-axes`): 5 erros (mesmo e-mail + IP) → 1 hora
+      bloqueado. Teste: `contas/tests/test_bloqueio.py`. *Pendente:* espera progressiva
+      (hoje é fixa) e, na etapa 8, ler o IP real do `X-Forwarded-For` atrás do Nginx
+- [x] Admin do Django em URL não óbvia (`ADMIN_URL` no `.env`, `/admin/` = 404)
+- [x] Grupos sem caminho para virar superusuário (`is_superuser` só leitura para não superusuário)
 - [ ] Sessão: `SESSION_COOKIE_SECURE`, `HTTPONLY`, `SAMESITE=Lax`, expira em 2 semanas
 - [ ] Confirmação de e-mail no cadastro; reset de senha com token de uso único
 

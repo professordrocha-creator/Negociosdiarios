@@ -26,6 +26,9 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 |---|---|---|---|---|
 | Nome, e-mail, senha (hash Argon2), data de criação e do último acesso (`contas.Usuario`) | Anunciante | Conta e acesso | Execução de contrato (V) | Enquanto ativo + 6 meses |
 | Nome, e-mail, senha (hash Argon2), data de criação e do último acesso (`contas.Usuario`) | Equipe (staff) | Acesso ao painel e auditoria das ações | Legítimo interesse (IX) / contrato de trabalho ou prestação de serviço (V) | Enquanto na equipe + 6 meses |
+| Código de acesso por e-mail e código de emergência (`otp_email`, `otp_static`): código temporário, validade, horário do último envio/uso e contagem de erros | Equipe (staff) | Confirmar navegador novo no login do admin | Legítimo interesse (IX) / segurança (art. 46) | Código some ao ser usado ou vencer (10 min); o registro do dispositivo fica enquanto a pessoa estiver na equipe. **Nunca** entram na exportação "Meus dados" (são credenciais) |
+| Cookie "navegador confiável" do admin (id do usuário + resumo da senha, assinado; sem IP nem e-mail) | Equipe (staff) | Não pedir código de novo no mesmo navegador | Legítimo interesse (IX) / cookie essencial de segurança (sem consentimento) | 30 dias no navegador; inválido ao trocar a senha |
+| Tentativas de login com erro: e-mail digitado, IP, navegador, data/hora (`axes.AccessAttempt`) | Quem tenta entrar no admin | Bloquear ataque de senha | Legítimo interesse (IX) / segurança (art. 46) | Até 1 hora (fim do bloqueio), apagadas no login certo ou no desbloqueio. Logins certos **não** são gravados pelo axes |
 | CPF (corretor autônomo) | Anunciante | Emissão de nota e verificação | Obrigação legal (II) / contrato (V) | 5 anos após último pagamento (fiscal) |
 | CRECI / CNPJ | Anunciante | Verificação profissional | Contrato (V) / legítimo interesse (IX) | Enquanto ativo + 5 anos |
 | Telefone/WhatsApp público | Anunciante | Contato com clientes | Contrato (V) | Enquanto ativo |

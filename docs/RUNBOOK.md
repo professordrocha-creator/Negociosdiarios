@@ -1,7 +1,70 @@
 # Runbook — procedimentos
 
 > Passo a passo para quando algo precisar ser feito (ou der errado).
-> Os comandos são preenchidos na Sprint 0, quando o servidor existir.
+> Os comandos de servidor são preenchidos na Sprint 0, quando o servidor existir.
+
+## Acesso ao admin (login, bloqueio e emergência)
+
+O admin fica em `https://<site>/<ADMIN_URL>/` (valor no `.env`; em dev,
+`http://localhost:8000/<ADMIN_URL>/`). `/admin/` dá 404 de propósito.
+
+Como o login funciona:
+
+| Onde | O que pede |
+|---|---|
+| Dev (`DJANGO_DEBUG=True`) | E-mail e senha. |
+| Produção com `ADMIN_CODIGO_EMAIL=False` (até a etapa 6) | E-mail e senha. |
+| Produção com `ADMIN_CODIGO_EMAIL=True` (depois da etapa 6) | E-mail e senha. Em **navegador novo**, uma segunda tela pede o **código de 6 dígitos** enviado ao e-mail (vale 10 minutos, uma vez só). Acertou: aquele navegador fica **confiável por 30 dias** e não pede código de novo. |
+
+Trocar a senha invalida todos os navegadores confiáveis (todos voltam a pedir código).
+
+Os comandos abaixo são para dev. No servidor, os mesmos comandos rodam com o
+compose de produção (etapa 8): `docker compose -f docker-compose.prod.yml exec web python manage.py ...`.
+
+### 1. Primeiro acesso
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+Abra o admin e entre com o e-mail e a senha. Em produção com código ligado, confira o
+e-mail, digite o código na tela "Confirme que é você" e pronto.
+
+### 2. O código não chegou
+- Veja a caixa de spam e espere 1 minuto; depois use **reenviar o código** (há um
+  intervalo mínimo de 1 minuto entre envios).
+- Vale sempre o **último** código enviado; o anterior deixa de valer.
+- Depois de vários códigos errados, o sistema faz esperar alguns segundos entre
+  tentativas. Aguarde e tente de novo.
+- O e-mail não sai de jeito nenhum (servidor de e-mail fora do ar)? Use o
+  código de emergência (item 4).
+
+### 3. Bloqueado por senha errada (django-axes)
+5 senhas erradas seguidas com o mesmo e-mail, do mesmo IP, bloqueiam o login por
+**1 hora** (aparece "Acesso bloqueado temporariamente"). Quem erra de outro IP não
+tranca você. Para liberar na hora:
+```bash
+docker compose exec web python manage.py axes_reset_username seu@email.com
+```
+Outras opções: esperar 1 hora; ou outra pessoa do grupo Administrador apaga a linha
+em **Axes → Access attempts**. Para ver quem está bloqueado:
+`docker compose exec web python manage.py axes_list_attempts`.
+Esqueceu a senha? `docker compose exec web python manage.py changepassword seu@email.com`.
+
+### 4. Emergência: sem acesso ao e-mail (ou o e-mail não sai)
+Só funciona com acesso ao servidor (SSH na VPS), e é por isso que é seguro.
+1. Entrar no servidor por SSH e ir para a pasta do projeto.
+2. Rodar:
+   ```bash
+   docker compose -f docker-compose.prod.yml exec web python manage.py redefinir_acesso seu@email.com
+   ```
+   O comando desbloqueia o login (axes) e mostra um **código de emergência** de
+   8 letras e números, de **uso único**. Rodar de novo gera outro e invalida o anterior.
+3. Entrar no admin com e-mail e senha e, na tela "Confirme que é você", digitar o
+   código de emergência no lugar do código do e-mail.
+4. Notebook ou celular roubado, ou senha vazada? Troque a senha: isso também
+   derruba todos os navegadores confiáveis.
+   `... python manage.py changepassword seu@email.com`
+5. Perdeu também o acesso SSH? Usar o console web do provedor da VPS para entrar no
+   servidor e seguir do item 2.
 
 ## Deploy de nova versão
 1. Testes verdes no GitHub Actions.

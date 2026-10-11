@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Segunda tela do login do admin (só em produção, navegador novo): pede o código enviado por e-mail. #}
+{# Visual do login padrão do admin. Regras em contas/services.py; orquestração em config/admin_site.py. #}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/login.css' %}">{% endblock %}
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <p>Este navegador ainda não é conhecido. Digite o código de 6 dígitos que enviamos para
+    <strong>{{ email_mascarado }}</strong>. Depois disso, este navegador não pede código por um tempo.</p>
+
+  <form method="post" id="login-form">{% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="form-row">
+      {{ form.codigo.errors }}
+      {{ form.codigo.label_tag }} {{ form.codigo }}
+      <div class="help">{{ form.codigo.help_text }}</div>
+    </div>
+    <div class="submit-row">
+      <input type="submit" value="Entrar">
+    </div>
+  </form>
+
+  {# Formulário separado: reenviar não depende do campo do código. #}
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <p>Não chegou? Veja a caixa de spam ou
+      <button type="submit" name="reenviar" value="1" class="button">reenviar o código</button></p>
+  </form>
+
+  <form method="post" action="{% url 'admin:logout' %}">{% csrf_token %}
+    <p><button type="submit" class="button">Sair e entrar com outra conta</button></p>
+  </form>
+</div>
+{% endblock %}

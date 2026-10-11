@@ -88,19 +88,19 @@ def test_create_superuser_recusa_flags_inconsistentes():
         Usuario.objects.create_superuser(email="x@exemplo.com", password=SENHA, nome="X", is_staff=False)
 
 
-def test_login_por_email_ignora_maiusculas():
-    """authenticate() aceita o e-mail com qualquer caixa."""
+def test_login_por_email_ignora_maiusculas(rf):
+    """authenticate() aceita o e-mail com qualquer caixa (o axes exige a requisição)."""
     Usuario.objects.create_user(email="ana@exemplo.com", password=SENHA, nome="Ana Paula")
 
-    assert authenticate(username="ANA@Exemplo.com", password=SENHA) is not None
-    assert authenticate(username="ana@exemplo.com", password=SENHA_ERRADA) is None
+    assert authenticate(rf.post("/"), username="ANA@Exemplo.com", password=SENHA) is not None
+    assert authenticate(rf.post("/"), username="ana@exemplo.com", password=SENHA_ERRADA) is None
 
 
-def test_usuario_inativo_nao_entra():
+def test_usuario_inativo_nao_entra(rf):
     """Conta bloqueada (is_active=False) não autentica, mesmo com a senha certa."""
     Usuario.objects.create_user(email="bloq@exemplo.com", password=SENHA, nome="Bloqueado", is_active=False)
 
-    assert authenticate(username="bloq@exemplo.com", password=SENHA) is None
+    assert authenticate(rf.post("/"), username="bloq@exemplo.com", password=SENHA) is None
 
 
 def test_nomes_curto_e_completo():

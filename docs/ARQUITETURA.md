@@ -75,6 +75,11 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
 - Login por `email` (único, sempre em minúsculas); **sem** `username`, `first_name` e `last_name`
 - `nome`, `is_active`, `is_staff`, `is_superuser`, grupos/permissões, `last_login`, `criado_em`
 - Senha em hash Argon2. Mesmo modelo para anunciantes e equipe; o que cada um acessa vem dos grupos
+- Grupos Administrador, Moderador, Financeiro e Comercial (migration `contas/0002`, ver `docs/ADMINISTRACAO.md`)
+- Código de navegador novo do admin em tabelas do django-otp ligadas ao usuário:
+  `EmailDevice` (código por e-mail) e `StaticDevice`/`StaticToken` (código de emergência
+  gerado no servidor). Navegador confiável = cookie assinado (sem tabela). Tentativas de
+  login com erro em `axes.AccessAttempt` (temporárias)
 
 ### Anunciante (a "loja")
 - `tipo`: corretor_autonomo | imobiliaria | revenda | concessionaria | garagem

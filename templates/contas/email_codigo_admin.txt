@@ -1,0 +1,11 @@
+{% autoescape off %}Olá!
+
+Seu código para entrar no admin do Negócios Diários é:
+
+    {{ token }}
+
+Ele vale por {{ minutos }} minutos e só pode ser usado uma vez.
+Depois de digitar o código, este navegador não pedirá código de novo por um tempo.
+
+Não foi você? Alguém sabe a sua senha: troque-a o quanto antes.
+{% endautoescape %}
