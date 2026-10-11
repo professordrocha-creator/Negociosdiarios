@@ -14,7 +14,7 @@ login por e-mail. Visitantes não têm conta.
   criação, no `save()` e no login, para que "Joao@X.com" e "joao@x.com" sejam a mesma conta.
 - `usuario_para_axes(request, credentials)`: e-mail normalizado como "usuário" do
   django-axes (maiúsculas não dão tentativas extras; `axes_reset_username` acha sempre).
-- Acesso ao admin (navegador novo, só em produção com `ADMIN_CODIGO_EMAIL`):
+- Acesso ao admin (navegador novo, quando `ADMIN_CODIGO_EMAIL` está ligado; padrão: ligado):
   `codigo_admin_exigido()`, `acesso_verificado(request)`, `marcar_acesso_verificado(request)`,
   `enviar_codigo_email(usuario)` (6 dígitos, 10 min, uso único, 1 min entre envios),
   `verificar_codigo(usuario, codigo)` (código do e-mail ou de emergência),

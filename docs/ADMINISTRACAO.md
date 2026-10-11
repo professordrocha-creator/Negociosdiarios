@@ -54,12 +54,11 @@ Ninguém além do superusuário pode:
 
 ## Regras de segurança do admin
 - Endereço secreto (`ADMIN_URL` no `.env`); `/admin/` dá 404.
-- Login com e-mail e senha. Em produção, navegador novo confirma com um código de
-  6 dígitos enviado por e-mail (10 minutos, uso único) e fica confiável por 30 dias.
-  Em dev não há código. Decisão de 2026-10-11 (troca do app autenticador por este fluxo,
-  mais simples): ver `docs/SEGURANCA.md`.
-- **Até a etapa 6** (envio de e-mail) o código fica desligado (`ADMIN_CODIGO_EMAIL=False`):
-  o admin pede só e-mail e senha também em produção.
+- Login com e-mail e senha. Navegador novo confirma com um código de 6 dígitos enviado
+  por e-mail (10 minutos, uso único) e fica confiável por 30 dias. Em dev o e-mail chega
+  no Mailpit (http://localhost:8025); dá para desligar em dev com `ADMIN_CODIGO_EMAIL=False`.
+  Decisão de 2026-10-11 (troca do app autenticador por este fluxo, mais simples): ver
+  `docs/SEGURANCA.md`.
 - 5 senhas erradas seguidas (mesmo e-mail e mesmo IP) bloqueiam o login por 1 hora.
 - Procedimentos (primeiro acesso, desbloqueio, sem acesso ao e-mail): `docs/RUNBOOK.md`.
 - Superusuário só para o Daniel.

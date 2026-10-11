@@ -22,11 +22,20 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
 - `liberar_cidades(queryset)`: libera cidades e devolve quantas mudaram.
 - `cidades_atendidas()`: cidades que aparecem no site (liberadas, de estados
   liberados), agrupadas por estado e em ordem alfabética. Usado pela home.
+- `email_para_fila(mensagem)` / `enviar_email_agora(dados)`: transformam um e-mail do
+  Django em dados simples para a fila e o enviam de verdade no worker (anexos ainda não).
 
-## Comando
+## E-mail e tarefas (Celery)
+- `email.py`: `CeleryEmailBackend` (o `EMAIL_BACKEND` do projeto). Todo `send_mail()`
+  vira uma tarefa na fila; a página não espera o SMTP.
+- `tasks.py`: `enviar_email` (envia com `EMAIL_BACKEND_REAL`; 5 novas tentativas se o
+  SMTP falhar) e `batimento` (exemplo; o beat roda a cada 5 minutos).
+
+## Comandos
 ```bash
 docker compose exec web python manage.py carregar_municipios
 # opções: --estados ARQ --municipios ARQ --uf-liberada MT
+docker compose exec web python manage.py testar_celery   # fila + worker funcionando?
 ```
 
 ## Admin

@@ -2,7 +2,25 @@
 
 import pytest
 
+from config.celery import app as celery_app
 from contas.services import SESSAO_ACESSO_VERIFICADO
+
+
+@pytest.fixture(autouse=True)
+def ambiente_de_teste_previsivel(settings):
+    """Padrões dos testes, independentes do .env de quem roda (dev, CI):
+
+    - código por e-mail do admin desligado (os testes de acesso ligam com o fixture `producao`);
+    - e-mail em memória (`mail.outbox`) e mídia local; Celery roda as tarefas na hora,
+      sem precisar de worker (`task_always_eager`).
+    """
+    settings.ADMIN_CODIGO_EMAIL = False
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    celery_app.conf.task_always_eager = True
+    celery_app.conf.task_eager_propagates = True
+    yield
+    celery_app.conf.task_always_eager = False
+    celery_app.conf.task_eager_propagates = False
 
 
 @pytest.fixture

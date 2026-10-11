@@ -8,17 +8,17 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 
 ### Autenticação e contas
 - [ ] Login por e-mail; senhas com **Argon2** (`argon2-cffi`) e validadores de força
-- [ ] **Segundo fator** para equipe/admin. **Decisão de 2026-10-11:** em vez de app
+- [x] **Segundo fator** para equipe/admin. **Decisão de 2026-10-11:** em vez de app
       autenticador (TOTP), considerado complicado, o admin usa e-mail + senha e, em
       **navegador novo**, um código de 6 dígitos por e-mail (`django-otp`/`otp_email`:
       10 min, uso único, espera progressiva após erros, 1 min entre envios). Acertando,
       o navegador fica confiável por 30 dias (cookie assinado, HttpOnly, Secure, SameSite=Lax,
       só no caminho do admin, ligado ao usuário e invalidado ao trocar a senha).
-      Em dev (DEBUG) não há código. Teste: `contas/tests/test_acesso_admin.py`.
-      **Risco aceito até a etapa 6:** sem envio de e-mail configurado, `ADMIN_CODIGO_EMAIL=False`
-      e o admin fica só com senha (+ endereço secreto + axes) também em produção. Ligar o
-      código antes do lançamento é obrigatório. Risco que permanece depois: quem invadir o
-      e-mail da equipe passa no código (por isso o e-mail precisa de senha forte e 2FA no provedor).
+      Ligado por padrão em todos os ambientes (`ADMIN_CODIGO_EMAIL=True`; em dev o e-mail cai
+      no Mailpit). Desligar só em dev, se quiser; **em produção nunca**. O e-mail sai pela fila
+      do Celery (etapa 6). Teste: `contas/tests/test_acesso_admin.py`.
+      Risco que permanece: quem invadir o e-mail da equipe passa no código (por isso o
+      e-mail precisa de senha forte e 2FA no provedor).
       Para anunciantes: opcional (Sprint 1)
 - [x] Bloqueio por tentativas de login (`django-axes`): 5 erros (mesmo e-mail + IP) → 1 hora
       bloqueado. Teste: `contas/tests/test_bloqueio.py`. *Pendente:* espera progressiva

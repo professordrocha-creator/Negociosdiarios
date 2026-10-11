@@ -19,13 +19,14 @@ O admin fica em `https://<site>/<ADMIN_URL>/` (valor no `.env`; em dev,
 
 Como o login funciona:
 
-| Onde | O que pede |
+| `ADMIN_CODIGO_EMAIL` | O que pede |
 |---|---|
-| Dev (`DJANGO_DEBUG=True`) | E-mail e senha. |
-| Produção com `ADMIN_CODIGO_EMAIL=False` (até a etapa 6) | E-mail e senha. |
-| Produção com `ADMIN_CODIGO_EMAIL=True` (depois da etapa 6) | E-mail e senha. Em **navegador novo**, uma segunda tela pede o **código de 6 dígitos** enviado ao e-mail (vale 10 minutos, uma vez só). Acertou: aquele navegador fica **confiável por 30 dias** e não pede código de novo. |
+| `True` (padrão; obrigatório em produção) | E-mail e senha. Em **navegador novo**, uma segunda tela pede o **código de 6 dígitos** enviado ao e-mail (vale 10 minutos, uma vez só). Acertou: aquele navegador fica **confiável por 30 dias** e não pede código de novo. Em dev o e-mail chega no **Mailpit**: http://localhost:8025 |
+| `False` (só em dev, se quiser) | E-mail e senha. |
 
 Trocar a senha invalida todos os navegadores confiáveis (todos voltam a pedir código).
+O e-mail com o código sai pela fila do Celery: se o `worker` estiver parado, o código
+não chega (veja "E-mails e tarefas do Celery" abaixo).
 
 Os comandos abaixo são para dev. No servidor, os mesmos comandos rodam com o
 compose de produção (etapa 8): `docker compose -f docker-compose.prod.yml exec web python manage.py ...`.
@@ -34,10 +35,13 @@ compose de produção (etapa 8): `docker compose -f docker-compose.prod.yml exec
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
-Abra o admin e entre com o e-mail e a senha. Em produção com código ligado, confira o
-e-mail, digite o código na tela "Confirme que é você" e pronto.
+Abra o admin e entre com o e-mail e a senha. Na tela "Confirme que é você", pegue o
+código no e-mail (em dev: http://localhost:8025) e digite. Pronto: este navegador não
+pede código por 30 dias.
 
 ### 2. O código não chegou
+- Em dev, olhe o Mailpit (http://localhost:8025), não a sua caixa de e-mail real.
+- O `worker` está de pé? `docker compose ps` e `docker compose logs --tail=50 worker`.
 - Veja a caixa de spam e espere 1 minuto; depois use **reenviar o código** (há um
   intervalo mínimo de 1 minuto entre envios).
 - Vale sempre o **último** código enviado; o anterior deixa de valer.
@@ -74,6 +78,34 @@ Só funciona com acesso ao servidor (SSH na VPS), e é por isso que é seguro.
    `... python manage.py changepassword seu@email.com`
 5. Perdeu também o acesso SSH? Usar o console web do provedor da VPS para entrar no
    servidor e seguir do item 2.
+
+## E-mails e tarefas do Celery
+
+Todo e-mail do sistema vai para a fila (Redis) e o container `worker` envia. A
+página nunca espera o servidor de e-mail. O worker também roda as tarefas agendadas
+(beat), como a de exemplo `batimento`, a cada 5 minutos.
+
+- **O Celery está funcionando?**
+  ```bash
+  docker compose exec web python manage.py testar_celery
+  ```
+  Deve responder "Celery funcionando: o worker executou a tarefa às ...". No log do
+  worker (`docker compose logs -f worker`) aparece "Batimento do Celery" a cada 5 minutos.
+- **Ver os e-mails em dev:** http://localhost:8025 (Mailpit). Nada sai para a internet.
+- **E-mail não chegou:** veja `docker compose logs --tail=100 worker`. Falha de SMTP
+  faz a tarefa tentar de novo 5 vezes (30 s, 1, 2, 4 e 8 min; ~15 min no total). Confira as
+  variáveis `EMAIL_*` do `.env`. O log nunca mostra endereços de e-mail (LGPD).
+- **Worker parado:** `docker compose up -d worker`. Os e-mails que estavam na fila
+  saem quando ele voltar.
+- **Produção (SMTP do provedor):** no `.env`, `EMAIL_HOST`, `EMAIL_PORT=587`,
+  `EMAIL_USE_TLS=True`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` e `DEFAULT_FROM_EMAIL`
+  com um remetente do domínio (SPF, DKIM e DMARC configurados, `docs/BOAS_PRATICAS.md`).
+  Brevo: `smtp-relay.brevo.com`. Amazon SES: `email-smtp.<região>.amazonaws.com`.
+
+## Mídia (fotos e arquivos enviados)
+- Dev: `ARMAZENAMENTO=local`, arquivos na pasta `media/` do projeto (fora do Git).
+- Produção: `ARMAZENAMENTO=s3` com as variáveis `S3_*` do Cloudflare R2 (`.env.example`).
+  Decisão e detalhes: `docs/adr/0002-armazenamento-midia.md`.
 
 ## Deploy de nova versão
 1. Testes verdes no GitHub Actions.

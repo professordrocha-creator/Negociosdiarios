@@ -44,8 +44,9 @@ Dependências: `uv add <pacote>` (ou `uv add --dev <pacote>`) e depois
 `docker compose up -d --build` para refazer a imagem.
 
 - Site: http://localhost:8000 (saúde: http://localhost:8000/saude/)
-- MinIO (mídia em dev): http://localhost:9001
-- Mailpit (e-mails de teste): http://localhost:8025
+- Mailpit (todos os e-mails de dev, inclusive o código do admin): http://localhost:8025
+- Mídia em dev: pasta `media/` (`ARMAZENAMENTO=local`); em produção, Cloudflare R2 (`docs/adr/0002`)
+- Celery: `docker compose logs -f worker`; teste rápido `docker compose exec web python manage.py testar_celery`
 
 ## Licença e confidencialidade
 Projeto privado — © D'Rocha Soluções. Todos os direitos reservados.

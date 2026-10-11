@@ -32,6 +32,41 @@ def normalizar_admin_url(valor: str) -> str:
     return caminho + "/"
 
 
+def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple[dict, str, Path]:
+    """Monta STORAGES, MEDIA_URL e MEDIA_ROOT conforme ARMAZENAMENTO (docs/adr/0002).
+
+    - "local": arquivos na pasta media/ do projeto (dev). Servidos pelo Django só com DEBUG.
+    - "s3": bucket S3 compatível (produção: Cloudflare R2) via django-storages. Com
+      S3_DOMINIO_PUBLICO (ex.: midia.negociosdiarios.com.br), as URLs são públicas e
+      cacheáveis; sem ele, saem assinadas e temporárias.
+    Qualquer outro valor derruba a subida, para um erro de digitação não gravar fotos no lugar errado.
+    """
+    estaticos = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
+    media_root = base_dir / "media"
+    if tipo == "local":
+        midia = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+        return {"default": midia, "staticfiles": estaticos}, "/media/", media_root
+    if tipo == "s3":
+        dominio = env("S3_DOMINIO_PUBLICO", default="")
+        opcoes = {
+            "bucket_name": env("S3_BUCKET"),
+            "endpoint_url": env("S3_ENDPOINT_URL"),
+            "access_key": env("S3_ACCESS_KEY"),
+            "secret_key": env("S3_SECRET_KEY"),
+            "region_name": env("S3_REGIAO", default="auto"),  # o R2 usa "auto"
+            "signature_version": "s3v4",
+            "default_acl": None,  # o R2 não usa ACL; a visibilidade é do bucket/domínio
+            "file_overwrite": False,  # nome repetido ganha sufixo, nunca apaga foto de outro anúncio
+            "custom_domain": dominio or None,
+            "querystring_auth": not dominio,
+            "object_parameters": {"CacheControl": "public, max-age=31536000, immutable"},
+        }
+        midia = {"BACKEND": "storages.backends.s3.S3Storage", "OPTIONS": opcoes}
+        media_url = f"https://{dominio}/" if dominio else "/media/"
+        return {"default": midia, "staticfiles": estaticos}, media_url, media_root
+    raise ImproperlyConfigured(f"ARMAZENAMENTO inválido: {tipo!r}. Use 'local' (dev) ou 's3' (produção).")
+
+
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_ALLOWED_HOSTS=(list, []),
@@ -148,10 +183,10 @@ SITE_CIDADE_SEDE = "Tangará da Serra, MT"
 # O endereço secreto só tira o admin da mira de robôs; a proteção é a senha + código + axes.
 ADMIN_URL = normalizar_admin_url(env("ADMIN_URL"))
 
-# Código por e-mail para navegador novo. Só vale em produção (nunca com DEBUG ligado) e só se
-# ligado no .env. Fica DESLIGADO até a etapa 6 configurar o envio de e-mail: até lá o admin
-# pede só e-mail e senha também em produção (risco aceito, docs/SEGURANCA.md).
-ADMIN_CODIGO_EMAIL = env.bool("ADMIN_CODIGO_EMAIL", default=False)
+# Código por e-mail para navegador novo. Ligado por padrão em todos os ambientes (em dev o
+# e-mail cai no Mailpit, http://localhost:8025). Para desligar em dev: ADMIN_CODIGO_EMAIL=False
+# no .env. Em produção NUNCA desligar (docs/SEGURANCA.md).
+ADMIN_CODIGO_EMAIL = env.bool("ADMIN_CODIGO_EMAIL", default=True)
 ADMIN_CODIGO_MINUTOS = 10  # validade do código enviado por e-mail
 ADMIN_NAVEGADOR_CONFIAVEL_DIAS = 30  # depois do código certo, o navegador não pede código por 30 dias
 
@@ -175,10 +210,51 @@ AXES_LOCKOUT_TEMPLATE = "contas/bloqueado.html"
 # Nginx, passar a ler o X-Forwarded-For com AXES_IPWARE_PROXY_COUNT = 1.
 AXES_IPWARE_META_PRECEDENCE_ORDER = ["REMOTE_ADDR"]
 
-# --- Arquivos estáticos -------------------------------------------------------
+# --- Arquivos estáticos e mídia -----------------------------------------------
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Mídia (fotos de anúncios, logos): ARMAZENAMENTO=local (dev, pasta media/) ou s3 (produção,
+# Cloudflare R2 ou outro S3 compatível). Decisão em docs/adr/0002-armazenamento-midia.md.
+ARMAZENAMENTO = env("ARMAZENAMENTO", default="local")
+STORAGES, MEDIA_URL, MEDIA_ROOT = armazenamento_de_midia(ARMAZENAMENTO, env, BASE_DIR)
+
+# --- Celery (tarefas assíncronas e agendadas) ---------------------------------
+# Fila e resultados no Redis. Tarefas de exemplo e de e-mail em core/tasks.py.
+CELERY_BROKER_URL = env("REDIS_URL")
+CELERY_RESULT_BACKEND = env("REDIS_URL")
+CELERY_RESULT_EXPIRES = 60 * 60  # resultados só servem para conferência; somem em 1 hora
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TIME_LIMIT = 5 * 60  # nenhuma tarefa trava o worker por mais de 5 minutos
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Se o Redis cair, a página desiste de enfileirar em ~2 s em vez de ficar presa.
+CELERY_TASK_PUBLISH_RETRY_POLICY = {
+    "max_retries": 2,
+    "interval_start": 0,
+    "interval_step": 0.5,
+    "interval_max": 1,
+}
+CELERY_BEAT_SCHEDULE = {
+    # Exemplo: prova que o agendador está vivo (aparece no log do worker a cada 5 minutos).
+    "batimento": {"task": "core.tasks.batimento", "schedule": 5 * 60},
+}
+
+# --- E-mail --------------------------------------------------------------------
+# Todo e-mail vai para a fila do Celery (core.email.CeleryEmailBackend) e o worker envia
+# com o backend real: SMTP. Em dev, o SMTP é o Mailpit (http://localhost:8025); em produção,
+# o provedor (Brevo, Amazon SES...) pelas variáveis abaixo. Nunca envia dentro da página.
+EMAIL_BACKEND = "core.email.CeleryEmailBackend"
+EMAIL_BACKEND_REAL = env("EMAIL_BACKEND_REAL", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", default="mailpit")
+EMAIL_PORT = env.int("EMAIL_PORT", default=1025)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)  # STARTTLS na porta 587 (Brevo, SES)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)  # TLS direto na porta 465
+EMAIL_TIMEOUT = 15
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=f"{SITE_NOME} <nao-responda@negociosdiarios.com.br>")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # --- Cabeçalhos de segurança (valem em todos os ambientes) --------------------
 X_FRAME_OPTIONS = "DENY"

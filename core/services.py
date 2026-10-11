@@ -5,9 +5,11 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.geos import Point
+from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection
 from django.db import DatabaseError, connection, transaction
 from django.db.models import QuerySet
 from django.utils.text import slugify
@@ -174,3 +176,50 @@ def mostrar_link_admin(usuario: AbstractBaseUser | AnonymousUser | None, debug: 
     produção nunca recebem o endereço.
     """
     return debug or bool(getattr(usuario, "is_staff", False))
+
+
+# --- E-mail pela fila do Celery ---------------------------------------------------------
+
+
+def email_para_fila(mensagem: EmailMessage) -> dict:
+    """Transforma um e-mail do Django em dados simples (JSON) para viajar pela fila do Celery.
+
+    Anexos ainda não são aceitos: nenhum e-mail do sistema usa e eles pesariam na
+    fila (quando precisar, guardar o arquivo no storage e mandar só o caminho).
+    """
+    if mensagem.attachments:
+        raise ValueError("E-mail com anexo ainda não é suportado pela fila (core.services.email_para_fila).")
+    return {
+        "subject": str(mensagem.subject),
+        "body": str(mensagem.body),
+        "from_email": mensagem.from_email,
+        "to": list(mensagem.to),
+        "cc": list(mensagem.cc),
+        "bcc": list(mensagem.bcc),
+        "reply_to": list(mensagem.reply_to),
+        "headers": dict(mensagem.extra_headers),
+        "alternatives": [[str(conteudo), tipo] for conteudo, tipo in getattr(mensagem, "alternatives", [])],
+        "content_subtype": mensagem.content_subtype,
+    }
+
+
+def enviar_email_agora(dados: dict) -> int:
+    """Envia de verdade (SMTP em produção, Mailpit em dev) um e-mail vindo da fila.
+
+    Usa `EMAIL_BACKEND_REAL`; só o worker do Celery chama isto. Devolve quantos
+    e-mails saíram (0 ou 1). Erros de SMTP sobem para a tarefa tentar de novo.
+    """
+    mensagem = EmailMultiAlternatives(
+        subject=dados["subject"],
+        body=dados["body"],
+        from_email=dados["from_email"],
+        to=dados["to"],
+        cc=dados["cc"],
+        bcc=dados["bcc"],
+        reply_to=dados["reply_to"],
+        headers=dados["headers"],
+        alternatives=[tuple(alternativa) for alternativa in dados["alternatives"]],
+        connection=get_connection(settings.EMAIL_BACKEND_REAL),
+    )
+    mensagem.content_subtype = dados["content_subtype"]
+    return mensagem.send()

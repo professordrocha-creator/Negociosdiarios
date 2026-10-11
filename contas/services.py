@@ -68,10 +68,10 @@ def usuario_para_axes(request: HttpRequest, credentials: dict | None) -> str:
 def codigo_admin_exigido() -> bool:
     """Diz se o admin pede código por e-mail para navegador novo.
 
-    Só em produção (DEBUG desligado) e só com `ADMIN_CODIGO_EMAIL` ligado no .env.
-    Em dev, ou até a etapa 6 configurar o envio de e-mail, basta e-mail e senha.
+    Ligado por padrão em todos os ambientes (`ADMIN_CODIGO_EMAIL`, padrão True); em dev
+    o e-mail cai no Mailpit. Desligar só em dev, se quiser, com ADMIN_CODIGO_EMAIL=False.
     """
-    return settings.ADMIN_CODIGO_EMAIL and not settings.DEBUG
+    return settings.ADMIN_CODIGO_EMAIL
 
 
 def acesso_verificado(request: HttpRequest) -> bool:
@@ -143,8 +143,9 @@ def enviar_codigo_email(usuario: Usuario) -> ResultadoEnvio:
     O código vale `ADMIN_CODIGO_MINUTOS` minutos e uma vez só; um código novo
     substitui o anterior. Entre um envio e outro há espera mínima de 60 s
     ("aguarde"), para ninguém lotar a caixa de e-mail apertando "reenviar".
-    Se o envio falhar, devolve "falhou" (o log não leva o e-mail, LGPD); a saída
-    de emergência é o `redefinir_acesso` no servidor (docs/RUNBOOK.md).
+    O e-mail vai para a fila do Celery (a página não espera o SMTP); se nem a fila
+    aceitar (Redis fora do ar), devolve "falhou" (o log não leva o e-mail, LGPD).
+    Saída de emergência: `redefinir_acesso` no servidor (docs/RUNBOOK.md).
     """
     dispositivo, _ = EmailDevice.objects.get_or_create(user=usuario, name=NOME_CODIGO_EMAIL)
     permitido, _ = dispositivo.generate_is_allowed()

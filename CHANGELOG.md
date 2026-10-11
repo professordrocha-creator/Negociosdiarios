@@ -4,6 +4,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versões: 
 
 ## [Não lançado]
 ### Adicionado
+- Celery + Redis: worker com beat no Docker, tarefa de exemplo `batimento` (a cada 5 min) e comando `testar_celery`. E-mail sempre pela fila (`core.email.CeleryEmailBackend`, 5 novas tentativas se o SMTP falhar): Mailpit v1.31.5 em dev, SMTP do provedor (Brevo/SES) em produção. Mídia por `ARMAZENAMENTO=local|s3` com django-storages (pasta local em dev, Cloudflare R2 em produção; ADR 0002); MinIO removido. Código do login do admin ligado por padrão também em dev (chega no Mailpit; `ADMIN_CODIGO_EMAIL=False` desliga).
 - Admin protegido: endereço secreto (`ADMIN_URL`, `/admin/` dá 404), login com e-mail e senha e, em produção, código de 6 dígitos por e-mail para navegador novo (navegador confiável por 30 dias; desligado até a etapa 6 via `ADMIN_CODIGO_EMAIL`), bloqueio após 5 senhas erradas com django-axes, grupos Administrador/Moderador/Financeiro/Comercial e comando de emergência `redefinir_acesso` (ver `docs/RUNBOOK.md`).
 - Layout base (topo, rodapé, ajuda) convertido do protótipo, home provisória com cidades atendidas, página Sobre e favicon. Fontes hospedadas localmente (sem Google Fonts).
 - Estados e cidades do IBGE (`Estado`, `Cidade` com ponto PostGIS), CSV em `core/dados/`, comando `carregar_municipios` idempotente e admin com liberação em massa.

@@ -65,13 +65,24 @@ def painel_abre(client) -> bool:
     return client.get(reverse("admin:index")).status_code == 200
 
 
-# --- Sem código: dev e produção antes da etapa 6 -------------------------------------
+# --- Liga/desliga ------------------------------------------------------------------------
 
 
-def test_em_dev_entra_so_com_email_e_senha(client, equipe, settings):
-    """Com DEBUG ligado não existe código, mesmo com ADMIN_CODIGO_EMAIL ligado."""
+def test_em_dev_tambem_pede_codigo_quando_ligado(client, equipe, settings):
+    """Desde a etapa 6 o código vale em dev também (o e-mail cai no Mailpit)."""
     settings.DEBUG = True
     settings.ADMIN_CODIGO_EMAIL = True
+
+    resposta = entrar(client)
+
+    assert resposta["Location"].startswith(reverse("admin:verificar"))
+    assert len(mail.outbox) == 1
+
+
+def test_com_codigo_desligado_entra_so_com_senha(client, equipe, settings):
+    """ADMIN_CODIGO_EMAIL=False (opção para dev): só e-mail e senha, nenhum e-mail enviado."""
+    settings.DEBUG = True
+    settings.ADMIN_CODIGO_EMAIL = False
 
     resposta = entrar(client)
 
@@ -80,15 +91,34 @@ def test_em_dev_entra_so_com_email_e_senha(client, equipe, settings):
     assert not mail.outbox
 
 
-def test_em_producao_com_codigo_desligado_entra_so_com_senha(client, equipe, settings):
-    """Até a etapa 6 (e-mail configurado), ADMIN_CODIGO_EMAIL fica desligado: só e-mail e senha."""
-    settings.DEBUG = False
-    settings.ADMIN_CODIGO_EMAIL = False
+def test_codigo_do_login_passa_pela_fila_do_celery(client, equipe, producao):
+    """Com o backend de produção (fila do Celery), o código chega do mesmo jeito."""
+    producao.EMAIL_BACKEND = "core.email.CeleryEmailBackend"
+    producao.EMAIL_BACKEND_REAL = "django.core.mail.backends.locmem.EmailBackend"
 
     entrar(client)
 
-    assert painel_abre(client)
-    assert not mail.outbox
+    assert len(mail.outbox) == 1
+    assert re.search(r"\b\d{6}\b", mail.outbox[0].body)
+
+
+def test_fila_fora_do_ar_avisa_na_tela(client, equipe, producao, monkeypatch):
+    """Redis fora do ar: o código não sai, mas a tela avisa e o login não dá erro 500."""
+
+    def fila_fora(*args, **kwargs):
+        raise ConnectionError("redis fora do ar")
+
+    producao.EMAIL_BACKEND = "core.email.CeleryEmailBackend"
+    monkeypatch.setattr("core.tasks.enviar_email.delay", fila_fora)
+
+    resposta = client.post(
+        reverse("admin:login"),
+        {"username": EMAIL, "password": SENHA, "next": reverse("admin:index")},
+        follow=True,
+    )
+
+    assert resposta.status_code == 200
+    assert "Não conseguimos enviar o e-mail agora" in resposta.content.decode()
 
 
 def test_tela_de_login_tem_so_email_e_senha(client):

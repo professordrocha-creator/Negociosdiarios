@@ -31,12 +31,19 @@ Por quê:
                 │ PostGIS   │       └─────┬─────┘
                 └───────────┘             │
                                     ┌─────▼─────┐
-                                    │  storage  │  MinIO (dev) / S3-compatível (prod)
+                                    │  storage  │  pasta media/ (dev) / Cloudflare R2 (prod)
                                     └───────────┘
 ```
 
 Regras: só o `nginx` expõe porta para fora. `db` e `redis` ficam na rede
 interna. Containers rodam com usuário não-root.
+
+- **Celery** (`config/celery.py`): fila e resultados no Redis; tarefas em `<app>/tasks.py`;
+  agenda no `CELERY_BEAT_SCHEDULE`. Em dev o `worker` roda com `-B` (beat junto).
+- **E-mail:** todo `send_mail()` passa pelo backend `core.email.CeleryEmailBackend`, que só
+  enfileira; o worker envia com SMTP (Mailpit em dev, Brevo/SES em produção) e tenta de
+  novo se falhar. Nenhuma página espera servidor de e-mail.
+- **Mídia:** `ARMAZENAMENTO=local|s3` (ADR 0002).
 
 ## 3. Apps Django
 
@@ -139,7 +146,7 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
 ## 8. Imagens
 
 Upload → Celery redimensiona (1600px + miniatura 400px), converte para WebP,
-**remove EXIF** e grava no storage S3-compatível. Original é descartado.
+**remove EXIF** e grava no storage (pasta local em dev, R2 em produção). Original é descartado.
 Limites: 10 fotos por anúncio, 8 MB por arquivo, só JPEG/PNG/WebP/HEIC.
 
 ## 9. Abrangência geográfica (pronto para vários estados)
@@ -203,7 +210,7 @@ download de fotos só de URLs http(s) públicas, com timeout e tamanho máximo.
 
 | Ambiente | Onde | Observação |
 |---|---|---|
-| dev | Docker no seu PC | MinIO, Mailpit, `DEBUG=True` |
+| dev | Docker no seu PC | Mídia na pasta `media/`, Mailpit, worker Celery com beat, `DEBUG=True` |
 | produção | VPS (4 GB RAM é suficiente no início) | Nginx + Let's Encrypt, backups diários off-site |
 
 Staging pode ser o mesmo VPS com outro compose project até haver clientes.
