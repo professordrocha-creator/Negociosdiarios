@@ -28,16 +28,22 @@ cadastro e falam com o anunciante pelo WhatsApp.
 
 ## Rodando localmente
 
-Pré-requisitos: Docker Desktop (ou Docker Engine + Compose), VS Code.
+Pré-requisitos: Docker Desktop (ou Docker Engine + Compose), VS Code e
+[uv](https://docs.astral.sh/uv/) (`winget install astral-sh.uv` no Windows).
 
 ```bash
+uv tool install pre-commit && pre-commit install   # uma vez: ganchos de commit
+uv sync                       # opcional: venv local para o editor (autocomplete)
 cp .env.example .env          # ajuste os valores
 docker compose up -d --build
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
-- Site: http://localhost:8000
+Dependências: `uv add <pacote>` (ou `uv add --dev <pacote>`) e depois
+`docker compose up -d --build` para refazer a imagem.
+
+- Site: http://localhost:8000 (saúde: http://localhost:8000/saude/)
 - MinIO (mídia em dev): http://localhost:9001
 - Mailpit (e-mails de teste): http://localhost:8025
 

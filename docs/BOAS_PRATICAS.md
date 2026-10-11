@@ -26,7 +26,8 @@ Checklist de decisões que são baratas agora e caras de corrigir depois.
 ## 4. Rotina de desenvolvimento
 - [ ] Git + GitHub privado desde o 1º arquivo; commits pequenos em português ("anuncios: limite por plano").
 - [ ] CI no GitHub Actions (`.github/workflows/ci.yml`): ruff + pytest em todo push.
-- [ ] Dependências com versão fixa (`requirements.txt` gerado por `pip-tools` ou `uv`).
+- [x] Dependências com versão fixa via **`uv`**: declaradas em `pyproject.toml`, travadas em `uv.lock`
+      (versionado). Adicionar com `uv add <pacote>` (ou `uv add --dev`); nunca editar o `uv.lock` à mão.
 - [ ] **Migration aplicada nunca é editada.** Mudou o banco → nova migration.
 - [ ] Backup antes de todo deploy (o script de deploy faz isso sozinho).
 - [ ] Comando `python manage.py popular_exemplos` cria lojas/anúncios fictícios para teste e demonstração.

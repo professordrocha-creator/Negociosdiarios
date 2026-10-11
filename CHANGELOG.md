@@ -4,6 +4,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versões: 
 
 ## [Não lançado]
 ### Adicionado
+- Esqueleto Django 5.2 (settings por variáveis de ambiente, fuso America/Cuiaba), Dockerfile sem root, dependências com uv e rota `/saude/`.
 - Documentação inicial: arquitetura, segurança, LGPD, pagamentos, publicidade, administração, boas práticas, runbook.
 - Protótipo navegável (7 telas, incluindo admin de cidades) em `prototipo/`.
 - Docker Compose de desenvolvimento.

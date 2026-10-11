@@ -1,4 +1,27 @@
-# Configuração das ferramentas de qualidade (ruff e pytest).
+# Projeto, dependências (gerenciadas pelo uv) e ferramentas de qualidade (ruff e pytest).
+# Adicionar pacote: `uv add <pacote>` (ou `uv add --dev <pacote>`). Nunca editar uv.lock à mão.
+[project]
+name = "negocios-diarios"
+version = "0.0.0"
+description = "Classificados regionais de imóveis e veículos (Mato Grosso)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "django>=5.2,<5.3",
+    "django-environ>=0.12",
+    "gunicorn>=23",
+    "psycopg[binary]>=3.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-django>=4.9",
+    "ruff>=0.7",
+]
+
+[tool.uv]
+package = false   # é uma aplicação, não uma biblioteca: não empacotar
+
 [tool.ruff]
 line-length = 110
 target-version = "py312"
