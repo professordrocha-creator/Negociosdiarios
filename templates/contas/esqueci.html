@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{# "Esqueci minha senha" (contas.views.EsqueciSenhaView). Só clientes; a equipe usa o RUNBOOK. #}
+
+{% block titulo %}Esqueci minha senha{% endblock %}
+{% block descricao %}Receba por e-mail um link para criar uma nova senha da área do anunciante.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-entrar mx-auto">
+    <h1 class="h3 mb-1">Esqueci minha senha</h1>
+    <p class="text-suave">Informe o e-mail da sua conta. Enviaremos um link para criar uma senha nova.</p>
+    <form method="post" class="d-grid gap-3" novalidate>
+      {% csrf_token %}
+      <div>
+        <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% for erro in form.email.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </div>
+      <button class="btn btn-nd" type="submit">Enviar link</button>
+    </form>
+    <p class="small mt-3 mb-0"><a href="{% url 'contas:entrar' %}">Voltar para Entrar</a></p>
+  </div>
+</main>
+{% endblock %}

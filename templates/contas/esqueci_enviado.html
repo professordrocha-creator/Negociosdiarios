@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# Resposta sempre igual, exista ou não a conta (não revela quais e-mails estão cadastrados). #}
+
+{% block titulo %}Verifique seu e-mail{% endblock %}
+{% block descricao %}Link para criar uma nova senha enviado.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-entrar mx-auto">
+    <h1 class="h3">Verifique seu e-mail</h1>
+    <p>Se existir uma conta de anunciante com esse e-mail, enviamos um link para criar uma senha nova. O link vale por pouco tempo e funciona uma vez só.</p>
+    <p class="small text-suave mb-0">Não chegou? Veja a caixa de spam ou <a href="{% url 'core:contato' %}">fale com a gente</a>.</p>
+  </div>
+</main>
+{% endblock %}

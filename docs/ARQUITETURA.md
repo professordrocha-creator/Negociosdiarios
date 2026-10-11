@@ -84,6 +84,8 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
 - Senha em hash Argon2. Mesmo modelo para anunciantes e equipe; o que cada um acessa vem dos grupos
 - Grupos Administrador, Moderador, Financeiro e Comercial (migration `contas/0002`, ver `docs/ADMINISTRACAO.md`)
 - `demo` (de `core.models.MarcaDemo`): conta fictícia criada pelo `criar_dados_demo`
+- `email_confirmado_em`: quando clicou no link de confirmação (vazio = não confirmou; sem isso a loja não vai
+  para aprovação). `AceiteDocumento` (usuário, documento termos | privacidade, versão, data) guarda os aceites
 - Código de navegador novo do admin em tabelas do django-otp ligadas ao usuário:
   `EmailDevice` (código por e-mail) e `StaticDevice`/`StaticToken` (código de emergência
   gerado no servidor). Navegador confiável = cookie assinado (sem tabela). Tentativas de

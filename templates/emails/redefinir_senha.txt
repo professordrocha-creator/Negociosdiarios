@@ -1,0 +1,11 @@
+{% autoescape off %}Olá!
+
+Recebemos um pedido para criar uma nova senha da sua conta no {{ site_nome }}.
+Abra o link abaixo para escolher a nova senha:
+
+{{ protocol }}://{{ domain }}{% url 'contas:redefinir' uidb64=uid token=token %}
+
+O link vale por {{ horas }} horas e funciona uma vez só. Ao trocar a senha, as sessões abertas em outros aparelhos são encerradas.
+
+Não pediu? Ignore este e-mail: sua senha continua a mesma.
+{% endautoescape %}

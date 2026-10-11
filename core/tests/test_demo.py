@@ -29,7 +29,7 @@ from core.services import (
 
 DADOS = ler_demo()
 SENHA_DEMO = "Senha-Demo-Forte-123"
-USUARIOS_DEMO = 3 + 6  # equipe (3) + um login por loja (6)
+USUARIOS_DEMO = 3 + 7  # equipe (3) + um login por loja (6 ativas + 1 pendente)
 SENHA_REAL = "Outra-Senha-Forte-1"
 TANGARA, BARRA_DO_BUGRES = 5107958, 5101704
 
@@ -328,7 +328,7 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
 
     apagado = apagar_dados_demo()
 
-    assert apagado.usuarios == USUARIOS_DEMO and apagado.cidades == 3 and apagado.anunciantes == 6
+    assert apagado.usuarios == USUARIOS_DEMO and apagado.cidades == 3 and apagado.anunciantes == 7
     assert list(Usuario.objects.all()) == [daniel]
     assert list(Cidade.objects.filter(liberada=True).values_list("codigo_ibge", flat=True)) == [TANGARA]
     assert not Cidade.objects.filter(liberada_pela_demo=True).exists()
@@ -362,15 +362,19 @@ def test_mostrar_demo_aceita_true_true_e_1(monkeypatch, valor, esperado):
 # --- Anunciantes de demonstração (Sprint 1) ---------------------------------------------
 
 
-def test_criar_dados_demo_cria_os_6_anunciantes_ativos(dev):
-    """As 6 lojas do demo.json viram anunciantes ativos, marcados como demo, com documento válido."""
+def test_criar_dados_demo_cria_6_lojas_ativas_e_1_pendente(dev):
+    """As 6 lojas do demo.json ficam ativas e a de "lojas_pendentes" fica pendente (para testar a
+    aprovação no admin). Todas marcadas como demo, com e-mail confirmado e documento válido."""
     from anunciantes.models import Anunciante
 
     criar_dados_demo(SENHA_DEMO)
 
     lojas = Anunciante.objects.filter(demo=True)
-    assert lojas.count() == 6
-    assert set(lojas.values_list("status", flat=True)) == {"ativo"}
+    assert lojas.count() == 7
+    assert lojas.filter(status="ativo").count() == 6
+    pendente = lojas.get(status="pendente")
+    assert pendente.slug == "cerrado-novo-imoveis" and pendente.tipo == "imobiliaria"
+    assert all(loja.usuario.email_confirmado_em for loja in lojas)
     corretor = lojas.get(slug="paulo-mendes-corretor")
     assert (corretor.documento_tipo, corretor.documento_numero) == ("creci", "CRECI/MT 08765-F")
     revenda = lojas.get(slug="garagem-rota-358")

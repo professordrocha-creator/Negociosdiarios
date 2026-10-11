@@ -38,6 +38,10 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Institucionais | `/privacidade/`, `/termos/`, `/cookies/` | Documentos legais (rascunhos até a revisão do advogado) |
 | Contato | `/contato/` | WhatsApp, e-mails e endereço do site |
 | Entrar | `/entrar/` | Login do anunciante (e-mail e senha; só loja ativa; equipe usa o admin) |
+| Esqueci a senha | `/entrar/esqueci/` → e-mail → `/entrar/redefinir/<uid>/<token>/` | Nova senha por link de uso único (só clientes) |
+| Cadastro | `/cadastro/` | Conta + loja + aceite dos Termos e da Privacidade; nasce pendente |
+| Cadastro recebido | `/cadastro/obrigado/` | Próximos passos (confirmar e-mail, análise, aprovação) |
+| Confirmar e-mail | `/cadastro/confirmar/<token>/` | Link do e-mail (48 h, uso único); vencido: pede outro |
 | Em breve | `/imoveis/`, `/veiculos/`, `/lojas/`, `/denunciar/` | Páginas ainda em construção (nunca 404) |
 
 ## 3. Painel do anunciante (`/painel/`)

@@ -24,7 +24,13 @@ verificadores), `normalizar_creci` (`CRECI/UF 12345-F`, sufixo F ou J), `normali
 - `criar_anunciantes_demo(lojas, senha)` / `apagar_anunciantes_demo()`: chamados pelo
   `criar_dados_demo` / `apagar_dados_demo` do core.
 
-**Telas:** `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
+**Cadastro e confirmação:** `cadastrar_anunciante(dados)` (conta + loja pendente + aceites, e-mails
+"confirme" e "recebemos"), `link_confirmacao`/`confirmar_email(token)` (assinado, 48 h, uso único;
+avisa a equipe), `reenviar_confirmacao(email)`, `destinatarios_equipe()`. `aprovar` exige e-mail
+confirmado e manda "Sua loja foi aprovada"; `suspender` manda "Sua loja foi suspensa" com o motivo.
+Formulário `CadastroForm` com campo-armadilha `site_empresa` (honeypot).
+
+**Telas:** `/cadastro/`, `/cadastro/obrigado/`, `/cadastro/confirmar/<token>/` (e `.../reenviar/`), `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
 de `request.user.anunciante`, nunca da URL). Login do cliente em `/entrar/` (app `contas`).
 
 **Admin:** lista com filtro por status/tipo/demo; status e motivo só mudam pelas ações

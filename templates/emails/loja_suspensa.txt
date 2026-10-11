@@ -1,0 +1,9 @@
+{% autoescape off %}Olá,
+
+A loja "{{ anunciante.nome_publico }}" foi suspensa no {{ site_nome }}.
+
+Motivo: {{ motivo }}
+
+Enquanto a loja estiver suspensa, o painel e os anúncios ficam fora do ar.
+Para entender o motivo ou regularizar, fale com a gente: {{ link_contato }}
+{% endautoescape %}

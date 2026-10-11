@@ -14,10 +14,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser, Group
 from django.contrib.gis.geos import Point
-from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection
+from django.core.cache import cache
+from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection, send_mail
 from django.db import DatabaseError, connection, transaction
 from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.crypto import salted_hmac
 from django.utils.text import slugify
 
 from core.models import Cidade, Estado
@@ -482,7 +486,7 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         # Import aqui: o core é a base dos apps; cada app cuida dos próprios dados demo.
         from anunciantes.services import criar_anunciantes_demo
 
-        lojas = criar_anunciantes_demo(dados["lojas"], senha)
+        lojas = criar_anunciantes_demo(dados["lojas"] + dados.get("lojas_pendentes", []), senha)
     return ResumoDemo(usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas)
 
 
@@ -640,6 +644,11 @@ TEXTOS_AJUDA = {
         "Anúncios no plano: publicados + em análise. Pausados não contam no limite.",
         'Plano, estatísticas e faturas chegam nas próximas etapas (marcados como "em breve").',
     ],
+    "cadastro": [
+        "Corretor autônomo se cadastra com o CRECI; imobiliárias, revendas e garagens com o CNPJ.",
+        "Depois de enviar, confirme o e-mail pelo link que mandamos (vale 48 horas).",
+        "Com o e-mail confirmado, a equipe confere o documento e avisa por e-mail quando aprovar.",
+    ],
     "em_breve": [
         "Esta parte do site ainda está em construção; o link já existe para você saber o que vem aí.",
     ],
@@ -649,3 +658,41 @@ TEXTOS_AJUDA = {
 def textos_ajuda(tela: str) -> list[str]:
     """Itens da caixa "Sobre esta tela" para a tela pedida (lista vazia = a caixa não aparece)."""
     return TEXTOS_AJUDA.get(tela, [])
+
+
+# --- Limite por IP e e-mails com modelo ---------------------------------------------------
+
+
+def limite_por_ip_excedido(request: HttpRequest, acao: str, limite: int, janela_segundos: int = 3600) -> bool:
+    """Conta mais uma tentativa da `acao` vinda deste IP e diz se passou do `limite` na janela.
+
+    Proteção contra robô (cadastro, "esqueci minha senha"...). Contador no cache (Redis),
+    que vale para todos os processos. O IP entra na chave só como resumo (HMAC): o IP em
+    si não é guardado (LGPD). O IP vem do REMOTE_ADDR (o X-Forwarded-For pode ser
+    forjado; atrás do Nginx, etapa de produção, ajustar junto com o axes).
+    """
+    ip = request.META.get("REMOTE_ADDR", "")
+    chave = f"limite:{acao}:{salted_hmac('core.limite_por_ip', ip).hexdigest()[:24]}"
+    cache.add(chave, 0, timeout=janela_segundos)
+    try:
+        tentativas = cache.incr(chave)
+    except ValueError:  # a chave venceu entre o add e o incr
+        cache.set(chave, 1, timeout=janela_segundos)
+        tentativas = 1
+    return tentativas > limite
+
+
+def enviar_email_modelo(modelo: str, assunto: str, para: list[str], contexto: dict | None = None) -> int:
+    """Monta o texto a partir de templates/emails/<modelo>.txt e envia (pela fila do Celery).
+
+    O template recebe `site_nome` e `site_url` (para links absolutos) além do `contexto`.
+    Destinatários vazios não enviam nada. Devolve quantos e-mails entraram na fila.
+    """
+    destinatarios = [email for email in para if email]
+    if not destinatarios:
+        return 0
+    corpo = render_to_string(
+        f"emails/{modelo}.txt",
+        {"site_nome": settings.SITE_NOME, "site_url": settings.SITE_URL, **(contexto or {})},
+    )
+    return send_mail(f"{assunto} · {settings.SITE_NOME}", corpo, None, destinatarios)

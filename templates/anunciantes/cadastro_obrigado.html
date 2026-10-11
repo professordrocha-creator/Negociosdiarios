@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Depois do cadastro: próximos passos. Também é a tela que o robô do honeypot vê (nada foi criado). #}
+
+{% block titulo %}Cadastro recebido{% endblock %}
+{% block descricao %}Próximos passos depois do cadastro da loja no {{ site.nome }}.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-cadastro mx-auto">
+    <span class="nd-valor-ico mb-3">{% icone "verificado" %}</span>
+    <h1 class="h3">Cadastro recebido!</h1>
+    <p>Falta pouco para sua loja entrar no ar:</p>
+    <ol class="d-grid gap-2">
+      <li><b>Confirme seu e-mail.</b> Enviamos um link para o e-mail informado. Ele vale por {{ horas }} horas e funciona uma vez só. Não chegou? Veja a caixa de spam.</li>
+      <li><b>Análise do cadastro.</b> Depois da confirmação, nossa equipe confere o CRECI ou o CNPJ.</li>
+      <li><b>Aprovação.</b> Você recebe um e-mail avisando que a loja foi aprovada, com o link para entrar.</li>
+      <li><b>Pronto.</b> Entre com seu e-mail e senha e comece a anunciar.</li>
+    </ol>
+    <p class="small text-suave mb-0">Dúvidas? <a href="{% url 'core:contato' %}">Fale com a gente</a>.</p>
+  </div>
+</main>
+{% endblock %}

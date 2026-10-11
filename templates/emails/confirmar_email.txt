@@ -1,0 +1,11 @@
+{% autoescape off %}Olá, {{ nome }}!
+
+Para continuar o cadastro da sua loja no {{ site_nome }}, confirme seu e-mail abrindo o link abaixo:
+
+{{ link }}
+
+O link vale por {{ horas }} horas e funciona uma vez só.
+Depois da confirmação, nossa equipe confere o CRECI ou o CNPJ e avisa por e-mail quando a loja for aprovada.
+
+Não fez este cadastro? Ignore este e-mail.
+{% endautoescape %}

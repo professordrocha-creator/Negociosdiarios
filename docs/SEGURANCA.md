@@ -27,7 +27,9 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
       rodapé só em dev ou para a equipe logada
 - [x] Grupos sem caminho para virar superusuário (`is_superuser` só leitura para não superusuário)
 - [ ] Sessão: `SESSION_COOKIE_SECURE`, `HTTPONLY`, `SAMESITE=Lax`, expira em 2 semanas
-- [ ] Confirmação de e-mail no cadastro; reset de senha com token de uso único
+- [x] Confirmação de e-mail no cadastro (link assinado, 48 h, uso único); reset de senha com token
+      de uso único (2 h), que encerra as outras sessões; reset público só para clientes (equipe:
+      `changepassword`). Testes: `anunciantes/tests/test_confirmacao.py`, `contas/tests/test_senha.py`
 
 ### Autorização
 - [ ] Toda queryset do painel do anunciante filtrada pelo dono (`anunciante=request.user.anunciante`)
@@ -48,7 +50,9 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] `X_FRAME_OPTIONS = "DENY"`, `SECURE_CONTENT_TYPE_NOSNIFF`, `Referrer-Policy: strict-origin-when-cross-origin`
 
 ### Abuso
-- [ ] Rate limit no Nginx (`limit_req`) para login, cadastro, denúncia e busca
+- [ ] Rate limit no Nginx (`limit_req`) para login, cadastro, denúncia e busca. *Já na aplicação:*
+      limite por IP no cadastro, no "esqueci minha senha" e no reenvio de confirmação (cache Redis,
+      IP só como hash), campo-armadilha (honeypot) no cadastro, sem captcha de terceiros
 - [ ] reCAPTCHA **não**: usar Cloudflare Turnstile ou hCaptcha só no cadastro e denúncia
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
 

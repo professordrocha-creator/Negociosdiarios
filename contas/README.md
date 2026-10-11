@@ -26,6 +26,9 @@ login por e-mail. Visitantes não têm conta.
 **Login do cliente:** `/entrar/` (`views.EntrarView`, formulário `EntrarForm`) pede só e-mail e
 senha (com o bloqueio do axes) e aceita apenas anunciante ativo; equipe, conta sem loja e loja
 pendente/suspensa recebem mensagem que diz o que fazer. `/sair/` (POST) encerra a sessão.
+"Esqueci minha senha" em `/entrar/esqueci/` (`EsqueciSenhaForm`: só clientes; `NovaSenhaForm`:
+ao salvar zera o bloqueio do axes; trocar a senha derruba as outras sessões). Modelos novos:
+`Usuario.email_confirmado_em` e `AceiteDocumento` (documento, versão e data do aceite).
 
 **Grupos:** Administrador, Moderador, Financeiro e Comercial, criados pela migration de
 dados `0002_grupos_permissao` (ver `docs/ADMINISTRACAO.md`).

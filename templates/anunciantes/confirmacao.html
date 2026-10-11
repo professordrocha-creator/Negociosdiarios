@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Resultado do link "confirme seu e-mail" (situacao: confirmado, ja_confirmado, vencido, invalido) #}
+{# e do pedido de link novo (reenviado). Vencido/inválido oferecem pedir outro link. #}
+
+{% block titulo %}Confirmação de e-mail{% endblock %}
+{% block descricao %}Confirmação do e-mail do cadastro de anunciante.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-cadastro mx-auto">
+    {% if situacao == "confirmado" %}
+      <h1 class="h3">E-mail confirmado!</h1>
+      <p>Seu cadastro foi para análise. Nossa equipe vai conferir o CRECI ou o CNPJ e avisar por e-mail quando a loja for aprovada.</p>
+    {% elif situacao == "ja_confirmado" %}
+      <h1 class="h3">Este e-mail já foi confirmado</h1>
+      <p>O link é de uso único e já foi usado. Se a loja já foi aprovada, é só <a href="{% url 'contas:entrar' %}">entrar</a>.</p>
+    {% elif situacao == "reenviado" %}
+      <h1 class="h3">Pedido recebido</h1>
+      <p>Se houver um cadastro aguardando confirmação com esse e-mail, enviamos um link novo. Veja também a caixa de spam.</p>
+    {% else %}
+      <h1 class="h3">{% if situacao == "vencido" %}Este link venceu{% else %}Link inválido{% endif %}</h1>
+      <p>{% if situacao == "vencido" %}O link de confirmação vale por {{ horas }} horas.{% else %}O link está incompleto ou foi alterado.{% endif %}
+        Peça um link novo:</p>
+      <form method="post" action="{% url 'anunciantes:reenviar_confirmacao' %}" class="d-flex flex-wrap gap-2">
+        {% csrf_token %}
+        <label class="visually-hidden" for="email-reenvio">E-mail do cadastro</label>
+        <input id="email-reenvio" class="form-control nd-campo-curto" type="email" name="email" placeholder="seu@email.com" required>
+        <button class="btn btn-nd" type="submit">Enviar link novo</button>
+      </form>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

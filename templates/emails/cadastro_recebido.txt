@@ -1,0 +1,11 @@
+{% autoescape off %}Olá!
+
+Recebemos o cadastro da loja "{{ anunciante.nome_publico }}" no {{ site_nome }}.
+
+Próximos passos:
+1. Confirme seu e-mail pelo link que enviamos em outra mensagem.
+2. Nossa equipe confere o {{ anunciante.get_documento_tipo_display }} informado.
+3. Você recebe um e-mail quando a loja for aprovada, com o link para entrar.
+
+Dúvidas: {{ site_url }}/contato/
+{% endautoescape %}

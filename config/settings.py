@@ -197,6 +197,20 @@ SITE_EMAIL_CONTATO = "contato@negociosdiarios.com.br"
 SITE_EMAIL_PRIVACIDADE = "privacidade@negociosdiarios.com.br"
 SITE_EMPRESA = "D'Rocha Soluções"
 SITE_CIDADE_SEDE = "Tangará da Serra, MT"
+# Endereço público do site, usado nos links dos e-mails (confirmação, aprovação, senha).
+SITE_URL = env("SITE_URL", default="http://localhost:8000").rstrip("/")
+
+# Versões dos documentos legais aceitos no cadastro (gravadas em contas.AceiteDocumento).
+# Mudou o texto de /termos/ ou /privacidade/? Suba a versão: novos aceites registram a nova.
+VERSAO_TERMOS = "2026-10-rascunho"
+VERSAO_PRIVACIDADE = "2026-10-rascunho"
+
+# Cadastro e recuperação de senha. Provisório: na Sprint 2 os limites vão para Configuracao.
+CONFIRMACAO_EMAIL_HORAS = 48  # validade do link "confirme seu e-mail"
+PASSWORD_RESET_TIMEOUT = 2 * 60 * 60  # link "esqueci minha senha" vale 2 horas (e uma vez só)
+LIMITE_CADASTROS_POR_HORA = 5  # por IP: cadastros enviados
+LIMITE_PEDIDOS_EMAIL_POR_HORA = 5  # por IP: "esqueci minha senha" e "reenviar confirmação"
+
 # Contatos públicos (página /contato/ e documentos legais). Vazios = a página mostra "em breve"
 # ou "a informar", nunca um dado inventado. WhatsApp em E.164 (ex.: +5565999999999).
 SITE_WHATSAPP = env("SITE_WHATSAPP", default="")
@@ -301,6 +315,17 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Cloudflare R2 ou outro S3 compatível). Decisão em docs/adr/0002-armazenamento-midia.md.
 ARMAZENAMENTO = env("ARMAZENAMENTO", default="local")
 STORAGES, MEDIA_URL, MEDIA_ROOT = armazenamento_de_midia(ARMAZENAMENTO, env, BASE_DIR)
+
+# --- Cache ---------------------------------------------------------------------
+# No Redis (e não na memória de cada processo): os limites por IP precisam valer para
+# todos os processos do Gunicorn ao mesmo tempo. Prefixo para não misturar com o Celery.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("REDIS_URL"),
+        "KEY_PREFIX": "nd",
+    }
+}
 
 # --- Celery (tarefas assíncronas e agendadas) ---------------------------------
 # Fila e resultados no Redis. Tarefas de exemplo e de e-mail em core/tasks.py.

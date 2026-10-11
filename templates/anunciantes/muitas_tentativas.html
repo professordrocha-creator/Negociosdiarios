@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Limite por IP atingido (cadastro, "esqueci minha senha", reenvio de confirmação): status 429. #}
+
+{% block titulo %}Muitas tentativas{% endblock %}
+{% block descricao %}Muitas tentativas seguidas.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-em-breve mx-auto text-center">
+    <span class="nd-valor-ico mx-auto mb-3">{% icone "relogio" %}</span>
+    <h1 class="h4">Muitas tentativas seguidas</h1>
+    <p>Por segurança, esperamos um pouco antes de aceitar novos envios desta conexão. Tente de novo em uma hora.</p>
+    <a class="btn btn-outline-secondary" href="{% url 'core:contato' %}">Fale com a gente</a>
+  </div>
+</main>
+{% endblock %}

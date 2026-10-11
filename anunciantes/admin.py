@@ -13,12 +13,44 @@ from anunciantes.services import aprovar, suspender
 from core.models import Cidade
 
 
+class AprovacaoFilter(admin.SimpleListFilter):
+    """Separa os pendentes: só quem já confirmou o e-mail está pronto para aprovação."""
+
+    title = "aprovação"
+    parameter_name = "aprovacao"
+
+    def lookups(self, request, model_admin):
+        """Opções do filtro."""
+        return [
+            ("aguardando", "Aguardando aprovação (e-mail confirmado)"),
+            ("sem_confirmacao", "Pendente: e-mail ainda não confirmado"),
+        ]
+
+    def queryset(self, request, queryset):
+        """Aplica a opção escolhida."""
+        pendentes = queryset.filter(status=Anunciante.Status.PENDENTE)
+        if self.value() == "aguardando":
+            return pendentes.filter(usuario__email_confirmado_em__isnull=False)
+        if self.value() == "sem_confirmacao":
+            return pendentes.filter(usuario__email_confirmado_em__isnull=True)
+        return queryset
+
+
 @admin.register(Anunciante)
 class AnuncianteAdmin(SimpleHistoryAdmin):
     """Anunciantes (lojas). A situação só muda pelas ações, que exigem motivo e ficam no histórico."""
 
-    list_display = ("nome_publico", "tipo", "documento_tipo", "documento_numero", "cidade", "status", "demo")
-    list_filter = ("status", "tipo", "demo")
+    list_display = (
+        "nome_publico",
+        "tipo",
+        "documento_tipo",
+        "documento_numero",
+        "cidade",
+        "status",
+        "email_confirmado",
+        "demo",
+    )
+    list_filter = (AprovacaoFilter, "status", "tipo", "demo")
     search_fields = ("nome_publico", "slug", "documento_numero", "usuario__email")
     list_select_related = ("cidade", "usuario")
     prepopulated_fields = {"slug": ("nome_publico",)}
@@ -37,6 +69,11 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
         if db_field.name == "cidade":
             kwargs["queryset"] = Cidade.objects.filter(liberada=True, uf__liberado=True).select_related("uf")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    @admin.display(description="e-mail confirmado", boolean=True, ordering="usuario__email_confirmado_em")
+    def email_confirmado(self, anunciante: Anunciante) -> bool:
+        """O anunciante já clicou no link de confirmação?"""
+        return anunciante.usuario.email_confirmado_em is not None
 
     def has_delete_permission(self, request: HttpRequest, obj: Anunciante | None = None) -> bool:
         """Anunciante nunca é apagado pelo admin (exclusão lógica: suspender)."""
@@ -58,10 +95,17 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
         """Primeiro mostra a tela do motivo; ao confirmar, aplica o serviço em cada anunciante."""
         form = MotivoStatusForm(request.POST if "aplicar" in request.POST else None, obrigatorio=obrigatorio)
         if "aplicar" in request.POST and form.is_valid():
+            feitos = 0
             for anunciante in queryset:
-                servico(anunciante, request.user, form.cleaned_data["motivo"])
+                try:
+                    servico(anunciante, request.user, form.cleaned_data["motivo"])
+                    feitos += 1
+                except ValueError as erro:  # ex.: aprovar quem não confirmou o e-mail
+                    self.message_user(request, str(erro), messages.WARNING)
             verbo = "aprovado(s)" if servico is aprovar else "suspenso(s)"
-            self.message_user(request, f"{queryset.count()} anunciante(s) {verbo}.", messages.SUCCESS)
+            self.message_user(
+                request, f"{feitos} anunciante(s) {verbo}; e-mail de aviso enviado.", messages.SUCCESS
+            )
             return None
         contexto = {
             **self.admin_site.each_context(request),

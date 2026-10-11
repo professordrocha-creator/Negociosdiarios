@@ -228,3 +228,10 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-tabela .mini { width: 64px; aspect-ratio: 4 / 3; border-radius: 6px; }
 .nd-tabela .mini svg { width: 40%; }
 .nd-dados-loja dt { font-weight: 600; color: var(--nd-texto-suave); }
+
+/* ---------- Cadastro de anunciante (/cadastro/) ---------- */
+.nd-cadastro { max-width: 720px; }
+.nd-cadastro fieldset legend { float: none; width: auto; }
+.nd-campo-curto { max-width: 280px; }
+/* Campo-armadilha (honeypot): fora da tela para pessoas, mas presente no HTML para robôs. */
+.nd-armadilha { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }

@@ -86,6 +86,22 @@
       "responsavel": "Beatriz Alves (demo)"
     }
   ],
+  "lojas_pendentes": [
+    {
+      "slug": "cerrado-novo-imoveis",
+      "nome": "Cerrado Novo Imóveis",
+      "tipo": "imobiliaria",
+      "status": "pendente",
+      "sigla": "CN",
+      "cor": 3,
+      "creci": "",
+      "cnpj": "90000006000151",
+      "cidade_ibge": 5107958,
+      "whatsapp": "+5565999990007",
+      "email": "contato@cerradonovo.demo.invalid",
+      "responsavel": "Nádia Cerqueira (demo)"
+    }
+  ],
   "anuncios": [
     {
       "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Casa",

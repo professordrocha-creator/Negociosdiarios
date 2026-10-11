@@ -12,6 +12,20 @@
 - Se o banco for recriado de propósito: `migrate`, `carregar_municipios`, `createsuperuser`
   e liberar as cidades no admin.
 
+## Cadastro de anunciante (fluxo e problemas comuns)
+Fluxo: `/cadastro/` → e-mails "Confirme seu e-mail" e "Recebemos seu cadastro" → clique no link
+(48 h, uso único) → a equipe recebe "Novo cadastro aguardando aprovação" → Admin → Anunciantes,
+filtro **Aprovação: aguardando aprovação** → ação **Aprovar** → o anunciante recebe "Sua loja foi
+aprovada" com o link de `/entrar/`. Suspender manda "Sua loja foi suspensa" com o motivo.
+- **E-mail de confirmação não chegou / venceu:** a tela do link vencido tem "Enviar link novo"; ou
+  o cadastro aparece no filtro "Pendente: e-mail ainda não confirmado" (não dá para aprovar antes).
+- **"Muitas tentativas seguidas" (429):** limite por IP de cadastros/pedidos por hora (settings
+  `LIMITE_*`); passa sozinho em 1 hora.
+- **Cliente esqueceu a senha:** `/entrar/esqueci/` (link de 2 h, uso único; trocar a senha derruba
+  as outras sessões e libera o bloqueio do axes). Equipe não usa esse caminho: `changepassword`.
+- **Nenhum e-mail sai:** o `worker` está de pé? (`docker compose ps`; ver "E-mails e tarefas do Celery").
+  Depois de instalar pacote novo, reconstruir as imagens: `docker compose up -d --build web worker`.
+
 ## Acesso ao admin (login, bloqueio e emergência)
 
 O admin fica em `https://<site>/<ADMIN_URL>/` (valor no `.env`; em dev,
@@ -88,7 +102,8 @@ Regra do projeto (CLAUDE.md): tudo é construído com dados fictícios até o la
    docker compose exec web python manage.py criar_dados_demo
    ```
    Libera as cidades da demonstração, cria as 6 lojas demo (anunciantes ativos que entram em
-   `/entrar/`, ex.: `paulo.mendes@demo.invalid`) e a equipe demo (`moderador@`, `financeiro@` e
+   `/entrar/`, ex.: `paulo.mendes@demo.invalid`), 1 loja pendente para testar a aprovação
+   (`contato@cerradonovo.demo.invalid`) e a equipe demo (`moderador@`, `financeiro@` e
    `comercial@demo.invalid`, senha = `DEMO_SENHA`), para testar os grupos no admin.
    O código de login deles cai no Mailpit.
 3. A home mostra a faixa "Dados de demonstração", destaques, recém-anunciados e lojas.

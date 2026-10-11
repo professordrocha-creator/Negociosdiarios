@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{# Nova senha pelo link do e-mail (contas.views.RedefinirSenhaView). Link usado ou vencido: validlink=False. #}
+
+{% block titulo %}Criar nova senha{% endblock %}
+{% block descricao %}Criar uma nova senha para a área do anunciante.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-entrar mx-auto">
+    {% if validlink %}
+      <h1 class="h3 mb-1">Criar nova senha</h1>
+      <p class="text-suave">Ao salvar, as sessões abertas em outros aparelhos serão encerradas.</p>
+      <form method="post" class="d-grid gap-3" novalidate>
+        {% csrf_token %}
+        {% for campo in form %}
+          <div>
+            <label class="form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% for erro in campo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-nd" type="submit">Salvar nova senha</button>
+      </form>
+    {% else %}
+      <h1 class="h3">Link inválido ou já usado</h1>
+      <p>O link para criar senha vale por pouco tempo e funciona uma vez só.</p>
+      <a class="btn btn-nd" href="{% url 'contas:esqueci' %}">Pedir um link novo</a>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

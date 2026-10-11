@@ -1,0 +1,7 @@
+{# Campo de formulário com rótulo, ajuda (help_text) e erros. Recebe "campo" (BoundField). #}
+<div>
+  <label class="form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+  {{ campo }}
+  {% if campo.help_text %}<div class="form-text">{{ campo.help_text }}</div>{% endif %}
+  {% for erro in campo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+</div>

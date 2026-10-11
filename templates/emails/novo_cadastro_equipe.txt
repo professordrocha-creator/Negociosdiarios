@@ -1,0 +1,10 @@
+{% autoescape off %}Novo cadastro aguardando aprovação (e-mail já confirmado):
+
+Loja: {{ anunciante.nome_publico }}
+Tipo: {{ anunciante.get_tipo_display }}
+{{ anunciante.get_documento_tipo_display }}: {{ anunciante.documento_numero }}
+Cidade: {{ anunciante.cidade }}
+
+Conferir o documento e aprovar ou recusar no admin:
+{{ link_admin }}
+{% endautoescape %}

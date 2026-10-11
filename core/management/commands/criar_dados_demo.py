@@ -29,9 +29,14 @@ class Command(BaseCommand):
         self.stdout.write(f"Equipe demo ({len(dados['equipe'])}), entra pelo admin:")
         for pessoa in dados["equipe"]:
             self.stdout.write(f"  {pessoa['email']}  (grupo {pessoa['grupo']})")
-        self.stdout.write(f"Lojas demo ({resumo.anunciantes}, ativas), entram em /entrar/ e veem o /painel/:")
+        self.stdout.write(f"Lojas demo ativas ({len(dados['lojas'])}), entram em /entrar/ e veem o /painel/:")
         for loja in dados["lojas"]:
             self.stdout.write(f"  {loja['email']}  ({loja['nome']})")
+        pendentes = dados.get("lojas_pendentes", [])
+        if pendentes:
+            self.stdout.write(f"Lojas demo pendentes ({len(pendentes)}), para testar a aprovação no admin:")
+            for loja in pendentes:
+                self.stdout.write(f"  {loja['email']}  ({loja['nome']})")
         self.stdout.write(
             f"Os {len(dados['anuncios'])} anúncios fictícios aparecem na home (MOSTRAR_DEMO=True) e no "
             "painel de cada loja; viram registros no banco na Sprint 3."

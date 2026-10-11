@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# Senha trocada (contas.views.RedefinirSenhaConcluidoView). #}
+
+{% block titulo %}Senha alterada{% endblock %}
+{% block descricao %}Senha da área do anunciante alterada.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-entrar mx-auto">
+    <h1 class="h3">Senha alterada</h1>
+    <p>Pronto! Use a nova senha para entrar. As sessões abertas em outros aparelhos foram encerradas.</p>
+    <a class="btn btn-nd" href="{% url 'contas:entrar' %}">Entrar</a>
+  </div>
+</main>
+{% endblock %}

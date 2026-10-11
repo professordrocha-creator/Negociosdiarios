@@ -34,8 +34,8 @@
     </form>
 
     <hr>
-    <p class="small mb-1">Esqueceu a senha? <a href="{% url 'core:contato' %}">Fale com a gente</a> (a recuperação pelo próprio site chega em breve).</p>
-    <p class="small mb-0">Ainda não anuncia? <a href="{% url 'core:planos' %}">Conheça os planos</a>.</p>
+    <p class="small mb-1"><a href="{% url 'contas:esqueci' %}">Esqueci minha senha</a></p>
+    <p class="small mb-0">Ainda não anuncia? <a href="{% url 'anunciantes:cadastro' %}">Cadastre sua loja</a> ou <a href="{% url 'core:planos' %}">conheça os planos</a>.</p>
   </div>
 </main>
 {% endblock %}

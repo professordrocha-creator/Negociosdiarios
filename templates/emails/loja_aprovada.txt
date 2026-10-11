@@ -1,0 +1,9 @@
+{% autoescape off %}Boa notícia!
+
+A loja "{{ anunciante.nome_publico }}" foi aprovada no {{ site_nome }}.
+
+Entre com seu e-mail e senha para acessar o painel:
+{{ link_entrar }}
+
+Bons negócios!
+{% endautoescape %}

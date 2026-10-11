@@ -69,6 +69,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin, MarcaDemo):
         help_text="Permite entrar no painel do administrador. O que pode fazer lá depende dos grupos.",
     )
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
+    email_confirmado_em = models.DateTimeField(
+        "e-mail confirmado em",
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Quando a pessoa clicou no link de confirmação. Vazio = ainda não confirmou.",
+    )
 
     objects = UsuarioManager()
 
@@ -102,3 +109,31 @@ class Usuario(AbstractBaseUser, PermissionsMixin, MarcaDemo):
     def get_short_name(self) -> str:
         """Primeiro nome, para saudações ("Olá, Maria")."""
         return self.nome.split(" ")[0] if self.nome else ""
+
+
+class AceiteDocumento(models.Model):
+    """Prova de que a pessoa aceitou um documento legal (Termos ou Privacidade) numa versão.
+
+    Gravado no cadastro: qual documento, qual versão e quando. Sem IP (LGPD: só o
+    necessário; data e versão bastam para saber o que foi aceito). Nunca editado.
+    """
+
+    class Documento(models.TextChoices):
+        TERMOS = "termos", "Termos de Uso"
+        PRIVACIDADE = "privacidade", "Política de Privacidade"
+
+    usuario = models.ForeignKey(
+        Usuario, on_delete=models.CASCADE, related_name="aceites", verbose_name="usuário"
+    )
+    documento = models.CharField("documento", max_length=20, choices=Documento.choices)
+    versao = models.CharField("versão", max_length=40)
+    aceito_em = models.DateTimeField("aceito em", default=timezone.now, editable=False)
+
+    class Meta:
+        verbose_name = "aceite de documento"
+        verbose_name_plural = "aceites de documentos"
+        ordering = ["-aceito_em"]
+
+    def __str__(self) -> str:
+        """Ex.: 'Termos de Uso v2026-10 em 11/10/2026'."""
+        return f"{self.get_documento_display()} v{self.versao} em {self.aceito_em:%d/%m/%Y}"
