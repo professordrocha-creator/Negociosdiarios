@@ -4,8 +4,7 @@
       "Read(./.env)",
       "Read(./media/**)",
       "Read(./staticfiles/**)",
-      "Read(./node_modules/**)",
-      "Read(./**/migrations/**)"
+      "Read(./node_modules/**)"
     ]
   }
 }

@@ -5,6 +5,8 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.geos import Point
 from django.db import DatabaseError, connection, transaction
 from django.db.models import QuerySet
@@ -161,3 +163,14 @@ def cidades_atendidas() -> list[EstadoAtendido]:
             grupos[cidade.uf_id] = EstadoAtendido(estado=cidade.uf, cidades=[])
         grupos[cidade.uf_id].cidades.append(cidade)
     return list(grupos.values())
+
+
+def mostrar_link_admin(usuario: AbstractBaseUser | AnonymousUser | None, debug: bool) -> bool:
+    """Diz se o rodapé mostra o atalho para o admin.
+
+    O endereço do admin é secreto (ADMIN_URL): publicá-lo para todos entregaria o
+    alvo a robôs. Por isso o link só sai no HTML em dev (DEBUG ligado, no PC do
+    desenvolvedor) ou para quem já é da equipe e está logado. Visitantes em
+    produção nunca recebem o endereço.
+    """
+    return debug or bool(getattr(usuario, "is_staff", False))

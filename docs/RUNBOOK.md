@@ -3,10 +3,19 @@
 > Passo a passo para quando algo precisar ser feito (ou der errado).
 > Os comandos de servidor são preenchidos na Sprint 0, quando o servidor existir.
 
+## Banco de dev: não apagar sem querer
+- **Nunca** use `docker compose down -v` em dev, a não ser que queira **apagar o banco**:
+  o `-v` remove o volume `negocios-diarios_pgdata` (usuários, cidades liberadas, tudo).
+- Para parar ou reiniciar sem perder nada: `docker compose down` (sem `-v`) ou `docker compose restart`.
+- O nome do projeto é fixo (`name: negocios-diarios` no `docker-compose.yml`), então o
+  volume é o mesmo mesmo que a pasta mude de nome.
+- Se o banco for recriado de propósito: `migrate`, `carregar_municipios`, `createsuperuser`
+  e liberar as cidades no admin.
+
 ## Acesso ao admin (login, bloqueio e emergência)
 
 O admin fica em `https://<site>/<ADMIN_URL>/` (valor no `.env`; em dev,
-`http://localhost:8000/<ADMIN_URL>/`). `/admin/` dá 404 de propósito.
+`http://localhost:8000/<ADMIN_URL>/`, ou o link "Admin" no rodapé). `/admin/` dá 404 de propósito.
 
 Como o login funciona:
 

@@ -23,7 +23,8 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [x] Bloqueio por tentativas de login (`django-axes`): 5 erros (mesmo e-mail + IP) → 1 hora
       bloqueado. Teste: `contas/tests/test_bloqueio.py`. *Pendente:* espera progressiva
       (hoje é fixa) e, na etapa 8, ler o IP real do `X-Forwarded-For` atrás do Nginx
-- [x] Admin do Django em URL não óbvia (`ADMIN_URL` no `.env`, `/admin/` = 404)
+- [x] Admin do Django em URL não óbvia (`ADMIN_URL` no `.env`, `/admin/` = 404); link no
+      rodapé só em dev ou para a equipe logada
 - [x] Grupos sem caminho para virar superusuário (`is_superuser` só leitura para não superusuário)
 - [ ] Sessão: `SESSION_COOKIE_SECURE`, `HTTPONLY`, `SAMESITE=Lax`, expira em 2 semanas
 - [ ] Confirmação de e-mail no cadastro; reset de senha com token de uso único

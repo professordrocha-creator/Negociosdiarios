@@ -1,5 +1,10 @@
 # Ambiente de DESENVOLVIMENTO. Produção usa docker-compose.prod.yml (Sprint 0).
 # Só o "web" expõe porta; banco e redis ficam na rede interna.
+
+# Nome fixo do projeto: o volume do banco é sempre "negocios-diarios_pgdata",
+# mesmo que a pasta seja clonada com outro nome (senão nasceria um banco vazio novo).
+name: negocios-diarios
+
 services:
   db:
     image: postgis/postgis:16-3.4        # PostgreSQL + PostGIS (geolocalização)

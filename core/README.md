@@ -48,6 +48,8 @@ docker compose exec web python manage.py carregar_municipios
 - Ícones: `{% load nd %}` e `{% icone "casa" %}` (`templatetags/nd.py`).
 - Context processor `site` (`context_processors.py`): `{{ site.nome }}`, `slogan`,
   `linha_regiao`, `email_contato`, `email_privacidade`, `empresa`, `cidade_sede`.
+  Também expõe `mostrar_link_admin` (`services.mostrar_link_admin`): o rodapé só mostra
+  o atalho "Admin" em dev (DEBUG) ou para a equipe logada; o endereço do admin é secreto.
   Por enquanto lê `SITE_*`
   do settings; na Sprint 1 passa a ler o modelo `Configuracao`.
 - `static/`: Bootstrap 5.3.3 (CSS e JS locais, licença MIT), `nd.css` e os

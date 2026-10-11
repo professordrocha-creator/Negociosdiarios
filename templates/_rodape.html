@@ -36,6 +36,8 @@
           <li><a aria-disabled="true">Política de Privacidade</a></li>
           <li><a aria-disabled="true">Termos de Uso</a></li>
           <li><a aria-disabled="true">Preferências de cookies</a></li>
+          {# Endereço do admin é secreto: o link só vai para o HTML em dev ou para a equipe logada. #}
+          {% if mostrar_link_admin %}<li><a href="{% url 'admin:index' %}" rel="nofollow">Admin</a></li>{% endif %}
         </ul>
       </div>
     </div>

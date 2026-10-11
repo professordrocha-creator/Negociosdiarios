@@ -3,6 +3,7 @@
 import pytest
 from django.urls import reverse
 
+from contas.models import Usuario
 from core.models import Cidade, Estado
 from core.services import cidades_atendidas
 
@@ -48,6 +49,19 @@ def test_home_mostra_cidade_liberada_e_esconde_nao_liberada(client, mt):
     assert "Tangará da Serra" in cidades
     assert "Cuiabá" not in cidades
     assert "Cuiabá" not in html  # nem no seletor da busca
+
+
+def test_cidade_sede_no_rodape_nao_conta_como_cidade_atendida(client, mt):
+    """Tangará da Serra está no rodapé (cidade-sede), mas só entra na seção se estiver liberada.
+
+    Protege contra um falso positivo: procurar o nome no HTML inteiro acharia o rodapé.
+    """
+    Cidade.objects.filter(slug="tangara-da-serra").update(liberada=False)
+
+    html = client.get(reverse("core:inicio")).content.decode()
+
+    assert "Tangará da Serra" in html  # rodapé
+    assert "Tangará da Serra" not in secao_cidades(html)
 
 
 def test_home_esconde_cidade_liberada_de_estado_bloqueado(client, mt):
@@ -151,3 +165,37 @@ def test_cidades_atendidas_agrupa_e_ordena(mt):
     assert [g.estado.uf for g in grupos] == ["GO", "MT"]
     assert [c.nome for c in grupos[0].cidades] == ["Aparecida de Goiânia", "Goiânia"]
     assert [c.nome for c in grupos[1].cidades] == ["Tangará da Serra"]
+
+
+# --- Atalho do admin no rodapé ------------------------------------------------------
+
+
+def test_link_do_admin_aparece_em_dev(client, settings):
+    """Com DEBUG ligado (PC do desenvolvedor), o rodapé tem o atalho para o admin."""
+    settings.DEBUG = True
+
+    html = client.get(reverse("core:inicio")).content.decode()
+
+    assert f'href="{reverse("admin:index")}"' in html
+
+
+def test_link_do_admin_nunca_aparece_para_visitante_em_producao(client, settings):
+    """Em produção (DEBUG desligado) o endereço secreto não vai para o HTML do visitante."""
+    settings.DEBUG = False
+
+    html = client.get(reverse("core:inicio")).content.decode()
+
+    assert settings.ADMIN_URL not in html
+
+
+def test_link_do_admin_aparece_para_equipe_logada_em_producao(client, settings):
+    """Em produção, quem é da equipe e está logado vê o atalho."""
+    settings.DEBUG = False
+    equipe = Usuario.objects.create_user(email="equipe@exemplo.com", password=None, nome="Equipe")
+    equipe.is_staff = True
+    equipe.save()
+    client.force_login(equipe)
+
+    html = client.get(reverse("core:inicio")).content.decode()
+
+    assert f'href="{reverse("admin:index")}"' in html
