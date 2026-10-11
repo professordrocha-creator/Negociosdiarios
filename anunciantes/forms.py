@@ -26,6 +26,14 @@ class MotivoStatusForm(forms.Form):
         self.fields["motivo"].required = obrigatorio
 
 
+class CidadeCadastroField(forms.ModelChoiceField):
+    """Cidades dos estados liberados; as ainda não atendidas aparecem marcadas (ARQUITETURA §9, regra 3)."""
+
+    def label_from_instance(self, cidade: Cidade) -> str:
+        """Ex.: "Tangará da Serra" ou "Sinop — ainda não atendida"."""
+        return cidade.nome if cidade.liberada else f"{cidade.nome} — ainda não atendida"
+
+
 class CadastroForm(forms.Form):
     """Cadastro público de anunciante (/cadastro/): conta, loja e aceite dos documentos.
 
@@ -60,11 +68,14 @@ class CadastroForm(forms.Form):
         help_text="Corretor autônomo: CRECI (ex.: CRECI/MT 12345-F). Imobiliárias e revendas: CNPJ.",
     )
     whatsapp = forms.CharField(label="WhatsApp", max_length=20, help_text="Com DDD, ex.: (65) 99999-0000.")
-    cidade = forms.ModelChoiceField(
+    cidade = CidadeCadastroField(
         label="Cidade da loja",
         queryset=Cidade.objects.none(),
         empty_label="Escolha a cidade",
-        help_text="Só as cidades já atendidas pelo site.",
+        help_text=(
+            "Sua cidade ainda não é atendida? Escolha mesmo assim: "
+            "avaliamos a liberação e avisamos por e-mail."
+        ),
     )
     aceite = forms.BooleanField(
         label="Li e aceito os Termos de Uso e a Política de Privacidade",
@@ -78,9 +89,10 @@ class CadastroForm(forms.Form):
     def __init__(self, *args, **kwargs):
         """Cidades liberadas e classes do Bootstrap nos campos."""
         super().__init__(*args, **kwargs)
-        self.fields["cidade"].queryset = Cidade.objects.filter(
-            liberada=True, uf__liberado=True
-        ).select_related("uf")
+        # Atendidas primeiro, depois as demais do(s) estado(s) liberado(s), em ordem alfabética.
+        self.fields["cidade"].queryset = (
+            Cidade.objects.filter(uf__liberado=True).select_related("uf").order_by("-liberada", "nome")
+        )
         for nome, campo in self.fields.items():
             if nome == "aceite":
                 campo.widget.attrs["class"] = "form-check-input"

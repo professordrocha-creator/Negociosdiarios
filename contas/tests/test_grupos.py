@@ -7,6 +7,7 @@ pytestmark = pytest.mark.django_db
 
 SO_CIDADES = {"core.view_estado", "core.view_cidade"}
 VER_ANUNCIANTE = {"anunciantes.view_anunciante"}
+GEOGRAFIA = {"core.view_regiao", "core.view_bairro"}
 
 ESPERADO = {
     "Administrador": {
@@ -25,13 +26,35 @@ ESPERADO = {
         "anunciantes.add_anunciante",
         "anunciantes.change_anunciante",
         "anunciantes.view_historicalanunciante",
+        # Sprint 1, parte 3 (core/0004 e anunciantes/0004): identidade, textos, geografia, cidades pedidas.
+        "core.view_configuracao",
+        "core.change_configuracao",
+        "core.view_valorempresa",
+        "core.add_valorempresa",
+        "core.change_valorempresa",
+        "core.view_textoajuda",
+        "core.add_textoajuda",
+        "core.change_textoajuda",
+        "core.view_regiao",
+        "core.add_regiao",
+        "core.change_regiao",
+        "core.view_bairro",
+        "core.add_bairro",
+        "core.change_bairro",
+        "anunciantes.view_solicitacaocidade",
+        "anunciantes.change_solicitacaocidade",
     },
-    # Moderador aprova e suspende anunciantes (anunciantes/0002).
+    # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
-    | {"anunciantes.change_anunciante", "anunciantes.view_historicalanunciante"},
-    "Financeiro": SO_CIDADES | VER_ANUNCIANTE,
-    "Comercial": SO_CIDADES | VER_ANUNCIANTE,
+    | GEOGRAFIA
+    | {
+        "anunciantes.change_anunciante",
+        "anunciantes.view_historicalanunciante",
+        "anunciantes.view_solicitacaocidade",
+    },
+    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA,
+    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA,
 }
 
 

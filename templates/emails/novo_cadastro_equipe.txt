@@ -3,7 +3,7 @@
 Loja: {{ anunciante.nome_publico }}
 Tipo: {{ anunciante.get_tipo_display }}
 {{ anunciante.get_documento_tipo_display }}: {{ anunciante.documento_numero }}
-Cidade: {{ anunciante.cidade }}
+Cidade: {{ anunciante.cidade }}{% if not anunciante.cidade.liberada %} (AINDA NÃO ATENDIDA: há uma solicitação de cidade para liberar ou recusar antes de aprovar){% endif %}
 
 Conferir o documento e aprovar ou recusar no admin:
 {{ link_admin }}

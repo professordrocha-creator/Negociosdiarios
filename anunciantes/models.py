@@ -83,7 +83,7 @@ class Anunciante(MarcaDemo):
         on_delete=models.PROTECT,
         related_name="anunciantes",
         verbose_name="cidade",
-        help_text="Cidade da loja. Só cidades liberadas no site.",
+        help_text="Cidade da loja. Cidade ainda não atendida gera uma solicitação de liberação.",
     )
     status = models.CharField(
         "situação", max_length=10, choices=Status.choices, default=Status.PENDENTE, db_index=True
@@ -130,7 +130,7 @@ class Anunciante(MarcaDemo):
         return self.DOCUMENTO_POR_TIPO.get(self.tipo, self.DocumentoTipo.CNPJ)
 
     def clean(self) -> None:
-        """Confere documento x tipo, normaliza CNPJ/CRECI/WhatsApp e exige cidade liberada."""
+        """Confere documento x tipo, normaliza CNPJ/CRECI/WhatsApp e confere a cidade."""
         super().clean()
         erros = {}
         if self.tipo and self.documento_tipo and self.documento_tipo != self.documento_esperado():
@@ -150,7 +150,54 @@ class Anunciante(MarcaDemo):
                 self.whatsapp = normalizar_whatsapp(self.whatsapp)
             except ValidationError as erro:
                 erros["whatsapp"] = erro.messages
-        if self.cidade_id and not (self.cidade.liberada and self.cidade.uf.liberado):
-            erros["cidade"] = "Esta cidade ainda não é atendida pelo site. Escolha uma cidade liberada."
+        # Cidade ainda não atendida é aceita no cadastro (vira SolicitacaoCidade), mas loja ativa
+        # só em cidade liberada; e nunca fora de um estado liberado (ARQUITETURA §9, regra 3).
+        if self.cidade_id and not self.cidade.uf.liberado:
+            erros["cidade"] = "O site ainda não atende este estado."
+        elif self.cidade_id and self.status == self.Status.ATIVO and not self.cidade.liberada:
+            erros["cidade"] = "Esta cidade ainda não é atendida: libere a cidade antes de ativar a loja."
         if erros:
             raise ValidationError(erros)
+
+
+class SolicitacaoCidade(MarcaDemo):
+    """Pedido para atender uma cidade ainda não liberada, gerado pelo cadastro (ARQUITETURA §9).
+
+    O admin decide: "Liberar cidade" (a cidade entra no site e todas as solicitações
+    pendentes dela são atendidas) ou "Recusar" (com motivo, enviado por e-mail).
+    """
+
+    class Status(models.TextChoices):
+        PENDENTE = "pendente", "Pendente"
+        LIBERADA = "liberada", "Cidade liberada"
+        RECUSADA = "recusada", "Recusada"
+
+    anunciante = models.ForeignKey(
+        Anunciante, on_delete=models.CASCADE, related_name="solicitacoes_cidade", verbose_name="anunciante"
+    )
+    cidade = models.ForeignKey(
+        Cidade, on_delete=models.PROTECT, related_name="solicitacoes", verbose_name="cidade"
+    )
+    status = models.CharField(
+        "situação", max_length=10, choices=Status.choices, default=Status.PENDENTE, db_index=True
+    )
+    motivo = models.TextField("motivo da decisão", blank=True)
+    decidido_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="decidido por",
+    )
+    decidido_em = models.DateTimeField("decidido em", null=True, blank=True)
+    criado_em = models.DateTimeField("pedido em", default=timezone.now, editable=False)
+
+    class Meta:
+        verbose_name = "solicitação de cidade"
+        verbose_name_plural = "solicitações de cidade"
+        ordering = ["-criado_em"]
+
+    def __str__(self) -> str:
+        """Ex.: 'Sinop/MT (Loja X)'."""
+        return f"{self.cidade} ({self.anunciante})"

@@ -24,7 +24,17 @@ from django.utils import timezone
 from django.utils.crypto import salted_hmac
 from django.utils.text import slugify
 
-from core.models import Cidade, Estado
+from core import imagens
+from core.models import (
+    CHAVE_CACHE_AJUDA,
+    CHAVE_CACHE_CONFIGURACAO,
+    Bairro,
+    Cidade,
+    Configuracao,
+    Estado,
+    Regiao,
+    TextoAjuda,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -486,6 +496,17 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         # Import aqui: o core é a base dos apps; cada app cuida dos próprios dados demo.
         from anunciantes.services import criar_anunciantes_demo
 
+        for regiao in dados.get("regioes", []):
+            obj, _ = Regiao.objects.update_or_create(
+                slug=regiao["slug"], defaults={"nome": regiao["nome"], "demo": True}
+            )
+            obj.cidades.set(Cidade.objects.filter(codigo_ibge__in=regiao["cidades"]))
+        for codigo, nomes in dados.get("bairros", {}).items():
+            cidade = Cidade.objects.get(codigo_ibge=int(codigo))
+            for nome in nomes:
+                Bairro.objects.update_or_create(
+                    cidade=cidade, slug=slugify(nome), defaults={"nome": nome, "ativo": True, "demo": True}
+                )
         lojas = criar_anunciantes_demo(dados["lojas"] + dados.get("lojas_pendentes", []), senha)
     return ResumoDemo(usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas)
 
@@ -502,6 +523,8 @@ def apagar_dados_demo() -> ResumoDemo:
     Usuario = get_user_model()
     with transaction.atomic():
         anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
+        Bairro.objects.filter(demo=True).delete()
+        Regiao.objects.filter(demo=True).delete()
         usuarios = Usuario.objects.filter(demo=True).count()
         Usuario.objects.filter(demo=True).delete()
         cidades = Cidade.objects.filter(liberada_pela_demo=True).update(
@@ -617,47 +640,132 @@ PAGINAS_EM_BREVE = {
     },
 }
 
-# Textos da caixa "Sobre esta tela" (docs/TELAS.md). Provisório: na Sprint 1 vêm do
-# modelo TextoAjuda, editável no admin; a chave é a variável "tela" de cada view.
-TEXTOS_AJUDA = {
-    "planos": [
-        "Os planos diferem só na quantidade de anúncios ativos ao mesmo tempo.",
-        "No plano anual você paga o equivalente a 10 mensalidades e usa 12 meses.",
-        "Todo anunciante passa pela verificação de CRECI (corretores) ou CNPJ (empresas).",
-    ],
-    "anuncie": [
-        "A publicidade é vendida direto para empresas da região, sem anúncios do Google.",
-        'Toda peça leva o rótulo "Publicidade" e pode ser segmentada por cidade e por seção.',
-        "Imobiliárias, corretores e revendas só compram publicidade se forem assinantes.",
-    ],
-    "contato": [
-        "Atendimento em horário comercial (horário de Mato Grosso).",
-        "Para assuntos de dados pessoais (LGPD), use o e-mail de privacidade.",
-    ],
-    "entrar": [
-        "Área do anunciante: entre com o e-mail e a senha da sua loja.",
-        "Só lojas aprovadas (CRECI ou CNPJ conferido) entram. Cadastro em análise ainda não entra.",
-        "5 senhas erradas seguidas bloqueiam o acesso por 1 hora.",
-    ],
-    "painel": [
-        "Aqui você acompanha os dados da sua loja e os seus anúncios.",
-        "Anúncios no plano: publicados + em análise. Pausados não contam no limite.",
-        'Plano, estatísticas e faturas chegam nas próximas etapas (marcados como "em breve").',
-    ],
-    "cadastro": [
-        "Corretor autônomo se cadastra com o CRECI; imobiliárias, revendas e garagens com o CNPJ.",
-        "Depois de enviar, confirme o e-mail pelo link que mandamos (vale 48 horas).",
-        "Com o e-mail confirmado, a equipe confere o documento e avisa por e-mail quando aprovar.",
-    ],
-    "em_breve": [
-        "Esta parte do site ainda está em construção; o link já existe para você saber o que vem aí.",
-    ],
+
+def textos_ajuda(tela: str) -> list[str]:
+    """Itens da caixa "Sobre esta tela" da tela pedida, editáveis no admin (modelo TextoAjuda).
+
+    Todos os textos ficam num só registro de cache (limpo ao salvar no admin). Lista
+    vazia = a caixa não aparece.
+    """
+    textos = cache.get(CHAVE_CACHE_AJUDA)
+    if textos is None:
+        textos = {t.chave: t.itens for t in TextoAjuda.objects.all()}
+        cache.set(CHAVE_CACHE_AJUDA, textos, timeout=60 * 60)
+    return textos.get(tela, [])
+
+
+# --- Identidade do site (Configuracao) ----------------------------------------------------
+
+TEXTOS_SOBRE_INICIAIS = {
+    "sobre_quem_somos": (
+        "Nascemos em Tangará da Serra para resolver um problema simples: os bons negócios da região "
+        "ficavam espalhados em grupos, sites nacionais e placas na rua. Aqui, imobiliárias, corretores "
+        "e revendas da região mostram seu estoque com fotos, mapa e preço, e você fala direto com quem vende."
+    ),
+    "sobre_missao": (
+        "Aproximar quem quer comprar ou alugar de quem vende com seriedade, com anúncios de "
+        "profissionais verificados e contato direto."
+    ),
+    "sobre_visao": (
+        "Ser a referência em imóveis e veículos no interior de Mato Grosso, lembrada pela confiança "
+        "de quem compra e pelos resultados de quem anuncia."
+    ),
 }
 
 
-def textos_ajuda(tela: str) -> list[str]:
-    """Itens da caixa "Sobre esta tela" para a tela pedida (lista vazia = a caixa não aparece)."""
-    return TEXTOS_AJUDA.get(tela, [])
+def configuracao() -> Configuracao:
+    """O registro único da identidade do site. Na primeira vez, nasce com os `SITE_*` do settings."""
+    config = Configuracao.objects.filter(pk=Configuracao.ID_UNICO).first()
+    if config is None:
+        config = Configuracao(
+            nome=settings.SITE_NOME,
+            linha_regiao=settings.SITE_LINHA_REGIAO,
+            slogan=settings.SITE_SLOGAN,
+            empresa=settings.SITE_EMPRESA,
+            cidade_sede=settings.SITE_CIDADE_SEDE,
+            whatsapp=settings.SITE_WHATSAPP,
+            email_contato=settings.SITE_EMAIL_CONTATO,
+            email_privacidade=settings.SITE_EMAIL_PRIVACIDADE,
+            endereco=settings.SITE_ENDERECO,
+            cnpj=settings.SITE_CNPJ,
+            **TEXTOS_SOBRE_INICIAIS,
+        )
+        config.save()
+    return config
+
+
+def _url_ou_padrao(arquivo, padrao_estatico: str) -> str:
+    """URL do arquivo enviado no admin ou, sem ele, do arquivo padrão em static/."""
+    from django.templatetags.static import static
+
+    return arquivo.url if arquivo else static(padrao_estatico)
+
+
+def _favicon_svg(config: Configuracao) -> str:
+    """Favicon SVG: o símbolo enviado (se for SVG), o padrão (sem símbolo) ou nenhum (símbolo PNG)."""
+    from django.templatetags.static import static
+
+    if not config.simbolo_claro:
+        return static("img/simbolo.svg")
+    return config.simbolo_claro.url if config.simbolo_claro.name.endswith(".svg") else ""
+
+
+def dados_do_site() -> dict:
+    """Dicionário `site` dos templates (context processor), em cache até o admin salvar.
+
+    Sem símbolo ou favicon enviados, usa os arquivos padrão de static/img/.
+    """
+    dados = cache.get(CHAVE_CACHE_CONFIGURACAO)
+    if dados is not None:
+        return dados
+    config = configuracao()
+    dados = {
+        "nome": config.nome,
+        "slogan": config.slogan,
+        "linha_regiao": config.linha_regiao,
+        "empresa": config.empresa,
+        "cidade_sede": config.cidade_sede,
+        "whatsapp": config.whatsapp,
+        "email_contato": config.email_contato,
+        "email_privacidade": config.email_privacidade,
+        "endereco": config.endereco,
+        "cnpj": config.cnpj,
+        "instagram": config.instagram,
+        "simbolo_claro": _url_ou_padrao(config.simbolo_claro, "img/simbolo.svg"),
+        "simbolo_escuro": _url_ou_padrao(config.simbolo_escuro, "img/simbolo-ipe.svg"),
+        "imagem_compartilhamento": config.imagem_compartilhamento.url
+        if config.imagem_compartilhamento
+        else "",
+        "favicon_svg": _favicon_svg(config),
+        "favicon_32": _url_ou_padrao(config.favicon_32, "img/favicon-32.png"),
+        "favicon_180": _url_ou_padrao(config.favicon_180, "img/apple-touch-icon.png"),
+        "favicon_512": _url_ou_padrao(config.favicon_512, "img/icone-512.png"),
+        "favicon_ico": _url_ou_padrao(config.favicon_ico, "img/favicon.ico"),
+    }
+    cache.set(CHAVE_CACHE_CONFIGURACAO, dados, timeout=60 * 60)
+    return dados
+
+
+def processar_identidade(config: Configuracao, campos_mudados: set[str]) -> Configuracao:
+    """Depois do admin salvar: limpa imagens novas (sem EXIF, nome aleatório) e refaz os favicons.
+
+    Os arquivos já foram validados pelo formulário (`core.imagens`). PNG/JPG enviados são
+    regravados a partir dos pixels; SVG fica como está (passou na checagem de segurança).
+    Trocou o símbolo para fundo claro (ou não há favicon ainda) → gera os 4 favicons.
+    """
+    for campo in ("simbolo_claro", "simbolo_escuro", "imagem_compartilhamento"):
+        arquivo = getattr(config, campo)
+        if campo in campos_mudados and arquivo and not arquivo.name.endswith(".svg"):
+            limpo = imagens.reprocessar_raster(arquivo)
+            arquivo.save(limpo.name, limpo, save=False)
+    if config.simbolo_claro and ("simbolo_claro" in campos_mudados or not config.favicon_32):
+        for campo, conteudo in imagens.favicons(config.simbolo_claro).items():
+            getattr(config, campo).save(conteudo.name, conteudo, save=False)
+    elif not config.simbolo_claro:  # voltou ao símbolo padrão: volta ao favicon padrão
+        for campo in ("favicon_ico", "favicon_32", "favicon_180", "favicon_512"):
+            setattr(config, campo, "")
+    config.save()
+    return config
 
 
 # --- Limite por IP e e-mails com modelo ---------------------------------------------------
@@ -693,6 +801,6 @@ def enviar_email_modelo(modelo: str, assunto: str, para: list[str], contexto: di
         return 0
     corpo = render_to_string(
         f"emails/{modelo}.txt",
-        {"site_nome": settings.SITE_NOME, "site_url": settings.SITE_URL, **(contexto or {})},
+        {"site_nome": configuracao().nome, "site_url": settings.SITE_URL, **(contexto or {})},
     )
-    return send_mail(f"{assunto} · {settings.SITE_NOME}", corpo, None, destinatarios)
+    return send_mail(f"{assunto} · {configuracao().nome}", corpo, None, destinatarios)

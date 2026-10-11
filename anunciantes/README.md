@@ -30,6 +30,10 @@ avisa a equipe), `reenviar_confirmacao(email)`, `destinatarios_equipe()`. `aprov
 confirmado e manda "Sua loja foi aprovada"; `suspender` manda "Sua loja foi suspensa" com o motivo.
 Formulário `CadastroForm` com campo-armadilha `site_empresa` (honeypot).
 
+**Cidades não atendidas:** o cadastro aceita qualquer cidade de estado liberado; se a cidade não é
+atendida, cria `SolicitacaoCidade` (pendente). `liberar_cidade_da_solicitacao` libera a cidade e atende
+todos os pedidos dela; `recusar_solicitacao` exige motivo e manda e-mail. `aprovar` exige cidade liberada.
+
 **Telas:** `/cadastro/`, `/cadastro/obrigado/`, `/cadastro/confirmar/<token>/` (e `.../reenviar/`), `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
 de `request.user.anunciante`, nunca da URL). Login do cliente em `/entrar/` (app `contas`).
 

@@ -188,8 +188,8 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Identidade do site ------------------------------------------------------
-# Provisório: na Sprint 1 estes textos passam para o modelo Configuracao (editável no admin).
-# Usados pelo context processor core.context_processors.site.
+# Só VALORES INICIAIS: na primeira leitura viram o registro core.Configuracao, e dali em diante
+# o site lê do admin ("Identidade do site"). Mudar aqui depois não muda o site.
 SITE_NOME = "Negócios Diários"
 SITE_SLOGAN = "Os melhores negócios da sua região, todos os dias."
 SITE_LINHA_REGIAO = "Imóveis e veículos de Mato Grosso"

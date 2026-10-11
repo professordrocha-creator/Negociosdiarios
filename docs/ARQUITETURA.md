@@ -165,8 +165,12 @@ Estado (uf, nome, liberado)            ← 27 estados, carga IBGE
   └─N Cidade (codigo_ibge, nome, slug, uf→Estado.uf, liberada, ponto)   ← 5.571 cidades, carga IBGE
         ├─N Bairro (nome, slug, ativo)
         └─N Regiao (nome, slug) via M2M  ← agrupamentos criados pelo admin
-SolicitacaoCidade (anunciante, cidade, status, decidido_por, motivo)
+SolicitacaoCidade (anunciante, cidade, status, decidido_por, motivo)   ← app anunciantes
 ```
+Implementado na Sprint 1 (parte 3): `Regiao` (nome, slug, cidades M2M; demo), `Bairro` (cidade, nome,
+slug único por cidade, ativo; demo) no app `core`; `SolicitacaoCidade` (status pendente | liberada |
+recusada, motivo, decidido_por/em, criado_em; demo) no app `anunciantes`. Liberar a cidade atende todas
+as solicitações pendentes dela; loja só é aprovada (ativa) em cidade liberada.
 
 Regras:
 1. Site, filtros e cadastro mostram **só** cidades `liberada=True` de estados `liberado=True`.
@@ -181,12 +185,16 @@ Regras:
    dados do IBGE e nunca altera `liberado`/`liberada`. Slug da cidade é único **dentro da UF**.
 
 ### Identidade do site e páginas institucionais (app `core`)
-- `Configuracao` (registro único, `django-solo`): nome, linha da região, slogan, símbolos claro/escuro,
-  logo completo opcional, imagem Open Graph, contatos, redes, limites de mídia, prazos.
-- `PaginaInstitucional`: Sobre (quem somos, missão, visão), com `ValorEmpresa` ordenável.
-- Templates usam `{{ site.* }}` via context processor (em cache, limpo ao salvar).
-  Sem logo enviado, cai no SVG padrão em `static/img/`.
-- Favicon gerado automaticamente a partir do símbolo (32, 180 e 512 px).
+- `Configuracao` (registro único pk=1, sem `django-solo`: `save()` força o pk e `core.services.configuracao()`
+  cria o registro a partir dos `SITE_*` do settings): nome, linha da região, slogan, empresa, cidade-sede,
+  símbolos claro/escuro, imagem Open Graph, favicons gerados (ico, 32, 180, 512), contatos (WhatsApp,
+  e-mails, endereço, CNPJ, Instagram), textos da Sobre (quem somos, missão, visão) e limites de mídia.
+  A `PaginaInstitucional` prevista virou campos da `Configuracao` (uma página só, a Sobre).
+- `ValorEmpresa` (ordem, ícone, título, texto, ativo) e `TextoAjuda` (chave da tela, texto: um item por linha).
+- Templates usam `{{ site.* }}` via context processor (`core.services.dados_do_site`, em cache no Redis,
+  limpo no `save()`). Sem símbolo enviado, cai no SVG padrão em `static/img/`.
+- Imagens (`core/imagens.py`): tipo real conferido pelo Pillow, SVG sem script/eventos/links externos
+  (defusedxml), PNG/JPG regravados sem EXIF, nome UUID. Favicon gerado do símbolo claro (cairosvg para SVG).
 
 ### Dados de demonstração
 Todo modelo com dados criados pelo `criar_dados_demo` herda `core.models.MarcaDemo`

@@ -44,9 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # GDAL/GEOS/PROJ: bibliotecas nativas do GeoDjango (as mesmas do Dockerfile).
+      # GDAL/GEOS/PROJ (GeoDjango) e libcairo2 (favicon a partir do SVG): as mesmas do Dockerfile.
       - name: Bibliotecas do GeoDjango
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin libcairo2
 
       - name: Instalar uv
         uses: astral-sh/setup-uv@v10.2.0  # versão exata: este projeto não publica a tag "v10"

@@ -140,14 +140,45 @@ def test_cadastro_invalido_mostra_o_erro_e_nao_cria_nada(client, dados, mudanca,
     assert not Usuario.objects.exists() and not mail.outbox
 
 
-def test_cidade_nao_liberada_nao_e_aceita(client, dados, tangara):
-    """Cidade desligada no admin some das opções."""
+def test_cidade_nao_atendida_e_aceita_e_gera_solicitacao(client, dados, tangara):
+    """Cidade ainda não liberada: o cadastro passa e vira uma SolicitacaoCidade pendente."""
+    from anunciantes.models import SolicitacaoCidade
+
     tangara.liberada = False
     tangara.save()
 
     resposta = cadastrar(client, dados)
 
+    assert resposta["Location"] == reverse("anunciantes:cadastro_obrigado")
+    solicitacao = SolicitacaoCidade.objects.get()
+    assert solicitacao.cidade == tangara and solicitacao.status == "pendente"
+    assert solicitacao.anunciante.usuario.email == "maria@revenda.example"
+
+
+def test_cidade_de_estado_nao_liberado_nao_aparece(client, dados, tangara):
+    """Estado desligado: as cidades dele nem aparecem nas opções."""
+    tangara.uf.liberado = False
+    tangara.uf.save()
+
+    resposta = cadastrar(client, dados)
+
     assert "cidade" in resposta.context["form"].errors
+
+
+def test_cadastro_lista_cidades_atendidas_primeiro_e_marca_as_outras(client, tangara):
+    """Atendidas primeiro; as demais do estado com "ainda não atendida"."""
+    from django.contrib.gis.geos import Point
+
+    from core.models import Cidade
+
+    Cidade.objects.create(
+        codigo_ibge=5107909, nome="Sinop", slug="sinop", uf=tangara.uf, ponto=Point(-55, -11)
+    )
+
+    html = client.get(reverse("anunciantes:cadastro")).content.decode()
+
+    assert "Sinop — ainda não atendida" in html
+    assert html.index("Tangará da Serra") < html.index("Sinop — ainda não atendida")
 
 
 def test_email_ja_cadastrado(client, dados, criar_anunciante):

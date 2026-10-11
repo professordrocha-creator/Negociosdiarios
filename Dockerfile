@@ -6,8 +6,9 @@ FROM python:3.12.12-slim-bookworm
 COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /uvx /bin/
 
 # GDAL/GEOS/PROJ: bibliotecas nativas exigidas pelo GeoDjango (engine PostGIS).
+# libcairo2: usada pelo cairosvg para gerar o favicon PNG a partir do símbolo SVG do site.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gdal-bin \
+    && apt-get install -y --no-install-recommends gdal-bin libcairo2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Virtualenv fora de /app: em dev o código é montado em /app e não pode escondê-lo.

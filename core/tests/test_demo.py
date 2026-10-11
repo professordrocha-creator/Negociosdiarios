@@ -29,7 +29,7 @@ from core.services import (
 
 DADOS = ler_demo()
 SENHA_DEMO = "Senha-Demo-Forte-123"
-USUARIOS_DEMO = 3 + 7  # equipe (3) + um login por loja (6 ativas + 1 pendente)
+USUARIOS_DEMO = 3 + 8  # equipe (3) + um login por loja (6 ativas + 2 pendentes)
 SENHA_REAL = "Outra-Senha-Forte-1"
 TANGARA, BARRA_DO_BUGRES = 5107958, 5101704
 
@@ -113,6 +113,8 @@ def cidades_demo(db):
         Cidade.objects.create(
             codigo_ibge=codigo, nome=nome, slug=str(codigo), uf=mt, liberada=True, ponto=Point(-57, -14)
         )
+    # Sinop fica desligada: a loja demo de lá gera uma solicitação de cidade.
+    Cidade.objects.create(codigo_ibge=5107909, nome="Sinop", slug="sinop", uf=mt, ponto=Point(-55, -11))
     return mt
 
 
@@ -328,7 +330,7 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
 
     apagado = apagar_dados_demo()
 
-    assert apagado.usuarios == USUARIOS_DEMO and apagado.cidades == 3 and apagado.anunciantes == 7
+    assert apagado.usuarios == USUARIOS_DEMO and apagado.cidades == 3 and apagado.anunciantes == 8
     assert list(Usuario.objects.all()) == [daniel]
     assert list(Cidade.objects.filter(liberada=True).values_list("codigo_ibge", flat=True)) == [TANGARA]
     assert not Cidade.objects.filter(liberada_pela_demo=True).exists()
@@ -362,7 +364,7 @@ def test_mostrar_demo_aceita_true_true_e_1(monkeypatch, valor, esperado):
 # --- Anunciantes de demonstração (Sprint 1) ---------------------------------------------
 
 
-def test_criar_dados_demo_cria_6_lojas_ativas_e_1_pendente(dev):
+def test_criar_dados_demo_cria_6_lojas_ativas_e_2_pendentes(dev):
     """As 6 lojas do demo.json ficam ativas e a de "lojas_pendentes" fica pendente (para testar a
     aprovação no admin). Todas marcadas como demo, com e-mail confirmado e documento válido."""
     from anunciantes.models import Anunciante
@@ -370,10 +372,10 @@ def test_criar_dados_demo_cria_6_lojas_ativas_e_1_pendente(dev):
     criar_dados_demo(SENHA_DEMO)
 
     lojas = Anunciante.objects.filter(demo=True)
-    assert lojas.count() == 7
+    assert lojas.count() == 8
     assert lojas.filter(status="ativo").count() == 6
-    pendente = lojas.get(status="pendente")
-    assert pendente.slug == "cerrado-novo-imoveis" and pendente.tipo == "imobiliaria"
+    pendentes = set(lojas.filter(status="pendente").values_list("slug", flat=True))
+    assert pendentes == {"cerrado-novo-imoveis", "sinop-auto-prime"}
     assert all(loja.usuario.email_confirmado_em for loja in lojas)
     corretor = lojas.get(slug="paulo-mendes-corretor")
     assert (corretor.documento_tipo, corretor.documento_numero) == ("creci", "CRECI/MT 08765-F")
@@ -437,3 +439,45 @@ def test_apagar_dados_demo_remove_anunciantes_e_historico(dev):
     assert not Anunciante.objects.exists()
     assert not Anunciante.history.exists()
     assert not Usuario.objects.filter(demo=True).exists()
+
+
+# --- Regiões, bairros e solicitação de cidade (Sprint 1, parte 3) -----------------------
+
+
+def test_criar_dados_demo_cria_regiao_bairros_e_solicitacao(dev):
+    """Região de Tangará com as 4 cidades, bairros de Tangará e o pedido de Sinop pendente."""
+    from anunciantes.models import SolicitacaoCidade
+    from core.models import Bairro, Regiao
+
+    criar_dados_demo(SENHA_DEMO)
+    criar_dados_demo(SENHA_DEMO)  # idempotente: não duplica nada
+
+    regiao = Regiao.objects.get(slug="regiao-de-tangara")
+    assert regiao.demo and regiao.cidades.count() == 4
+    assert set(Bairro.objects.filter(cidade__codigo_ibge=TANGARA).values_list("nome", flat=True)) == {
+        "Centro",
+        "Jardim Europa",
+        "Vila Alta",
+        "Jardim Tarumã",
+        "Estrada da Serra",
+    }
+    solicitacao = SolicitacaoCidade.objects.get()
+    assert solicitacao.cidade.nome == "Sinop" and solicitacao.status == "pendente" and solicitacao.demo
+    assert not solicitacao.cidade.liberada
+
+
+def test_liberar_cidade_demo_e_desfeito_pelo_apagar(dev):
+    """Sinop liberada pela solicitação demo é desligada de novo pelo apagar_dados_demo."""
+    from anunciantes.models import SolicitacaoCidade
+    from anunciantes.services import liberar_cidade_da_solicitacao
+    from core.models import Bairro, Regiao
+
+    criar_dados_demo(SENHA_DEMO)
+    liberar_cidade_da_solicitacao(SolicitacaoCidade.objects.get(), None)
+    assert Cidade.objects.get(nome="Sinop").liberada
+
+    apagar_dados_demo()
+
+    assert not Cidade.objects.get(nome="Sinop").liberada
+    assert not Regiao.objects.exists() and not Bairro.objects.exists()
+    assert not SolicitacaoCidade.objects.exists()

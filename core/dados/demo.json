@@ -100,8 +100,29 @@
       "whatsapp": "+5565999990007",
       "email": "contato@cerradonovo.demo.invalid",
       "responsavel": "Nádia Cerqueira (demo)"
+    },
+    {
+      "slug": "sinop-auto-prime",
+      "nome": "Sinop Auto Prime",
+      "tipo": "revenda",
+      "status": "pendente",
+      "sigla": "SA",
+      "cor": 6,
+      "creci": "",
+      "cnpj": "90000007000104",
+      "cidade_ibge": 5107909,
+      "whatsapp": "+5566999990008",
+      "email": "contato@sinopauto.demo.invalid",
+      "responsavel": "Sérgio Andrade (demo)",
+      "_nota": "Sinop não é liberada pela demo: o cadastro gera uma solicitação de cidade pendente."
     }
   ],
+  "regioes": [
+    {"nome": "Região de Tangará", "slug": "regiao-de-tangara", "cidades": [5107958, 5101704, 5102637, 5106232]}
+  ],
+  "bairros": {
+    "5107958": ["Centro", "Jardim Europa", "Vila Alta", "Jardim Tarumã", "Estrada da Serra"]
+  },
   "anuncios": [
     {
       "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Casa",

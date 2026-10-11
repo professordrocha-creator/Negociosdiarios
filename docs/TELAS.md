@@ -39,7 +39,7 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Contato | `/contato/` | WhatsApp, e-mails e endereço do site |
 | Entrar | `/entrar/` | Login do anunciante (e-mail e senha; só loja ativa; equipe usa o admin) |
 | Esqueci a senha | `/entrar/esqueci/` → e-mail → `/entrar/redefinir/<uid>/<token>/` | Nova senha por link de uso único (só clientes) |
-| Cadastro | `/cadastro/` | Conta + loja + aceite dos Termos e da Privacidade; nasce pendente |
+| Cadastro | `/cadastro/` | Conta + loja + aceite dos Termos e da Privacidade; nasce pendente. Mostra todas as cidades do estado liberado (atendidas primeiro; as outras marcadas "ainda não atendida", que geram solicitação) |
 | Cadastro recebido | `/cadastro/obrigado/` | Próximos passos (confirmar e-mail, análise, aprovação) |
 | Confirmar e-mail | `/cadastro/confirmar/<token>/` | Link do e-mail (48 h, uso único); vencido: pede outro |
 | Em breve | `/imoveis/`, `/veiculos/`, `/lojas/`, `/denunciar/` | Páginas ainda em construção (nunca 404) |
@@ -70,8 +70,8 @@ os demais itens do menu aparecem como "em breve".
 | Planos e preços | Criar/editar planos, limites, preços, carência |
 | Faturas | Status, baixa manual com motivo, inadimplentes |
 | Publicidade | Patrocinadores, contratos, peças, métricas |
-| **Cidades atendidas** | Liberar estados/cidades, regiões, solicitações de liberação |
-| Textos de ajuda | Editar os textos "Sobre esta tela" |
+| **Cidades atendidas** | Liberar estados/cidades; regiões (`Regiao`); bairros por cidade (`Bairro`, também dentro da cidade); "Solicitações de cidade" com as ações Liberar cidade e Recusar (motivo + e-mail) |
+| Textos de ajuda | Editar os textos "Sobre esta tela" (`TextoAjuda`: chave da tela + um item por linha; em branco = sem caixa) |
 | Equipe e permissões | Usuários de equipe e seus perfis |
-| **Identidade do site** | Logo (fundo claro/escuro), favicon, imagem de compartilhamento, nome, slogan, textos da página Sobre, contatos |
+| **Identidade do site** | Registro único `Configuracao`: nome, linha da região, slogan, empresa, cidade-sede, símbolos claro/escuro (SVG seguro ou PNG; favicon gerado sozinho), imagem de compartilhamento (sem EXIF), contatos (WhatsApp, e-mails, endereço, CNPJ, Instagram), textos da Sobre, limites de tamanho. **Valores da empresa** (`ValorEmpresa`, ordem editável na lista) |
 | Configurações | Limites de mídia, prazos de expiração, contatos, redes, nome da região no slogan |

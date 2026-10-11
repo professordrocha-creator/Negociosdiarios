@@ -1,16 +1,18 @@
 """Views do app core: home, páginas institucionais, "em breve" e verificação de saúde."""
 
 from django.conf import settings
-from django.http import HttpRequest, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.templatetags.static import static
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
+from core.models import ValorEmpresa
 from core.services import (
     PAGINAS_EM_BREVE,
     banco_disponivel,
     cidades_atendidas,
+    configuracao,
+    dados_do_site,
     destaques,
     formatos_publicidade,
     lojas_verificadas,
@@ -47,10 +49,11 @@ def inicio(request: HttpRequest) -> HttpResponse:
 def sobre(request: HttpRequest) -> HttpResponse:
     """Página Sobre: quem somos, missão, visão e valores.
 
-    Provisório: textos fixos no template. Na Sprint 1 vêm de `PaginaInstitucional`
-    e `ValorEmpresa`, editáveis no admin.
+    Quem somos, missão e visão vêm da `Configuracao`; os valores, de `ValorEmpresa`
+    (ativos, na ordem do admin).
     """
-    return render(request, "core/sobre.html", {"tela": "sobre"})
+    valores = ValorEmpresa.objects.filter(ativo=True)
+    return render(request, "core/sobre.html", {"tela": "sobre", "config": configuracao(), "valores": valores})
 
 
 def _pagina(request: HttpRequest, template: str, tela: str, **contexto) -> HttpResponse:
@@ -101,14 +104,14 @@ def em_breve(request: HttpRequest, pagina: str) -> HttpResponse:
 
 
 @require_GET
-def favicon(request: HttpRequest) -> HttpResponsePermanentRedirect:
-    """Redireciona /favicon.ico para o arquivo estático.
+def favicon(request: HttpRequest) -> HttpResponseRedirect:
+    """Redireciona /favicon.ico para o favicon da identidade do site (ou o padrão de static/).
 
     Navegadores e robôs pedem /favicon.ico na raiz mesmo sem `<link rel="icon">`.
-    O endereço é calculado na requisição (e não na importação das URLs) para
-    funcionar também com arquivos estáticos versionados em produção.
+    Redirecionamento temporário (302), não permanente: o favicon muda quando o admin
+    troca o símbolo, e um 301 ficaria guardado no navegador para sempre.
     """
-    return HttpResponsePermanentRedirect(static("img/favicon.ico"))
+    return HttpResponseRedirect(dados_do_site()["favicon_ico"])
 
 
 @never_cache

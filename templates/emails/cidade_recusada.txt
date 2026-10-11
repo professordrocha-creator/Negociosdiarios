@@ -1,0 +1,10 @@
+{% autoescape off %}Olá,
+
+Recebemos o cadastro da loja "{{ anunciante.nome_publico }}", em {{ cidade }}.
+Por enquanto, ainda não vamos atender esta cidade.
+
+Motivo: {{ motivo }}
+
+Seus dados continuam guardados: quando a cidade for liberada, avisaremos por e-mail.
+Dúvidas ou outra cidade? Fale com a gente: {{ link_contato }}
+{% endautoescape %}

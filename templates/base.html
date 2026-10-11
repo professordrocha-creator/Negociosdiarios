@@ -10,11 +10,18 @@
   {# Páginas provisórias (rascunhos legais, "em breve") pedem para não ser indexadas. #}
   {% block robots %}{% endblock %}
 
-  {# Favicon: SVG para navegadores modernos, PNG de reserva e ícone da tela inicial do iPhone. #}
-  <link rel="icon" href="{% static 'img/simbolo.svg' %}" type="image/svg+xml">
-  <link rel="icon" href="{% static 'img/favicon-32.png' %}" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  {# Favicon da identidade do site (admin), com os arquivos de static/img como reserva: #}
+  {# SVG para navegadores modernos, PNG 32 e o ícone da tela inicial do iPhone (180). #}
+  {% if site.favicon_svg %}<link rel="icon" href="{{ site.favicon_svg }}" type="image/svg+xml">{% endif %}
+  <link rel="icon" href="{{ site.favicon_32 }}" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="{{ site.favicon_180 }}">
   <meta name="theme-color" content="#0e4a57">
+
+  {# Compartilhamento (WhatsApp, Facebook): título, descrição e imagem 1200×630 da identidade. #}
+  <meta property="og:site_name" content="{{ site.nome }}">
+  <meta property="og:title" content="{% block og_titulo %}{{ site.nome }}{% endblock %}">
+  <meta property="og:description" content="{{ site.slogan }}">
+  {% if site.imagem_compartilhamento %}<meta property="og:image" content="{{ site.imagem_compartilhamento }}">{% endif %}
 
   {# Fontes locais (static/fonts/, @font-face no nd.css): Bricolage Grotesque nos títulos, Figtree no texto. #}
   {# Preload para o navegador baixá-las junto com o CSS, sem esperar o CSS ser lido. #}

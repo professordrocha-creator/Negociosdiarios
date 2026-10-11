@@ -18,10 +18,17 @@ from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.text import slugify
 
-from anunciantes.models import Anunciante
+from anunciantes.models import Anunciante, SolicitacaoCidade
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
 from core.models import Cidade
-from core.services import AnuncioVitrine, PlanoVitrine, anuncios_demo_da_loja, enviar_email_modelo, planos
+from core.services import (
+    AnuncioVitrine,
+    PlanoVitrine,
+    anuncios_demo_da_loja,
+    configuracao,
+    enviar_email_modelo,
+    planos,
+)
 
 if TYPE_CHECKING:
     from contas.models import Usuario
@@ -75,6 +82,11 @@ def aprovar(anunciante: Anunciante, por: Usuario | None, motivo: str = "") -> An
     """
     if not anunciante.usuario.email_confirmado_em:
         raise ValueError(f"{anunciante.nome_publico}: o e-mail ainda não foi confirmado.")
+    if not anunciante.cidade.liberada:
+        raise ValueError(
+            f"{anunciante.nome_publico}: a cidade {anunciante.cidade} ainda não é atendida. "
+            "Libere a cidade (Solicitações de cidade) antes de aprovar."
+        )
     _mudar_status(anunciante, Anunciante.Status.ATIVO, por, motivo.strip() or "Documento conferido.")
     enviar_email_modelo(
         "loja_aprovada",
@@ -164,7 +176,7 @@ def criar_anunciantes_demo(lojas: list[dict], senha: str) -> int:
             documento = (Anunciante.DocumentoTipo.CRECI, normalizar_creci(loja["creci"], cidade.uf_id))
         else:
             documento = (Anunciante.DocumentoTipo.CNPJ, normalizar_cnpj(loja["cnpj"]))
-        Anunciante.objects.update_or_create(
+        anunciante, _ = Anunciante.objects.update_or_create(
             slug=loja["slug"],
             defaults={
                 "usuario": usuario,
@@ -182,6 +194,13 @@ def criar_anunciantes_demo(lojas: list[dict], senha: str) -> int:
                 "demo": True,
             },
         )
+        if not cidade.liberada:  # como no cadastro real: cidade não atendida vira solicitação
+            SolicitacaoCidade.objects.get_or_create(
+                anunciante=anunciante,
+                cidade=cidade,
+                status=SolicitacaoCidade.Status.PENDENTE,
+                defaults={"demo": True},
+            )
     return len(lojas)
 
 
@@ -255,6 +274,8 @@ def cadastrar_anunciante(dados: DadosCadastro) -> Anunciante:
         anunciante.full_clean()
         anunciante._change_reason = "Cadastro pelo site."
         anunciante.save()
+        if not dados.cidade.liberada:  # cidade ainda não atendida: vira pedido para o admin
+            SolicitacaoCidade.objects.create(anunciante=anunciante, cidade=dados.cidade)
         AceiteDocumento.objects.bulk_create(
             [
                 AceiteDocumento(usuario=usuario, documento="termos", versao=settings.VERSAO_TERMOS),
@@ -305,7 +326,7 @@ def destinatarios_equipe() -> list[str]:
         .values_list("email", flat=True)
         .distinct()
     )
-    return emails or [settings.SITE_EMAIL_CONTATO]
+    return emails or [configuracao().email_contato]
 
 
 @dataclass(frozen=True)
@@ -376,3 +397,55 @@ def reenviar_confirmacao(email: str) -> None:
     )
     if usuario:
         enviar_confirmacao(usuario)
+
+
+# --- Solicitações de cidade (cadastro em cidade ainda não atendida) ----------------------
+
+
+def liberar_cidade_da_solicitacao(solicitacao: SolicitacaoCidade, por: Usuario | None) -> int:
+    """Libera a cidade pedida e dá como atendidas TODAS as solicitações pendentes dela.
+
+    Devolve quantas solicitações foram atendidas. Se a solicitação for de demonstração,
+    a cidade é marcada `liberada_pela_demo` (o `apagar_dados_demo` desfaz). O anunciante
+    continua pendente: a aprovação da loja é outro passo (Aprovar, em Anunciantes).
+    """
+    from core.services import liberar_cidades
+
+    cidade = solicitacao.cidade
+    with transaction.atomic():
+        liberar_cidades(Cidade.objects.filter(pk=cidade.pk))
+        if solicitacao.demo:
+            Cidade.objects.filter(pk=cidade.pk).update(liberada_pela_demo=True)
+        return SolicitacaoCidade.objects.filter(
+            cidade=cidade, status=SolicitacaoCidade.Status.PENDENTE
+        ).update(
+            status=SolicitacaoCidade.Status.LIBERADA,
+            decidido_por=por,
+            decidido_em=timezone.now(),
+            motivo=f"Cidade liberada por {por or 'sistema'}.",
+        )
+
+
+def recusar_solicitacao(
+    solicitacao: SolicitacaoCidade, por: Usuario | None, motivo: str
+) -> SolicitacaoCidade:
+    """Recusa o pedido (motivo obrigatório) e avisa o anunciante por e-mail com o motivo."""
+    if not motivo.strip():
+        raise ValueError("Informe o motivo da recusa.")
+    solicitacao.status = SolicitacaoCidade.Status.RECUSADA
+    solicitacao.motivo = motivo.strip()
+    solicitacao.decidido_por = por
+    solicitacao.decidido_em = timezone.now()
+    solicitacao.save(update_fields=["status", "motivo", "decidido_por", "decidido_em"])
+    enviar_email_modelo(
+        "cidade_recusada",
+        "Ainda não atendemos a sua cidade",
+        [solicitacao.anunciante.usuario.email],
+        {
+            "anunciante": solicitacao.anunciante,
+            "cidade": solicitacao.cidade,
+            "motivo": solicitacao.motivo,
+            "link_contato": settings.SITE_URL + reverse("core:contato"),
+        },
+    )
+    return solicitacao

@@ -144,10 +144,21 @@ def test_cnpj_errado_no_modelo(tangara):
     assert "documento_numero" in erro.value.message_dict
 
 
-def test_cidade_nao_liberada_e_recusada(tangara):
-    """Só cidades liberadas no site podem ter lojas."""
+def test_cidade_nao_liberada_aceita_loja_pendente_mas_nao_ativa(tangara):
+    """Cadastro em cidade não atendida fica pendente; ativar exige a cidade liberada."""
     tangara.liberada = False
     tangara.save()
+
+    _novo(tangara, slug="pendente", status=Anunciante.Status.PENDENTE).full_clean()  # passa
+    with pytest.raises(ValidationError) as erro:
+        _novo(tangara, slug="ativa", status=Anunciante.Status.ATIVO).full_clean()
+    assert "cidade" in erro.value.message_dict
+
+
+def test_estado_nao_liberado_e_recusado(tangara):
+    """Fora de um estado liberado, nem como pendente."""
+    tangara.uf.liberado = False
+    tangara.uf.save()
 
     with pytest.raises(ValidationError) as erro:
         _novo(tangara, slug="fora").full_clean()

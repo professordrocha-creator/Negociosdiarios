@@ -94,7 +94,7 @@ def criar_anunciante(tangara):
             documento_tipo=documento[0],
             documento_numero=documento[1],
             whatsapp="+5565999990001",
-            cidade=tangara,
+            cidade=campos.pop("cidade", tangara),
             status=status,
             **campos,
         )

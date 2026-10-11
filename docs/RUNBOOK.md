@@ -26,6 +26,17 @@ aprovada" com o link de `/entrar/`. Suspender manda "Sua loja foi suspensa" com 
 - **Nenhum e-mail sai:** o `worker` está de pé? (`docker compose ps`; ver "E-mails e tarefas do Celery").
   Depois de instalar pacote novo, reconstruir as imagens: `docker compose up -d --build web worker`.
 
+## Identidade do site, textos de ajuda e cidades (admin)
+- **Trocar nome, slogan, símbolos, contatos ou textos da Sobre:** Admin → Core → *Identidade do site*
+  (abre direto o formulário). Salvou, o site muda na hora (o cache é limpo). Símbolo: SVG simples ou PNG
+  transparente; o favicon é gerado sozinho a partir do símbolo para fundo claro. Se o navegador continuar
+  mostrando o favicon antigo, é cache do navegador (Ctrl+F5 ou aba anônima).
+- **SVG recusado:** o arquivo tem script, evento, link externo ou DOCTYPE. Exporte como "SVG simples"
+  (Inkscape: *Salvar como → SVG simples*) ou envie PNG.
+- **Textos "Sobre esta tela":** Admin → Core → *Textos de ajuda*; um item por linha; em branco = sem caixa.
+- **Cadastro de cidade não atendida:** Admin → Anunciantes → *Solicitações de cidade*. *Liberar a cidade*
+  (atende todos os pedidos dela; depois aprove a loja em Anunciantes) ou *Recusar* (motivo vai por e-mail).
+
 ## Acesso ao admin (login, bloqueio e emergência)
 
 O admin fica em `https://<site>/<ADMIN_URL>/` (valor no `.env`; em dev,
@@ -102,8 +113,9 @@ Regra do projeto (CLAUDE.md): tudo é construído com dados fictícios até o la
    docker compose exec web python manage.py criar_dados_demo
    ```
    Libera as cidades da demonstração, cria as 6 lojas demo (anunciantes ativos que entram em
-   `/entrar/`, ex.: `paulo.mendes@demo.invalid`), 1 loja pendente para testar a aprovação
-   (`contato@cerradonovo.demo.invalid`) e a equipe demo (`moderador@`, `financeiro@` e
+   `/entrar/`, ex.: `paulo.mendes@demo.invalid`), 2 lojas pendentes para testar a aprovação
+   (`contato@cerradonovo.demo.invalid`, e `contato@sinopauto.demo.invalid` em Sinop, cidade não
+   atendida, com uma solicitação de cidade), a "Região de Tangará" e bairros de Tangará da Serra e a equipe demo (`moderador@`, `financeiro@` e
    `comercial@demo.invalid`, senha = `DEMO_SENHA`), para testar os grupos no admin.
    O código de login deles cai no Mailpit.
 3. A home mostra a faixa "Dados de demonstração", destaques, recém-anunciados e lojas.

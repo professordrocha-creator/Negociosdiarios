@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 
 from contas.forms import EntrarForm, EsqueciSenhaForm, NovaSenhaForm
-from core.services import limite_por_ip_excedido, textos_ajuda
+from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 
 
 class EntrarView(auth_views.LoginView):
@@ -50,7 +50,7 @@ class EsqueciSenhaView(auth_views.PasswordResetView):
 
     def get_extra_email_context(self) -> dict:
         """Validade do link em horas, para o texto do e-mail."""
-        return {"horas": settings.PASSWORD_RESET_TIMEOUT // 3600, "site_nome": settings.SITE_NOME}
+        return {"horas": settings.PASSWORD_RESET_TIMEOUT // 3600, "site_nome": configuracao().nome}
 
 
 class EsqueciSenhaEnviadoView(auth_views.PasswordResetDoneView):

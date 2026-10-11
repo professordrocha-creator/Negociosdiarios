@@ -16,6 +16,10 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
 - `MarcaDemo` (abstrato): campo `demo` herdado por todo modelo com dados de
   demonstração. `Cidade.liberada_pela_demo` marca as cidades que a demonstração ligou.
 
+- `Regiao` (cidades M2M) e `Bairro` (por cidade, ativo/inativo), ambos com `demo`.
+- `Configuracao` (registro único: identidade do site, contatos, textos da Sobre, limites de mídia),
+  `ValorEmpresa` (valores da Sobre, ordenáveis) e `TextoAjuda` (caixa "Sobre esta tela" por chave).
+
 ## Serviços (`services.py`)
 - `banco_disponivel()`: testa a conexão com o banco; usado por `/saude/`.
 - `carregar_municipios()`: carrega ou atualiza estados e cidades dos CSVs.
@@ -33,6 +37,12 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
   mostram cidades liberadas; na Sprint 3 só o corpo delas passa a ler o banco.
 - Demonstração: `criar_dados_demo(senha)` (só com DEBUG; equipe demo nos grupos e
   cidades liberadas; idempotente; nunca toma conta real) e `apagar_dados_demo()`.
+
+- Identidade: `configuracao()` (cria o registro único a partir dos `SITE_*` na primeira vez),
+  `dados_do_site()` (o `{{ site }}` dos templates, em cache), `processar_identidade(config, mudados)`
+  (regrava imagens sem EXIF e gera os favicons), `textos_ajuda(tela)` (do banco, em cache).
+- `imagens.py`: validação de símbolos (SVG seguro ou PNG) e da imagem de compartilhamento, regravação
+  sem EXIF e geração de favicons (cairosvg + Pillow).
 
 ## E-mail e tarefas (Celery)
 - `email.py`: `CeleryEmailBackend` (o `EMAIL_BACKEND` do projeto). Todo `send_mail()`

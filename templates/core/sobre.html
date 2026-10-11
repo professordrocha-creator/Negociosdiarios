@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load nd %}
-{# Página Sobre (prototipo/_gerar.py, SOBRE). Textos fixos por enquanto; na Sprint 1 vêm de #}
-{# PaginaInstitucional e ValorEmpresa, editáveis no admin (Identidade do site). #}
+{# Página Sobre (prototipo/_gerar.py, SOBRE). Quem somos, missão e visão vêm da Configuracao e os #}
+{# valores de ValorEmpresa, todos editáveis no admin (Identidade do site). #}
 
 {% block titulo %}Sobre nós{% endblock %}
 
@@ -11,7 +11,7 @@
   <div class="container py-5">
     <span class="selo selo-destaque mb-3">Sobre nós</span>
     <h1 class="display-6 fw-bold mb-3 nd-largura-titulo">{{ site.slogan }}</h1>
-    <p class="lead mb-0 nd-largura-texto">O {{ site.nome }} reúne imóveis e veículos anunciados por profissionais verificados de Mato Grosso, em um só lugar, com contato direto pelo WhatsApp.</p>
+    <p class="lead mb-0 nd-largura-texto">O {{ site.nome }} reúne imóveis e veículos anunciados por profissionais verificados, em um só lugar, com contato direto pelo WhatsApp.</p>
   </div>
 </section>
 
@@ -20,24 +20,22 @@
   <section class="row g-4 align-items-start">
     <div class="col-lg-6">
       <h2 class="h3">Quem somos</h2>
-      <p>Nascemos em Tangará da Serra para resolver um problema simples: os bons negócios da região ficavam espalhados em grupos, sites nacionais e placas na rua. Aqui, imobiliárias, corretores e revendas da região mostram seu estoque com fotos, mapa e preço, e você fala direto com quem vende.</p>
+      {% for paragrafo in config.paragrafos_quem_somos %}<p>{{ paragrafo }}</p>{% endfor %}
       <p class="mb-0">Somos uma iniciativa da {{ site.empresa }}.</p>
     </div>
     <div class="col-lg-6 d-grid gap-3">
-      <div class="nd-caixa nd-mvv"><span class="rotulo">Missão</span><p class="mb-0">Aproximar quem quer comprar ou alugar de quem vende com seriedade, com anúncios de profissionais verificados e contato direto.</p></div>
-      <div class="nd-caixa nd-mvv"><span class="rotulo">Visão</span><p class="mb-0">Ser a referência em imóveis e veículos no interior de Mato Grosso, lembrada pela confiança de quem compra e pelos resultados de quem anuncia.</p></div>
+      <div class="nd-caixa nd-mvv"><span class="rotulo">Missão</span><p class="mb-0">{{ config.sobre_missao }}</p></div>
+      <div class="nd-caixa nd-mvv"><span class="rotulo">Visão</span><p class="mb-0">{{ config.sobre_visao }}</p></div>
     </div>
   </section>
 
-  {# Valores (na Sprint 1: ValorEmpresa, ordenável no admin) #}
+  {# Valores (ValorEmpresa, na ordem do admin) #}
   <section>
     <h2 class="h3 mb-3">Nossos valores</h2>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3">
-      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "verificado" %}</span><b>Confiança</b><span class="small text-suave">Só anunciam corretores com CRECI e empresas com CNPJ verificados.</span></div></div>
-      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "pin" %}</span><b>Proximidade</b><span class="small text-suave">Feito em Mato Grosso, por gente que conhece as cidades e os bairros.</span></div></div>
-      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "olho" %}</span><b>Transparência</b><span class="small text-suave">Preço à vista no anúncio e contato direto com quem vende, sem intermediário.</span></div></div>
-      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "alerta" %}</span><b>Respeito aos seus dados</b><span class="small text-suave">Coletamos o mínimo e seguimos a LGPD. Visitante não precisa de cadastro.</span></div></div>
-      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "lista" %}</span><b>Simplicidade</b><span class="small text-suave">Encontrar, comparar e chamar no WhatsApp em poucos toques.</span></div></div>
+      {% for valor in valores %}
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone valor.icone %}</span><b>{{ valor.titulo }}</b><span class="small text-suave">{{ valor.texto }}</span></div></div>
+      {% endfor %}
     </div>
   </section>
 

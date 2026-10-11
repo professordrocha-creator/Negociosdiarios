@@ -1,4 +1,4 @@
-{% load static nd %}
+{% load nd %}
 {# Cabeçalho fixo (prototipo/_gerar.py, função pagina). #}
 {# Imóveis, Veículos e Lojas levam a páginas "Em breve" até as Sprints 2 e 4. #}
 {% with atual=request.resolver_match.url_name %}
@@ -6,7 +6,7 @@
   <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
     {# Logo: símbolo para fundo escuro + nome e linha da região (context processor "site"). #}
     <a class="nd-logo me-auto" href="{% url 'core:inicio' %}">
-      <img src="{% static 'img/simbolo-ipe.svg' %}" width="38" height="38" alt="">
+      <img src="{{ site.simbolo_escuro }}" width="38" height="38" alt="">
       <span>{{ site.nome }}<small>{{ site.linha_regiao }}</small></span>
     </a>
     {# Menu principal; o item da página atual ganha a classe "ativo" (sublinhado amarelo). #}

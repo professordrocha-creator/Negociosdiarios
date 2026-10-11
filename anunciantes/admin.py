@@ -5,11 +5,17 @@ from django.contrib.admin import helpers
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
 from anunciantes.forms import MotivoStatusForm
-from anunciantes.models import Anunciante
-from anunciantes.services import aprovar, suspender
+from anunciantes.models import Anunciante, SolicitacaoCidade
+from anunciantes.services import (
+    aprovar,
+    liberar_cidade_da_solicitacao,
+    recusar_solicitacao,
+    suspender,
+)
 from core.models import Cidade
 
 
@@ -111,8 +117,78 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
             **self.admin_site.each_context(request),
             "title": "Aprovar anunciantes" if servico is aprovar else "Suspender anunciantes",
             "form": form,
-            "anunciantes": queryset,
+            "itens": [f"{a.nome_publico} ({a.get_status_display()})" for a in queryset],
+            "ids": [a.pk for a in queryset],
+            "url_voltar": reverse("admin:anunciantes_anunciante_changelist"),
             "acao": acao,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+            "opts": self.model._meta,
+        }
+        return TemplateResponse(request, "admin/anunciantes/motivo_status.html", contexto)
+
+
+@admin.register(SolicitacaoCidade)
+class SolicitacaoCidadeAdmin(admin.ModelAdmin):
+    """Pedidos de cidade ainda não atendida: "Liberar cidade" ou "Recusar" (com motivo e e-mail)."""
+
+    list_display = ("cidade", "anunciante", "status", "criado_em", "decidido_por", "demo")
+    list_filter = ("status", "demo", "cidade__uf")
+    search_fields = ("cidade__nome", "anunciante__nome_publico", "anunciante__usuario__email")
+    list_select_related = ("cidade", "anunciante", "decidido_por")
+    readonly_fields = (
+        "anunciante",
+        "cidade",
+        "status",
+        "motivo",
+        "decidido_por",
+        "decidido_em",
+        "criado_em",
+        "demo",
+    )
+    actions = ["liberar_cidades_selecionadas", "recusar_selecionadas"]
+
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        """Solicitações nascem do cadastro, nunca à mão."""
+        return False
+
+    def has_delete_permission(self, request: HttpRequest, obj: SolicitacaoCidade | None = None) -> bool:
+        """Nunca apagadas: ficam como registro da decisão."""
+        return False
+
+    @admin.action(description="Liberar a cidade das solicitações selecionadas", permissions=["change"])
+    def liberar_cidades_selecionadas(self, request: HttpRequest, queryset: QuerySet[SolicitacaoCidade]):
+        """Libera cada cidade pedida; todas as solicitações pendentes dela ficam atendidas."""
+        atendidas = 0
+        for solicitacao in queryset.filter(status=SolicitacaoCidade.Status.PENDENTE).select_related("cidade"):
+            solicitacao.refresh_from_db()
+            if solicitacao.status == SolicitacaoCidade.Status.PENDENTE:  # outra da mesma cidade já liberou
+                atendidas += liberar_cidade_da_solicitacao(solicitacao, request.user)
+        self.message_user(
+            request,
+            f"{atendidas} solicitação(ões) atendida(s). Agora aprove as lojas em Anunciantes.",
+            messages.SUCCESS,
+        )
+
+    @admin.action(description="Recusar selecionadas (motivo enviado por e-mail)", permissions=["change"])
+    def recusar_selecionadas(self, request: HttpRequest, queryset: QuerySet[SolicitacaoCidade]):
+        """Pede o motivo e recusa, avisando cada anunciante por e-mail."""
+        pendentes = queryset.filter(status=SolicitacaoCidade.Status.PENDENTE)
+        form = MotivoStatusForm(request.POST if "aplicar" in request.POST else None, obrigatorio=True)
+        if "aplicar" in request.POST and form.is_valid():
+            for solicitacao in pendentes:
+                recusar_solicitacao(solicitacao, request.user, form.cleaned_data["motivo"])
+            self.message_user(
+                request, f"{pendentes.count()} solicitação(ões) recusada(s); anunciantes avisados."
+            )
+            return None
+        contexto = {
+            **self.admin_site.each_context(request),
+            "title": "Recusar solicitações de cidade",
+            "form": form,
+            "itens": [str(s) for s in pendentes],
+            "ids": [s.pk for s in pendentes],
+            "url_voltar": reverse("admin:anunciantes_solicitacaocidade_changelist"),
+            "acao": "recusar_selecionadas",
             "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
             "opts": self.model._meta,
         }

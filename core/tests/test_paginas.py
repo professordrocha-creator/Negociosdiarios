@@ -152,7 +152,7 @@ def test_favicon_ico_redireciona_para_static(client):
     """/favicon.ico (pedido automático dos navegadores) aponta para o arquivo estático."""
     resposta = client.get("/favicon.ico")
 
-    assert resposta.status_code == 301
+    assert resposta.status_code == 302  # temporário: o favicon muda quando o admin troca o símbolo
     assert resposta["Location"] == "/static/img/favicon.ico"
 
 

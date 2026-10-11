@@ -22,10 +22,10 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 
 | Grupo | Permissões hoje | Chega depois |
 |---|---|---|
-| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico | Tudo dos modelos novos |
-| Moderador | Estados e cidades: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico | Anúncios e denúncias (Sprints 3 e 7) |
-| Financeiro | Estados e cidades: ver · Anunciantes: ver | Planos, faturas e pagamentos (Sprints 2 e 6) |
-| Comercial | Estados e cidades: ver · Anunciantes: ver | Patrocinadores e contratos (Sprint 7) |
+| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar | Tudo dos modelos novos |
+| Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver | Anúncios e denúncias (Sprints 3 e 7) |
+| Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver | Planos, faturas e pagamentos (Sprints 2 e 6) |
+| Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver | Patrocinadores e contratos (Sprint 7) |
 
 Ninguém além do superusuário pode:
 - **apagar usuário ou anunciante** (exclusão é lógica: anunciante é suspenso, nunca apagado);

@@ -107,11 +107,15 @@ def test_privacidade_cobre_os_pontos_da_lgpd(client):
         assert trecho in html, trecho
 
 
-def test_cnpj_aparece_formatado_ou_a_informar(client, settings):
-    """Sem CNPJ no .env: "(CNPJ a informar)"; com CNPJ: formatado."""
+def test_cnpj_aparece_formatado_ou_a_informar(client):
+    """Sem CNPJ na identidade do site: "(CNPJ a informar)"; com CNPJ (admin): formatado."""
+    from core.services import configuracao
+
     assert "(CNPJ a informar)" in html_de(client, "termos")
 
-    settings.SITE_CNPJ = "90000001000129"
+    config = configuracao()
+    config.cnpj = "90000001000129"
+    config.save()  # o save limpa o cache: a mudança aparece na hora
     assert "CNPJ 90.000.001/0001-29" in html_de(client, "termos")
 
 
