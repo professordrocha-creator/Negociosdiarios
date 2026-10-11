@@ -42,14 +42,14 @@ jobs:
       UV_PYTHON_DOWNLOADS: automatic
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # GDAL/GEOS/PROJ: bibliotecas nativas do GeoDjango (as mesmas do Dockerfile).
       - name: Bibliotecas do GeoDjango
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin
 
       - name: Instalar uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v10
         with:
           version: "0.13.0"  # mesma versão do Dockerfile
           enable-cache: true
