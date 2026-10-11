@@ -1,0 +1,12 @@
+{% load nd %}
+{# Caixa "Sobre esta tela" (docs/TELAS.md): toda tela inclui este parcial (via base.html). #}
+{# Recebe "ajuda_itens" (lista de textos) e "ajuda_aberta". Sem itens, não mostra nada. #}
+{# Na Sprint 1 os textos vêm do modelo TextoAjuda (editável no admin), escolhidos pela variável "tela". #}
+{% if ajuda_itens %}
+<div class="container mt-3">
+  <details class="nd-ajuda"{% if ajuda_aberta %} open{% endif %}>
+    <summary>{% icone "alerta" %} Sobre esta tela</summary>
+    <ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul>
+  </details>
+</div>
+{% endif %}

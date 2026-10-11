@@ -20,6 +20,8 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
   nunca mexe em `liberado`/`liberada`. Na primeira carga, só MT nasce liberado
   e nenhuma cidade. Roda numa transação: com uma linha errada, nada é gravado.
 - `liberar_cidades(queryset)`: libera cidades e devolve quantas mudaram.
+- `cidades_atendidas()`: cidades que aparecem no site (liberadas, de estados
+  liberados), agrupadas por estado e em ordem alfabética. Usado pela home.
 
 ## Comando
 ```bash
@@ -34,7 +36,33 @@ docker compose exec web python manage.py carregar_municipios
 - Estados e cidades não podem ser criados nem apagados no admin: vêm só da carga.
 
 ## Rotas
+- `GET /`: home provisória (busca visual, "em breve" para Destaques e Recém-anunciados, cidades atendidas).
+- `GET /sobre/`: quem somos, missão, visão e valores (texto fixo até a Sprint 1).
+- `GET /favicon.ico`: redireciona para `static/img/favicon.ico`.
 - `GET /saude/`: `200 {"status": "ok"}` ou `503` se o banco não responder.
+
+## Layout e identidade
+- Templates em `templates/`: `base.html` + parciais `_topo.html`, `_rodape.html`,
+  `_ajuda.html` (caixa "Sobre esta tela") e `_icones.html` (sprite SVG).
+  Convertidos de `prototipo/_gerar.py`; a pasta `prototipo/` não é usada pelo Django.
+- Ícones: `{% load nd %}` e `{% icone "casa" %}` (`templatetags/nd.py`).
+- Context processor `site` (`context_processors.py`): `{{ site.nome }}`, `slogan`,
+  `linha_regiao`, `email_contato`, `email_privacidade`, `empresa`, `cidade_sede`.
+  Por enquanto lê `SITE_*`
+  do settings; na Sprint 1 passa a ler o modelo `Configuracao`.
+- `static/`: Bootstrap 5.3.3 (CSS e JS locais, licença MIT), `nd.css` e os
+  símbolos SVG do protótipo. Favicons (`favicon.ico`, `favicon-32.png`,
+  `apple-touch-icon.png`, `icone-512.png`) desenhados a partir de `simbolo.svg`;
+  na Sprint 1 serão gerados automaticamente quando o admin trocar o símbolo.
+- `nd.css` só tem estilos usados pelos templates atuais. Card de anúncio, mapa,
+  vitrine e painel voltam de `prototipo/css/nd.css` quando as telas existirem.
+- Fontes em `static/fonts/` (woff2, subconjunto latin, versões variáveis):
+  Bricolage Grotesque (títulos, pesos 600–800) e Figtree (texto, 400–700).
+  Hospedadas no próprio site, sem Google Fonts: o IP do visitante não vai para
+  terceiros (LGPD) e a CSP não precisa liberar outro domínio. Ambas sob a
+  **SIL Open Font License 1.1** (OFL), que permite usar e redistribuir desde que
+  a licença acompanhe os arquivos: ver `static/fonts/OFL-BricolageGrotesque.txt`
+  e `static/fonts/OFL-Figtree.txt`. Origem: repositório `google/fonts`.
 
 ## Dados: `core/dados/`
 | Arquivo | Colunas | Registros |

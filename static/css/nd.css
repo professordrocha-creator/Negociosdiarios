@@ -1,0 +1,127 @@
+/* ==========================================================================
+   Negócios Diários — identidade visual
+   Carrega DEPOIS do bootstrap.min.css e só sobrescreve o necessário.
+   Conceito: "Cerrado ao meio-dia" — azul-petróleo sóbrio (confiança, negócio
+   verificado) + amarelo-ipê (o ipê amarelo do cerrado de MT) como destaque.
+   Só ficam aqui estilos usados pelos templates atuais; card de anúncio, mapa,
+   vitrine e painel voltam (a partir de prototipo/css/nd.css) quando as telas existirem.
+   ========================================================================== */
+
+/* ---------- Fontes (hospedadas em static/fonts/, licença OFL) ----------
+   Servidas do próprio site, e não do Google Fonts: o IP do visitante não vai
+   para terceiros (LGPD) e a CSP não precisa liberar outro domínio.
+   As duas são variáveis: um arquivo por família cobre a faixa de pesos usada.
+   Só o subconjunto "latin" (tem todos os acentos do português). */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url("../fonts/bricolage-grotesque-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../fonts/figtree-latin.woff2") format("woff2");
+}
+
+:root {
+  --nd-petroleo: #0e4a57;      /* cor principal: cabeçalho, botões, links */
+  --nd-petroleo-escuro: #08323b;
+  --nd-ipe: #f2b705;           /* destaque: selos, preço em promoção, CTA secundário */
+  --nd-ipe-claro: #fff4cc;
+  --nd-zap: #1f9d55;           /* verde só no botão WhatsApp */
+  --nd-fundo: #f4f6f6;         /* neutro com leve viés para o petróleo */
+  --nd-papel: #ffffff;
+  --nd-texto: #172a2e;
+  --nd-texto-suave: #5a6e72;
+  --nd-borda: #dde4e5;
+  --nd-fonte-titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --nd-fonte-texto: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --nd-raio: 10px;
+  color-scheme: light;
+
+  /* Variáveis do próprio Bootstrap 5.3 que valem a pena trocar */
+  --bs-body-font-family: var(--nd-fonte-texto);
+  --bs-body-color: var(--nd-texto);
+  --bs-body-bg: var(--nd-fundo);
+  --bs-link-color-rgb: 14, 74, 87;
+  --bs-link-hover-color-rgb: 8, 50, 59;
+  --bs-border-color: var(--nd-borda);
+}
+
+body { background: var(--nd-fundo); color: var(--nd-texto); font-size: 15px; }
+h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.text-suave { color: var(--nd-texto-suave) !important; }
+:focus-visible { outline: 3px solid var(--nd-ipe); outline-offset: 2px; }
+
+/* ---------- Cabeçalho ---------- */
+.nd-topo { background: var(--nd-petroleo); color: #fff; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1030; }
+.nd-topo a { color: #fff; text-decoration: none; }
+.nd-logo { display: flex; align-items: center; gap: 10px; font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 20px; line-height: 1; }
+.nd-logo small { display: block; font-family: var(--nd-fonte-texto); font-weight: 500; font-size: 11px; opacity: .75; letter-spacing: .04em; margin-top: 3px; }
+.nd-menu a { opacity: .85; font-weight: 500; }
+.nd-menu a:hover { opacity: 1; box-shadow: inset 0 -2px 0 var(--nd-ipe); }
+
+/* ---------- Botões e ícones ---------- */
+.btn-nd { --bs-btn-bg: var(--nd-petroleo); --bs-btn-border-color: var(--nd-petroleo); --bs-btn-color: #fff;
+  --bs-btn-hover-bg: var(--nd-petroleo-escuro); --bs-btn-hover-border-color: var(--nd-petroleo-escuro); --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: var(--nd-petroleo-escuro); font-weight: 600; }
+.btn-ipe { --bs-btn-bg: var(--nd-ipe); --bs-btn-border-color: var(--nd-ipe); --bs-btn-color: #2b2100;
+  --bs-btn-hover-bg: #d9a300; --bs-btn-hover-border-color: #d9a300; --bs-btn-hover-color: #2b2100; font-weight: 700; }
+.ico { width: 1.1em; height: 1.1em; vertical-align: -0.17em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Busca da home ---------- */
+.nd-hero { background: linear-gradient(180deg, var(--nd-petroleo) 0%, var(--nd-petroleo) 62%, var(--nd-fundo) 62%); padding-block: 28px 8px; color: #fff; }
+.nd-busca { background: var(--nd-papel); color: var(--nd-texto); border-radius: var(--nd-raio); box-shadow: 0 10px 30px rgba(8, 50, 59, .18); }
+.nd-abas .nav-link { color: var(--nd-texto-suave); font-weight: 600; border: 0; border-bottom: 3px solid transparent; border-radius: 0; }
+.nd-abas .nav-link.active { color: var(--nd-petroleo); border-bottom-color: var(--nd-ipe); background: none; }
+.form-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--nd-texto-suave); margin-bottom: 4px; }
+
+/* Home: atalhos por categoria */
+.nd-atalhos { display: flex; gap: 8px; overflow-x: auto; padding-block: 14px 4px; scrollbar-width: none; }
+.nd-atalhos a { flex: none; display: inline-flex; align-items: center; gap: 6px; background: var(--nd-papel); color: var(--nd-texto); border: 1px solid var(--nd-borda); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.nd-atalhos a:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
+
+/* ---------- Seções e caixas ---------- */
+.nd-secao-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.nd-secao-titulo h2 { font-size: 22px; margin: 0; }
+.nd-caixa { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 18px; }
+
+/* Faixa tracejada: espaço reservado ("Em breve" na home; depois, publicidade) */
+.nd-banner { border: 1px dashed #b9c6c8; border-radius: var(--nd-raio); background: repeating-linear-gradient(-45deg, #eef2f2, #eef2f2 10px, #f6f8f8 10px, #f6f8f8 20px); color: var(--nd-texto-suave); text-align: center; padding: 22px 16px; font-size: 13px; }
+.nd-banner b { display: block; color: var(--nd-texto); font-size: 16px; }
+
+/* Selos */
+.selo { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; }
+.selo-destaque { background: var(--nd-ipe); color: #2b2100; }
+
+/* Caixa "Sobre esta tela" — presente em todas as telas do sistema */
+.nd-ajuda { background: #eef6f7; border: 1px solid #cfe3e6; border-radius: var(--nd-raio); font-size: 14px; }
+.nd-ajuda summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--nd-petroleo); list-style: none; }
+.nd-ajuda summary::-webkit-details-marker { display: none; }
+.nd-ajuda summary::after { content: "mostrar"; float: right; font-weight: 500; font-size: 12px; color: var(--nd-texto-suave); }
+.nd-ajuda[open] summary::after { content: "ocultar"; }
+.nd-ajuda ul { margin: 0; padding: 0 16px 12px 36px; display: grid; gap: 4px; }
+
+/* ---------- Página Sobre ---------- */
+.nd-sobre-hero { background: var(--nd-petroleo); color: #fff; position: relative; overflow: hidden; }
+.nd-sobre-hero::after { content: ""; position: absolute; right: -80px; bottom: -160px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(242,183,5,.45), transparent 65%); }
+.nd-sobre-hero .container { position: relative; z-index: 1; }
+/* Larguras de leitura (em classe, não em style="", para a futura CSP não precisar liberar estilos inline) */
+.nd-largura-titulo { max-width: 20ch; }
+.nd-largura-texto { max-width: 60ch; }
+.nd-mvv { border-left: 4px solid var(--nd-ipe); }
+.nd-mvv .rotulo { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--nd-texto-suave); margin-bottom: 4px; }
+.nd-valor-ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--nd-ipe-claro); color: var(--nd-petroleo); font-size: 20px; }
+
+/* ---------- Rodapé ---------- */
+.nd-rodape { background: var(--nd-petroleo-escuro); color: rgba(255,255,255,.75); font-size: 14px; }
+.nd-rodape a { color: rgba(255,255,255,.85); text-decoration: none; }
+.nd-rodape a:hover { color: #fff; text-decoration: underline; }
+.nd-rodape h3 { color: #fff; font-size: 15px; }
+
+/* Grades de uma coluna: impede que tabelas/textos longos alarguem a página no celular */
+.d-grid { grid-template-columns: minmax(0, 1fr); }

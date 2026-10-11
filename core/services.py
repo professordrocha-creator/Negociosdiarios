@@ -132,3 +132,32 @@ def liberar_cidades(cidades: QuerySet[Cidade]) -> int:
     """
     # Quando existir o cache da lista de cidades liberadas (Redis), limpar aqui.
     return cidades.filter(liberada=False).update(liberada=True)
+
+
+@dataclass(frozen=True)
+class EstadoAtendido:
+    """Um estado liberado e as suas cidades liberadas, para exibir no site."""
+
+    estado: Estado
+    cidades: list[Cidade]
+
+
+def cidades_atendidas() -> list[EstadoAtendido]:
+    """Lista as cidades que aparecem no site, agrupadas por estado.
+
+    Regra (docs/ARQUITETURA.md §9): só cidades `liberada=True` de estados
+    `liberado=True`. Estados sem nenhuma cidade liberada ficam de fora.
+    Ordem: estados por nome, cidades por nome. Uma consulta só.
+    """
+    # Quando existir o cache (Redis), guardar este resultado e limpar ao liberar/bloquear.
+    cidades = (
+        Cidade.objects.filter(liberada=True, uf__liberado=True)
+        .select_related("uf")
+        .order_by("uf__nome", "nome")
+    )
+    grupos: dict[str, EstadoAtendido] = {}
+    for cidade in cidades:
+        if cidade.uf_id not in grupos:
+            grupos[cidade.uf_id] = EstadoAtendido(estado=cidade.uf, cidades=[])
+        grupos[cidade.uf_id].cidades.append(cidade)
+    return list(grupos.values())

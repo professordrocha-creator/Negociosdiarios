@@ -1,0 +1,10 @@
+{# Seletor de cidade da busca: só cidades liberadas. Com 2+ estados liberados, agrupa por estado. #}
+{# Recebe "id_campo" (id do <select>) e "estados_atendidos" / "mostrar_estado" da view. #}
+<select id="{{ id_campo }}" class="form-select">
+  <option>Todas as cidades</option>
+  {% for grupo in estados_atendidos %}
+    {% if mostrar_estado %}<optgroup label="{{ grupo.estado.nome }}">{% endif %}
+    {% for cidade in grupo.cidades %}<option value="{{ cidade.uf_id|lower }}/{{ cidade.slug }}">{{ cidade.nome }}</option>{% endfor %}
+    {% if mostrar_estado %}</optgroup>{% endif %}
+  {% endfor %}
+</select>

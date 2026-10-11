@@ -1,0 +1,20 @@
+{% load static nd %}
+{# Cabeçalho fixo (prototipo/_gerar.py, função pagina). #}
+{# Imóveis, Veículos e Lojas ainda não têm página: ficam sem link até as Sprints 2 e 4. #}
+<header class="nd-topo">
+  <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
+    {# Logo: símbolo para fundo escuro + nome e linha da região (context processor "site"). #}
+    <a class="nd-logo me-auto" href="{% url 'core:inicio' %}">
+      <img src="{% static 'img/simbolo-ipe.svg' %}" width="38" height="38" alt="">
+      <span>{{ site.nome }}<small>{{ site.linha_regiao }}</small></span>
+    </a>
+    {# Menu principal (sem link por enquanto). #}
+    <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
+      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Imóveis</a>
+      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Veículos</a>
+      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Lojas</a>
+    </nav>
+    {# "Anunciar" leva, por enquanto, à seção "Para quem anuncia" da página Sobre. #}
+    <a class="btn btn-sm btn-ipe" href="{% url 'core:sobre' %}#anunciar">{% icone "mais" %} Anunciar</a>
+  </div>
+</header>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Negócios Diários">
+  <!-- Variação para fundo escuro (cabeçalho petróleo): quadrado amarelo, traços petróleo -->
+  <rect width="40" height="40" rx="10" fill="#f2b705"/>
+  <path d="M11.5 29a8.5 8.5 0 0 1 17 0z" fill="#0e4a57" opacity=".35"/>
+  <path d="M7 22.5 20 12l13 10.5" fill="none" stroke="#0e4a57" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M7.5 29.5h25" stroke="#0e4a57" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

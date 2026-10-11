@@ -61,6 +61,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.site",
             ],
         },
     },
@@ -97,6 +98,17 @@ LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Cuiaba"
 USE_I18N = True
 USE_TZ = True
+
+# --- Identidade do site ------------------------------------------------------
+# Provisório: na Sprint 1 estes textos passam para o modelo Configuracao (editável no admin).
+# Usados pelo context processor core.context_processors.site.
+SITE_NOME = "Negócios Diários"
+SITE_SLOGAN = "Os melhores negócios da sua região, todos os dias."
+SITE_LINHA_REGIAO = "Imóveis e veículos de Mato Grosso"
+SITE_EMAIL_CONTATO = "contato@negociosdiarios.com.br"
+SITE_EMAIL_PRIVACIDADE = "privacidade@negociosdiarios.com.br"
+SITE_EMPRESA = "D'Rocha Soluções"
+SITE_CIDADE_SEDE = "Tangará da Serra, MT"
 
 # --- Arquivos estáticos -------------------------------------------------------
 STATIC_URL = "static/"

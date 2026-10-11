@@ -1,0 +1,47 @@
+{% load static %}<!doctype html>
+{# Layout base de todas as páginas públicas. Convertido de prototipo/_gerar.py (função pagina). #}
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  {# Título: cada página define o seu no bloco "titulo"; o nome do site vem do context processor "site". #}
+  <title>{% block titulo %}{{ site.slogan }}{% endblock %} · {{ site.nome }}</title>
+  <meta name="description" content="{% block descricao %}{{ site.slogan }}{% endblock %}">
+
+  {# Favicon: SVG para navegadores modernos, PNG de reserva e ícone da tela inicial do iPhone. #}
+  <link rel="icon" href="{% static 'img/simbolo.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'img/favicon-32.png' %}" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <meta name="theme-color" content="#0e4a57">
+
+  {# Fontes locais (static/fonts/, @font-face no nd.css): Bricolage Grotesque nos títulos, Figtree no texto. #}
+  {# Preload para o navegador baixá-las junto com o CSS, sem esperar o CSS ser lido. #}
+  <link rel="preload" href="{% static 'fonts/figtree-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/bricolage-grotesque-latin.woff2' %}" as="font" type="font/woff2" crossorigin>
+
+  {# Bootstrap 5.3.3 servido localmente; nd.css vem depois e só sobrescreve o necessário. #}
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/nd.css' %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {# Sprite com os ícones SVG usados pela tag icone (core/templatetags/nd.py). #}
+  {% include "_icones.html" %}
+
+  {# Cabeçalho fixo: logo, menu principal e botão Anunciar. #}
+  {% include "_topo.html" %}
+
+  {# Caixa "Sobre esta tela" (docs/TELAS.md). Só aparece se a tela tiver texto de ajuda. #}
+  {% block ajuda %}{% include "_ajuda.html" %}{% endblock %}
+
+  {# Conteúdo próprio de cada página. #}
+  {% block conteudo %}{% endblock %}
+
+  {# Rodapé escuro com links institucionais. #}
+  {% block rodape %}{% include "_rodape.html" %}{% endblock %}
+
+  {# JS do Bootstrap (abas da busca). Local, para a futura CSP não precisar liberar CDN. #}
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

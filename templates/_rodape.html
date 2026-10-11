@@ -1,0 +1,46 @@
+{% load static %}
+{# Rodapé (prototipo/_gerar.py, RODAPE). Links sem página ainda ficam sem href. #}
+{# Política de Privacidade, Termos e Cookies chegam na Sprint 7 (LGPD). #}
+<footer class="nd-rodape mt-5">
+  <div class="container py-5">
+    <div class="row g-4">
+      {# Marca e proposta do site #}
+      <div class="col-12 col-md-4">
+        <div class="nd-logo mb-2 text-white"><img src="{% static 'img/simbolo-ipe.svg' %}" width="38" height="38" alt=""><span>{{ site.nome }}</span></div>
+        <p class="mb-0">{{ site.slogan }} Só anunciantes verificados: corretores com CRECI e revendas com CNPJ.</p>
+      </div>
+      {# Atalhos de busca (Sprint 4) #}
+      <div class="col-6 col-md-2">
+        <h3>Buscar</h3>
+        <ul class="list-unstyled d-grid gap-1 mb-0">
+          <li><a aria-disabled="true">Imóveis à venda</a></li>
+          <li><a aria-disabled="true">Imóveis para alugar</a></li>
+          <li><a aria-disabled="true">Carros e motos</a></li>
+          <li><a aria-disabled="true">Lojas</a></li>
+        </ul>
+      </div>
+      {# Anunciantes (planos na Sprint 2) #}
+      <div class="col-6 col-md-3">
+        <h3>Para anunciantes</h3>
+        <ul class="list-unstyled d-grid gap-1 mb-0">
+          <li><a href="{% url 'core:sobre' %}#anunciar">Como anunciar</a></li>
+          <li><a aria-disabled="true">Planos e preços</a></li>
+          <li><a aria-disabled="true">Anuncie sua marca</a></li>
+        </ul>
+      </div>
+      {# Institucional #}
+      <div class="col-12 col-md-3">
+        <h3>Institucional</h3>
+        <ul class="list-unstyled d-grid gap-1 mb-0">
+          <li><a href="{% url 'core:sobre' %}">Sobre nós</a></li>
+          <li><a aria-disabled="true">Política de Privacidade</a></li>
+          <li><a aria-disabled="true">Termos de Uso</a></li>
+          <li><a aria-disabled="true">Preferências de cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-secondary my-4">
+    {# Ano atual, empresa e canal de privacidade (a LGPD exige um canal com o titular). #}
+    <p class="small mb-0">© {% now "Y" %} {{ site.nome }} · {{ site.empresa }} · {{ site.cidade_sede }} ·{{ site.email_privacidade }}</p>
+  </div>
+</footer>

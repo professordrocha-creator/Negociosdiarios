@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Página Sobre (prototipo/_gerar.py, SOBRE). Textos fixos por enquanto; na Sprint 1 vêm de #}
+{# PaginaInstitucional e ValorEmpresa, editáveis no admin (Identidade do site). #}
+
+{% block titulo %}Sobre nós{% endblock %}
+
+{% block conteudo %}
+{# Faixa de abertura com o slogan #}
+<section class="nd-sobre-hero">
+  <div class="container py-5">
+    <span class="selo selo-destaque mb-3">Sobre nós</span>
+    <h1 class="display-6 fw-bold mb-3 nd-largura-titulo">{{ site.slogan }}</h1>
+    <p class="lead mb-0 nd-largura-texto">O {{ site.nome }} reúne imóveis e veículos anunciados por profissionais verificados de Mato Grosso, em um só lugar, com contato direto pelo WhatsApp.</p>
+  </div>
+</section>
+
+<main class="container mt-5 d-grid gap-5">
+  {# Quem somos + missão e visão #}
+  <section class="row g-4 align-items-start">
+    <div class="col-lg-6">
+      <h2 class="h3">Quem somos</h2>
+      <p>Nascemos em Tangará da Serra para resolver um problema simples: os bons negócios da região ficavam espalhados em grupos, sites nacionais e placas na rua. Aqui, imobiliárias, corretores e revendas da região mostram seu estoque com fotos, mapa e preço, e você fala direto com quem vende.</p>
+      <p class="mb-0">Somos uma iniciativa da {{ site.empresa }}.</p>
+    </div>
+    <div class="col-lg-6 d-grid gap-3">
+      <div class="nd-caixa nd-mvv"><span class="rotulo">Missão</span><p class="mb-0">Aproximar quem quer comprar ou alugar de quem vende com seriedade, com anúncios de profissionais verificados e contato direto.</p></div>
+      <div class="nd-caixa nd-mvv"><span class="rotulo">Visão</span><p class="mb-0">Ser a referência em imóveis e veículos no interior de Mato Grosso, lembrada pela confiança de quem compra e pelos resultados de quem anuncia.</p></div>
+    </div>
+  </section>
+
+  {# Valores (na Sprint 1: ValorEmpresa, ordenável no admin) #}
+  <section>
+    <h2 class="h3 mb-3">Nossos valores</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3">
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "verificado" %}</span><b>Confiança</b><span class="small text-suave">Só anunciam corretores com CRECI e empresas com CNPJ verificados.</span></div></div>
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "pin" %}</span><b>Proximidade</b><span class="small text-suave">Feito em Mato Grosso, por gente que conhece as cidades e os bairros.</span></div></div>
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "olho" %}</span><b>Transparência</b><span class="small text-suave">Preço à vista no anúncio e contato direto com quem vende, sem intermediário.</span></div></div>
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "alerta" %}</span><b>Respeito aos seus dados</b><span class="small text-suave">Coletamos o mínimo e seguimos a LGPD. Visitante não precisa de cadastro.</span></div></div>
+      <div class="col"><div class="nd-caixa h-100 d-grid gap-2 align-content-start"><span class="nd-valor-ico">{% icone "lista" %}</span><b>Simplicidade</b><span class="small text-suave">Encontrar, comparar e chamar no WhatsApp em poucos toques.</span></div></div>
+    </div>
+  </section>
+
+  {# Como funciona, para quem procura e para quem anuncia (o botão "Anunciar" do topo aponta para cá) #}
+  <section class="row g-4">
+    <div class="col-md-6"><div class="nd-caixa h-100"><h2 class="h5">Para quem procura</h2>
+      <ol class="mb-0 d-grid gap-1"><li>Pesquise por cidade, preço e tipo, sem cadastro.</li><li>Veja fotos, ficha completa e a região no mapa.</li><li>Chame o anunciante no WhatsApp e combine a visita.</li></ol></div></div>
+    <div class="col-md-6" id="anunciar"><div class="nd-caixa h-100"><h2 class="h5">Para quem anuncia</h2>
+      <ol class="mb-0 d-grid gap-1"><li>Cadastre sua imobiliária ou revenda e envie o CRECI ou CNPJ.</li><li>Após a verificação, ganhe sua página própria e publique.</li><li>Acompanhe visualizações e contatos no painel.</li></ol>
+      <p class="small text-suave mt-3 mb-0">Cadastro de anunciantes em breve. Quer ser um dos primeiros? Escreva para <a href="mailto:{{ site.email_contato }}">{{ site.email_contato }}</a>.</p></div></div>
+  </section>
+
+  {# Contato #}
+  <section class="nd-caixa d-flex flex-wrap gap-3 align-items-center">
+    <div class="me-auto"><h2 class="h5 mb-1">Fale com a gente</h2><span class="text-suave">{{ site.email_contato }} · {{ site.cidade_sede }}</span></div>
+    <a class="btn btn-nd" href="mailto:{{ site.email_contato }}">Enviar e-mail</a>
+  </section>
+</main>
+{% endblock %}
