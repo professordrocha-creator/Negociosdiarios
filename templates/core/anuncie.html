@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Mídia kit "Anuncie sua marca" (docs/PUBLICIDADE.md, docs/TELAS.md). Formatos e preços do settings #}
+{# PUBLICIDADE_FORMATOS até a Sprint 7 (app publicidade). Cada formato tem uma prévia em escala. #}
+
+{% block titulo %}Anuncie sua marca{% endblock %}
+{% block descricao %}Mídia kit do {{ site.nome }}: banner no topo, card patrocinador e anúncio nativo na busca, com tamanhos, posições e preços para empresas da região.{% endblock %}
+
+{% block conteudo %}
+<section class="nd-sobre-hero">
+  <div class="container py-5">
+    <span class="selo selo-destaque mb-3">Mídia kit</span>
+    <h1 class="display-6 fw-bold mb-2 nd-largura-titulo">Sua marca para quem está comprando casa e carro</h1>
+    <p class="lead mb-0 nd-largura-texto">Publicidade vendida direto para empresas da região: construtoras, lojas de material, móveis, despachantes, autopeças, seguradoras e cooperativas de crédito.</p>
+  </div>
+</section>
+
+<main class="container mt-4 d-grid gap-4">
+  <section class="row row-cols-1 row-cols-md-3 g-3">
+    <div class="col"><div class="nd-caixa h-100"><b>{% icone "pin" %} Público da região</b><p class="small text-suave mb-0">Quem visita está procurando imóvel ou veículo nas cidades atendidas.</p></div></div>
+    <div class="col"><div class="nd-caixa h-100"><b>{% icone "verificado" %} Transparência</b><p class="small text-suave mb-0">Toda peça leva o rótulo "Publicidade" e o link é marcado como patrocinado.</p></div></div>
+    <div class="col"><div class="nd-caixa h-100"><b>{% icone "olho" %} Resultado medido</b><p class="small text-suave mb-0">Relatório mensal de impressões e cliques, contados sem dados pessoais do visitante.</p></div></div>
+  </section>
+
+  {% for formato in formatos %}
+  <section class="nd-caixa" id="{{ formato.slug }}">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-5">
+        <h2 class="h4 mb-1">{{ formato.nome }}</h2>
+        <p class="nd-preco-formato tabular mb-2">{{ formato.preco_de|moeda }}{% if formato.preco_ate %} a {{ formato.preco_ate|moeda }}{% endif %} <span class="text-suave">por {{ formato.periodo }}</span></p>
+        <dl class="nd-ficha-formato mb-0">
+          <dt>Onde aparece</dt><dd>{{ formato.onde }}</dd>
+          <dt>Tamanho</dt><dd>{{ formato.tamanho }}</dd>
+          <dt>Arquivo</dt><dd>{{ formato.arquivo }}</dd>
+        </dl>
+      </div>
+      <div class="col-lg-7">
+        <p class="small text-suave mb-2">Prévia (em escala):</p>
+        {% if formato.slug == "banner-topo" %}
+          <div class="nd-previa nd-previa-banner-desktop"><span class="nd-rotulo-pub">Publicidade</span>Sua marca aqui · 970×90</div>
+          <div class="nd-previa nd-previa-banner-celular mt-2"><span class="nd-rotulo-pub">Publicidade</span>Celular · 320×100</div>
+        {% elif formato.slug == "card-patrocinador" %}
+          <div class="row row-cols-3 g-2">
+            {% for _ in "123" %}<div class="col"><div class="nd-previa nd-previa-card"><span class="nd-rotulo-pub">Publicidade</span><span class="nd-previa-logo">Logo</span><span class="small">Frase de até 80 caracteres</span></div></div>{% endfor %}
+          </div>
+        {% else %}
+          <div class="nd-previa-nativo">
+            <span class="nd-rotulo-pub">Publicidade</span>
+            <b>Título do anúncio de até 60 caracteres</b>
+            <span class="small text-suave">Texto de até 120 caracteres, exibido no topo da busca da cidade escolhida.</span>
+            <span class="small nd-previa-link">suaempresa.com.br</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endfor %}
+
+  <section class="nd-caixa">
+    <h2 class="h5">Regras que protegem o visitante e o anunciante</h2>
+    <ul class="mb-0 d-grid gap-1">
+      <li>No máximo 3 espaços de publicidade por página; com mais de um contrato na mesma vaga, as peças se revezam.</li>
+      <li>Cada contrato tem data de início e de fim: a peça entra e sai do ar sozinha.</li>
+      <li>Segmentação por cidade e por seção (imóveis, veículos ou página inicial).</li>
+      <li>Imobiliárias, corretores e revendas só compram publicidade se forem assinantes.</li>
+      <li>Imagens passam pelo mesmo tratamento das fotos dos anúncios (formato leve, sem dados de localização).</li>
+    </ul>
+  </section>
+
+  <section class="nd-caixa d-flex flex-column flex-md-row align-items-md-center gap-3">
+    <div class="me-auto"><h2 class="h5 mb-1">Condição de lançamento</h2><p class="mb-0 text-suave">Os 3 primeiros patrocinadores têm desconto no primeiro mês.</p></div>
+    <a class="btn btn-ipe btn-lg" href="{% url 'core:contato' %}?assunto=publicidade">Quero anunciar minha marca</a>
+  </section>
+</main>
+{% endblock %}

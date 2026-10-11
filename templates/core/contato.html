@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Contato: tudo vem do context processor "site" (WhatsApp, e-mails, endereço, CNPJ). Sem formulário por enquanto. #}
+{# Dado vazio no .env = "em breve"/"a informar", nunca um contato inventado. #}
+
+{% block titulo %}Fale com a gente{% endblock %}
+{% block descricao %}Contatos do {{ site.nome }}: WhatsApp, e-mail e endereço. Para anunciar, tirar dúvidas ou falar sobre seus dados.{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <h1 class="h2">Fale com a gente</h1>
+  <p class="text-suave nd-largura-texto">Quer anunciar, tem uma dúvida ou encontrou um problema? Escolha o canal mais fácil para você.</p>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+    <div class="col"><div class="nd-caixa h-100 d-grid gap-1 align-content-start">
+      <span class="nd-valor-ico">{% icone "mais" %}</span><b>WhatsApp</b>
+      {% if site.whatsapp %}
+        <a href="{{ site.whatsapp|link_whatsapp }}" rel="noopener" target="_blank">{{ site.whatsapp|telefone }}</a>
+      {% else %}
+        <span class="text-suave">Em breve</span>
+      {% endif %}
+    </div></div>
+    <div class="col"><div class="nd-caixa h-100 d-grid gap-1 align-content-start">
+      <span class="nd-valor-ico">{% icone "lista" %}</span><b>E-mail</b>
+      <a href="mailto:{{ site.email_contato }}">{{ site.email_contato }}</a>
+      <span class="small text-suave">Anúncios, planos, publicidade e dúvidas.</span>
+    </div></div>
+    <div class="col"><div class="nd-caixa h-100 d-grid gap-1 align-content-start">
+      <span class="nd-valor-ico">{% icone "alerta" %}</span><b>Privacidade (LGPD)</b>
+      <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>
+      <span class="small text-suave">Pedidos sobre seus dados pessoais. Resposta em até 15 dias.</span>
+    </div></div>
+    <div class="col"><div class="nd-caixa h-100 d-grid gap-1 align-content-start">
+      <span class="nd-valor-ico">{% icone "pin" %}</span><b>Endereço</b>
+      <span>{% if site.endereco %}{{ site.endereco }}<br>{% endif %}{{ site.cidade_sede }}</span>
+      <span class="small text-suave">{{ site.empresa }}{% if site.cnpj %} · CNPJ {{ site.cnpj|cnpj }}{% endif %}</span>
+    </div></div>
+  </div>
+
+  <section class="row g-3 mt-2">
+    <div class="col-md-6"><div class="nd-caixa h-100">
+      <h2 class="h5">Quer anunciar?</h2>
+      <p class="mb-0">Conte se você é corretor (CRECI) ou empresa (CNPJ), quantos anúncios pretende manter e a cidade. Veja antes os <a href="{% url 'core:planos' %}">planos</a> ou, para publicidade da sua marca, o <a href="{% url 'core:anuncie' %}">mídia kit</a>.</p>
+    </div></div>
+    <div class="col-md-6"><div class="nd-caixa h-100">
+      <h2 class="h5">Viu um anúncio suspeito?</h2>
+      <p class="mb-0">Avise pelo e-mail acima com o link do anúncio. Saiba mais em <a href="{% url 'core:denunciar' %}">Denunciar anúncio</a>.</p>
+    </div></div>
+  </section>
+</main>
+{% endblock %}

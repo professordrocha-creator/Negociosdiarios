@@ -1,0 +1,32 @@
+{% extends "core/documento_legal.html" %}
+{% load nd %}
+{# Política de Cookies (rascunho). A tabela lista os cookies que o site realmente usa hoje; #}
+{# cookie novo = linha nova aqui e no docs/LGPD.md. Banner de consentimento só se surgir cookie não essencial. #}
+
+{% block titulo %}Política de Cookies{% endblock %}
+{% block descricao %}Quais cookies o {{ site.nome }} usa (hoje, só os essenciais), para que servem e por quanto tempo ficam no seu navegador.{% endblock %}
+{% block doc_titulo %}Política de Cookies{% endblock %}
+
+{% block doc_corpo %}
+<p class="lead">Cookies são pequenos arquivos que o site guarda no seu navegador. <b>O {{ site.nome }} usa apenas cookies essenciais</b>, sem os quais o site não funciona com segurança. Não usamos cookies de publicidade nem de rastreamento.</p>
+
+<h2 id="quais">1. Cookies que usamos</h2>
+<div class="table-responsive">
+<table class="table table-sm align-top">
+  <thead><tr><th>Nome</th><th>Para que serve</th><th>Quem recebe</th><th>Duração</th></tr></thead>
+  <tbody>
+    <tr><td><code>csrftoken</code></td><td>Protege formulários contra envio forjado por outros sites</td><td>Quem usa um formulário</td><td>1 ano</td></tr>
+    <tr><td><code>sessionid</code></td><td>Mantém você conectado depois do login</td><td>Só quem faz login (anunciantes e equipe)</td><td>2 semanas</td></tr>
+    <tr><td><code>messages</code></td><td>Mostra avisos de uma página para a seguinte (ex.: "código enviado")</td><td>Quem faz login</td><td>Até o aviso ser exibido</td></tr>
+    <tr><td><code>nd_admin_navegador</code></td><td>Lembra que este navegador já foi confirmado com código, para não pedir de novo</td><td>Só a equipe do site, na área administrativa</td><td>30 dias</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Por serem essenciais, esses cookies não dependem de consentimento (LGPD, art. 7º, IX). As estatísticas de visitas do site, quando entrarem no ar, serão feitas sem cookies.</p>
+
+<h2 id="consentimento">2. Se um dia usarmos outros cookies</h2>
+<p>Se o site passar a usar cookies não essenciais (por exemplo, de medição de terceiros), você verá um aviso com as opções <b>"Aceitar"</b> e <b>"Recusar"</b> do mesmo tamanho, e poderá mudar a escolha a qualquer momento por esta página.</p>
+
+<h2 id="controle">3. Como apagar ou bloquear</h2>
+<p>Você pode apagar ou bloquear cookies nas configurações do seu navegador. Se bloquear os essenciais, o login e os formulários deixam de funcionar; a navegação pelos anúncios continua.</p>
+{% endblock %}

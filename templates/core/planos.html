@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Planos de assinatura (docs/TELAS.md §2). Valores do settings PLANOS até a Sprint 2 (modelo Plano). #}
+{# Mensal/anual sem JavaScript: os dois rádios são irmãos de .nd-planos e o CSS mostra um preço ou outro. #}
+
+{% block titulo %}Planos para anunciar{% endblock %}
+{% block descricao %}{% with maior=planos|last %}Planos para corretores e revendas anunciarem no {{ site.nome }}: de {{ planos.0.limite_anuncios }} a {{ maior.limite_anuncios }} anúncios, página própria da loja e contato direto pelo WhatsApp.{% endwith %}{% endblock %}
+
+{% block conteudo %}
+<section class="nd-sobre-hero">
+  <div class="container py-5">
+    <span class="selo selo-destaque mb-3">Para anunciantes</span>
+    <h1 class="display-6 fw-bold mb-2 nd-largura-titulo">Sua loja na vitrine da região</h1>
+    <p class="lead mb-0 nd-largura-texto">Página própria, anúncios com fotos e mapa, e clientes falando direto com você no WhatsApp. Escolha quantos anúncios quer manter no ar.</p>
+  </div>
+</section>
+
+<main class="container mt-4">
+  <div class="text-center mb-3">
+    <input type="radio" class="btn-check" name="periodo" id="periodo-mensal" autocomplete="off" checked>
+    <label class="btn btn-outline-secondary nd-periodo" for="periodo-mensal">Mensal</label>
+    <input type="radio" class="btn-check" name="periodo" id="periodo-anual" autocomplete="off">
+    <label class="btn btn-outline-secondary nd-periodo" for="periodo-anual">Anual <span class="selo selo-destaque ms-1">{{ planos.0.meses_gratis }} meses grátis</span></label>
+
+    <div class="nd-planos row row-cols-1 row-cols-md-3 g-3 mt-2 text-start">
+      {% for plano in planos %}
+      <div class="col">
+        <article class="nd-caixa nd-plano h-100 d-flex flex-column">
+          <h2 class="h4 mb-1">{{ plano.nome }}</h2>
+          <p class="text-suave mb-3">Até <b>{{ plano.limite_anuncios }} anúncios</b> ativos ao mesmo tempo</p>
+          <div class="nd-plano-preco so-mensal">
+            <span class="valor tabular">{{ plano.mensal|moeda }}</span><span class="text-suave">/mês</span>
+          </div>
+          <div class="nd-plano-preco so-anual">
+            <span class="valor tabular">{{ plano.anual|moeda }}</span><span class="text-suave">/ano</span>
+            <div class="small text-suave">Equivale a {{ plano.meses_pagos_no_anual }} mensalidades: economia de {{ plano.economia_anual|moeda }}</div>
+          </div>
+          <ul class="nd-plano-itens my-3">
+            <li>{% icone "loja" %} Página própria da loja</li>
+            <li>{% icone "casa" %} {{ plano.limite_anuncios }} anúncios de imóveis ou veículos</li>
+            <li>{% icone "pin" %} Mapa e fotos em cada anúncio</li>
+            <li>{% icone "verificado" %} Selo de anunciante verificado</li>
+            <li>{% icone "olho" %} Visualizações e cliques no WhatsApp</li>
+          </ul>
+          <a class="btn btn-ipe mt-auto" href="{% url 'core:contato' %}?plano={{ plano.slug }}">Quero anunciar</a>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <section class="row g-4 mt-4">
+    <div class="col-md-6"><div class="nd-caixa h-100">
+      <h2 class="h5">Como funciona</h2>
+      <ol class="mb-0 d-grid gap-1">
+        <li>Fale com a gente e escolha o plano.</li>
+        <li>Envie o CRECI (corretor) ou o CNPJ (empresa) para a verificação.</li>
+        <li>Aprovado, sua loja ganha a página própria e você começa a anunciar.</li>
+      </ol>
+    </div></div>
+    <div class="col-md-6"><div class="nd-caixa h-100">
+      <h2 class="h5">Perguntas rápidas</h2>
+      <p class="mb-2"><b>Posso trocar de plano?</b> Sim, para mais ou para menos anúncios.</p>
+      <p class="mb-2"><b>Como pago?</b> Por Pix, com fatura mensal ou anual.</p>
+      <p class="mb-0"><b>E se atrasar?</b> Os anúncios saem do ar até o pagamento e voltam sozinhos depois.</p>
+    </div></div>
+  </section>
+</main>
+{% endblock %}

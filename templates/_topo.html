@@ -1,6 +1,7 @@
 {% load static nd %}
 {# Cabeçalho fixo (prototipo/_gerar.py, função pagina). #}
-{# Imóveis, Veículos e Lojas ainda não têm página: ficam sem link até as Sprints 2 e 4. #}
+{# Imóveis, Veículos e Lojas levam a páginas "Em breve" até as Sprints 2 e 4. #}
+{% with atual=request.resolver_match.url_name %}
 <header class="nd-topo">
   <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
     {# Logo: símbolo para fundo escuro + nome e linha da região (context processor "site"). #}
@@ -8,13 +9,14 @@
       <img src="{% static 'img/simbolo-ipe.svg' %}" width="38" height="38" alt="">
       <span>{{ site.nome }}<small>{{ site.linha_regiao }}</small></span>
     </a>
-    {# Menu principal (sem link por enquanto). #}
+    {# Menu principal; o item da página atual ganha a classe "ativo" (sublinhado amarelo). #}
     <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
-      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Imóveis</a>
-      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Veículos</a>
-      <a class="px-1 py-2" aria-disabled="true" title="Em breve">Lojas</a>
+      <a class="px-1 py-2{% if atual == 'imoveis' %} ativo{% endif %}" href="{% url 'core:imoveis' %}"{% if atual == 'imoveis' %} aria-current="page"{% endif %}>Imóveis</a>
+      <a class="px-1 py-2{% if atual == 'veiculos' %} ativo{% endif %}" href="{% url 'core:veiculos' %}"{% if atual == 'veiculos' %} aria-current="page"{% endif %}>Veículos</a>
+      <a class="px-1 py-2{% if atual == 'lojas' %} ativo{% endif %}" href="{% url 'core:lojas' %}"{% if atual == 'lojas' %} aria-current="page"{% endif %}>Lojas</a>
     </nav>
-    {# "Anunciar" leva, por enquanto, à seção "Para quem anuncia" da página Sobre. #}
-    <a class="btn btn-sm btn-ipe" href="{% url 'core:sobre' %}#anunciar">{% icone "mais" %} Anunciar</a>
+    {# "Anunciar" leva aos planos. #}
+    <a class="btn btn-sm btn-ipe" href="{% url 'core:planos' %}">{% icone "mais" %} Anunciar</a>
   </div>
 </header>
+{% endwith %}

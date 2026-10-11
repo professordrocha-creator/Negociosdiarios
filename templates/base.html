@@ -7,6 +7,8 @@
   {# Título: cada página define o seu no bloco "titulo"; o nome do site vem do context processor "site". #}
   <title>{% block titulo %}{{ site.slogan }}{% endblock %} · {{ site.nome }}</title>
   <meta name="description" content="{% block descricao %}{{ site.slogan }}{% endblock %}">
+  {# Páginas provisórias (rascunhos legais, "em breve") pedem para não ser indexadas. #}
+  {% block robots %}{% endblock %}
 
   {# Favicon: SVG para navegadores modernos, PNG de reserva e ícone da tela inicial do iPhone. #}
   <link rel="icon" href="{% static 'img/simbolo.svg' %}" type="image/svg+xml">

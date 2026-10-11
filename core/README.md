@@ -56,9 +56,16 @@ docker compose exec web python manage.py apagar_dados_demo  # remove tudo que é
 - Estados e cidades não podem ser criados nem apagados no admin: vêm só da carga.
 
 ## Rotas
-- `GET /`: home provisória (busca visual, "em breve" para Destaques e Recém-anunciados, cidades atendidas).
+- `GET /`: home (busca visual, destaques, recém-anunciados, lojas verificadas e cidades atendidas; dados demo com `MOSTRAR_DEMO`).
 - `GET /sobre/`: quem somos, missão, visão e valores (texto fixo até a Sprint 1).
 - `GET /favicon.ico`: redireciona para `static/img/favicon.ico`.
+- `GET /privacidade/`, `/termos/`, `/cookies/`: rascunhos legais (aviso no topo, `noindex`),
+  base `templates/core/documento_legal.html`; empresa, cidade e contatos vêm do `site`.
+- `GET /planos/`: planos do settings `PLANOS` (modelo Plano na Sprint 2), mensal/anual só com CSS.
+- `GET /anuncie/`: mídia kit do settings `PUBLICIDADE_FORMATOS` (app publicidade na Sprint 7).
+- `GET /contato/`: WhatsApp, e-mails e endereço do `site` (`SITE_WHATSAPP` etc. no .env).
+- `GET /imoveis/`, `/veiculos/`, `/lojas/`, `/painel/`, `/denunciar/`: "Em breve" (`PAGINAS_EM_BREVE`),
+  nunca 404; cada sprint troca a sua rota pela tela de verdade.
 - `GET /saude/`: `200 {"status": "ok"}` ou `503` se o banco não responder.
 
 ## Layout e identidade

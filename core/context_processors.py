@@ -22,6 +22,9 @@ def site(request: HttpRequest) -> dict:
             "email_privacidade": settings.SITE_EMAIL_PRIVACIDADE,
             "empresa": settings.SITE_EMPRESA,
             "cidade_sede": settings.SITE_CIDADE_SEDE,
+            "whatsapp": settings.SITE_WHATSAPP,  # E.164; vazio = "em breve"
+            "endereco": settings.SITE_ENDERECO,
+            "cnpj": settings.SITE_CNPJ,
         },
         # Atalho do admin no rodapé: só em dev ou para a equipe logada (core.services).
         "mostrar_link_admin": mostrar_link_admin(getattr(request, "user", None), settings.DEBUG),

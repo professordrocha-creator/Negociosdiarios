@@ -189,6 +189,60 @@ SITE_EMAIL_CONTATO = "contato@negociosdiarios.com.br"
 SITE_EMAIL_PRIVACIDADE = "privacidade@negociosdiarios.com.br"
 SITE_EMPRESA = "D'Rocha Soluções"
 SITE_CIDADE_SEDE = "Tangará da Serra, MT"
+# Contatos públicos (página /contato/ e documentos legais). Vazios = a página mostra "em breve"
+# ou "a informar", nunca um dado inventado. WhatsApp em E.164 (ex.: +5565999999999).
+SITE_WHATSAPP = env("SITE_WHATSAPP", default="")
+SITE_ENDERECO = env("SITE_ENDERECO", default="")
+SITE_CNPJ = env("SITE_CNPJ", default="")  # só dígitos
+
+# Planos de assinatura (página /planos/). Provisório: na Sprint 2 viram o modelo Plano,
+# editável no admin (preços e limites nunca fixos no código depois disso).
+PLANOS = [
+    {"slug": "basico", "nome": "Básico", "limite_anuncios": 10, "mensal": "49.90", "anual": "499.00"},
+    {
+        "slug": "profissional",
+        "nome": "Profissional",
+        "limite_anuncios": 25,
+        "mensal": "99.90",
+        "anual": "999.00",
+    },
+    {"slug": "premium", "nome": "Premium", "limite_anuncios": 50, "mensal": "149.90", "anual": "1499.00"},
+]
+
+# Espaços de publicidade (mídia kit /anuncie/, docs/PUBLICIDADE.md). Provisório: na Sprint 7
+# viram registros do app publicidade, editáveis no admin.
+PUBLICIDADE_FORMATOS = [
+    {
+        "slug": "banner-topo",
+        "nome": "Banner topo",
+        "onde": "Todas as páginas, logo abaixo do cabeçalho",
+        "tamanho": "970×90 no computador e 320×100 no celular (as duas imagens)",
+        "arquivo": "JPG, PNG ou WebP, sem animação, até 1 MB cada",
+        "preco_de": "299.00",
+        "preco_ate": "599.00",
+        "periodo": "mês",
+    },
+    {
+        "slug": "card-patrocinador",
+        "nome": "Card patrocinador",
+        "onde": "Rodapé da página inicial (3 vagas)",
+        "tamanho": "Logo quadrada 400×400 + frase de até 80 caracteres + link",
+        "arquivo": "Logo em JPG, PNG ou WebP, até 1 MB",
+        "preco_de": "149.00",
+        "preco_ate": "299.00",
+        "periodo": "mês",
+    },
+    {
+        "slug": "anuncio-nativo",
+        "nome": "Anúncio nativo",
+        "onde": "Topo dos resultados de busca, por cidade",
+        "tamanho": "Título de até 60 e texto de até 120 caracteres + link",
+        "arquivo": "Só texto",
+        "preco_de": "49.90",
+        "preco_ate": "",
+        "periodo": "semana",
+    },
+]
 
 # --- Dados de demonstração (só em dev; regra no CLAUDE.md) --------------------------------
 # MOSTRAR_DEMO: a home mostra lojas e anúncios fictícios de core/dados/demo.json (até a

@@ -1,0 +1,54 @@
+{% extends "core/documento_legal.html" %}
+{% load nd %}
+{# Termos de Uso (rascunho). O contrato detalhado do anunciante (cancelamento, reembolso) é outro documento, #}
+{# a redigir com o advogado (docs/LGPD.md §6). #}
+
+{% block titulo %}Termos de Uso{% endblock %}
+{% block descricao %}Regras de uso do {{ site.nome }} para visitantes e anunciantes: o que o site faz, responsabilidades, anúncios proibidos e denúncias.{% endblock %}
+{% block doc_titulo %}Termos de Uso{% endblock %}
+
+{% block doc_corpo %}
+<p class="lead">Ao usar o {{ site.nome }}, você concorda com estas regras. Elas valem para quem procura (visitantes) e para quem anuncia (anunciantes).</p>
+
+<h2 id="o-que-e">1. O que é o {{ site.nome }}</h2>
+<p>É um site de classificados de imóveis e veículos operado por {{ site.empresa }}, com sede em {{ site.cidade_sede }}. Só anunciam profissionais verificados: corretores com CRECI e empresas com CNPJ.</p>
+<p><b>Não intermediamos negócios.</b> Não somos parte da compra, venda ou locação, não recebemos sinal nem pagamento por elas e não garantimos o negócio. A negociação é sempre direta entre você e o anunciante.</p>
+
+<h2 id="visitantes">2. Para quem procura</h2>
+<ul>
+  <li>Você pode navegar e falar com os anunciantes sem cadastro.</li>
+  <li>As informações dos anúncios (preço, fotos, descrição, situação do bem) são de responsabilidade de quem anuncia. Confira tudo pessoalmente antes de fechar negócio.</li>
+  <li><b>Cuidado com golpes:</b> desconfie de preço muito abaixo do mercado, nunca pague sinal sem ver o bem e a documentação, e confira se quem anuncia é o profissional verificado da página da loja.</li>
+  <li>É proibido usar o site para coletar contatos em massa, enviar spam ou tentar acessar áreas restritas.</li>
+</ul>
+
+<h2 id="anunciantes">3. Para quem anuncia</h2>
+<ul>
+  <li><b>Verificação:</b> o cadastro só é aprovado após conferirmos CRECI (corretores) ou CNPJ (empresas). Podemos pedir documentos e recusar ou suspender cadastros irregulares.</li>
+  <li><b>Responsabilidade pelo conteúdo:</b> você garante que tem autorização para anunciar o bem, que as informações são verdadeiras e que tem direito de uso das fotos.</li>
+  <li><b>É proibido anunciar:</b> bens inexistentes, de terceiros sem autorização, com preço enganoso ou ilegais; conteúdo discriminatório ou ofensivo; dados pessoais de outras pessoas (documentos, placas completas, rostos sem autorização).</li>
+  <li><b>Moderação:</b> anúncios podem passar por análise e ser recusados, suspensos ou removidos se descumprirem estas regras, com aviso do motivo.</li>
+  <li><b>Planos e pagamentos:</b> a assinatura é mensal ou anual e define quantos anúncios ficam ativos ao mesmo tempo (<a href="{% url 'core:planos' %}">ver planos</a>). Com a assinatura em atraso, os anúncios saem do ar até o pagamento. Regras de cancelamento e reembolso estarão no contrato do anunciante.</li>
+</ul>
+
+<h2 id="denuncias">4. Denúncias e remoção de conteúdo</h2>
+<p>Qualquer pessoa pode <a href="{% url 'core:denunciar' %}">denunciar um anúncio</a>. Analisamos as denúncias e removemos o que violar a lei ou estes termos. Conteúdo que exponha dados pessoais ou imagens íntimas sem autorização é tratado com prioridade (Marco Civil da Internet, arts. 19 e 21).</p>
+
+<h2 id="propriedade">5. Marca e conteúdo do site</h2>
+<p>A marca, o layout e os textos do {{ site.nome }} pertencem a {{ site.empresa }}. Os anúncios continuam sendo de quem os criou, que nos autoriza a exibi-los e divulgá-los enquanto estiverem no ar.</p>
+
+<h2 id="responsabilidade">6. Limites de responsabilidade</h2>
+<p>Fazemos o possível para o site funcionar sem interrupções e com segurança, mas não respondemos por negócios feitos entre visitantes e anunciantes, nem por informações falsas fornecidas por anunciantes, sem prejuízo dos direitos do consumidor previstos em lei.</p>
+
+<h2 id="privacidade">7. Privacidade</h2>
+<p>O uso de dados pessoais está descrito na <a href="{% url 'core:privacidade' %}">Política de Privacidade</a> e na <a href="{% url 'core:cookies' %}">Política de Cookies</a>.</p>
+
+<h2 id="mudancas">8. Mudanças nestes termos</h2>
+<p>Podemos atualizar estes termos. A versão em vigor fica sempre nesta página; anunciantes serão avisados por e-mail de mudanças importantes.</p>
+
+<h2 id="foro">9. Lei e foro</h2>
+<p>Valem as leis brasileiras. Fica eleito o foro da comarca de {{ site.cidade_sede }}, ressalvado o direito do consumidor de propor ação no foro do seu domicílio.</p>
+
+<h2 id="contato">10. Contato</h2>
+<p>Dúvidas: <a href="mailto:{{ site.email_contato }}">{{ site.email_contato }}</a> ou a página <a href="{% url 'core:contato' %}">Fale com a gente</a>.</p>
+{% endblock %}

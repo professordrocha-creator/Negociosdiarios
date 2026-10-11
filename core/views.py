@@ -1,4 +1,4 @@
-"""Views do app core: home, página Sobre e verificação de saúde."""
+"""Views do app core: home, páginas institucionais, "em breve" e verificação de saúde."""
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
@@ -8,11 +8,15 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
 from core.services import (
+    PAGINAS_EM_BREVE,
     banco_disponivel,
     cidades_atendidas,
     destaques,
+    formatos_publicidade,
     lojas_verificadas,
+    planos,
     recem_anunciados,
+    textos_ajuda,
 )
 
 
@@ -47,6 +51,53 @@ def sobre(request: HttpRequest) -> HttpResponse:
     e `ValorEmpresa`, editáveis no admin.
     """
     return render(request, "core/sobre.html", {"tela": "sobre"})
+
+
+def _pagina(request: HttpRequest, template: str, tela: str, **contexto) -> HttpResponse:
+    """Renderiza uma página institucional com a caixa "Sobre esta tela" da tela, se houver texto."""
+    return render(request, template, {"tela": tela, "ajuda_itens": textos_ajuda(tela), **contexto})
+
+
+@require_GET
+def privacidade(request: HttpRequest) -> HttpResponse:
+    """Política de Privacidade (rascunho até a revisão do advogado; baseada em docs/LGPD.md)."""
+    return _pagina(request, "core/privacidade.html", "privacidade")
+
+
+@require_GET
+def termos(request: HttpRequest) -> HttpResponse:
+    """Termos de Uso (rascunho até a revisão do advogado)."""
+    return _pagina(request, "core/termos.html", "termos")
+
+
+@require_GET
+def cookies(request: HttpRequest) -> HttpResponse:
+    """Política de Cookies: hoje o site só usa cookies essenciais (rascunho até a revisão)."""
+    return _pagina(request, "core/cookies.html", "cookies")
+
+
+@require_GET
+def planos_view(request: HttpRequest) -> HttpResponse:
+    """Planos de assinatura com alternância mensal/anual (valores do settings até a Sprint 2)."""
+    return _pagina(request, "core/planos.html", "planos", planos=planos())
+
+
+@require_GET
+def anuncie(request: HttpRequest) -> HttpResponse:
+    """Mídia kit: espaços de publicidade, tamanhos, posições e preços (docs/PUBLICIDADE.md)."""
+    return _pagina(request, "core/anuncie.html", "anuncie", formatos=formatos_publicidade())
+
+
+@require_GET
+def contato(request: HttpRequest) -> HttpResponse:
+    """Contato: WhatsApp, e-mails e endereço do site (sem formulário por enquanto)."""
+    return _pagina(request, "core/contato.html", "contato")
+
+
+@require_GET
+def em_breve(request: HttpRequest, pagina: str) -> HttpResponse:
+    """Página "Em breve" para links que já existem no menu e no rodapé (nunca 404)."""
+    return _pagina(request, "core/em_breve.html", "em_breve", pagina=PAGINAS_EM_BREVE[pagina])
 
 
 @require_GET

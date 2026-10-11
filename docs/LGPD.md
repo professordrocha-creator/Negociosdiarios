@@ -62,10 +62,11 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 Prazo para resposta completa: até **15 dias** (art. 19, II). Registrar cada pedido no admin.
 
 ## 6. Documentos públicos necessários antes do lançamento
-- [ ] Política de Privacidade (linguagem simples)
-- [ ] Termos de Uso para visitantes
+- [ ] Política de Privacidade (linguagem simples) — rascunho em `/privacidade/`, falta revisão do advogado
+- [ ] Termos de Uso para visitantes — rascunho em `/termos/`, falta revisão do advogado
 - [ ] Contrato/Termos do Anunciante (responsabilidade pelo conteúdo, regras de anúncio, cancelamento, reembolso)
-- [ ] Política de Cookies + banner com opção "Recusar" do mesmo tamanho de "Aceitar"
+- [ ] Política de Cookies + banner com opção "Recusar" do mesmo tamanho de "Aceitar" — rascunho em
+  `/cookies/` (hoje só cookies essenciais, sem banner); falta revisão do advogado
 - [ ] Canal de denúncia de anúncio (Marco Civil art. 19 + combate a golpes)
 
 ## 7. Incidente de segurança

@@ -18,7 +18,7 @@ que cada tela possa ser vista e testada no navegador. Regras:
 - senhas dos usuários demo vêm de `DEMO_SENHA` no `.env`;
 - na Sprint 9 (lançamento), os dados demo são apagados e não vão para produção.
 
-**Ordem de trabalho:** 4c (home demo) → Sprint 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9,
+**Ordem de trabalho:** 4c (home demo) → 4d (páginas institucionais do rodapé) → Sprint 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9,
 parando no fim de cada etapa para teste no navegador.
 
 ## V1 — Lançar e validar (sprints de 2 semanas)

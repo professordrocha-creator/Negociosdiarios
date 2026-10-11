@@ -471,3 +471,144 @@ def apagar_dados_demo() -> ResumoDemo:
             liberada=False, liberada_pela_demo=False
         )
     return ResumoDemo(usuarios=usuarios, cidades=cidades)
+
+
+# --- Páginas institucionais (planos, mídia kit, "em breve") ------------------------------
+
+
+@dataclass(frozen=True)
+class PlanoVitrine:
+    """Plano de assinatura como aparece em /planos/. Na Sprint 2 vem do modelo Plano."""
+
+    slug: str
+    nome: str
+    limite_anuncios: int
+    mensal: Decimal
+    anual: Decimal
+
+    @property
+    def economia_anual(self) -> Decimal:
+        """Quanto o plano anual economiza frente a 12 mensalidades."""
+        return self.mensal * 12 - self.anual
+
+    @property
+    def meses_pagos_no_anual(self) -> int:
+        """O anual equivale a quantas mensalidades (ex.: 10, ou seja, "2 meses grátis")."""
+        return round(self.anual / self.mensal)
+
+    @property
+    def meses_gratis(self) -> int:
+        """Meses de graça no anual (12 menos as mensalidades pagas)."""
+        return 12 - self.meses_pagos_no_anual
+
+
+def planos() -> list[PlanoVitrine]:
+    """Planos à venda, do menor para o maior (hoje do settings PLANOS; na Sprint 2, do banco)."""
+    lista = [
+        PlanoVitrine(
+            slug=p["slug"],
+            nome=p["nome"],
+            limite_anuncios=p["limite_anuncios"],
+            mensal=Decimal(p["mensal"]),
+            anual=Decimal(p["anual"]),
+        )
+        for p in settings.PLANOS
+    ]
+    return sorted(lista, key=lambda p: p.limite_anuncios)
+
+
+@dataclass(frozen=True)
+class FormatoPublicidade:
+    """Espaço de publicidade do mídia kit (/anuncie/). Na Sprint 7 vem do app publicidade."""
+
+    slug: str
+    nome: str
+    onde: str
+    tamanho: str
+    arquivo: str
+    preco_de: Decimal
+    preco_ate: Decimal | None
+    periodo: str
+
+
+def formatos_publicidade() -> list[FormatoPublicidade]:
+    """Formatos à venda, na ordem do docs/PUBLICIDADE.md (hoje do settings PUBLICIDADE_FORMATOS)."""
+    return [
+        FormatoPublicidade(
+            slug=f["slug"],
+            nome=f["nome"],
+            onde=f["onde"],
+            tamanho=f["tamanho"],
+            arquivo=f["arquivo"],
+            preco_de=Decimal(f["preco_de"]),
+            preco_ate=Decimal(f["preco_ate"]) if f["preco_ate"] else None,
+            periodo=f["periodo"],
+        )
+        for f in settings.PUBLICIDADE_FORMATOS
+    ]
+
+
+# Páginas que existem no menu e no rodapé mas ainda não foram construídas: mostram
+# "Em breve" (nunca 404). A chave é o nome da rota em core/urls.py.
+PAGINAS_EM_BREVE = {
+    "imoveis": {
+        "titulo": "Imóveis",
+        "descricao": "Casas, apartamentos, terrenos, chácaras e salas comerciais de corretores verificados.",
+        "quando": "A busca de imóveis com filtros e mapa chega em breve.",
+        "icone": "casa",
+    },
+    "veiculos": {
+        "titulo": "Veículos",
+        "descricao": "Carros, caminhonetes e motos de revendas verificadas da região.",
+        "quando": "A busca de veículos com filtros chega em breve.",
+        "icone": "carro",
+    },
+    "lojas": {
+        "titulo": "Lojas",
+        "descricao": "Todas as imobiliárias, corretores e revendas verificados, cada um com sua página.",
+        "quando": "A lista de lojas e a página de cada uma chegam em breve.",
+        "icone": "loja",
+    },
+    "painel": {
+        "titulo": "Área do anunciante",
+        "descricao": "Onde a loja cadastra e acompanha seus anúncios, vê estatísticas e faturas.",
+        "quando": "O cadastro de anunciantes abre em breve. Quer ser um dos primeiros? Fale com a gente.",
+        "icone": "lista",
+    },
+    "denunciar": {
+        "titulo": "Denunciar anúncio",
+        "descricao": "Viu um anúncio suspeito, enganoso ou que expõe seus dados? Avise a equipe.",
+        "quando": (
+            "O botão de denúncia em cada anúncio chega junto com os anúncios. "
+            "Até lá, escreva para o e-mail de contato."
+        ),
+        "icone": "alerta",
+    },
+}
+
+# Textos da caixa "Sobre esta tela" (docs/TELAS.md). Provisório: na Sprint 1 vêm do
+# modelo TextoAjuda, editável no admin; a chave é a variável "tela" de cada view.
+TEXTOS_AJUDA = {
+    "planos": [
+        "Os planos diferem só na quantidade de anúncios ativos ao mesmo tempo.",
+        "No plano anual você paga o equivalente a 10 mensalidades e usa 12 meses.",
+        "Todo anunciante passa pela verificação de CRECI (corretores) ou CNPJ (empresas).",
+    ],
+    "anuncie": [
+        "A publicidade é vendida direto para empresas da região, sem anúncios do Google.",
+        'Toda peça leva o rótulo "Publicidade" e pode ser segmentada por cidade e por seção.',
+        "Imobiliárias, corretores e revendas só compram publicidade se forem assinantes.",
+    ],
+    "contato": [
+        "Atendimento em horário comercial (horário de Mato Grosso).",
+        "Para assuntos de dados pessoais (LGPD), use o e-mail de privacidade.",
+    ],
+    "em_breve": [
+        "Esta parte do site ainda está em construção; o link já existe para você saber o que vem aí.",
+    ],
+}
+
+
+def textos_ajuda(tela: str) -> list[str]:
+    """Itens da caixa "Sobre esta tela" para a tela pedida (lista vazia = a caixa não aparece)."""
+    return TEXTOS_AJUDA.get(tela, [])
