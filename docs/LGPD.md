@@ -24,7 +24,8 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 
 | Dado | Titular | Finalidade | Base legal (art. 7º) | Retenção |
 |---|---|---|---|---|
-| Nome, e-mail, senha (hash) | Anunciante | Conta e acesso | Execução de contrato (V) | Enquanto ativo + 6 meses |
+| Nome, e-mail, senha (hash Argon2), data de criação e do último acesso (`contas.Usuario`) | Anunciante | Conta e acesso | Execução de contrato (V) | Enquanto ativo + 6 meses |
+| Nome, e-mail, senha (hash Argon2), data de criação e do último acesso (`contas.Usuario`) | Equipe (staff) | Acesso ao painel e auditoria das ações | Legítimo interesse (IX) / contrato de trabalho ou prestação de serviço (V) | Enquanto na equipe + 6 meses |
 | CPF (corretor autônomo) | Anunciante | Emissão de nota e verificação | Obrigação legal (II) / contrato (V) | 5 anos após último pagamento (fiscal) |
 | CRECI / CNPJ | Anunciante | Verificação profissional | Contrato (V) / legítimo interesse (IX) | Enquanto ativo + 5 anos |
 | Telefone/WhatsApp público | Anunciante | Contato com clientes | Contrato (V) | Enquanto ativo |

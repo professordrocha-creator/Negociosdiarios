@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    "contas",
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,18 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["CONN_MAX_AGE"] = 60
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- Senhas -------------------------------------------------------------------
+# --- Usuários e senhas --------------------------------------------------------
+# Usuário próprio com login por e-mail. Definido antes do primeiro migrate: trocar depois é muito caro.
+AUTH_USER_MODEL = "contas.Usuario"
+
+# Argon2 é o padrão para novas senhas; os demais só verificam hashes antigos, se existirem.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
+]
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},

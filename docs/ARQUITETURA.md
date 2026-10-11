@@ -71,6 +71,11 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
                  └──N Denuncia (via anúncio)
 ```
 
+### Usuario (app `contas`, `AUTH_USER_MODEL`)
+- Login por `email` (único, sempre em minúsculas); **sem** `username`, `first_name` e `last_name`
+- `nome`, `is_active`, `is_staff`, `is_superuser`, grupos/permissões, `last_login`, `criado_em`
+- Senha em hash Argon2. Mesmo modelo para anunciantes e equipe; o que cada um acessa vem dos grupos
+
 ### Anunciante (a "loja")
 - `tipo`: corretor_autonomo | imobiliaria | revenda | concessionaria | garagem
 - `nome_publico`, `slug` (único, usado na URL da vitrine)
