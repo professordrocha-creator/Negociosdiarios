@@ -143,7 +143,7 @@ Hoje: só Mato Grosso. Amanhã: qualquer estado, **sem mudar código nem URLs**.
 
 ```
 Estado (uf, nome, liberado)            ← 27 estados, carga IBGE
-  └─N Cidade (codigo_ibge, nome, slug, liberada, ponto)   ← 5.570 cidades, carga IBGE
+  └─N Cidade (codigo_ibge, nome, slug, uf→Estado.uf, liberada, ponto)   ← 5.571 cidades, carga IBGE
         ├─N Bairro (nome, slug, ativo)
         └─N Regiao (nome, slug) via M2M  ← agrupamentos criados pelo admin
 SolicitacaoCidade (anunciante, cidade, status, decidido_por, motivo)
@@ -158,6 +158,8 @@ Regras:
    com o mesmo nome em estados diferentes; com a UF, crescer não quebra links nem o Google.
 6. Textos com o nome da região (ex.: slogan "de Mato Grosso") vêm de `Configuracao`, não do HTML.
 7. Lista de cidades liberadas fica em cache (Redis) e é limpa quando o admin muda algo.
+8. Carga por `python manage.py carregar_municipios` (CSV em `core/dados/`), idempotente: atualiza
+   dados do IBGE e nunca altera `liberado`/`liberada`. Slug da cidade é único **dentro da UF**.
 
 ### Identidade do site e páginas institucionais (app `core`)
 - `Configuracao` (registro único, `django-solo`): nome, linha da região, slogan, símbolos claro/escuro,

@@ -4,6 +4,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versões: 
 
 ## [Não lançado]
 ### Adicionado
+- Estados e cidades do IBGE (`Estado`, `Cidade` com ponto PostGIS), CSV em `core/dados/`, comando `carregar_municipios` idempotente e admin com liberação em massa.
 - App `contas`: usuário próprio com login por e-mail (sem username), senhas em Argon2, admin de usuários.
 - Esqueleto Django 5.2 (settings por variáveis de ambiente, fuso America/Cuiaba), Dockerfile sem root, dependências com uv e rota `/saude/`.
 - Documentação inicial: arquitetura, segurança, LGPD, pagamentos, publicidade, administração, boas práticas, runbook.
