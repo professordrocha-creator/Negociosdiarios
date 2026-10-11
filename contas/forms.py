@@ -2,9 +2,37 @@
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm
+from django.contrib.auth.forms import AdminUserCreationForm, AuthenticationForm, UserChangeForm
 
+from anunciantes.services import MENSAGENS_SEM_ACESSO, motivo_sem_painel
 from contas.models import Usuario
+
+
+class EntrarForm(AuthenticationForm):
+    """Login do cliente em /entrar/: e-mail e senha, só para anunciante ativo (nunca equipe).
+
+    A senha é conferida primeiro (com o bloqueio do django-axes); só depois vem a regra de
+    quem pode entrar, com uma mensagem que diz o que fazer.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Rótulos e atributos de navegador (preenchimento automático) dos campos."""
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "E-mail"
+        self.fields["username"].widget.attrs.update(
+            {"class": "form-control", "autocomplete": "email", "inputmode": "email", "autofocus": True}
+        )
+        self.fields["password"].label = "Senha"
+        self.fields["password"].widget.attrs.update(
+            {"class": "form-control", "autocomplete": "current-password"}
+        )
+
+    def confirm_login_allowed(self, user) -> None:
+        """Recusa equipe, quem não tem loja e loja pendente ou suspensa."""
+        super().confirm_login_allowed(user)
+        motivo = motivo_sem_painel(user)
+        if motivo:
+            raise forms.ValidationError(MENSAGENS_SEM_ACESSO[motivo], code=motivo)
 
 
 class UsuarioCriacaoAdminForm(AdminUserCreationForm):

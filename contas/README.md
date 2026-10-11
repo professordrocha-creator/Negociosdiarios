@@ -23,6 +23,10 @@ login por e-mail. Visitantes não têm conta.
 - `redefinir_acesso(usuario)`: emergência; desbloqueia o login e gera um código de
   emergência de uso único.
 
+**Login do cliente:** `/entrar/` (`views.EntrarView`, formulário `EntrarForm`) pede só e-mail e
+senha (com o bloqueio do axes) e aceita apenas anunciante ativo; equipe, conta sem loja e loja
+pendente/suspensa recebem mensagem que diz o que fazer. `/sair/` (POST) encerra a sessão.
+
 **Grupos:** Administrador, Moderador, Financeiro e Comercial, criados pela migration de
 dados `0002_grupos_permissao` (ver `docs/ADMINISTRACAO.md`).
 

@@ -25,10 +25,14 @@ class Command(BaseCommand):
         dados = ler_demo()
         self.stdout.write(self.style.SUCCESS("Dados de demonstração prontos."))
         self.stdout.write(f"Cidades liberadas agora pela demonstração: {resumo.cidades}")
-        self.stdout.write(f"Usuários de equipe demo ({resumo.usuarios}), senha = DEMO_SENHA do .env:")
+        self.stdout.write("Todas as senhas = DEMO_SENHA do .env.")
+        self.stdout.write(f"Equipe demo ({len(dados['equipe'])}), entra pelo admin:")
         for pessoa in dados["equipe"]:
             self.stdout.write(f"  {pessoa['email']}  (grupo {pessoa['grupo']})")
+        self.stdout.write(f"Lojas demo ({resumo.anunciantes}, ativas), entram em /entrar/ e veem o /painel/:")
+        for loja in dados["lojas"]:
+            self.stdout.write(f"  {loja['email']}  ({loja['nome']})")
         self.stdout.write(
-            f"Lojas ({len(dados['lojas'])}) e anúncios ({len(dados['anuncios'])}) fictícios aparecem na home "
-            "com MOSTRAR_DEMO=True no .env (viram registros no banco nas Sprints 1 a 3)."
+            f"Os {len(dados['anuncios'])} anúncios fictícios aparecem na home (MOSTRAR_DEMO=True) e no "
+            "painel de cada loja; viram registros no banco na Sprint 3."
         )

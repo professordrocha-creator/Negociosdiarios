@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel do anunciante (convertido de prototipo/painel.html). Tudo vem de request.user.anunciante (sem IDOR). #}
+{# Nesta fase: dados da loja, resumo do plano (exemplo, "em breve") e meus anúncios (demo.json até a Sprint 3). #}
+
+{% block titulo %}Painel · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Painel do anunciante: dados da loja e anúncios.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}{# a caixa de ajuda fica dentro da coluna principal #}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+
+    <div class="col-lg-9 d-grid gap-4">
+      {% include "_ajuda.html" %}
+
+      {# Resumo do plano: valores de exemplo até existir assinatura (Sprint 2). #}
+      <div class="nd-aviso-rascunho" role="status">
+        {% icone "alerta" %} <b>Plano, estatísticas e faturas: em breve.</b>
+        <span>Os números abaixo são de exemplo (plano {{ plano.nome }}).</span>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Anúncios no plano</div>
+          <div class="valor">{{ uso_plano }} <span class="fs-6 text-suave">/ {{ plano.limite_anuncios }}</span></div>
+          <progress class="nd-progresso mt-2" value="{{ uso_plano }}" max="{{ plano.limite_anuncios }}">{{ uso_plano }} de {{ plano.limite_anuncios }}</progress>
+        </div></div>
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Visualizações · 30 dias</div><div class="valor">—</div><div class="small text-suave">Em breve</div></div></div>
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Cliques no WhatsApp</div><div class="valor">—</div><div class="small text-suave">Em breve</div></div></div>
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Plano</div><div class="valor nd-kpi-texto">{{ plano.nome }}</div><div class="small text-suave">{{ plano.mensal|moeda }}/mês · exemplo</div></div></div>
+      </div>
+
+      {# Dados da loja #}
+      <section class="nd-caixa">
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+          <h1 class="h5 m-0 me-auto">Dados da loja</h1>
+          <span class="status st-publicado">{{ anunciante.get_status_display }}</span>
+        </div>
+        <dl class="row mb-0 nd-dados-loja">
+          <dt class="col-sm-4">Nome público</dt><dd class="col-sm-8">{{ anunciante.nome_publico }}</dd>
+          <dt class="col-sm-4">Tipo</dt><dd class="col-sm-8">{{ anunciante.get_tipo_display }}</dd>
+          <dt class="col-sm-4">{{ anunciante.get_documento_tipo_display }}</dt>
+          <dd class="col-sm-8">{% if anunciante.documento_tipo == "cnpj" %}{{ anunciante.documento_numero|cnpj }}{% else %}{{ anunciante.documento_numero }}{% endif %} <span class="selo selo-verificado">Verificado</span></dd>
+          <dt class="col-sm-4">WhatsApp</dt><dd class="col-sm-8">{{ anunciante.whatsapp|telefone }}</dd>
+          <dt class="col-sm-4">E-mail público</dt><dd class="col-sm-8">{{ anunciante.email_publico|default:"—" }}</dd>
+          <dt class="col-sm-4">Cidade</dt><dd class="col-sm-8">{{ anunciante.cidade }}</dd>
+          <dt class="col-sm-4">Página da loja</dt><dd class="col-sm-8"><code>/loja/{{ anunciante.slug }}/</code> <span class="text-suave small">(em breve)</span></dd>
+        </dl>
+        <p class="small text-suave mt-3 mb-0">Para corrigir algum dado, fale com a gente. A edição pelo próprio painel chega em breve.</p>
+      </section>
+
+      {# Meus anúncios #}
+      <section class="nd-caixa p-0">
+        <div class="d-flex flex-wrap gap-2 align-items-center p-3">
+          <h2 class="h5 m-0 me-auto">Meus anúncios</h2>
+          <a class="btn btn-ipe btn-sm" aria-disabled="true" title="Em breve">{% icone "mais" %} Novo anúncio</a>
+        </div>
+        {% if anuncios %}
+        <div class="table-responsive"><table class="table nd-tabela mb-0">
+          <thead class="small text-suave"><tr><th></th><th>Anúncio</th><th>Situação</th><th class="text-end">Preço</th><th class="text-end">Visualiz.</th><th class="text-end">WhatsApp</th></tr></thead>
+          <tbody>
+            {% for anuncio in anuncios %}
+            <tr>
+              <td><div class="nd-foto {{ anuncio.estilo_foto }} mini">{% icone anuncio.icone "ico marca-foto" %}</div></td>
+              <td><b class="d-block">{{ anuncio.titulo }}</b><span class="small text-suave">{{ anuncio.tipo }} · {{ anuncio.local }}</span></td>
+              <td><span class="status st-publicado">Publicado</span></td>
+              <td class="tabular text-end">{{ anuncio.preco|moeda }}{% if anuncio.aluguel %}/mês{% endif %}</td>
+              <td class="tabular text-end text-suave">—</td>
+              <td class="tabular text-end text-suave">—</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table></div>
+        {% else %}
+          <p class="px-3 pb-3 mb-0 text-suave">Você ainda não tem anúncios. O cadastro de anúncios chega em breve.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

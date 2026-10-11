@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel negado (403): equipe, conta sem loja, loja pendente ou suspensa. A mensagem diz o que fazer. #}
+
+{% block titulo %}Painel indisponível{% endblock %}
+{% block descricao %}Acesso ao painel do anunciante.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-em-breve mx-auto text-center">
+    <span class="nd-valor-ico mx-auto mb-3">{% icone "alerta" %}</span>
+    <h1 class="h4">Painel do anunciante indisponível</h1>
+    <p>{{ mensagem }}</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center">
+      <a class="btn btn-nd" href="{% url 'core:contato' %}">Fale com a gente</a>
+      <form method="post" action="{% url 'contas:sair' %}">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit">Sair desta conta</button></form>
+    </div>
+  </div>
+</main>
+{% endblock %}

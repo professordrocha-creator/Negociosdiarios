@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{# Tela intermediária das ações Aprovar/Suspender (anunciantes.admin). Reenvia os ids selecionados. #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{% url 'admin:anunciantes_anunciante_changelist' %}">Anunciantes</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+  <p>Anunciantes selecionados:</p>
+  <ul>{% for anunciante in anunciantes %}<li>{{ anunciante.nome_publico }} ({{ anunciante.get_status_display }})</li>{% endfor %}</ul>
+  {% for anunciante in anunciantes %}<input type="hidden" name="{{ action_checkbox_name }}" value="{{ anunciante.pk }}">{% endfor %}
+  <input type="hidden" name="action" value="{{ acao }}">
+  <input type="hidden" name="aplicar" value="1">
+  <fieldset class="module aligned">
+    <div class="form-row">
+      {{ form.motivo.errors }}
+      {{ form.motivo.label_tag }} {{ form.motivo }}
+      <div class="help">{{ form.motivo.help_text }}</div>
+    </div>
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="Confirmar">
+    <a href="{% url 'admin:anunciantes_anunciante_changelist' %}" class="button cancel-link">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

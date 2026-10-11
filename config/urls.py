@@ -9,6 +9,8 @@ urlpatterns = [
     # Admin em endereço secreto (ADMIN_URL no .env) e com código para navegador novo
     # (config/admin_site.py). Não existe rota /admin/: quem tentar recebe 404.
     path(settings.ADMIN_URL, admin.site.urls),
+    path("", include("contas.urls")),  # /entrar/ e /sair/ (cliente)
+    path("", include("anunciantes.urls")),  # /painel/
     path("", include("core.urls")),
 ]
 

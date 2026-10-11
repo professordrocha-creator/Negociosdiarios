@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group, Permission
 pytestmark = pytest.mark.django_db
 
 SO_CIDADES = {"core.view_estado", "core.view_cidade"}
+VER_ANUNCIANTE = {"anunciantes.view_anunciante"}
 
 ESPERADO = {
     "Administrador": {
@@ -20,10 +21,17 @@ ESPERADO = {
         "axes.view_accessattempt",
         "axes.delete_accessattempt",
         "admin.view_logentry",
+        "anunciantes.view_anunciante",
+        "anunciantes.add_anunciante",
+        "anunciantes.change_anunciante",
+        "anunciantes.view_historicalanunciante",
     },
-    "Moderador": SO_CIDADES,
-    "Financeiro": SO_CIDADES,
-    "Comercial": SO_CIDADES,
+    # Moderador aprova e suspende anunciantes (anunciantes/0002).
+    "Moderador": SO_CIDADES
+    | VER_ANUNCIANTE
+    | {"anunciantes.change_anunciante", "anunciantes.view_historicalanunciante"},
+    "Financeiro": SO_CIDADES | VER_ANUNCIANTE,
+    "Comercial": SO_CIDADES | VER_ANUNCIANTE,
 }
 
 
@@ -47,8 +55,8 @@ def test_permissoes_de_cada_grupo(nome):
 
 def test_nenhum_grupo_apaga_usuario_nem_mexe_em_codigos_de_acesso():
     """Exclusão de usuário é lógica, e códigos de acesso de terceiros são só com o superusuário."""
-    proibidas = Permission.objects.filter(codename="delete_usuario") | Permission.objects.filter(
-        content_type__app_label__in=["otp_email", "otp_static"]
-    )
+    proibidas = Permission.objects.filter(
+        codename__in=["delete_usuario", "delete_anunciante"]
+    ) | Permission.objects.filter(content_type__app_label__in=["otp_email", "otp_static"])
 
     assert not Group.objects.filter(permissions__in=proibidas).exists()

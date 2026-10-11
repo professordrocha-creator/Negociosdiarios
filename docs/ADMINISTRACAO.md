@@ -22,13 +22,13 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 
 | Grupo | Permissões hoje | Chega depois |
 |---|---|---|
-| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver | Tudo dos modelos novos |
-| Moderador | Estados e cidades: ver | Anunciantes, anúncios e denúncias (Sprints 1, 3 e 7) |
-| Financeiro | Estados e cidades: ver | Planos, faturas e pagamentos (Sprints 2 e 6) |
-| Comercial | Estados e cidades: ver | Patrocinadores e contratos (Sprint 7) |
+| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico | Tudo dos modelos novos |
+| Moderador | Estados e cidades: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico | Anúncios e denúncias (Sprints 3 e 7) |
+| Financeiro | Estados e cidades: ver · Anunciantes: ver | Planos, faturas e pagamentos (Sprints 2 e 6) |
+| Comercial | Estados e cidades: ver · Anunciantes: ver | Patrocinadores e contratos (Sprint 7) |
 
 Ninguém além do superusuário pode:
-- **apagar usuário** (exclusão é lógica, nunca de verdade);
+- **apagar usuário ou anunciante** (exclusão é lógica: anunciante é suspenso, nunca apagado);
 - **mexer nos códigos de acesso** (`otp_email`/`otp_static`): quem altera o código ou o
   e-mail de envio de outra pessoa consegue entrar como ela;
 - **ligar `is_superuser` ou dar permissões avulsas**: no admin esses campos ficam só

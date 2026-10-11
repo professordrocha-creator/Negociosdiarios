@@ -30,8 +30,11 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 | Cookie "navegador confiável" do admin (id do usuário + resumo da senha, assinado; sem IP nem e-mail) | Equipe (staff) | Não pedir código de novo no mesmo navegador | Legítimo interesse (IX) / cookie essencial de segurança (sem consentimento) | 30 dias no navegador; inválido ao trocar a senha |
 | Tentativas de login com erro: e-mail digitado, IP, navegador, data/hora (`axes.AccessAttempt`) | Quem tenta entrar no admin | Bloquear ataque de senha | Legítimo interesse (IX) / segurança (art. 46) | Até 1 hora (fim do bloqueio), apagadas no login certo ou no desbloqueio. Logins certos **não** são gravados pelo axes |
 | CPF (corretor autônomo) | Anunciante | Emissão de nota e verificação | Obrigação legal (II) / contrato (V) | 5 anos após último pagamento (fiscal) |
-| CRECI / CNPJ | Anunciante | Verificação profissional | Contrato (V) / legítimo interesse (IX) | Enquanto ativo + 5 anos |
-| Telefone/WhatsApp público | Anunciante | Contato com clientes | Contrato (V) | Enquanto ativo |
+| CRECI / CNPJ (`anunciantes.Anunciante.documento_*`) | Anunciante | Verificação profissional | Contrato (V) / legítimo interesse (IX) | Enquanto ativo + 5 anos |
+| Nome público da loja, e-mail público e cidade (`anunciantes.Anunciante`) | Anunciante | Página da loja e contato | Contrato (V) | Enquanto ativo |
+| Situação e motivo de aprovação/suspensão (`Anunciante.status`, `motivo_status`) | Anunciante | Moderação e prova das decisões | Legítimo interesse (IX) / contrato (V) | Enquanto ativo + 5 anos |
+| Histórico de alterações do anunciante (`HistoricalAnunciante`, django-simple-history: cópia dos campos, quem alterou e quando) | Anunciante / equipe | Auditoria das mudanças | Legítimo interesse (IX) | Igual ao do cadastro; entra na exportação "Meus dados" e na anonimização (o histórico também é anonimizado) |
+| Telefone/WhatsApp público (`Anunciante.whatsapp`, E.164) | Anunciante | Contato com clientes | Contrato (V) | Enquanto ativo |
 | Endereço exato do imóvel | Proprietário (terceiro) | Localização no mapa | Legítimo interesse (IX) do anunciante | Até o anúncio sair + 90 dias |
 | Fotos de anúncios | Terceiros eventualmente visíveis | Divulgação | Legítimo interesse (IX) | Até o anúncio sair + 90 dias |
 | Faturas e pagamentos | Anunciante | Cobrança e obrigações fiscais | Obrigação legal (II) | 5 anos |

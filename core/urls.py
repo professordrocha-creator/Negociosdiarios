@@ -20,7 +20,6 @@ urlpatterns = [
     path("imoveis/", views.em_breve, {"pagina": "imoveis"}, name="imoveis"),
     path("veiculos/", views.em_breve, {"pagina": "veiculos"}, name="veiculos"),
     path("lojas/", views.em_breve, {"pagina": "lojas"}, name="lojas"),
-    path("painel/", views.em_breve, {"pagina": "painel"}, name="painel"),
     path("denunciar/", views.em_breve, {"pagina": "denunciar"}, name="denunciar"),
     path("saude/", views.saude, name="saude"),
     path("favicon.ico", views.favicon, name="favicon"),

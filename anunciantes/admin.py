@@ -1,0 +1,75 @@
+"""Admin de anunciantes: lista com filtros, verificação e ações Aprovar/Suspender com motivo."""
+
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
+from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.template.response import TemplateResponse
+from simple_history.admin import SimpleHistoryAdmin
+
+from anunciantes.forms import MotivoStatusForm
+from anunciantes.models import Anunciante
+from anunciantes.services import aprovar, suspender
+from core.models import Cidade
+
+
+@admin.register(Anunciante)
+class AnuncianteAdmin(SimpleHistoryAdmin):
+    """Anunciantes (lojas). A situação só muda pelas ações, que exigem motivo e ficam no histórico."""
+
+    list_display = ("nome_publico", "tipo", "documento_tipo", "documento_numero", "cidade", "status", "demo")
+    list_filter = ("status", "tipo", "demo")
+    search_fields = ("nome_publico", "slug", "documento_numero", "usuario__email")
+    list_select_related = ("cidade", "usuario")
+    prepopulated_fields = {"slug": ("nome_publico",)}
+    autocomplete_fields = ("usuario",)
+    readonly_fields = ("status", "motivo_status", "demo", "criado_em", "atualizado_em")
+    fieldsets = (
+        ("Loja", {"fields": ("usuario", "tipo", "nome_publico", "slug", "sigla", "cor", "cidade")}),
+        ("Verificação", {"fields": ("documento_tipo", "documento_numero", "status", "motivo_status")}),
+        ("Contato público", {"fields": ("whatsapp", "email_publico")}),
+        ("Registro", {"fields": ("demo", "criado_em", "atualizado_em")}),
+    )
+    actions = ["aprovar_selecionados", "suspender_selecionados"]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """No campo cidade, só cidades liberadas de estados liberados."""
+        if db_field.name == "cidade":
+            kwargs["queryset"] = Cidade.objects.filter(liberada=True, uf__liberado=True).select_related("uf")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def has_delete_permission(self, request: HttpRequest, obj: Anunciante | None = None) -> bool:
+        """Anunciante nunca é apagado pelo admin (exclusão lógica: suspender)."""
+        return False
+
+    @admin.action(description="Aprovar selecionados (CRECI/CNPJ conferido)", permissions=["change"])
+    def aprovar_selecionados(self, request: HttpRequest, queryset: QuerySet[Anunciante]):
+        """Pede o motivo (opcional) e aprova."""
+        return self._mudar_com_motivo(request, queryset, "aprovar_selecionados", aprovar, obrigatorio=False)
+
+    @admin.action(description="Suspender selecionados (motivo obrigatório)", permissions=["change"])
+    def suspender_selecionados(self, request: HttpRequest, queryset: QuerySet[Anunciante]):
+        """Pede o motivo (obrigatório) e suspende."""
+        return self._mudar_com_motivo(
+            request, queryset, "suspender_selecionados", suspender, obrigatorio=True
+        )
+
+    def _mudar_com_motivo(self, request, queryset, acao: str, servico, obrigatorio: bool):
+        """Primeiro mostra a tela do motivo; ao confirmar, aplica o serviço em cada anunciante."""
+        form = MotivoStatusForm(request.POST if "aplicar" in request.POST else None, obrigatorio=obrigatorio)
+        if "aplicar" in request.POST and form.is_valid():
+            for anunciante in queryset:
+                servico(anunciante, request.user, form.cleaned_data["motivo"])
+            verbo = "aprovado(s)" if servico is aprovar else "suspenso(s)"
+            self.message_user(request, f"{queryset.count()} anunciante(s) {verbo}.", messages.SUCCESS)
+            return None
+        contexto = {
+            **self.admin_site.each_context(request),
+            "title": "Aprovar anunciantes" if servico is aprovar else "Suspender anunciantes",
+            "form": form,
+            "anunciantes": queryset,
+            "acao": acao,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+            "opts": self.model._meta,
+        }
+        return TemplateResponse(request, "admin/anunciantes/motivo_status.html", contexto)

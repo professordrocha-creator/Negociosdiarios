@@ -107,8 +107,10 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_email",  # código de 6 dígitos por e-mail (navegador novo, em produção)
     "django_otp.plugins.otp_static",  # código de emergência gerado no servidor (docs/RUNBOOK.md)
     "axes",  # bloqueio após tentativas de login erradas
+    "simple_history",  # histórico de alterações (quem mudou o quê e quando)
     "core",
     "contas",
+    "anunciantes",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +120,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",  # grava quem fez cada mudança no histórico
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",  # o último: devolve a página de bloqueio
 ]
@@ -150,6 +153,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # --- Usuários e senhas --------------------------------------------------------
 # Usuário próprio com login por e-mail. Definido antes do primeiro migrate: trocar depois é muito caro.
 AUTH_USER_MODEL = "contas.Usuario"
+
+# Login do cliente (anunciante) em /entrar/; a equipe usa o login do admin.
+LOGIN_URL = "contas:entrar"
+LOGIN_REDIRECT_URL = "anunciantes:painel"
+LOGOUT_REDIRECT_URL = "core:inicio"
 
 # O backend do axes vem primeiro: recusa o login de quem está bloqueado antes de conferir a senha.
 AUTHENTICATION_BACKENDS = [

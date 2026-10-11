@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Login do cliente (anunciante): e-mail e senha, sem código. A equipe usa o login do admin. #}
+{# Regras de quem entra: contas.forms.EntrarForm (anunciante ativo; nunca equipe). #}
+
+{% block titulo %}Entrar na área do anunciante{% endblock %}
+{% block descricao %}Área do anunciante do {{ site.nome }}: entre com o e-mail e a senha da sua loja para acompanhar seus anúncios.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container my-5">
+  <div class="nd-caixa nd-entrar mx-auto">
+    <h1 class="h3 mb-1">Área do anunciante</h1>
+    <p class="text-suave">Entre com o e-mail e a senha da sua loja.</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-warning" role="alert">{% for erro in form.non_field_errors %}{{ erro }}{% endfor %}</div>
+    {% endif %}
+
+    <form method="post" class="d-grid gap-3" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div>
+        <label class="form-label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+        {{ form.username }}
+        {% for erro in form.username.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </div>
+      <div>
+        <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+        {{ form.password }}
+        {% for erro in form.password.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </div>
+      <button class="btn btn-nd" type="submit">Entrar</button>
+    </form>
+
+    <hr>
+    <p class="small mb-1">Esqueceu a senha? <a href="{% url 'core:contato' %}">Fale com a gente</a> (a recuperação pelo próprio site chega em breve).</p>
+    <p class="small mb-0">Ainda não anuncia? <a href="{% url 'core:planos' %}">Conheça os planos</a>.</p>
+  </div>
+</main>
+{% endblock %}

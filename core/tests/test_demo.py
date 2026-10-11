@@ -29,6 +29,7 @@ from core.services import (
 
 DADOS = ler_demo()
 SENHA_DEMO = "Senha-Demo-Forte-123"
+USUARIOS_DEMO = 3 + 6  # equipe (3) + um login por loja (6)
 SENHA_REAL = "Outra-Senha-Forte-1"
 TANGARA, BARRA_DO_BUGRES = 5107958, 5101704
 
@@ -292,7 +293,7 @@ def test_criar_dados_demo_e_idempotente(dev):
     call_command("criar_dados_demo")
     call_command("criar_dados_demo")
 
-    assert Usuario.objects.filter(demo=True).count() == 3
+    assert Usuario.objects.filter(demo=True).count() == USUARIOS_DEMO
     assert Group.objects.get(name="Moderador").user_set.count() == 1
 
 
@@ -327,7 +328,7 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
 
     apagado = apagar_dados_demo()
 
-    assert apagado.usuarios == 3 and apagado.cidades == 3
+    assert apagado.usuarios == USUARIOS_DEMO and apagado.cidades == 3 and apagado.anunciantes == 6
     assert list(Usuario.objects.all()) == [daniel]
     assert list(Cidade.objects.filter(liberada=True).values_list("codigo_ibge", flat=True)) == [TANGARA]
     assert not Cidade.objects.filter(liberada_pela_demo=True).exists()
@@ -341,7 +342,7 @@ def test_comando_apagar_pede_confirmacao(dev, monkeypatch, capsys):
     call_command("apagar_dados_demo")
 
     assert "Nada foi apagado." in capsys.readouterr().out
-    assert Usuario.objects.filter(demo=True).count() == 3
+    assert Usuario.objects.filter(demo=True).count() == USUARIOS_DEMO
 
     call_command("apagar_dados_demo", "--sim")
     assert not Usuario.objects.filter(demo=True).exists()
@@ -356,3 +357,79 @@ def test_mostrar_demo_aceita_true_true_e_1(monkeypatch, valor, esperado):
     monkeypatch.setenv("MOSTRAR_DEMO", valor)
 
     assert environ.Env().bool("MOSTRAR_DEMO", default=False) is esperado
+
+
+# --- Anunciantes de demonstração (Sprint 1) ---------------------------------------------
+
+
+def test_criar_dados_demo_cria_os_6_anunciantes_ativos(dev):
+    """As 6 lojas do demo.json viram anunciantes ativos, marcados como demo, com documento válido."""
+    from anunciantes.models import Anunciante
+
+    criar_dados_demo(SENHA_DEMO)
+
+    lojas = Anunciante.objects.filter(demo=True)
+    assert lojas.count() == 6
+    assert set(lojas.values_list("status", flat=True)) == {"ativo"}
+    corretor = lojas.get(slug="paulo-mendes-corretor")
+    assert (corretor.documento_tipo, corretor.documento_numero) == ("creci", "CRECI/MT 08765-F")
+    revenda = lojas.get(slug="garagem-rota-358")
+    assert (revenda.documento_tipo, revenda.documento_numero, revenda.whatsapp) == (
+        "cnpj",
+        "90000001000129",
+        "+5565999990002",
+    )
+    for loja in lojas:
+        loja.full_clean()  # tudo o que o demo cria passa nas mesmas regras do cadastro real
+        assert loja.usuario.demo and not loja.usuario.is_staff
+
+
+def test_cliente_demo_entra_e_ve_os_proprios_anuncios(client, dev):
+    """Login com DEMO_SENHA em /entrar/; o painel lista só os anúncios da própria loja."""
+    criar_dados_demo(SENHA_DEMO)
+
+    resposta = client.post(
+        reverse("contas:entrar"), {"username": "contato@rota358.demo.invalid", "password": SENHA_DEMO}
+    )
+    html = client.get(reverse("anunciantes:painel")).content.decode()
+
+    assert resposta["Location"] == reverse("anunciantes:painel")
+    assert "Garagem Rota 358" in html
+    assert "Toyota Hilux SRV 2.8 4x4 Diesel" in html and "Volkswagen Gol 1.0 MPI" in html
+    assert "Ford Ranger" not in html  # é da Serra Caminhonetes
+    assert "Casa 3 quartos" not in html  # é do corretor
+
+
+def test_criar_dados_demo_nao_toma_loja_real(dev):
+    """Se o endereço de uma loja demo já for de uma loja real, o comando para."""
+    from anunciantes.models import Anunciante
+
+    real = Usuario.objects.create_user(email="real@exemplo.com", password=SENHA_REAL, nome="Real")
+    Anunciante.objects.create(
+        usuario=real,
+        tipo="revenda",
+        nome_publico="Rota Real",
+        slug="garagem-rota-358",
+        documento_tipo="cnpj",
+        documento_numero="11222333000181",
+        whatsapp="+5565988887777",
+        cidade=Cidade.objects.get(codigo_ibge=TANGARA),
+    )
+
+    with pytest.raises(ValueError, match="colidem com dados reais"):
+        criar_dados_demo(SENHA_DEMO)
+    assert not Usuario.objects.filter(demo=True).exists()  # transação: nada pela metade
+
+
+def test_apagar_dados_demo_remove_anunciantes_e_historico(dev):
+    """Anunciantes demo, logins e histórico somem; nada sobra para a produção."""
+    from anunciantes.models import Anunciante
+
+    criar_dados_demo(SENHA_DEMO)
+    criar_dados_demo(SENHA_DEMO)  # gera histórico de atualização
+
+    apagar_dados_demo()
+
+    assert not Anunciante.objects.exists()
+    assert not Anunciante.history.exists()
+    assert not Usuario.objects.filter(demo=True).exists()

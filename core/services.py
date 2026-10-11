@@ -326,6 +326,47 @@ def _resumo(categoria: str, detalhes: dict) -> str:
     return " · ".join(partes)
 
 
+def _anuncio_demo(
+    a: dict, cidades: dict[int, str], lojas: dict[str, dict], agora: datetime
+) -> AnuncioVitrine:
+    """Monta um AnuncioVitrine a partir de um anúncio do demo.json."""
+    return AnuncioVitrine(
+        titulo=a["titulo"],
+        categoria=a["categoria"],
+        finalidade=a["finalidade"],
+        tipo=a["tipo"],
+        preco=Decimal(a["preco"]),
+        cidade=cidades[a["cidade_ibge"]],
+        bairro=a["bairro"],
+        resumo=_resumo(a["categoria"], a["detalhes"]),
+        loja_nome=lojas[a["loja"]]["nome"],
+        loja_slug=a["loja"],
+        destaque=a["destaque"],
+        fotos=a["fotos"],
+        estilo_foto=a["estilo_foto"],
+        publicado_em=agora - timedelta(hours=a["publicado_ha_horas"]),
+    )
+
+
+def anuncios_demo_da_loja(slug: str) -> list[AnuncioVitrine]:
+    """Anúncios do demo.json de UMA loja, mais novos primeiro, para o painel do dono.
+
+    Diferente da home, não filtra por cidade liberada: o dono vê tudo o que é dele.
+    Na Sprint 3 o painel passa a ler os anúncios do banco.
+    """
+    dados = ler_demo()
+    dela = [a for a in dados["anuncios"] if a["loja"] == slug]
+    cidades = dict(
+        Cidade.objects.filter(codigo_ibge__in={a["cidade_ibge"] for a in dela}).values_list(
+            "codigo_ibge", "nome"
+        )
+    )
+    lojas = {loja["slug"]: loja for loja in dados["lojas"]}
+    agora = timezone.now()
+    anuncios = [_anuncio_demo(a, cidades, lojas, agora) for a in dela if a["cidade_ibge"] in cidades]
+    return sorted(anuncios, key=lambda a: a.publicado_em, reverse=True)
+
+
 def _vitrine_demo() -> tuple[list[AnuncioVitrine], list[LojaVitrine]]:
     """Anúncios e lojas do demo.json que podem aparecer: só com MOSTRAR_DEMO e só em cidades liberadas.
 
@@ -343,24 +384,7 @@ def _vitrine_demo() -> tuple[list[AnuncioVitrine], list[LojaVitrine]]:
     lojas = {loja["slug"]: loja for loja in dados["lojas"]}
     agora = timezone.now()
     anuncios = [
-        AnuncioVitrine(
-            titulo=a["titulo"],
-            categoria=a["categoria"],
-            finalidade=a["finalidade"],
-            tipo=a["tipo"],
-            preco=Decimal(a["preco"]),
-            cidade=cidades[a["cidade_ibge"]],
-            bairro=a["bairro"],
-            resumo=_resumo(a["categoria"], a["detalhes"]),
-            loja_nome=lojas[a["loja"]]["nome"],
-            loja_slug=a["loja"],
-            destaque=a["destaque"],
-            fotos=a["fotos"],
-            estilo_foto=a["estilo_foto"],
-            publicado_em=agora - timedelta(hours=a["publicado_ha_horas"]),
-        )
-        for a in dados["anuncios"]
-        if a["cidade_ibge"] in cidades
+        _anuncio_demo(a, cidades, lojas, agora) for a in dados["anuncios"] if a["cidade_ibge"] in cidades
     ]
     contagem = Counter(a.loja_slug for a in anuncios)
     vitrine_lojas = [
@@ -416,15 +440,17 @@ class ResumoDemo:
 
     usuarios: int
     cidades: int
+    anunciantes: int = 0
 
 
 def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
     """Cria (ou atualiza) os dados de demonstração do que já existe no sistema. Idempotente.
 
-    Hoje: usuários de equipe demo (um por grupo, senha = DEMO_SENHA) e as cidades do
+    Hoje: usuários de equipe demo (um por grupo, senha = DEMO_SENHA), as cidades do
     demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
-    essas). Lojas e anúncios entram no banco nas Sprints 1 a 3; até lá a home os lê do
-    mesmo demo.json. Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
+    essas) e as 6 lojas como anunciantes ativos com login próprio. Os anúncios entram no
+    banco na Sprint 3; até lá a home e o painel os leem do mesmo demo.json.
+    Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
     uma conta real (nunca sobrescreve conta de verdade).
     """
     if not settings.DEBUG:
@@ -453,7 +479,11 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         liberadas = Cidade.objects.filter(codigo_ibge__in=dados["cidades"], liberada=False).update(
             liberada=True, liberada_pela_demo=True
         )
-    return ResumoDemo(usuarios=len(dados["equipe"]), cidades=liberadas)
+        # Import aqui: o core é a base dos apps; cada app cuida dos próprios dados demo.
+        from anunciantes.services import criar_anunciantes_demo
+
+        lojas = criar_anunciantes_demo(dados["lojas"], senha)
+    return ResumoDemo(usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas)
 
 
 def apagar_dados_demo() -> ResumoDemo:
@@ -463,14 +493,17 @@ def apagar_dados_demo() -> ResumoDemo:
     ligou (as liberadas à mão continuam). Roda em qualquer ambiente: é o que limpa a
     base antes do lançamento (Sprint 9).
     """
+    from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
+
     Usuario = get_user_model()
     with transaction.atomic():
+        anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
         usuarios = Usuario.objects.filter(demo=True).count()
         Usuario.objects.filter(demo=True).delete()
         cidades = Cidade.objects.filter(liberada_pela_demo=True).update(
             liberada=False, liberada_pela_demo=False
         )
-    return ResumoDemo(usuarios=usuarios, cidades=cidades)
+    return ResumoDemo(usuarios=usuarios, cidades=cidades, anunciantes=anunciantes)
 
 
 # --- Páginas institucionais (planos, mídia kit, "em breve") ------------------------------
@@ -569,12 +602,6 @@ PAGINAS_EM_BREVE = {
         "quando": "A lista de lojas e a página de cada uma chegam em breve.",
         "icone": "loja",
     },
-    "painel": {
-        "titulo": "Área do anunciante",
-        "descricao": "Onde a loja cadastra e acompanha seus anúncios, vê estatísticas e faturas.",
-        "quando": "O cadastro de anunciantes abre em breve. Quer ser um dos primeiros? Fale com a gente.",
-        "icone": "lista",
-    },
     "denunciar": {
         "titulo": "Denunciar anúncio",
         "descricao": "Viu um anúncio suspeito, enganoso ou que expõe seus dados? Avise a equipe.",
@@ -602,6 +629,16 @@ TEXTOS_AJUDA = {
     "contato": [
         "Atendimento em horário comercial (horário de Mato Grosso).",
         "Para assuntos de dados pessoais (LGPD), use o e-mail de privacidade.",
+    ],
+    "entrar": [
+        "Área do anunciante: entre com o e-mail e a senha da sua loja.",
+        "Só lojas aprovadas (CRECI ou CNPJ conferido) entram. Cadastro em análise ainda não entra.",
+        "5 senhas erradas seguidas bloqueiam o acesso por 1 hora.",
+    ],
+    "painel": [
+        "Aqui você acompanha os dados da sua loja e os seus anúncios.",
+        "Anúncios no plano: publicados + em análise. Pausados não contam no limite.",
+        'Plano, estatísticas e faturas chegam nas próximas etapas (marcados como "em breve").',
     ],
     "em_breve": [
         "Esta parte do site ainda está em construção; o link já existe para você saber o que vem aí.",

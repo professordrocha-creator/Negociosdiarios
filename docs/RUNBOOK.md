@@ -87,7 +87,8 @@ Regra do projeto (CLAUDE.md): tudo é construído com dados fictícios até o la
    ```bash
    docker compose exec web python manage.py criar_dados_demo
    ```
-   Libera as cidades da demonstração e cria a equipe demo (`moderador@`, `financeiro@` e
+   Libera as cidades da demonstração, cria as 6 lojas demo (anunciantes ativos que entram em
+   `/entrar/`, ex.: `paulo.mendes@demo.invalid`) e a equipe demo (`moderador@`, `financeiro@` e
    `comercial@demo.invalid`, senha = `DEMO_SENHA`), para testar os grupos no admin.
    O código de login deles cai no Mailpit.
 3. A home mostra a faixa "Dados de demonstração", destaques, recém-anunciados e lojas.

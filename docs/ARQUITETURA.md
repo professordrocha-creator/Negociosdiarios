@@ -89,14 +89,18 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
   gerado no servidor). Navegador confiável = cookie assinado (sem tabela). Tentativas de
   login com erro em `axes.AccessAttempt` (temporárias)
 
-### Anunciante (a "loja")
+### Anunciante (a "loja") — app `anunciantes` (Sprint 1, parte 1)
+Implementado: `usuario` (1:1, PROTECT), `tipo`, `nome_publico`, `slug` (único), `sigla`, `cor` (1 a 6, paleta do site;
+classe CSS, sem estilo inline), `documento_tipo` + `documento_numero` (CNPJ só dígitos com dígitos verificadores;
+CRECI no padrão `CRECI/UF 12345-F`; corretor autônomo = CRECI, demais = CNPJ; único), `whatsapp` (E.164),
+`email_publico`, `cidade` (FK, só liberada), `status` pendente | ativo | suspenso, `motivo_status`, `demo`
+(MarcaDemo), `criado_em`, `atualizado_em` e histórico (django-simple-history). O status só muda pelas ações do
+admin (Aprovar/Suspender, com motivo). Planejado para as próximas sprints:
 - `tipo`: corretor_autonomo | imobiliaria | revenda | concessionaria | garagem
-- `nome_publico`, `slug` (único, usado na URL da vitrine)
-- `documento_tipo` (CRECI | CNPJ), `documento_numero`, `status_verificacao`
-- `logo`, `capa`, `cor` (hex; usada quando não há capa/logo), `sobre`,
+- `logo`, `capa`, `sobre`,
   editados pelo próprio anunciante em `/painel/loja/` com prévia ao vivo, `whatsapp`, `telefone`, `email_publico`
 - `endereco_publico`, `ponto` (PointField opcional), `horario`, `redes_sociais`
-- `status`: pendente | ativo | suspenso | inadimplente | encerrado
+- `status`: + inadimplente (Sprint 6) e encerrado (Sprint 7)
 
 ### Anuncio
 - `anunciante`, `categoria` (imovel | veiculo), `titulo`, `descricao`, `preco`

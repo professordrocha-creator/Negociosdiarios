@@ -35,9 +35,16 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Anuncie sua marca | `/anuncie/` | Mídia kit para patrocinadores |
 | Planos | `/planos/` | Planos e cadastro de anunciante |
 | Sobre | `/sobre/` | Quem somos, missão, visão, valores (textos do painel) |
-| Institucionais | `/privacidade/`, `/termos/`, `/cookies/` | Documentos legais |
+| Institucionais | `/privacidade/`, `/termos/`, `/cookies/` | Documentos legais (rascunhos até a revisão do advogado) |
+| Contato | `/contato/` | WhatsApp, e-mails e endereço do site |
+| Entrar | `/entrar/` | Login do anunciante (e-mail e senha; só loja ativa; equipe usa o admin) |
+| Em breve | `/imoveis/`, `/veiculos/`, `/lojas/`, `/denunciar/` | Páginas ainda em construção (nunca 404) |
 
 ## 3. Painel do anunciante (`/painel/`)
+Só anunciante `ativo` (equipe, pendente e suspenso recebem 403 com explicação). Sprint 1:
+dados da loja, resumo do plano (exemplo, "em breve") e meus anúncios (demo.json até a Sprint 3);
+os demais itens do menu aparecem como "em breve".
+
 | Tela | Para que serve |
 |---|---|
 | Meus anúncios | Lista, situação, renovar/pausar, uso do plano, aviso de fatura |
