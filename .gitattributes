@@ -5,3 +5,5 @@
 *.jpg binary
 *.webp binary
 *.ico binary
+# Bibliotecas de terceiros (Leaflet etc.): byte a byte como o original (sem conversão de fim de linha).
+static/vendor/** -text

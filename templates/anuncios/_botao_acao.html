@@ -1,0 +1,2 @@
+{# Botão de ação da lista "Meus anúncios" (POST com CSRF). Recebe: anuncio, nome, rotulo e, opcional, confirmar. #}
+<form method="post" action="{% url 'anuncios:acao' anuncio.codigo nome %}"{% if confirmar %} data-confirmar="{{ confirmar }}"{% endif %}>{% csrf_token %}<button type="submit" class="btn btn-sm {% if nome == 'excluir' %}btn-outline-danger{% else %}btn-outline-secondary{% endif %}">{{ rotulo }}</button></form>

@@ -1,0 +1,23 @@
+{% load nd %}
+{# Cabeçalho das etapas do anúncio: título, barra de etapas, "Sobre esta tela", mensagens e motivo da recusa. #}
+{# Recebe: anuncio (None no novo), etapas [(nome, rótulo)], etapa atual. #}
+<div class="d-flex flex-wrap align-items-center gap-2">
+  <h1 class="h4 m-0 me-auto">{% if anuncio %}{{ anuncio.titulo }} <span class="small text-suave fw-normal">{{ anuncio.codigo }}</span>{% else %}Novo anúncio de imóvel{% endif %}</h1>
+  {% if anuncio %}<span class="status {% if anuncio.situacao == 'publicado' %}st-publicado{% elif anuncio.situacao == 'em_moderacao' %}st-moderacao{% elif anuncio.situacao == 'rascunho' %}st-rascunho{% elif anuncio.situacao == 'expirado' %}st-expirado{% else %}st-pausado{% endif %}">{{ anuncio.get_situacao_display }}</span>{% endif %}
+</div>
+<nav aria-label="Etapas do anúncio">
+  <ol class="nd-etapas">
+    {% for nome, rotulo in etapas %}
+      <li>
+        {% if nome == etapa %}<a class="atual" aria-current="step" href="#conteudo">{{ rotulo }}</a>
+        {% elif anuncio %}{% with rota="anuncios:"|add:nome %}<a href="{% url rota anuncio.codigo %}">{{ rotulo }}</a>{% endwith %}
+        {% else %}<span>{{ rotulo }}</span>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% include "_ajuda.html" %}
+{% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+{% if anuncio and anuncio.situacao == "rascunho" and anuncio.motivo_moderacao %}
+  <div class="alert alert-warning py-2 mb-0" role="alert">{% icone "alerta" %} <b>A equipe pediu ajustes:</b> <span class="nd-texto-livre">{{ anuncio.motivo_moderacao }}</span> Corrija e envie de novo na revisão.</div>
+{% endif %}

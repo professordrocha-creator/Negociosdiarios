@@ -1,0 +1,8 @@
+{% autoescape off %}Olá,
+
+O anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}") precisa de ajustes antes de ir ao ar.
+
+O que a equipe pediu: {{ anuncio.motivo_moderacao }}
+
+O anúncio voltou para rascunho. Corrija e envie de novo: {{ link_editar }}
+{% endautoescape %}

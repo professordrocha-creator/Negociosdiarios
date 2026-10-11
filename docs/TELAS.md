@@ -11,14 +11,14 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 
 | Item | Formato aceito | Tamanho / proporção | Peso máx. | O sistema gera |
 |---|---|---|---|---|
-| Foto de anúncio | JPG, PNG, WebP, HEIC | mín. 800×600; ideal 1600×1200 (4:3, horizontal) | 8 MB | WebP 1600 px + miniatura 400 px, sem EXIF |
+| Foto de anúncio | JPG, PNG, WebP (HEIC do iPhone chega como JPG) | mín. 800×600; ideal 1600×1200 (4:3, horizontal) | 8 MB | WebP 1600 px + miniatura 400 px, sem EXIF, rotação aplicada |
 | Fotos por anúncio | — | até 10 (1ª = capa; ordem por arrastar) | — | — |
 | Logo da loja | JPG, PNG, WebP | quadrada, mín. 400×400 | 2 MB | WebP 400 e 96 px |
 | Capa da loja | JPG, PNG, WebP | 1600×400 (4:1); área segura central 1200×300 | 4 MB | WebP 1600 e 800 px |
 | Banner topo | JPG, PNG, WebP (sem animação) | 970×90 desktop **e** 320×100 celular | 1 MB cada | WebP |
 | Card patrocinador | logo + texto | logo 400×400; texto até 80 caracteres | 1 MB | WebP |
 | Anúncio nativo | texto + link | título 60; texto 120 caracteres | — | — |
-| Título do anúncio | texto | 10 a 80 caracteres | — | — |
+| Título do anúncio | texto | 10 a 80 caracteres (máx. 120) | — | — |
 | Descrição do anúncio | texto puro | até 3.000 caracteres | — | — |
 | Sobre a loja | texto puro | até 500 caracteres | — | — |
 | Logo do site (admin) | SVG ou PNG transparente | quadrado 512×512 | 500 KB | favicon 32/180/512 px |
@@ -54,12 +54,12 @@ valor, vencimento, situação; aviso de "em atraso: anúncios pausados" e de "se
 
 | Tela | Para que serve |
 |---|---|
-| Meus anúncios | Lista, situação, renovar/pausar, uso do plano, aviso de fatura |
-| Novo/editar anúncio | Formulário por categoria, fotos, localização (exata/aproximada) |
+| Meus anúncios (no `/painel/`) | Lista do banco (capa, código, situação, "Expira em X dias"), ações por POST: Editar/Continuar, Pausar, Reativar, Renovar, Excluir (confirmação; exclusão lógica). Aviso de plano no limite com link de upgrade. Visualizações/cliques: Parte B |
+| Novo/editar anúncio (`/painel/anuncios/novo/`, `/painel/anuncios/<codigo>/editar/`) | 4 etapas, cada uma com "Sobre esta tela": **Dados** (título, tipo, venda/aluguel, preço e áreas no formato brasileiro, quartos, IPTU, descrição); **Localização** (`…/editar/localizacao/`: cidade liberada, bairro, endereço privado, ponto no mapa Leaflet, o que o público vê); **Fotos** (`…/editar/fotos/`: várias de uma vez, arrastar ou setas, excluir); **Revisão** (`…/editar/revisao/`: pendências, Salvar como rascunho / Enviar para publicação; no limite o envio é bloqueado com oferta de upgrade). Em análise não é editável |
 | Importar anúncios | Envio de XML/planilha, prévia com erros, confirmação |
 | Estatísticas | Visualizações e cliques no WhatsApp por anúncio e por período |
 | Página da loja (`/painel/loja/`) | Logo e capa (validados; WebP pelo Celery), cor (paleta), nome, endereço da página, sobre, WhatsApp, horário, endereço e "mostrar no mapa", Instagram, site; prévia ao vivo (`static/js/painel-loja.js`). CRECI/CNPJ só leitura |
-| Meu plano (`/painel/plano/`) | Card do plano, pedido em análise e pedido de troca (plano + mensal/anual; sem pagamento online: vai para o admin e envia e-mail). Carência vem da `Configuracao`. Escolha de anúncios a manter no downgrade: Sprint 3 |
+| Meu plano (`/painel/plano/`) | Card do plano, pedido em análise e pedido de troca (plano + mensal/anual; sem pagamento online: vai para o admin e envia e-mail). Carência vem da `Configuracao`. Pedido para plano menor que o uso leva a **Escolher anúncios** (`/painel/plano/escolher-anuncios/`: marca até o novo limite; os outros são pausados na aprovação) |
 | Faturas | Histórico, Pix, comprovantes, notas fiscais |
 | Meus dados (LGPD) | Ver, baixar e excluir dados; encerrar conta |
 
@@ -67,10 +67,11 @@ valor, vencimento, situação; aviso de "em atraso: anúncios pausados" e de "se
 | Tela | Para que serve |
 |---|---|
 | Resumo do dia | Pendências, faturas vencendo, receita do mês, contratos de publicidade vencendo |
-| Aprovações | Cadastros (CRECI/CNPJ) e anúncios aguardando análise |
+| Aprovações | Cadastros (CRECI/CNPJ) em Anunciantes; anúncios em **Anúncios › Fila de moderação** (mais antigos primeiro, capa na lista, fotos grandes, ficha, endereço e ponto privados; ações Aprovar e Recusar com motivo, os dois com e-mail). **Anúncios** lista todos (filtros por situação, categoria, cidade), só leitura |
 | Anúncios / Anunciantes | Busca, edição, suspensão (com motivo) |
 | Denúncias | Fila de denúncias com decisão registrada |
-| Planos e preços | Planos: preço mensal/anual, limite, ordem e "à venda" editáveis na lista (com histórico; sem apagar). Assinaturas: filtro por situação/periodicidade/plano, ação "Registrar pagamento manual" (motivo). Pedidos de troca: Aprovar / Recusar (motivo), com e-mail. Carência em Identidade do site › Limites |
+| Regras do negócio (em Identidade do site) | Carência de pagamento, validade do anúncio, aviso de expiração e quais anúncios passam por moderação |
+| Planos e preços | Planos: preço mensal/anual, limite, ordem e "à venda" editáveis na lista (com histórico; sem apagar). Assinaturas: filtro por situação/periodicidade/plano, ação "Registrar pagamento manual" (motivo). Pedidos de troca: Aprovar / Recusar (motivo), com e-mail. Carência em Identidade do site › Regras do negócio |
 | Faturas | Status, baixa manual com motivo, inadimplentes |
 | Publicidade | Patrocinadores, contratos, peças, métricas |
 | **Cidades atendidas** | Liberar estados/cidades; regiões (`Regiao`); bairros por cidade (`Bairro`, também dentro da cidade); "Solicitações de cidade" com as ações Liberar cidade e Recusar (motivo + e-mail) |

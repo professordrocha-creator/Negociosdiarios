@@ -143,6 +143,12 @@ class PedidoTrocaPlano(MarcaDemo):
         Plano, on_delete=models.PROTECT, related_name="+", verbose_name="plano pedido"
     )
     periodicidade = models.CharField("periodicidade", max_length=6, choices=Periodicidade.choices)
+    anuncios_manter = models.JSONField(
+        "anúncios a manter",
+        default=list,
+        blank=True,
+        help_text="Plano menor: ids dos anúncios que o anunciante escolheu manter; os demais são pausados.",
+    )
     status = models.CharField(
         "situação", max_length=10, choices=Status.choices, default=Status.PENDENTE, db_index=True
     )

@@ -47,14 +47,37 @@ def assinatura_de(anunciante: Anunciante) -> Assinatura | None:
 
 
 def uso_do_plano(anunciante: Anunciante) -> int:
-    """Anúncios que contam no limite (publicados + em análise).
+    """Anúncios que contam no limite (publicados + em análise; pausados e rascunhos não)."""
+    from anuncios.services import contar_no_plano  # import local: o app anuncios depende deste
 
-    Até a Sprint 3 só lojas demo têm anúncios (demo.json); a Sprint 3 troca o corpo desta
-    função pela contagem no banco, sem mudar quem chama.
+    return contar_no_plano(anunciante)
+
+
+def precisa_escolher_anuncios(pedido: PedidoTrocaPlano) -> bool:
+    """O pedido é para um plano menor que o uso atual: o anunciante escolhe quais anúncios manter."""
+    return uso_do_plano(pedido.anunciante) > pedido.plano_novo.limite_anuncios
+
+
+def escolher_anuncios_para_manter(pedido: PedidoTrocaPlano, ids: Iterable[int]) -> PedidoTrocaPlano:
+    """Guarda no pedido os anúncios que ficam no ar com o plano menor (aplicados na aprovação).
+
+    Só ids de anúncios desta loja que hoje ocupam o plano, no máximo o limite novo.
     """
-    from anunciantes.services import anuncios_da_loja
+    from anuncios.services import ids_no_plano
 
-    return len(anuncios_da_loja(anunciante))
+    if pedido.status != PedidoTrocaPlano.Status.PENDENTE:
+        raise ValueError("Este pedido já foi decidido.")
+    escolhidos = set(ids)
+    if not escolhidos <= set(ids_no_plano(pedido.anunciante)):
+        raise ValueError("Escolha só entre os seus anúncios publicados ou em análise.")
+    limite = pedido.plano_novo.limite_anuncios
+    if len(escolhidos) > limite:
+        raise ValueError(
+            f"O plano {pedido.plano_novo.nome} permite {limite} anúncios: escolha no máximo {limite}."
+        )
+    pedido.anuncios_manter = sorted(escolhidos)
+    pedido.save(update_fields=["anuncios_manter"])
+    return pedido
 
 
 # --- Limite do plano (regra 1) -------------------------------------------------------------
@@ -273,21 +296,34 @@ def pedir_troca(anunciante: Anunciante, plano_novo: Plano, periodicidade: str) -
 
 
 def aprovar_pedido(pedido: PedidoTrocaPlano, por: Usuario | None) -> Assinatura:
-    """Aplica o plano pedido e avisa o anunciante. Downgrade acima do novo limite precisa de escolha.
+    """Aplica o plano pedido e avisa o anunciante.
 
-    Se o novo plano for menor que o uso atual, a aprovação para: o anunciante precisa escolher
-    quais anúncios manter (`aplicar_downgrade`, tela da Sprint 3).
+    Downgrade acima do novo limite: usa a escolha do anunciante (`escolher_anuncios_para_manter`,
+    tela "Escolher anúncios") e pausa o resto com `aplicar_downgrade`. Sem escolha, não aprova.
+    Anúncios publicados depois da escolha também ficam fora (não foram escolhidos).
     """
+    from anuncios.services import ids_no_plano, pausar_por_downgrade
+
     if pedido.status != PedidoTrocaPlano.Status.PENDENTE:
         raise ValueError("Este pedido já foi decidido.")
-    uso = uso_do_plano(pedido.anunciante)
-    if uso > pedido.plano_novo.limite_anuncios:
+    anunciante = pedido.anunciante
+    em_uso = ids_no_plano(anunciante)
+    limite = pedido.plano_novo.limite_anuncios
+    if len(em_uso) > limite and not pedido.anuncios_manter:
         raise ValueError(
-            f"{pedido.anunciante}: tem {uso} anúncios e o plano {pedido.plano_novo.nome} permite "
-            f"{pedido.plano_novo.limite_anuncios}. O anunciante precisa escolher quais manter antes."
+            f"{anunciante}: tem {len(em_uso)} anúncios e o plano {pedido.plano_novo.nome} permite "
+            f"{limite}. Aguarde o anunciante escolher quais manter (ele recebeu o link em Meu plano)."
         )
     with transaction.atomic():
-        assinatura = assinatura_de(pedido.anunciante)
+        assinatura = assinatura_de(anunciante)
+        if assinatura and len(em_uso) > limite:  # downgrade com escolha: pausa os não escolhidos
+            aplicar_downgrade(
+                assinatura,
+                pedido.plano_novo,
+                em_uso,
+                manter=set(pedido.anuncios_manter) & set(em_uso),
+                pausar=lambda ids: pausar_por_downgrade(anunciante, ids),
+            )
         if assinatura:  # troca: mantém o vencimento atual
             assinatura.plano = pedido.plano_novo
             assinatura.periodicidade = pedido.periodicidade

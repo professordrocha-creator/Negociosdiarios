@@ -1,0 +1,10 @@
+{% autoescape off %}Olá,
+
+O anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}") foi aprovado pela equipe do {{ site_nome }}.
+{% if anuncio.situacao == "publicado" %}
+Ele já está no ar até {{ anuncio.expira_em|date:"d/m/Y" }}. Perto dessa data, renove com um clique no painel.
+{% else %}
+Ele vai ao ar assim que o pagamento da assinatura for registrado.
+{% endif %}
+Painel: {{ link_painel }}
+{% endautoescape %}

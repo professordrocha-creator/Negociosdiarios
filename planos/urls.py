@@ -8,4 +8,5 @@ app_name = "planos"
 
 urlpatterns = [
     path("painel/plano/", views.meu_plano, name="meu_plano"),
+    path("painel/plano/escolher-anuncios/", views.escolher_anuncios, name="escolher_anuncios"),
 ]

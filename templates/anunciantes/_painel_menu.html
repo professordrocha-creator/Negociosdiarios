@@ -9,7 +9,7 @@
   </div>
   <nav class="nd-lateral d-grid gap-1" aria-label="Painel">
     <a {% if atual == "painel" %}class="ativo" aria-current="page"{% endif %} href="{% url 'anunciantes:painel' %}">{% icone "lista" %} Meus anúncios</a>
-    <a class="nd-em-breve-link" aria-disabled="true" title="Em breve">{% icone "mais" %} Novo anúncio</a>
+    <a {% if atual == "novo" %}class="ativo" aria-current="page"{% endif %} href="{% url 'anuncios:novo' %}">{% icone "mais" %} Novo anúncio</a>
     <a class="nd-em-breve-link" aria-disabled="true" title="Em breve">{% icone "grafico" %} Estatísticas</a>
     <a {% if atual == "painel_loja" %}class="ativo" aria-current="page"{% endif %} href="{% url 'anunciantes:painel_loja' %}">{% icone "loja" %} Página da loja</a>
     <a {% if atual == "meu_plano" %}class="ativo" aria-current="page"{% endif %} href="{% url 'planos:meu_plano' %}">{% icone "plano" %} Meu plano</a>

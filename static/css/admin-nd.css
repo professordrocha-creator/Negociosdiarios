@@ -1,3 +1,7 @@
 /* Estilos do admin para a identidade do site (prévia dos símbolos sobre fundo claro e escuro). */
 .nd-previa-simbolo { display: inline-grid; place-items: center; width: 64px; height: 64px; border: 1px solid #dde4e5; border-radius: 8px; background: #fff; margin-right: 8px; }
 .nd-previa-simbolo-escuro { background: #0e4a57; border-color: #0e4a57; }
+
+/* Anúncios: miniatura na lista e fotos grandes na fila de moderação (sem style inline: CSP). */
+.nd-adm-mini { width: 96px; height: 72px; object-fit: cover; border-radius: 4px; }
+.nd-adm-foto { max-width: 720px; width: 100%; display: block; margin: 0 0 12px; border-radius: 6px; }

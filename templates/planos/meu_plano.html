@@ -22,6 +22,7 @@
       {% if pendente %}
         <div class="alert alert-info py-2 mb-0" role="status">
           {% icone "relogio" %} <b>Pedido em análise:</b> {{ pendente.plano_novo.nome }} ({{ pendente.get_periodicidade_display|lower }}), enviado em {{ pendente.criado_em|date:"d/m/Y" }}. Um novo pedido substitui este.
+          {% if escolha_pendente %}<div class="mt-2"><b>Falta você escolher quais anúncios ficam no ar no plano novo.</b> <a class="btn btn-sm btn-nd ms-1" href="{% url 'planos:escolher_anuncios' %}">Escolher anúncios</a></div>{% endif %}
         </div>
       {% endif %}
 

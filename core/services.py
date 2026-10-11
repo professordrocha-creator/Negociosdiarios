@@ -16,7 +16,7 @@ from django.contrib.auth.models import AnonymousUser, Group
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection, send_mail
-from django.db import DatabaseError, connection, transaction
+from django.db import DatabaseError, IntegrityError, connection, transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -516,10 +516,12 @@ def apagar_dados_demo() -> ResumoDemo:
     base antes do lançamento (Sprint 9).
     """
     from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
+    from anuncios.services import apagar_anuncios_demo
     from planos.services import apagar_assinaturas_demo
 
     Usuario = get_user_model()
     with transaction.atomic():
+        apagar_anuncios_demo()  # anúncios, fotos e histórico (Anuncio.anunciante é PROTECT)
         apagar_assinaturas_demo()  # antes dos anunciantes (e leva o histórico junto)
         anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
         Bairro.objects.filter(demo=True).delete()
@@ -626,7 +628,11 @@ TEXTOS_SOBRE_INICIAIS = {
 
 
 def configuracao() -> Configuracao:
-    """O registro único da identidade do site. Na primeira vez, nasce com os `SITE_*` do settings."""
+    """O registro único da identidade do site. Na primeira vez, nasce com os `SITE_*` do settings.
+
+    Dois acessos simultâneos ao site novo podem tentar criar o registro ao mesmo tempo: quem
+    perde a corrida lê o que o outro gravou (em vez de quebrar com chave duplicada).
+    """
     config = Configuracao.objects.filter(pk=Configuracao.ID_UNICO).first()
     if config is None:
         config = Configuracao(
@@ -642,7 +648,11 @@ def configuracao() -> Configuracao:
             cnpj=settings.SITE_CNPJ,
             **TEXTOS_SOBRE_INICIAIS,
         )
-        config.save()
+        try:
+            with transaction.atomic():
+                config.save(force_insert=True)
+        except IntegrityError:
+            config = Configuracao.objects.get(pk=Configuracao.ID_UNICO)
     return config
 
 

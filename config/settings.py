@@ -114,6 +114,7 @@ INSTALLED_APPS = [
     "contas",
     "anunciantes",
     "planos",
+    "anuncios",
 ]
 
 MIDDLEWARE = [
@@ -336,6 +337,7 @@ CELERY_BEAT_SCHEDULE = {
     "batimento": {"task": "core.tasks.batimento", "schedule": 5 * 60},
     # Todo dia às 6h (Cuiabá): vencidas além da carência viram "em atraso" (anúncios pausados).
     "atrasos": {"task": "planos.tasks.verificar_atrasos", "schedule": crontab(hour=6, minute=0)},
+    "expiracao": {"task": "anuncios.tasks.expirar_anuncios", "schedule": crontab(hour=3, minute=0)},
 }
 
 # --- E-mail --------------------------------------------------------------------

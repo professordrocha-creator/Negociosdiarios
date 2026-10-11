@@ -188,9 +188,34 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
                     "limite_capa_kb",
                     "capa_min_largura_px",
                     "capa_min_altura_px",
-                    "carencia_dias",
-                    "atualizado_em",
                 )
+            },
+        ),
+        (
+            "Anúncios: fotos e textos",
+            {
+                "fields": (
+                    "max_fotos_anuncio",
+                    "limite_foto_anuncio_kb",
+                    "foto_min_largura_px",
+                    "foto_min_altura_px",
+                    "titulo_min_caracteres",
+                    "titulo_max_caracteres",
+                    "descricao_max_caracteres",
+                )
+            },
+        ),
+        (
+            "Regras do negócio",
+            {
+                "description": "Prazos e moderação valem para todas as lojas a partir do próximo uso.",
+                "fields": (
+                    "carencia_dias",
+                    "expiracao_dias",
+                    "aviso_expiracao_dias",
+                    "moderacao",
+                    "atualizado_em",
+                ),
             },
         ),
     )

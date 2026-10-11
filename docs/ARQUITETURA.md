@@ -118,17 +118,29 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
 
-### Anuncio
-- `anunciante`, `categoria` (imovel | veiculo), `titulo`, `descricao`, `preco`
-- `cidade`, `bairro`, `status`: rascunho | em_moderacao | publicado | pausado | expirado | removido
-- `publicado_em`, `expira_em` (anúncio expira em 60 dias; renova com 1 clique)
-- `destaque_ate` (V2)
+### Anuncio — app `anuncios` (Sprint 3, parte A)
+- `anunciante` (PROTECT), `categoria` (imovel | veiculo), `codigo` público único (`ND-IM-00001`, gerado do id
+  na primeira gravação, nunca muda), `titulo` (limites na `Configuracao`), `slug`, `descricao`, `preco` (Decimal)
+- `cidade` (FK, só liberada), `bairro` (FK, opcional), `situacao`: rascunho | em_moderacao | publicado |
+  pausado | expirado | removido (exclusão lógica, com `removido_em`)
+- `pausado_por` (cliente | atraso | downgrade: só a pausa por atraso volta sozinha com o pagamento),
+  `motivo_moderacao`, `moderado_por`
+- `publicado_em` (primeira publicação; não muda ao renovar), `expira_em` (prazo da `Configuracao`, padrão
+  60 dias; Renovar), `destaque_ate` (V2), `demo`, `criado_em`, `atualizado_em`, histórico
+- Proxy `AnuncioEmModeracao`: a "Fila de moderação" do admin
+- Contam no plano: publicado + em_moderacao
 
-### DetalheImovel
-- `tipo` (casa, apartamento, kitnet, terreno, chácara, sítio, fazenda, sala comercial)
+### DetalheImovel (1:1 com Anuncio, chave = o anúncio)
+- `tipo` (casa, apartamento, kitnet, terreno, chácara, sítio, fazenda, sala comercial, barracão)
 - `modalidade` (venda | aluguel), `quartos`, `banheiros`, `vagas`
-- `area_total`, `area_construida`, `endereco` (privado), `ponto` (PointField)
-- `exibir_localizacao`: exata | aproximada | só bairro (padrão: **aproximada**)
+- `area_total`, `area_construida` (m², Decimal), `iptu` (anual, opcional), `endereco` (**privado**),
+  `ponto` (PointField WGS 84, **privado**: o público vê conforme a opção abaixo), histórico
+- `exibir_localizacao`: exata | aproximada | so_bairro (padrão: **aproximada**)
+
+### Foto
+- `anuncio`, `ordem` (a menor é a capa), `original` (envio; apagado depois do processamento),
+  `imagem` (WebP 1600), `miniatura` (WebP 400), `criado_em`. Foto excluída pelo anunciante é apagada
+  de verdade (arquivo e registro).
 
 ### DetalheVeiculo
 - `marca`, `modelo`, `versao` (FK para catálogo FIPE), `ano_fabricacao`, `ano_modelo`
@@ -146,9 +158,20 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
    o Pix da Sprint 6) → volta a ativa e o sinal reativa os anúncios.
 3. **Downgrade de plano:** `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: o
    anunciante escolhe quais manter (no máximo o novo limite, só dentre os dele); o excedente fica
-   pausado. A tela de escolha chega com os anúncios (Sprint 3); até lá, aprovar um downgrade acima
-   do novo limite é recusado no admin com explicação.
-4. **Expiração:** tarefa Celery diária expira anúncios vencidos e avisa por e-mail.
+   pausado. Tela `/painel/plano/escolher-anuncios/`: a escolha fica no `PedidoTrocaPlano.anuncios_manter`
+   e é aplicada na aprovação (publicado → pausado por downgrade; em análise → rascunho). Sem escolha, o
+   admin não aprova.
+   Sinais: `anuncios.receptores` liga `assinatura_em_atraso` → `pausar_por_atraso` e
+   `assinatura_regularizada` → `reativar_apos_pagamento`.
+4. **Expiração:** `anuncios.tasks.expirar_anuncios` (Celery beat, 3h) passa os publicados com prazo
+   vencido para `expirado` (nunca apagados) e manda um e-mail por loja. "Renovar" aparece a partir de
+   `Configuracao.aviso_expiracao_dias` (padrão 5) e no expirado (que precisa de vaga no plano).
+4a. **Moderação:** `Configuracao.moderacao` = só o primeiro anúncio da loja (padrão) | todos | nenhum.
+   Em análise conta no plano. Recusa volta para rascunho com o motivo (e-mail); aprovação publica (ou
+   deixa pausado por atraso, se a assinatura não estiver ativa). Com "todos", editar um publicado o
+   devolve para a análise.
+4b. **Publicar/reativar/renovar expirado** passam por `planos.services.reservar_vaga` (trava da
+   assinatura): `anuncios.services.enviar_para_publicacao`, `reativar`, `renovar`.
 5. **Contato por WhatsApp:** botão aponta para `/contato/<id>/whatsapp/`, que
    registra o clique (estatística para o anunciante) e redireciona para `wa.me`.
    O número não fica em texto no HTML (dificulta robôs que coletam telefones).
@@ -177,10 +200,12 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 
 Logo e capa da loja (Sprint 2) já seguem este fluxo (`core/imagens.py`: tipo real, dimensões mínimas,
 limites da `Configuracao`, rotação do EXIF aplicada e EXIF descartado, recorte pelo centro, WebP sem ampliar).
-Fotos de anúncio (Sprint 3):
-Upload → Celery redimensiona (1600px + miniatura 400px), converte para WebP,
-**remove EXIF** e grava no storage (pasta local em dev, R2 em produção). Original é descartado.
-Limites: 10 fotos por anúncio, 8 MB por arquivo, só JPEG/PNG/WebP/HEIC.
+Fotos de anúncio (Sprint 3, parte A, `anuncios.services`): envio múltiplo validado no formulário (tipo real
+pelo Pillow, tamanho e dimensões mínimas da `Configuracao`) → `anuncios.tasks.processar_foto` (Celery) aplica a
+rotação do celular, descarta EXIF (GPS), gera WebP 1600 + miniatura 400 e apaga o original. Limites na
+`Configuracao` (padrão 10 fotos, 8 MB, mín. 800×600). Formatos: JPEG, PNG e WebP (o iPhone converte HEIC para
+JPEG ao enviar pelo navegador; HEIC direto exigiria `pillow-heif`, fica para quando houver demanda).
+Mapa do painel: Leaflet 1.9.4 servido pelo site (`static/vendor/leaflet/`, sem CDN) e tiles do OpenStreetMap.
 
 ## 9. Abrangência geográfica (pronto para vários estados)
 

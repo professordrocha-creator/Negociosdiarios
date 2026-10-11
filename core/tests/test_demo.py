@@ -397,8 +397,11 @@ def test_criar_dados_demo_cria_6_lojas_ativas_e_2_pendentes(dev):
         assert loja.usuario.demo and not loja.usuario.is_staff
 
 
-def test_cliente_demo_entra_e_ve_os_proprios_anuncios(client, dev):
-    """Login com DEMO_SENHA em /entrar/; o painel lista só os anúncios da própria loja."""
+def test_cliente_demo_entra_no_proprio_painel(client, dev):
+    """Login com DEMO_SENHA em /entrar/; o painel é o da própria loja (lê os anúncios do banco).
+
+    Os anúncios do demo.json entram no banco na Sprint 3, parte B; até lá o painel demo fica vazio.
+    """
     criar_dados_demo(SENHA_DEMO)
 
     resposta = client.post(
@@ -407,10 +410,8 @@ def test_cliente_demo_entra_e_ve_os_proprios_anuncios(client, dev):
     html = client.get(reverse("anunciantes:painel")).content.decode()
 
     assert resposta["Location"] == reverse("anunciantes:painel")
-    assert "Garagem Rota 358" in html
-    assert "Toyota Hilux SRV 2.8 4x4 Diesel" in html and "Volkswagen Gol 1.0 MPI" in html
+    assert "Garagem Rota 358" in html and "Novo anúncio" in html
     assert "Ford Ranger" not in html  # é da Serra Caminhonetes
-    assert "Casa 3 quartos" not in html  # é do corretor
 
 
 def test_criar_dados_demo_nao_toma_loja_real(dev):

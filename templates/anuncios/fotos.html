@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Painel › Anúncio › Fotos (etapa 3). Envio múltiplo; ordem por arrastar (fotos-anuncio.js) ou setas (sem JS). #}
+{# Os WebP são gerados pelo Celery: enquanto isso a foto aparece como "otimizando". #}
+
+{% block titulo %}Fotos · {{ anuncio.codigo }}{% endblock %}
+{% block descricao %}Fotos do anúncio.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-3" id="conteudo">
+      {% include "anuncios/_cabecalho.html" %}
+
+      {% if vagas %}
+      <form method="post" enctype="multipart/form-data" class="nd-caixa d-grid gap-2" novalidate>
+        {% csrf_token %}
+        {% include "anunciantes/_campo.html" with campo=form.fotos %}
+        <div><button type="submit" class="btn btn-nd">{% icone "mais" %} Enviar fotos</button></div>
+      </form>
+      {% else %}
+        <div class="alert alert-info py-2 mb-0" role="status">Este anúncio já tem o máximo de fotos. Exclua uma para enviar outra.</div>
+      {% endif %}
+
+      {% if processando %}<div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} Estamos otimizando as fotos enviadas. <a href="">Recarregue a página</a> em alguns segundos.</div>{% endif %}
+
+      <section class="nd-caixa">
+        <h2 class="h6">Fotos do anúncio ({{ fotos|length }})</h2>
+        {% if fotos %}
+        <p class="small text-suave">A primeira foto é a capa. Arraste para mudar a ordem ou use as setas.</p>
+        <form method="post" action="{% url 'anuncios:ordenar_fotos' anuncio.codigo %}" id="form-ordem">
+          {% csrf_token %}
+          <ul class="nd-fotos" id="lista-fotos">
+            {% for foto in fotos %}
+            <li draggable="true" data-id="{{ foto.pk }}">
+              <input type="hidden" name="ordem" value="{{ foto.pk }}">
+              {% if foto.miniatura %}<img src="{{ foto.miniatura.url }}" alt="Foto {{ forloop.counter }}" width="400" height="300">{% else %}<div class="processando small text-suave">otimizando…</div>{% endif %}
+              <div class="barra">
+                {% if forloop.first %}<span class="nd-capa-selo">Capa</span>{% else %}<span class="small text-suave">{{ forloop.counter }}</span>{% endif %}
+                <span class="me-auto"></span>
+                <button type="submit" name="mover" value="{{ foto.pk }}:subir" class="btn btn-sm btn-outline-secondary" title="Subir" aria-label="Subir a foto {{ forloop.counter }}"{% if forloop.first %} disabled{% endif %}>↑</button>
+                <button type="submit" name="mover" value="{{ foto.pk }}:descer" class="btn btn-sm btn-outline-secondary" title="Descer" aria-label="Descer a foto {{ forloop.counter }}"{% if forloop.last %} disabled{% endif %}>↓</button>
+                <button type="submit" form="excluir-{{ foto.pk }}" class="btn btn-sm btn-outline-danger" title="Excluir" aria-label="Excluir a foto {{ forloop.counter }}">✕</button>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          <button type="submit" class="btn btn-sm btn-outline-secondary mt-2 d-none" id="salvar-ordem">Salvar ordem</button>
+        </form>
+        {% for foto in fotos %}<form method="post" action="{% url 'anuncios:excluir_foto' anuncio.codigo foto.pk %}" id="excluir-{{ foto.pk }}" class="d-none" data-confirmar="Excluir esta foto?">{% csrf_token %}</form>{% endfor %}
+        {% else %}
+          <p class="text-suave mb-0">Nenhuma foto ainda.</p>
+        {% endif %}
+      </section>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-nd" href="{% url 'anuncios:revisao' anuncio.codigo %}">Continuar para a revisão ›</a>
+        <a class="btn btn-outline-secondary" href="{% url 'anuncios:localizacao' anuncio.codigo %}">‹ Voltar</a>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/fotos-anuncio.js' %}" defer></script><script src="{% static 'js/confirmar.js' %}" defer></script>{% endblock %}

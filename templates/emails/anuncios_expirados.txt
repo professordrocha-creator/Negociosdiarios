@@ -1,0 +1,8 @@
+{% autoescape off %}Olá,
+
+Estes anúncios chegaram ao fim do prazo e saíram do ar no {{ site_nome }} (nada foi apagado):
+{% for anuncio in anuncios %}
+- {{ anuncio.codigo }} · {{ anuncio.titulo }}{% endfor %}
+
+Para colocá-los de volta, clique em Renovar no painel (sem custo): {{ link_painel }}
+{% endautoescape %}

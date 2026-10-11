@@ -9,6 +9,7 @@ from pathlib import PurePath
 
 from django.contrib.gis.db import models
 from django.core.cache import cache
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class MarcaDemo(models.Model):
@@ -243,13 +244,57 @@ class Configuracao(models.Model):
     )
     limite_capa_kb = models.PositiveIntegerField("limite da capa da loja (KB)", default=4096)
     capa_min_largura_px = models.PositiveIntegerField("largura mínima da capa (px)", default=1200)
+    capa_min_altura_px = models.PositiveIntegerField(
+        "altura mínima da capa (px)", default=300, help_text="A capa é recortada na proporção 4:1 (1600×400)."
+    )
+    # Fotos e textos dos anúncios (docs/TELAS.md §1).
+    max_fotos_anuncio = models.PositiveSmallIntegerField(
+        "fotos por anúncio", default=10, help_text="A primeira foto é a capa do anúncio."
+    )
+    limite_foto_anuncio_kb = models.PositiveIntegerField("limite de cada foto de anúncio (KB)", default=8192)
+    foto_min_largura_px = models.PositiveIntegerField("largura mínima da foto de anúncio (px)", default=800)
+    foto_min_altura_px = models.PositiveIntegerField("altura mínima da foto de anúncio (px)", default=600)
+    titulo_min_caracteres = models.PositiveSmallIntegerField(
+        "título do anúncio: mínimo de caracteres", default=10
+    )
+    titulo_max_caracteres = models.PositiveSmallIntegerField(
+        "título do anúncio: máximo de caracteres",
+        default=80,
+        validators=[MaxValueValidator(120)],
+        help_text="No máximo 120.",
+    )
+    descricao_max_caracteres = models.PositiveIntegerField(
+        "descrição do anúncio: máximo de caracteres", default=3000
+    )
+
+    # Regras do negócio: prazos e moderação (nunca fixos no código).
+    class Moderacao(models.TextChoices):
+        PRIMEIRO = "primeiro", "Só o primeiro anúncio de cada loja"
+        TODOS = "todos", "Todos os anúncios"
+        NENHUM = "nenhum", "Nenhum (publicação direta)"
+
     carencia_dias = models.PositiveSmallIntegerField(
         "carência de pagamento (dias)",
         default=5,
         help_text="Dias depois do vencimento até a assinatura ficar em atraso e os anúncios serem pausados.",
     )
-    capa_min_altura_px = models.PositiveIntegerField(
-        "altura mínima da capa (px)", default=300, help_text="A capa é recortada na proporção 4:1 (1600×400)."
+    expiracao_dias = models.PositiveSmallIntegerField(
+        "validade do anúncio (dias)",
+        default=60,
+        validators=[MinValueValidator(1)],
+        help_text="Depois disso o anúncio sai do ar (expira) até o anunciante clicar em Renovar.",
+    )
+    aviso_expiracao_dias = models.PositiveSmallIntegerField(
+        "aviso de expiração (dias antes)",
+        default=5,
+        help_text='Quantos dias antes de expirar o painel mostra "Expira em X dias" e o botão Renovar.',
+    )
+    moderacao = models.CharField(
+        "anúncios que passam por moderação",
+        max_length=10,
+        choices=Moderacao.choices,
+        default=Moderacao.PRIMEIRO,
+        help_text="Os que não passam são publicados direto ao enviar.",
     )
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
 

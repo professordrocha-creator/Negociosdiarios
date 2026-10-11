@@ -1,46 +1,13 @@
 """Admin do app planos: planos (preços e limites), assinaturas e pedidos de troca."""
 
 from django.contrib import admin, messages
-from django.contrib.admin import helpers
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from django.template.response import TemplateResponse
-from django.urls import reverse
 from simple_history.admin import SimpleHistoryAdmin
 
-from anunciantes.forms import MotivoStatusForm
+from core.admin_acoes import tela_motivo
 from planos.models import Assinatura, PedidoTrocaPlano, Plano
 from planos.services import aprovar_pedido, recusar_pedido, registrar_pagamento
-
-
-def _tela_motivo(
-    modeladmin, request, queryset, acao: str, titulo: str, obrigatorio: bool, servico, sucesso: str
-):
-    """Tela intermediária com motivo (mesmo template das ações de anunciantes)."""
-    form = MotivoStatusForm(request.POST if "aplicar" in request.POST else None, obrigatorio=obrigatorio)
-    if "aplicar" in request.POST and form.is_valid():
-        feitos = 0
-        for obj in queryset:
-            try:
-                servico(obj, request.user, form.cleaned_data["motivo"])
-                feitos += 1
-            except ValueError as erro:
-                modeladmin.message_user(request, str(erro), messages.WARNING)
-        modeladmin.message_user(request, sucesso.format(n=feitos), messages.SUCCESS)
-        return None
-    opts = modeladmin.model._meta
-    contexto = {
-        **modeladmin.admin_site.each_context(request),
-        "title": titulo,
-        "form": form,
-        "itens": [str(obj) for obj in queryset],
-        "ids": [obj.pk for obj in queryset],
-        "url_voltar": reverse(f"admin:{opts.app_label}_{opts.model_name}_changelist"),
-        "acao": acao,
-        "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
-        "opts": opts,
-    }
-    return TemplateResponse(request, "admin/anunciantes/motivo_status.html", contexto)
 
 
 @admin.register(Plano)
@@ -75,7 +42,7 @@ class AssinaturaAdmin(SimpleHistoryAdmin):
     @admin.action(description="Registrar pagamento manual (renova e reativa)", permissions=["change"])
     def registrar_pagamento_manual(self, request: HttpRequest, queryset: QuerySet[Assinatura]):
         """Baixa manual com motivo/comprovante: renova o vencimento; em atraso volta a ativa."""
-        return _tela_motivo(
+        return tela_motivo(
             self,
             request,
             queryset,
@@ -100,6 +67,7 @@ class PedidoTrocaPlanoAdmin(admin.ModelAdmin):
         "plano_atual",
         "plano_novo",
         "periodicidade",
+        "anuncios_manter",
         "status",
         "motivo",
         "decidido_por",
@@ -134,7 +102,7 @@ class PedidoTrocaPlanoAdmin(admin.ModelAdmin):
     @admin.action(description="Recusar selecionados (motivo enviado por e-mail)", permissions=["change"])
     def recusar_selecionados(self, request: HttpRequest, queryset: QuerySet[PedidoTrocaPlano]):
         """Pede o motivo e recusa."""
-        return _tela_motivo(
+        return tela_motivo(
             self,
             request,
             queryset.filter(status=PedidoTrocaPlano.Status.PENDENTE),

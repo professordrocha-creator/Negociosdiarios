@@ -78,7 +78,17 @@ def postar_config(client, **mudancas):
             "limite_capa_kb",
             "capa_min_largura_px",
             "capa_min_altura_px",
+            "max_fotos_anuncio",
+            "limite_foto_anuncio_kb",
+            "foto_min_largura_px",
+            "foto_min_altura_px",
+            "titulo_min_caracteres",
+            "titulo_max_caracteres",
+            "descricao_max_caracteres",
             "carencia_dias",
+            "expiracao_dias",
+            "aviso_expiracao_dias",
+            "moderacao",
         ]
     }
     dados.update(mudancas)

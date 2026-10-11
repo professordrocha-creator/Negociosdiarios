@@ -106,7 +106,7 @@ def test_aprovar_downgrade_acima_do_limite_para(assinante, plano, monkeypatch):
     """Com mais anúncios que o novo limite, a aprovação para (o anunciante escolhe antes)."""
     loja = assinante(slug_plano="premium")
     pedido = pedir_troca(loja, plano("basico"), Periodicidade.MENSAL)
-    monkeypatch.setattr("planos.services.uso_do_plano", lambda anunciante: 30)
+    monkeypatch.setattr("anuncios.services.ids_no_plano", lambda anunciante: list(range(1, 31)))
 
     with pytest.raises(ValueError, match="escolher quais manter"):
         aprovar_pedido(pedido, None)

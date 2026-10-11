@@ -58,11 +58,16 @@ def anunciante_ativo(view: Callable) -> Callable:
 @require_GET
 @anunciante_ativo
 def painel(request: HttpRequest) -> HttpResponse:
-    """Painel: dados da loja, resumo do plano (assinatura real) e meus anúncios."""
-    from planos.services import assinatura_de  # import local: planos.views importa este módulo
+    """Painel: resumo do plano (assinatura real), meus anúncios (do banco, com as ações) e dados da loja."""
+    # Imports locais: planos.views e anuncios.views importam este módulo.
+    from anuncios.services import anuncios_do_dono, contar_no_plano, pode_renovar
+    from planos.services import assinatura_de, pode_publicar
 
     anunciante = request.user.anunciante
-    anuncios = anuncios_da_loja(anunciante)
+    anuncios = list(anuncios_do_dono(anunciante))
+    for anuncio in anuncios:
+        anuncio.renovavel = pode_renovar(anuncio)
+    uso = contar_no_plano(anunciante)
     return render(
         request,
         "anunciantes/painel.html",
@@ -72,7 +77,8 @@ def painel(request: HttpRequest) -> HttpResponse:
             "anunciante": anunciante,
             "anuncios": anuncios,
             "assinatura": assinatura_de(anunciante),
-            "uso": len(anuncios),
+            "uso": uso,
+            "pode_publicar": pode_publicar(anunciante, uso=uso),
         },
     )
 

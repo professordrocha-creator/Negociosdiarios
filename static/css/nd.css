@@ -258,3 +258,27 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-previa-corpo { margin-top: -36px; position: relative; }
 .nd-previa-logo { width: 72px; height: 72px; font-size: 26px; border: 3px solid var(--nd-papel); overflow: hidden; }
 .nd-previa-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Painel › Anúncio (etapas, mapa, fotos) e situações extras ---------- */
+.st-expira { background: var(--nd-ipe-claro); color: #7a5a00; }
+.st-rascunho { background: #fff; color: var(--nd-texto-suave); border: 1px dashed var(--nd-borda); }
+.st-expirado { background: #fbe9e7; color: #9b2c1c; }
+.nd-etapas { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; counter-reset: etapa; }
+.nd-etapas li { counter-increment: etapa; }
+.nd-etapas a, .nd-etapas span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--nd-borda); background: var(--nd-papel); color: var(--nd-texto); text-decoration: none; font-weight: 600; font-size: 14px; }
+.nd-etapas a::before, .nd-etapas span::before { content: counter(etapa); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--nd-fundo); font-size: 12px; }
+.nd-etapas .atual { background: var(--nd-petroleo); border-color: var(--nd-petroleo); color: #fff; }
+.nd-etapas .atual::before { background: var(--nd-ipe); color: #2b2100; }
+.nd-etapas span { opacity: .55; }
+.nd-mapa { height: 380px; border-radius: var(--nd-raio); border: 1px solid var(--nd-borda); }
+.nd-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; }
+.nd-fotos li { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); overflow: hidden; cursor: grab; }
+.nd-fotos li.arrastando { opacity: .4; }
+.nd-fotos li.alvo { outline: 3px dashed var(--nd-ipe); }
+.nd-fotos img, .nd-fotos .processando { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: grid; place-items: center; background: var(--nd-fundo); }
+.nd-fotos .barra { display: flex; align-items: center; gap: 4px; padding: 6px; }
+.nd-fotos .barra form { display: inline; }
+.nd-capa-selo { font-size: 11px; font-weight: 700; background: var(--nd-ipe); color: #2b2100; border-radius: 999px; padding: 1px 8px; }
+.nd-tabela .mini-img { width: 64px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; display: block; }
+.nd-revisao-fotos { display: flex; gap: 8px; overflow-x: auto; }
+.nd-revisao-fotos img { width: 120px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; flex: none; }

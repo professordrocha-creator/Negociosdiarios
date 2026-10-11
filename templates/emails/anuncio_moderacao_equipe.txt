@@ -1,0 +1,8 @@
+{% autoescape off %}Anúncio aguardando moderação no {{ site_nome }}.
+
+{{ anuncio.codigo }} · {{ anuncio.titulo }}
+Loja: {{ anuncio.anunciante.nome_publico }}
+Cidade: {{ anuncio.cidade.nome }}
+
+Confira as fotos e aprove ou recuse (com motivo) na fila de moderação: {{ link_admin }}
+{% endautoescape %}

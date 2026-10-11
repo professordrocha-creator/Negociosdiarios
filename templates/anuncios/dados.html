@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Anúncio › Dados (etapa 1). Novo: cria o rascunho. Sempre um anúncio do dono logado. #}
+
+{% block titulo %}{% if anuncio %}Editar {{ anuncio.codigo }}{% else %}Novo anúncio{% endif %} · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Dados do anúncio de imóvel.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-3" id="conteudo">
+      {% include "anuncios/_cabecalho.html" %}
+      {% if no_limite %}
+        <div class="alert alert-warning py-2 mb-0" role="status">{% icone "alerta" %} Seu plano está no limite de anúncios. Você pode montar o anúncio como rascunho; para publicar, pause um anúncio ou <a href="{% url 'planos:meu_plano' %}">mude de plano</a>.</div>
+      {% endif %}
+      <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-warning mb-0">{{ form.non_field_errors }}</div>{% endif %}
+        {% include "anunciantes/_campo.html" with campo=form.titulo %}
+        <div class="row g-3">
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.tipo %}</div>
+          <div class="col-sm-6">
+            <fieldset>
+              <legend class="form-label">{{ form.modalidade.label }}</legend>
+              {% for opcao in form.modalidade %}<label class="me-3">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+              {% for erro in form.modalidade.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+            </fieldset>
+          </div>
+        </div>
+        {% include "anunciantes/_campo.html" with campo=form.preco %}
+        <div class="row g-3">
+          <div class="col-4">{% include "anunciantes/_campo.html" with campo=form.quartos %}</div>
+          <div class="col-4">{% include "anunciantes/_campo.html" with campo=form.banheiros %}</div>
+          <div class="col-4">{% include "anunciantes/_campo.html" with campo=form.vagas %}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4">{% include "anunciantes/_campo.html" with campo=form.area_total %}</div>
+          <div class="col-sm-4">{% include "anunciantes/_campo.html" with campo=form.area_construida %}</div>
+          <div class="col-sm-4">{% include "anunciantes/_campo.html" with campo=form.iptu %}</div>
+        </div>
+        {% include "anunciantes/_campo.html" with campo=form.descricao %}
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-nd">Salvar e continuar ›</button>
+          <a class="btn btn-outline-secondary" href="{% url 'anunciantes:painel' %}">Voltar ao painel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}

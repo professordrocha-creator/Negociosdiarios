@@ -10,6 +10,13 @@ VER_ANUNCIANTE = {"anunciantes.view_anunciante"}
 GEOGRAFIA = {"core.view_regiao", "core.view_bairro"}
 # Sprint 2, parte B (planos/0002): Financeiro e Administrador cuidam de planos, assinaturas e pedidos.
 PLANOS_VER = {"planos.view_plano", "planos.view_assinatura", "planos.view_pedidotrocaplano"}
+# Sprint 3 (anuncios/0002): Administrador e Moderador moderam; Financeiro e Comercial só consultam.
+ANUNCIOS_VER = {"anuncios.view_anuncio", "anuncios.view_detalheimovel"}
+ANUNCIOS_MODERAR = ANUNCIOS_VER | {
+    "anuncios.view_historicalanuncio",
+    "anuncios.view_anuncioemmoderacao",
+    "anuncios.change_anuncioemmoderacao",
+}
 PLANOS_TUDO = PLANOS_VER | {
     "planos.add_plano",
     "planos.change_plano",
@@ -53,7 +60,8 @@ ESPERADO = {
         "anunciantes.view_solicitacaocidade",
         "anunciantes.change_solicitacaocidade",
     }
-    | PLANOS_TUDO,
+    | PLANOS_TUDO
+    | ANUNCIOS_MODERAR,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -63,9 +71,10 @@ ESPERADO = {
         "anunciantes.view_historicalanunciante",
         "anunciantes.view_solicitacaocidade",
     }
-    | PLANOS_VER,
-    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_TUDO,
-    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_VER,
+    | PLANOS_VER
+    | ANUNCIOS_MODERAR,
+    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_TUDO | ANUNCIOS_VER,
+    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_VER | ANUNCIOS_VER,
 }
 
 

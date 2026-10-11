@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Painel › Anúncio › Localização (etapa 2). Mapa: Leaflet servido pelo site (static/vendor/leaflet) + tiles do OSM. #}
+{# O ponto exato e o endereço são privados; o público vê conforme "exibir_localizacao" (Parte B). #}
+
+{% block titulo %}Localização · {{ anuncio.codigo }}{% endblock %}
+{% block descricao %}Localização do anúncio.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-3" id="conteudo">
+      {% include "anuncios/_cabecalho.html" %}
+      <form method="post" class="nd-caixa d-grid gap-3" id="form-localizacao" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-warning mb-0">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.cidade %}</div>
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.bairro %}</div>
+        </div>
+        {% include "anunciantes/_campo.html" with campo=form.endereco %}
+        <div>
+          <span class="form-label d-block">Ponto no mapa</span>
+          <div id="mapa" class="nd-mapa" role="application" aria-label="Mapa: toque para marcar o imóvel"></div>
+          <div class="form-text" id="mapa-situacao">Toque no mapa para marcar o imóvel; arraste o marcador para ajustar.</div>
+          <noscript><div class="text-danger small">O mapa precisa de JavaScript. Sem ele, escolha mostrar "só o bairro".</div></noscript>
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="limpar-ponto">Tirar o ponto</button>
+          {{ form.latitude }}{{ form.longitude }}
+        </div>
+        <fieldset>
+          <legend class="form-label">{{ form.exibir_localizacao.label }}</legend>
+          {% for opcao in form.exibir_localizacao %}<label class="d-block">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+          <div class="form-text">{{ form.exibir_localizacao.help_text }}</div>
+          {% for erro in form.exibir_localizacao.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+        </fieldset>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-nd">Salvar e continuar ›</button>
+          <a class="btn btn-outline-secondary" href="{% url 'anuncios:editar' anuncio.codigo %}">‹ Voltar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+{{ centros|json_script:"centros-cidades" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'js/mapa-ponto.js' %}" defer></script>
+{% endblock %}
