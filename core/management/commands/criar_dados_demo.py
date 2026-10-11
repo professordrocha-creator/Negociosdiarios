@@ -37,6 +37,11 @@ class Command(BaseCommand):
             self.stdout.write(f"Lojas demo pendentes ({len(pendentes)}), para testar a aprovação no admin:")
             for loja in pendentes:
                 self.stdout.write(f"  {loja['email']}  ({loja['nome']})")
+        em_atraso = dados.get("assinaturas_em_atraso", [])
+        self.stdout.write(
+            "Cada loja ativa tem um plano (Básico, Profissional ou Premium, mensal ou anual); "
+            f"em atraso, com os anúncios pausados: {', '.join(em_atraso) or 'nenhuma'}."
+        )
         self.stdout.write(
             f"Os {len(dados['anuncios'])} anúncios fictícios aparecem na home (MOSTRAR_DEMO=True) e no "
             "painel de cada loja; viram registros no banco na Sprint 3."

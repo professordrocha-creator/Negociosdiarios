@@ -488,3 +488,41 @@ def test_liberar_cidade_demo_e_desfeito_pelo_apagar(dev):
     assert not Cidade.objects.get(nome="Sinop").liberada
     assert not Regiao.objects.exists() and not Bairro.objects.exists()
     assert not SolicitacaoCidade.objects.exists()
+
+
+# --- Planos e assinaturas (Sprint 2, parte B) ----------------------------------------------
+
+
+def test_criar_dados_demo_da_planos_diferentes_e_1_em_atraso(dev):
+    """Cada loja ativa com assinatura; os 3 planos aparecem; a Bugres fica em atraso."""
+    from planos.models import Assinatura
+
+    criar_dados_demo(SENHA_DEMO)
+    criar_dados_demo(SENHA_DEMO)  # idempotente
+
+    assinaturas = Assinatura.objects.filter(demo=True)
+    assert assinaturas.count() == 6  # só as ativas; as pendentes ainda não têm plano
+    assert set(assinaturas.values_list("plano__slug", flat=True)) == {"basico", "profissional", "premium"}
+    assert set(assinaturas.values_list("periodicidade", flat=True)) == {"mensal", "anual"}
+    atrasadas = assinaturas.filter(situacao="em_atraso")
+    assert list(atrasadas.values_list("anunciante__slug", flat=True)) == DADOS["assinaturas_em_atraso"]
+
+
+def test_apagar_dados_demo_remove_assinaturas_pedidos_e_historico(dev):
+    """Assinaturas, pedidos e histórico demo somem junto com as lojas."""
+    from anunciantes.models import Anunciante
+    from planos.models import Assinatura, PedidoTrocaPlano, Periodicidade, Plano
+    from planos.services import pedir_troca
+
+    criar_dados_demo(SENHA_DEMO)
+    pedir_troca(
+        Anunciante.objects.get(slug="garagem-rota-358"),
+        Plano.objects.get(slug="premium"),
+        Periodicidade.ANUAL,
+    )
+
+    apagar_dados_demo()
+
+    assert not Assinatura.objects.exists() and not Assinatura.history.exists()
+    assert not PedidoTrocaPlano.objects.exists()
+    assert Plano.objects.count() == 3  # planos são dados reais, ficam

@@ -8,6 +8,15 @@ pytestmark = pytest.mark.django_db
 SO_CIDADES = {"core.view_estado", "core.view_cidade"}
 VER_ANUNCIANTE = {"anunciantes.view_anunciante"}
 GEOGRAFIA = {"core.view_regiao", "core.view_bairro"}
+# Sprint 2, parte B (planos/0002): Financeiro e Administrador cuidam de planos, assinaturas e pedidos.
+PLANOS_VER = {"planos.view_plano", "planos.view_assinatura", "planos.view_pedidotrocaplano"}
+PLANOS_TUDO = PLANOS_VER | {
+    "planos.add_plano",
+    "planos.change_plano",
+    "planos.add_assinatura",
+    "planos.change_assinatura",
+    "planos.change_pedidotrocaplano",
+}
 
 ESPERADO = {
     "Administrador": {
@@ -43,7 +52,8 @@ ESPERADO = {
         "core.change_bairro",
         "anunciantes.view_solicitacaocidade",
         "anunciantes.change_solicitacaocidade",
-    },
+    }
+    | PLANOS_TUDO,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -52,9 +62,10 @@ ESPERADO = {
         "anunciantes.change_anunciante",
         "anunciantes.view_historicalanunciante",
         "anunciantes.view_solicitacaocidade",
-    },
-    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA,
-    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA,
+    }
+    | PLANOS_VER,
+    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_TUDO,
+    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_VER,
 }
 
 

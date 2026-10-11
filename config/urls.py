@@ -14,7 +14,8 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("", include("contas.urls")),  # /entrar/ e /sair/ (cliente)
-    path("", include("anunciantes.urls")),  # /painel/
+    path("", include("anunciantes.urls")),  # /painel/, /loja/, /lojas/, /cadastro/
+    path("", include("planos.urls")),  # /painel/plano/
     path("", include("core.urls")),
 ]
 

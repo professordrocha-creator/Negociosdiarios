@@ -1,0 +1,9 @@
+{% autoescape off %}Novo pedido de plano no {{ site_nome }}.
+
+Loja: {{ pedido.anunciante.nome_publico }}
+Plano atual: {{ pedido.plano_atual.nome|default:"nenhum" }}
+Plano pedido: {{ pedido.plano_novo.nome }} ({{ pedido.get_periodicidade_display|lower }})
+Anúncios em uso: {{ uso }} (limite do plano pedido: {{ pedido.plano_novo.limite_anuncios }})
+
+Combine o pagamento e aprove ou recuse no admin: {{ link_admin }}
+{% endautoescape %}

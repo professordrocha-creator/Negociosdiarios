@@ -78,6 +78,7 @@ def postar_config(client, **mudancas):
             "limite_capa_kb",
             "capa_min_largura_px",
             "capa_min_altura_px",
+            "carencia_dias",
         ]
     }
     dados.update(mudancas)

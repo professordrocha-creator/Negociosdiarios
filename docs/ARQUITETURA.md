@@ -73,7 +73,8 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
                  │                ├──1 DetalheImovel   (tipo, quartos, área, ponto geo…)
                  │                └──1 DetalheVeiculo  (marca/modelo FIPE, ano, km…)
                  │
-                 ├──N Assinatura N──1 Plano
+                 ├──1 Assinatura N──1 Plano
+                 ├──N PedidoTrocaPlano
                  │        └──N Fatura ──N EventoPagamento (webhooks brutos, idempotência)
                  └──N Denuncia (via anúncio)
 ```
@@ -105,6 +106,18 @@ gerar os WebP (`anunciantes.tasks.processar_imagem_loja`); depois o original é 
 Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 - `status`: + inadimplente (Sprint 6) e encerrado (Sprint 7)
 
+### Plano, Assinatura e PedidoTrocaPlano — app `planos` (Sprint 2, parte B)
+- `Plano`: `nome`, `slug` (únicos), `limite_anuncios`, `preco_mensal`, `preco_anual` (Decimal), `ativo` (à venda),
+  `ordem`, histórico. Os 3 planos iniciais vêm da migration `planos/0002` (valores que estavam no settings);
+  daí em diante só mudam no admin. Não se apaga plano: desmarca "à venda".
+- `Assinatura` (1:1 com `Anunciante`): `plano` (PROTECT), `periodicidade` (mensal | anual), `inicio`,
+  `vencimento`, `situacao` (ativa | em_atraso | cancelada), `demo`, histórico (quem mudou e por quê).
+- `PedidoTrocaPlano`: `anunciante`, `plano_atual`, `plano_novo`, `periodicidade`, `status`
+  (pendente | aprovado | recusado), `motivo`, `decidido_por`, `decidido_em`, `demo`. Um pendente por loja.
+- `Configuracao.carencia_dias` (padrão 5): dias depois do vencimento até a assinatura virar em_atraso.
+- Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
+  se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
+
 ### Anuncio
 - `anunciante`, `categoria` (imovel | veiculo), `titulo`, `descricao`, `preco`
 - `cidade`, `bairro`, `status`: rascunho | em_moderacao | publicado | pausado | expirado | removido
@@ -124,12 +137,17 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 ## 5. Regras de negócio críticas
 
 1. **Limite do plano:** publicar só se `anuncios_ativos < plano.limite`.
-   Implementar em `planos/services.py` com `select_for_update()` dentro de
-   transação para evitar corrida (dois cliques simultâneos).
-2. **Inadimplência:** fatura vencida + 5 dias de carência → anúncios
-   **pausados** (nunca apagados). Pagou → reativa automaticamente.
-3. **Downgrade de plano:** o anunciante escolhe quais anúncios manter; o
-   excedente fica pausado.
+   Implementado em `planos.services.reservar_vaga(anunciante, contar, publicar)`: trava a linha da
+   assinatura com `select_for_update()` numa transação (dois cliques simultâneos: só um publica;
+   teste de concorrência com duas conexões). `pode_publicar` é só a resposta rápida para a tela.
+2. **Inadimplência:** vencimento + `Configuracao.carencia_dias` (padrão 5) → assinatura `em_atraso`,
+   sinal para **pausar** os anúncios (nunca apagar) e e-mail (`planos.tasks.verificar_atrasos`,
+   Celery beat diário às 6h). Pagamento registrado (`registrar_pagamento`; baixa manual no admin até
+   o Pix da Sprint 6) → volta a ativa e o sinal reativa os anúncios.
+3. **Downgrade de plano:** `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: o
+   anunciante escolhe quais manter (no máximo o novo limite, só dentre os dele); o excedente fica
+   pausado. A tela de escolha chega com os anúncios (Sprint 3); até lá, aprovar um downgrade acima
+   do novo limite é recusado no admin com explicação.
 4. **Expiração:** tarefa Celery diária expira anúncios vencidos e avisa por e-mail.
 5. **Contato por WhatsApp:** botão aponta para `/contato/<id>/whatsapp/`, que
    registra o clique (estatística para o anunciante) e redireciona para `wa.me`.

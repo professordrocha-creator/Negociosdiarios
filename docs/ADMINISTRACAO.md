@@ -22,13 +22,14 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 
 | Grupo | Permissões hoje | Chega depois |
 |---|---|---|
-| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar | Tudo dos modelos novos |
-| Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver | Anúncios e denúncias (Sprints 3 e 7) |
-| Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver | Planos, faturas e pagamentos (Sprints 2 e 6) |
-| Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver | Patrocinadores e contratos (Sprint 7) |
+| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar · Planos: ver, criar, editar · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar | Tudo dos modelos novos |
+| Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver · Planos, assinaturas e pedidos: ver | Anúncios e denúncias (Sprints 3 e 7) |
+| Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos: ver, criar, editar (preços e limites) · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar (recebe o e-mail de pedido novo) | Faturas e pagamentos (Sprint 6) |
+| Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos, assinaturas e pedidos: ver | Patrocinadores e contratos (Sprint 7) |
 
 Ninguém além do superusuário pode:
 - **apagar usuário ou anunciante** (exclusão é lógica: anunciante é suspenso, nunca apagado);
+  plano, assinatura e pedido de plano também não se apagam (nem pelo superusuário, no admin);
 - **mexer nos códigos de acesso** (`otp_email`/`otp_static`): quem altera o código ou o
   e-mail de envio de outra pessoa consegue entrar como ela;
 - **ligar `is_superuser` ou dar permissões avulsas**: no admin esses campos ficam só

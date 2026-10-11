@@ -7,7 +7,8 @@ import pytest
 from django.template import Context, Template
 from django.urls import reverse
 
-from core.services import PAGINAS_EM_BREVE, planos
+from core.services import PAGINAS_EM_BREVE
+from planos.models import Plano
 
 pytestmark = pytest.mark.django_db
 
@@ -171,20 +172,20 @@ def test_botao_quero_anunciar_leva_ao_contato(client):
     assert all(b.startswith(reverse("core:contato")) for b in botoes)
 
 
-def test_planos_vem_do_settings(client, settings):
-    """Valores não são fixos no template: mudar o settings muda a página."""
-    settings.PLANOS = [
-        {"slug": "teste", "nome": "Plano Teste", "limite_anuncios": 7, "mensal": "12.34", "anual": "123.40"}
-    ]
+def test_planos_vem_do_banco(client):
+    """Valores não são fixos: mudar o plano no banco (admin) muda a página; inativo some."""
+    Plano.objects.filter(slug="basico").update(nome="Plano Teste", preco_mensal=Decimal("12.34"))
+    Plano.objects.filter(slug="premium").update(ativo=False)
 
     html = html_de(client, "planos")
 
-    assert "Plano Teste" in html and "R$ 12,34" in html and "Básico" not in html
+    assert "Plano Teste" in html and "R$ 12,34" in html
+    assert "Básico" not in html and "Premium" not in html
 
 
 def test_economia_do_plano_anual():
     """O anual equivale a 10 mensalidades: 2 meses grátis."""
-    basico = planos()[0]
+    basico = Plano.objects.get(slug="basico")
 
     assert basico.economia_anual == Decimal("99.80")
     assert basico.meses_pagos_no_anual == 10

@@ -30,7 +30,6 @@ from anunciantes.services import (
     loja_para_vitrine,
     lojas_visiveis,
     motivo_sem_painel,
-    plano_de_exemplo,
     reenviar_confirmacao,
 )
 from anunciantes.tasks import processar_imagem_loja as processar_imagem_loja_tarefa
@@ -59,10 +58,11 @@ def anunciante_ativo(view: Callable) -> Callable:
 @require_GET
 @anunciante_ativo
 def painel(request: HttpRequest) -> HttpResponse:
-    """Painel: dados da loja, resumo do plano (exemplo, "em breve") e meus anúncios."""
+    """Painel: dados da loja, resumo do plano (assinatura real) e meus anúncios."""
+    from planos.services import assinatura_de  # import local: planos.views importa este módulo
+
     anunciante = request.user.anunciante
     anuncios = anuncios_da_loja(anunciante)
-    plano = plano_de_exemplo()
     return render(
         request,
         "anunciantes/painel.html",
@@ -71,8 +71,8 @@ def painel(request: HttpRequest) -> HttpResponse:
             "ajuda_itens": textos_ajuda("painel"),
             "anunciante": anunciante,
             "anuncios": anuncios,
-            "plano": plano,
-            "uso_plano": min(len(anuncios), plano.limite_anuncios),
+            "assinatura": assinatura_de(anunciante),
+            "uso": len(anuncios),
         },
     )
 

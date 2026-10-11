@@ -27,11 +27,9 @@ from core.models import Cidade
 from core.services import (
     AnuncioVitrine,
     LojaVitrine,
-    PlanoVitrine,
     anuncios_demo_da_loja,
     configuracao,
     enviar_email_modelo,
-    planos,
 )
 
 if TYPE_CHECKING:
@@ -129,12 +127,6 @@ def anuncios_da_loja(anunciante: Anunciante) -> list[AnuncioVitrine]:
     anúncios fictícios. Na Sprint 3 passa a ler do banco, sempre filtrando pelo dono.
     """
     return anuncios_demo_da_loja(anunciante.slug) if anunciante.demo else []
-
-
-def plano_de_exemplo() -> PlanoVitrine:
-    """Plano mostrado no resumo do painel até existir assinatura (Sprint 2): o Profissional."""
-    lista = planos()
-    return next((p for p in lista if p.slug == "profissional"), lista[0])
 
 
 # --- Dados de demonstração (chamados pelo core.services.criar/apagar_dados_demo) ---------

@@ -1,0 +1,9 @@
+{% autoescape off %}Olá,
+
+O pedido da loja "{{ pedido.anunciante.nome_publico }}" para o plano {{ pedido.plano_novo.nome }}
+não foi aprovado.
+
+Motivo: {{ pedido.motivo }}
+
+Seu plano atual continua valendo. Se tiver dúvidas, responda este e-mail ou fale com a gente.
+{% endautoescape %}

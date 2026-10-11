@@ -20,7 +20,6 @@ verificadores), `normalizar_creci` (`CRECI/UF 12345-F`, sufixo F ou J), `normali
 - `aprovar(anunciante, por, motivo)` / `suspender(anunciante, por, motivo)` (motivo obrigatório):
   mudam o status e registram motivo e autor no histórico.
 - `anuncios_da_loja(anunciante)`: anúncios do painel (só lojas demo, do demo.json, até a Sprint 3).
-- `plano_de_exemplo()`: plano mostrado no resumo do painel até existir assinatura (Sprint 2).
 - `criar_anunciantes_demo(lojas, senha)` / `apagar_anunciantes_demo()`: chamados pelo
   `criar_dados_demo` / `apagar_dados_demo` do core.
 

@@ -17,10 +17,10 @@ from core.services import (
     dados_do_site,
     destaques,
     formatos_publicidade,
-    planos,
     recem_anunciados,
     textos_ajuda,
 )
+from planos.services import planos_a_venda
 
 
 @require_GET
@@ -83,7 +83,7 @@ def cookies(request: HttpRequest) -> HttpResponse:
 @require_GET
 def planos_view(request: HttpRequest) -> HttpResponse:
     """Planos de assinatura com alternância mensal/anual (valores do settings até a Sprint 2)."""
-    return _pagina(request, "core/planos.html", "planos", planos=planos())
+    return _pagina(request, "core/planos.html", "planos", planos=list(planos_a_venda()))
 
 
 @require_GET

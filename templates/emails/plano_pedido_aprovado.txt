@@ -1,0 +1,10 @@
+{% autoescape off %}Olá,
+
+O pedido da loja "{{ pedido.anunciante.nome_publico }}" foi aprovado.
+
+Plano: {{ assinatura.plano.nome }} (até {{ assinatura.plano.limite_anuncios }} anúncios)
+Pagamento: {{ assinatura.get_periodicidade_display|lower }}
+Vencimento: {{ assinatura.vencimento|date:"d/m/Y" }}
+
+Veja em Meu plano: {{ link_plano }}
+{% endautoescape %}

@@ -455,8 +455,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
 
     Hoje: usuários de equipe demo (um por grupo, senha = DEMO_SENHA), as cidades do
     demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
-    essas) e as 6 lojas como anunciantes ativos com login próprio. Os anúncios entram no
-    banco na Sprint 3; até lá a home e o painel os leem do mesmo demo.json.
+    essas), as 6 lojas como anunciantes ativos com login próprio e uma assinatura
+    para cada loja ativa (planos diferentes; as de `assinaturas_em_atraso` já em atraso).
+    Os anúncios entram no banco na Sprint 3; até lá a home e o painel os leem do mesmo demo.json.
     Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
     uma conta real (nunca sobrescreve conta de verdade).
     """
@@ -501,6 +502,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
                     cidade=cidade, slug=slugify(nome), defaults={"nome": nome, "ativo": True, "demo": True}
                 )
         lojas = criar_anunciantes_demo(dados["lojas"] + dados.get("lojas_pendentes", []), senha)
+        from planos.services import criar_assinaturas_demo
+
+        criar_assinaturas_demo(dados.get("assinaturas_em_atraso", []))
     return ResumoDemo(usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas)
 
 
@@ -512,9 +516,11 @@ def apagar_dados_demo() -> ResumoDemo:
     base antes do lançamento (Sprint 9).
     """
     from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
+    from planos.services import apagar_assinaturas_demo
 
     Usuario = get_user_model()
     with transaction.atomic():
+        apagar_assinaturas_demo()  # antes dos anunciantes (e leva o histórico junto)
         anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
         Bairro.objects.filter(demo=True).delete()
         Regiao.objects.filter(demo=True).delete()
@@ -526,48 +532,7 @@ def apagar_dados_demo() -> ResumoDemo:
     return ResumoDemo(usuarios=usuarios, cidades=cidades, anunciantes=anunciantes)
 
 
-# --- Páginas institucionais (planos, mídia kit, "em breve") ------------------------------
-
-
-@dataclass(frozen=True)
-class PlanoVitrine:
-    """Plano de assinatura como aparece em /planos/. Na Sprint 2 vem do modelo Plano."""
-
-    slug: str
-    nome: str
-    limite_anuncios: int
-    mensal: Decimal
-    anual: Decimal
-
-    @property
-    def economia_anual(self) -> Decimal:
-        """Quanto o plano anual economiza frente a 12 mensalidades."""
-        return self.mensal * 12 - self.anual
-
-    @property
-    def meses_pagos_no_anual(self) -> int:
-        """O anual equivale a quantas mensalidades (ex.: 10, ou seja, "2 meses grátis")."""
-        return round(self.anual / self.mensal)
-
-    @property
-    def meses_gratis(self) -> int:
-        """Meses de graça no anual (12 menos as mensalidades pagas)."""
-        return 12 - self.meses_pagos_no_anual
-
-
-def planos() -> list[PlanoVitrine]:
-    """Planos à venda, do menor para o maior (hoje do settings PLANOS; na Sprint 2, do banco)."""
-    lista = [
-        PlanoVitrine(
-            slug=p["slug"],
-            nome=p["nome"],
-            limite_anuncios=p["limite_anuncios"],
-            mensal=Decimal(p["mensal"]),
-            anual=Decimal(p["anual"]),
-        )
-        for p in settings.PLANOS
-    ]
-    return sorted(lista, key=lambda p: p.limite_anuncios)
+# --- Páginas institucionais (mídia kit, "em breve"; planos vêm do app planos) ------------------------------
 
 
 @dataclass(frozen=True)

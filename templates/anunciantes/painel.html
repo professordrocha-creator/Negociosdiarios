@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load nd %}
 {# Painel do anunciante (convertido de prototipo/painel.html). Tudo vem de request.user.anunciante (sem IDOR). #}
-{# Nesta fase: dados da loja, resumo do plano (exemplo, "em breve") e meus anúncios (demo.json até a Sprint 3). #}
+{# Nesta fase: dados da loja, resumo do plano (assinatura real) e meus anúncios (demo.json até a Sprint 3). #}
 
 {% block titulo %}Painel · {{ anunciante.nome_publico }}{% endblock %}
 {% block descricao %}Painel do anunciante: dados da loja e anúncios.{% endblock %}
@@ -16,20 +16,7 @@
     <div class="col-lg-9 d-grid gap-4">
       {% include "_ajuda.html" %}
 
-      {# Resumo do plano: valores de exemplo até existir assinatura (Sprint 2). #}
-      <div class="nd-aviso-rascunho" role="status">
-        {% icone "alerta" %} <b>Plano, estatísticas e faturas: em breve.</b>
-        <span>Os números abaixo são de exemplo (plano {{ plano.nome }}).</span>
-      </div>
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
-        <div class="col"><div class="nd-kpi"><div class="rotulo">Anúncios no plano</div>
-          <div class="valor">{{ uso_plano }} <span class="fs-6 text-suave">/ {{ plano.limite_anuncios }}</span></div>
-          <progress class="nd-progresso mt-2" value="{{ uso_plano }}" max="{{ plano.limite_anuncios }}">{{ uso_plano }} de {{ plano.limite_anuncios }}</progress>
-        </div></div>
-        <div class="col"><div class="nd-kpi"><div class="rotulo">Visualizações · 30 dias</div><div class="valor">—</div><div class="small text-suave">Em breve</div></div></div>
-        <div class="col"><div class="nd-kpi"><div class="rotulo">Cliques no WhatsApp</div><div class="valor">—</div><div class="small text-suave">Em breve</div></div></div>
-        <div class="col"><div class="nd-kpi"><div class="rotulo">Plano</div><div class="valor nd-kpi-texto">{{ plano.nome }}</div><div class="small text-suave">{{ plano.mensal|moeda }}/mês · exemplo</div></div></div>
-      </div>
+      {% include "planos/_resumo_plano.html" %}
 
       {# Dados da loja #}
       <section class="nd-caixa">

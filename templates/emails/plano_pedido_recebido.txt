@@ -1,0 +1,8 @@
+{% autoescape off %}Olá,
+
+Recebemos o pedido da loja "{{ pedido.anunciante.nome_publico }}" para o plano
+{{ pedido.plano_novo.nome }} ({{ pedido.get_periodicidade_display|lower }}).
+
+A equipe vai conferir e combinar o pagamento com você. Avisaremos por e-mail quando o
+pedido for analisado.
+{% endautoescape %}

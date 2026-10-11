@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Meu plano (docs/TELAS.md). Sempre a assinatura de quem está logado. Sem pagamento online por enquanto: #}
+{# o pedido de troca vai para a equipe (admin + e-mail). #}
+
+{% block titulo %}Meu plano · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Seu plano, uso e vencimento; peça a troca de plano.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-4">
+      <h1 class="h4 m-0">Meu plano</h1>
+      {% include "_ajuda.html" %}
+      {% if messages %}{% for m in messages %}<div class="alert alert-success py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+
+      {% include "planos/_resumo_plano.html" %}
+
+      {% if pendente %}
+        <div class="alert alert-info py-2 mb-0" role="status">
+          {% icone "relogio" %} <b>Pedido em análise:</b> {{ pendente.plano_novo.nome }} ({{ pendente.get_periodicidade_display|lower }}), enviado em {{ pendente.criado_em|date:"d/m/Y" }}. Um novo pedido substitui este.
+        </div>
+      {% endif %}
+
+      <section class="nd-caixa">
+        <h2 class="h5">{% if assinatura %}Trocar de plano{% else %}Escolher um plano{% endif %}</h2>
+        <p class="small text-suave">Sem pagamento online por enquanto: a equipe confere o pedido, combina o pagamento e avisa por e-mail. Ao mudar para um plano menor, você escolhe quais anúncios manter; os demais ficam pausados. Com o pagamento atrasado mais de {{ carencia_dias }} dia{{ carencia_dias|pluralize }}, os anúncios ficam pausados até a regularização.</p>
+        <form method="post" class="d-grid gap-3" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors }}</div>{% endif %}
+          <fieldset>
+            <legend class="form-label">{{ form.plano.label }}</legend>
+            {% if form.plano.errors %}<div class="text-danger small">{{ form.plano.errors|join:" " }}</div>{% endif %}
+            <div class="row row-cols-1 row-cols-md-3 g-2">
+              {% for opcao in form.plano %}{% with plano=opcao.data.value.instance %}
+              <div class="col">
+                <label class="nd-caixa h-100 d-block" for="{{ opcao.id_for_label }}">
+                  {{ opcao.tag }} <b>{{ plano.nome }}</b>{% if assinatura and assinatura.plano_id == plano.pk %} <span class="selo selo-verificado">Atual</span>{% endif %}
+                  <span class="d-block small text-suave">Até {{ plano.limite_anuncios }} anúncios</span>
+                  <span class="d-block small"><span class="tabular">{{ plano.preco_mensal|moeda }}</span>/mês ou <span class="tabular">{{ plano.preco_anual|moeda }}</span>/ano</span>
+                </label>
+              </div>
+              {% endwith %}{% endfor %}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="form-label">{{ form.periodicidade.label }}</legend>
+            {% for opcao in form.periodicidade %}<label class="me-3">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+          </fieldset>
+          <div><button type="submit" class="btn btn-ipe">Enviar pedido</button></div>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

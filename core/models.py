@@ -243,6 +243,11 @@ class Configuracao(models.Model):
     )
     limite_capa_kb = models.PositiveIntegerField("limite da capa da loja (KB)", default=4096)
     capa_min_largura_px = models.PositiveIntegerField("largura mínima da capa (px)", default=1200)
+    carencia_dias = models.PositiveSmallIntegerField(
+        "carência de pagamento (dias)",
+        default=5,
+        help_text="Dias depois do vencimento até a assinatura ficar em atraso e os anúncios serem pausados.",
+    )
     capa_min_altura_px = models.PositiveIntegerField(
         "altura mínima da capa (px)", default=300, help_text="A capa é recortada na proporção 4:1 (1600×400)."
     )

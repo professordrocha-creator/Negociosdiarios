@@ -1,0 +1,25 @@
+{% load nd %}
+{# Card do plano (painel e "Meu plano"). Recebe "assinatura" (ou None) e "uso" (anúncios que contam no limite). #}
+{% if assinatura %}
+  {% if assinatura.situacao == "em_atraso" %}
+    <div class="alert alert-warning py-2 mb-0" role="alert">
+      {% icone "alerta" %} <b>Assinatura em atraso.</b> Seus anúncios estão pausados (nada foi apagado) e voltam assim que o pagamento for registrado. Fale com a gente.
+    </div>
+  {% elif assinatura.situacao == "cancelada" %}
+    <div class="alert alert-secondary py-2 mb-0" role="status">{% icone "alerta" %} <b>Assinatura cancelada.</b> Peça um plano em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para voltar a anunciar.</div>
+  {% endif %}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+    <div class="col"><div class="nd-kpi"><div class="rotulo">Anúncios no plano</div>
+      <div class="valor">{{ uso }} <span class="fs-6 text-suave">/ {{ assinatura.plano.limite_anuncios }}</span></div>
+      <progress class="nd-progresso mt-2" value="{{ uso }}" max="{{ assinatura.plano.limite_anuncios }}">{{ uso }} de {{ assinatura.plano.limite_anuncios }}</progress>
+    </div></div>
+    <div class="col"><div class="nd-kpi"><div class="rotulo">Plano</div><div class="valor nd-kpi-texto">{{ assinatura.plano.nome }}</div><div class="small text-suave">{{ assinatura.valor|moeda }}/{% if assinatura.periodicidade == "anual" %}ano{% else %}mês{% endif %}</div></div></div>
+    <div class="col"><div class="nd-kpi"><div class="rotulo">Vencimento</div><div class="valor nd-kpi-texto">{{ assinatura.vencimento|date:"d/m/Y" }}</div><div class="small text-suave">{{ assinatura.get_periodicidade_display }}</div></div></div>
+    <div class="col"><div class="nd-kpi"><div class="rotulo">Situação</div><div class="valor nd-kpi-texto"><span class="status {% if assinatura.situacao == 'ativa' %}st-publicado{% else %}st-pausado{% endif %}">{{ assinatura.get_situacao_display }}</span></div></div></div>
+  </div>
+{% else %}
+  <div class="nd-aviso-rascunho" role="status">
+    {% icone "alerta" %} <b>Você ainda não tem plano.</b>
+    <span>Escolha um em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para começar a anunciar.</span>
+  </div>
+{% endif %}

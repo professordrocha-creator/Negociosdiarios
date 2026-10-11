@@ -10,6 +10,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -112,6 +113,7 @@ INSTALLED_APPS = [
     "core",
     "contas",
     "anunciantes",
+    "planos",
 ]
 
 MIDDLEWARE = [
@@ -217,20 +219,6 @@ LIMITE_PEDIDOS_EMAIL_POR_HORA = 5  # por IP: "esqueci minha senha" e "reenviar c
 SITE_WHATSAPP = env("SITE_WHATSAPP", default="")
 SITE_ENDERECO = env("SITE_ENDERECO", default="")
 SITE_CNPJ = env("SITE_CNPJ", default="")  # só dígitos
-
-# Planos de assinatura (página /planos/). Provisório: na Sprint 2 viram o modelo Plano,
-# editável no admin (preços e limites nunca fixos no código depois disso).
-PLANOS = [
-    {"slug": "basico", "nome": "Básico", "limite_anuncios": 10, "mensal": "49.90", "anual": "499.00"},
-    {
-        "slug": "profissional",
-        "nome": "Profissional",
-        "limite_anuncios": 25,
-        "mensal": "99.90",
-        "anual": "999.00",
-    },
-    {"slug": "premium", "nome": "Premium", "limite_anuncios": 50, "mensal": "149.90", "anual": "1499.00"},
-]
 
 # Espaços de publicidade (mídia kit /anuncie/, docs/PUBLICIDADE.md). Provisório: na Sprint 7
 # viram registros do app publicidade, editáveis no admin.
@@ -346,6 +334,8 @@ CELERY_TASK_PUBLISH_RETRY_POLICY = {
 CELERY_BEAT_SCHEDULE = {
     # Exemplo: prova que o agendador está vivo (aparece no log do worker a cada 5 minutos).
     "batimento": {"task": "core.tasks.batimento", "schedule": 5 * 60},
+    # Todo dia às 6h (Cuiabá): vencidas além da carência viram "em atraso" (anúncios pausados).
+    "atrasos": {"task": "planos.tasks.verificar_atrasos", "schedule": crontab(hour=6, minute=0)},
 }
 
 # --- E-mail --------------------------------------------------------------------

@@ -35,7 +35,7 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Lojas | `/lojas/` | Lojas verificadas, filtro por tipo e cidade, 24 por página |
 | Sitemap e robots | `/sitemap.xml`, `/robots.txt` | Páginas públicas e lojas ativas; robots esconde painel e login |
 | Anuncie sua marca | `/anuncie/` | Mídia kit para patrocinadores |
-| Planos | `/planos/` | Planos e cadastro de anunciante |
+| Planos | `/planos/` | Planos à venda, lidos do banco (`planos.Plano`, editável no admin) |
 | Sobre | `/sobre/` | Quem somos, missão, visão, valores (textos do painel) |
 | Institucionais | `/privacidade/`, `/termos/`, `/cookies/` | Documentos legais (rascunhos até a revisão do advogado) |
 | Contato | `/contato/` | WhatsApp, e-mails e endereço do site |
@@ -47,9 +47,10 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Em breve | `/imoveis/`, `/veiculos/`, `/lojas/`, `/denunciar/` | Páginas ainda em construção (nunca 404) |
 
 ## 3. Painel do anunciante (`/painel/`)
-Só anunciante `ativo` (equipe, pendente e suspenso recebem 403 com explicação). Sprint 1:
-dados da loja, resumo do plano (exemplo, "em breve") e meus anúncios (demo.json até a Sprint 3);
-os demais itens do menu aparecem como "em breve".
+Só anunciante `ativo` (equipe, pendente e suspenso recebem 403 com explicação). Hoje:
+dados da loja, card do plano com dados reais (`templates/planos/_resumo_plano.html`: plano, uso X de Y,
+valor, vencimento, situação; aviso de "em atraso: anúncios pausados" e de "sem plano") e meus anúncios
+(demo.json até a Sprint 3); itens do menu ainda sem tela aparecem como "em breve".
 
 | Tela | Para que serve |
 |---|---|
@@ -58,7 +59,7 @@ os demais itens do menu aparecem como "em breve".
 | Importar anúncios | Envio de XML/planilha, prévia com erros, confirmação |
 | Estatísticas | Visualizações e cliques no WhatsApp por anúncio e por período |
 | Página da loja (`/painel/loja/`) | Logo e capa (validados; WebP pelo Celery), cor (paleta), nome, endereço da página, sobre, WhatsApp, horário, endereço e "mostrar no mapa", Instagram, site; prévia ao vivo (`static/js/painel-loja.js`). CRECI/CNPJ só leitura |
-| Meu plano | Plano atual, upgrade/downgrade, escolha de anúncios a manter |
+| Meu plano (`/painel/plano/`) | Card do plano, pedido em análise e pedido de troca (plano + mensal/anual; sem pagamento online: vai para o admin e envia e-mail). Carência vem da `Configuracao`. Escolha de anúncios a manter no downgrade: Sprint 3 |
 | Faturas | Histórico, Pix, comprovantes, notas fiscais |
 | Meus dados (LGPD) | Ver, baixar e excluir dados; encerrar conta |
 
@@ -69,7 +70,7 @@ os demais itens do menu aparecem como "em breve".
 | Aprovações | Cadastros (CRECI/CNPJ) e anúncios aguardando análise |
 | Anúncios / Anunciantes | Busca, edição, suspensão (com motivo) |
 | Denúncias | Fila de denúncias com decisão registrada |
-| Planos e preços | Criar/editar planos, limites, preços, carência |
+| Planos e preços | Planos: preço mensal/anual, limite, ordem e "à venda" editáveis na lista (com histórico; sem apagar). Assinaturas: filtro por situação/periodicidade/plano, ação "Registrar pagamento manual" (motivo). Pedidos de troca: Aprovar / Recusar (motivo), com e-mail. Carência em Identidade do site › Limites |
 | Faturas | Status, baixa manual com motivo, inadimplentes |
 | Publicidade | Patrocinadores, contratos, peças, métricas |
 | **Cidades atendidas** | Liberar estados/cidades; regiões (`Regiao`); bairros por cidade (`Bairro`, também dentro da cidade); "Solicitações de cidade" com as ações Liberar cidade e Recusar (motivo + e-mail) |

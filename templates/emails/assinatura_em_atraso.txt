@@ -1,0 +1,10 @@
+{% autoescape off %}Olá,
+
+A assinatura da loja "{{ assinatura.anunciante.nome_publico }}" no {{ site_nome }} está em atraso
+(vencimento em {{ assinatura.vencimento|date:"d/m/Y" }}, plano {{ assinatura.plano.nome }}).
+
+Seus anúncios foram PAUSADOS: nada foi apagado. Eles voltam ao ar assim que o pagamento
+for registrado.
+
+Veja os detalhes em Meu plano: {{ link_plano }}
+{% endautoescape %}

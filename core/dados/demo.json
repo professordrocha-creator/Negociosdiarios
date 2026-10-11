@@ -86,6 +86,8 @@
       "responsavel": "Beatriz Alves (demo)"
     }
   ],
+  "_assinaturas": "Cada loja ativa ganha um plano (alternando Básico, Profissional e Premium; mensal e anual). As de assinaturas_em_atraso vencem há mais que a carência e ficam com os anúncios pausados.",
+  "assinaturas_em_atraso": ["bugres-auto-center"],
   "lojas_pendentes": [
     {
       "slug": "cerrado-novo-imoveis",

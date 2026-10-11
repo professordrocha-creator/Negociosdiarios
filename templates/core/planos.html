@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load nd %}
-{# Planos de assinatura (docs/TELAS.md §2). Valores do settings PLANOS até a Sprint 2 (modelo Plano). #}
+{# Planos de assinatura (docs/TELAS.md §2). Valores do modelo planos.Plano (editáveis no admin). #}
 {# Mensal/anual sem JavaScript: os dois rádios são irmãos de .nd-planos e o CSS mostra um preço ou outro. #}
 
 {% block titulo %}Planos para anunciar{% endblock %}
@@ -29,10 +29,10 @@
           <h2 class="h4 mb-1">{{ plano.nome }}</h2>
           <p class="text-suave mb-3">Até <b>{{ plano.limite_anuncios }} anúncios</b> ativos ao mesmo tempo</p>
           <div class="nd-plano-preco so-mensal">
-            <span class="valor tabular">{{ plano.mensal|moeda }}</span><span class="text-suave">/mês</span>
+            <span class="valor tabular">{{ plano.preco_mensal|moeda }}</span><span class="text-suave">/mês</span>
           </div>
           <div class="nd-plano-preco so-anual">
-            <span class="valor tabular">{{ plano.anual|moeda }}</span><span class="text-suave">/ano</span>
+            <span class="valor tabular">{{ plano.preco_anual|moeda }}</span><span class="text-suave">/ano</span>
             <div class="small text-suave">Equivale a {{ plano.meses_pagos_no_anual }} mensalidades: economia de {{ plano.economia_anual|moeda }}</div>
           </div>
           <ul class="nd-plano-itens my-3">

@@ -134,8 +134,8 @@ def test_cliente_a_nao_ve_dados_do_cliente_b(client, criar_anunciante):
     assert "Loja Beta" not in html and "publico-b@exemplo.com" not in html
 
 
-def test_painel_mostra_dados_da_loja_e_plano_em_breve(client, criar_anunciante):
-    """Dados da loja formatados e resumo do plano marcado como exemplo/em breve."""
+def test_painel_mostra_dados_da_loja_e_aviso_sem_plano(client, criar_anunciante):
+    """Dados da loja formatados; sem assinatura, o card do plano leva a "Meu plano"."""
     anunciante = criar_anunciante("loja@exemplo.com", "Loja Alfa")
     client.force_login(anunciante.usuario)
 
@@ -144,8 +144,8 @@ def test_painel_mostra_dados_da_loja_e_plano_em_breve(client, criar_anunciante):
     assert "90.000.001/0001-29" in html  # CNPJ formatado
     assert "(65) 99999-0001" in html  # WhatsApp formatado
     assert "Tangará da Serra/MT" in html
-    assert "em breve" in html.lower()
-    assert "Profissional" in html and "/ 25" in html
+    assert "Você ainda não tem plano" in html
+    assert reverse("planos:meu_plano") in html
     assert "Você ainda não tem anúncios" in html  # loja real: nada do demo.json
 
 
