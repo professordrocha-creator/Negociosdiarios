@@ -7,6 +7,26 @@ o admin só liga e desliga o que aparece no site.
 from django.contrib.gis.db import models
 
 
+class MarcaDemo(models.Model):
+    """Marca registros de demonstração (regra do CLAUDE.md, "Dados de demonstração").
+
+    Todo modelo com dados que o `criar_dados_demo` cria herda daqui; o
+    `apagar_dados_demo` remove tudo com `demo=True` de uma vez. Não editável no admin:
+    só os comandos de demonstração ligam a marca.
+    """
+
+    demo = models.BooleanField(
+        "demonstração",
+        default=False,
+        db_index=True,
+        editable=False,
+        help_text="Criado pelo criar_dados_demo. Some com o apagar_dados_demo e nunca vai para produção.",
+    )
+
+    class Meta:
+        abstract = True
+
+
 class Estado(models.Model):
     """Unidade da federação. Só estados `liberado=True` aparecem no site."""
 
@@ -55,6 +75,12 @@ class Cidade(models.Model):
         "liberada",
         default=False,
         help_text="Mostra a cidade no site e no cadastro de anúncios.",
+    )
+    liberada_pela_demo = models.BooleanField(
+        "liberada pela demonstração",
+        default=False,
+        editable=False,
+        help_text="Liberada pelo criar_dados_demo; o apagar_dados_demo desfaz só essas.",
     )
     ponto = models.PointField("ponto", srid=4326, help_text="Sede do município (longitude/latitude, WGS 84).")
 

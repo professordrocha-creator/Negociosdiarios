@@ -1,19 +1,27 @@
 """Views do app core: home, página Sobre e verificação de saúde."""
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
-from core.services import banco_disponivel, cidades_atendidas
+from core.services import (
+    banco_disponivel,
+    cidades_atendidas,
+    destaques,
+    lojas_verificadas,
+    recem_anunciados,
+)
 
 
 @require_GET
 def inicio(request: HttpRequest) -> HttpResponse:
-    """Home provisória: busca visual (ainda sem buscar) e cidades atendidas.
+    """Home: busca (visual, ainda sem buscar), destaques, recém-anunciados, lojas e cidades atendidas.
 
-    Destaques e Recém-anunciados aparecem como "em breve" até existirem anúncios (Sprint 3).
+    Os anúncios e as lojas vêm de core.services (hoje do demo.json com MOSTRAR_DEMO; da
+    Sprint 3 em diante, do banco, sem mudar esta view). Sem dados, a página mostra "em breve".
     """
     estados = cidades_atendidas()
     return render(
@@ -23,6 +31,10 @@ def inicio(request: HttpRequest) -> HttpResponse:
             "tela": "inicio",
             "estados_atendidos": estados,
             "mostrar_estado": len(estados) > 1,  # 1 estado: seletor e nome do estado ficam ocultos (ARQ. §9)
+            "destaques": destaques(),
+            "recem_anunciados": recem_anunciados(),
+            "lojas_verificadas": lojas_verificadas(),
+            "mostrar_demo": settings.MOSTRAR_DEMO,
         },
     )
 

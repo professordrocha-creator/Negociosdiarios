@@ -13,6 +13,9 @@ site e páginas institucionais.
 O site mostra só cidades `liberada=True` de estados `liberado=True`
 (docs/ARQUITETURA.md §9). `Regiao`, `Bairro` e `SolicitacaoCidade` entram na Sprint 1.
 
+- `MarcaDemo` (abstrato): campo `demo` herdado por todo modelo com dados de
+  demonstração. `Cidade.liberada_pela_demo` marca as cidades que a demonstração ligou.
+
 ## Serviços (`services.py`)
 - `banco_disponivel()`: testa a conexão com o banco; usado por `/saude/`.
 - `carregar_municipios()`: carrega ou atualiza estados e cidades dos CSVs.
@@ -25,6 +28,12 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
 - `email_para_fila(mensagem)` / `enviar_email_agora(dados)`: transformam um e-mail do
   Django em dados simples para a fila e o enviam de verdade no worker (anexos ainda não).
 
+- Home: `destaques()`, `recem_anunciados()` (no máximo 2 por loja) e `lojas_verificadas()`.
+  Hoje leem `dados/demo.json` (só com `MOSTRAR_DEMO=True`, proibido sem DEBUG) e só
+  mostram cidades liberadas; na Sprint 3 só o corpo delas passa a ler o banco.
+- Demonstração: `criar_dados_demo(senha)` (só com DEBUG; equipe demo nos grupos e
+  cidades liberadas; idempotente; nunca toma conta real) e `apagar_dados_demo()`.
+
 ## E-mail e tarefas (Celery)
 - `email.py`: `CeleryEmailBackend` (o `EMAIL_BACKEND` do projeto). Todo `send_mail()`
   vira uma tarefa na fila; a página não espera o SMTP.
@@ -36,6 +45,8 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
 docker compose exec web python manage.py carregar_municipios
 # opções: --estados ARQ --municipios ARQ --uf-liberada MT
 docker compose exec web python manage.py testar_celery   # fila + worker funcionando?
+docker compose exec web python manage.py criar_dados_demo   # dados fictícios (só dev)
+docker compose exec web python manage.py apagar_dados_demo  # remove tudo que é demo
 ```
 
 ## Admin
@@ -51,6 +62,9 @@ docker compose exec web python manage.py testar_celery   # fila + worker funcion
 - `GET /saude/`: `200 {"status": "ok"}` ou `503` se o banco não responder.
 
 ## Layout e identidade
+- Parciais `templates/_card_anuncio.html` (recebe `anuncio`) e `templates/_loja_mini.html`
+  (recebe `loja`), convertidos do protótipo; os mesmos servem aos dados do banco nas
+  Sprints 2 e 3. Preço com o filtro `{{ valor|moeda }}` (`templatetags/nd.py`).
 - Templates em `templates/`: `base.html` + parciais `_topo.html`, `_rodape.html`,
   `_ajuda.html` (caixa "Sobre esta tela") e `_icones.html` (sprite SVG).
   Convertidos de `prototipo/_gerar.py`; a pasta `prototipo/` não é usada pelo Django.

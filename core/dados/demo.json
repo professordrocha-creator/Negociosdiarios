@@ -1,0 +1,175 @@
+{
+  "_sobre": "Dados FICTÍCIOS de demonstração (regra do CLAUDE.md). Fonte única do criar_dados_demo e, até a Sprint 3, da home com MOSTRAR_DEMO=True. CNPJs com dígitos válidos mas inexistentes (prefixo 9000000); telefones na faixa +55 65 99999-0xxx; e-mails em @demo.invalid (domínio reservado, nunca entrega). Preços em texto para virar Decimal.",
+  "cidades": [5107958, 5101704, 5102637, 5106232],
+  "equipe": [
+    {"email": "moderador@demo.invalid", "nome": "Marina Moderadora (demo)", "grupo": "Moderador"},
+    {"email": "financeiro@demo.invalid", "nome": "Fábio Financeiro (demo)", "grupo": "Financeiro"},
+    {"email": "comercial@demo.invalid", "nome": "Carla Comercial (demo)", "grupo": "Comercial"}
+  ],
+  "lojas": [
+    {
+      "slug": "paulo-mendes-corretor",
+      "nome": "Paulo Mendes Corretor",
+      "tipo": "corretor_autonomo",
+      "sigla": "PM",
+      "cor": 5,
+      "creci": "CRECI/MT 08765-F",
+      "cnpj": "",
+      "cidade_ibge": 5107958,
+      "whatsapp": "+5565999990001",
+      "email": "paulo.mendes@demo.invalid",
+      "responsavel": "Paulo Mendes (demo)"
+    },
+    {
+      "slug": "garagem-rota-358",
+      "nome": "Garagem Rota 358",
+      "tipo": "revenda",
+      "sigla": "R3",
+      "cor": 2,
+      "creci": "",
+      "cnpj": "90000001000129",
+      "cidade_ibge": 5107958,
+      "whatsapp": "+5565999990002",
+      "email": "contato@rota358.demo.invalid",
+      "responsavel": "Rogério Tavares (demo)"
+    },
+    {
+      "slug": "serra-caminhonetes",
+      "nome": "Serra Caminhonetes",
+      "tipo": "revenda",
+      "sigla": "SC",
+      "cor": 1,
+      "creci": "",
+      "cnpj": "90000002000173",
+      "cidade_ibge": 5107958,
+      "whatsapp": "+5565999990003",
+      "email": "vendas@serracaminhonetes.demo.invalid",
+      "responsavel": "Sílvia Campos (demo)"
+    },
+    {
+      "slug": "parecis-veiculos",
+      "nome": "Parecis Veículos",
+      "tipo": "revenda",
+      "sigla": "PV",
+      "cor": 4,
+      "creci": "",
+      "cnpj": "90000003000118",
+      "cidade_ibge": 5102637,
+      "whatsapp": "+5565999990004",
+      "email": "contato@parecisveiculos.demo.invalid",
+      "responsavel": "Pedro Vieira (demo)"
+    },
+    {
+      "slug": "chapada-motos",
+      "nome": "Chapada Motos",
+      "tipo": "revenda",
+      "sigla": "CM",
+      "cor": 6,
+      "creci": "",
+      "cnpj": "90000004000162",
+      "cidade_ibge": 5106232,
+      "whatsapp": "+5565999990005",
+      "email": "loja@chapadamotos.demo.invalid",
+      "responsavel": "Cláudio Moraes (demo)"
+    },
+    {
+      "slug": "bugres-auto-center",
+      "nome": "Bugres Auto Center",
+      "tipo": "revenda",
+      "sigla": "BA",
+      "cor": 3,
+      "creci": "",
+      "cnpj": "90000005000107",
+      "cidade_ibge": 5101704,
+      "whatsapp": "+5565999990006",
+      "email": "contato@bugresauto.demo.invalid",
+      "responsavel": "Beatriz Alves (demo)"
+    }
+  ],
+  "anuncios": [
+    {
+      "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Casa",
+      "titulo": "Casa 3 quartos com área gourmet", "preco": "420000.00",
+      "cidade_ibge": 5107958, "bairro": "Jardim Europa",
+      "detalhes": {"quartos": 3, "banheiros": 2, "vagas": 2, "area_m2": 180},
+      "destaque": true, "fotos": 12, "estilo_foto": "f1", "publicado_ha_horas": 30
+    },
+    {
+      "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "aluguel", "tipo": "Apartamento",
+      "titulo": "Apartamento 2 quartos mobiliado", "preco": "1600.00",
+      "cidade_ibge": 5107958, "bairro": "Centro",
+      "detalhes": {"quartos": 2, "banheiros": 1, "vagas": 1, "area_m2": 64},
+      "destaque": false, "fotos": 8, "estilo_foto": "f2", "publicado_ha_horas": 3
+    },
+    {
+      "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Chácara",
+      "titulo": "Chácara 2 ha com represa e pomar", "preco": "380000.00",
+      "cidade_ibge": 5107958, "bairro": "Estrada da Serra",
+      "detalhes": {"quartos": 2, "banheiros": 1, "vagas": 4, "area_m2": 20000},
+      "destaque": true, "fotos": 15, "estilo_foto": "f3", "publicado_ha_horas": 52
+    },
+    {
+      "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Terreno",
+      "titulo": "Terreno 12×30 em rua asfaltada", "preco": "95000.00",
+      "cidade_ibge": 5101704, "bairro": "Jardim Primavera",
+      "detalhes": {"area_m2": 360},
+      "destaque": false, "fotos": 4, "estilo_foto": "f4", "publicado_ha_horas": 75
+    },
+    {
+      "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
+      "titulo": "Toyota Hilux SRV 2.8 4x4 Diesel", "preco": "189900.00",
+      "cidade_ibge": 5107958, "bairro": "",
+      "detalhes": {"marca": "Toyota", "modelo": "Hilux SRV 2.8 4x4", "ano": 2019, "km": 98000, "cambio": "automático", "combustivel": "diesel"},
+      "destaque": true, "fotos": 10, "estilo_foto": "f5", "publicado_ha_horas": 20
+    },
+    {
+      "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Carro",
+      "titulo": "Chevrolet Onix LT 1.0 Turbo", "preco": "72500.00",
+      "cidade_ibge": 5107958, "bairro": "",
+      "detalhes": {"marca": "Chevrolet", "modelo": "Onix LT 1.0 Turbo", "ano": 2021, "km": 52000, "cambio": "manual", "combustivel": "flex"},
+      "destaque": false, "fotos": 9, "estilo_foto": "f4", "publicado_ha_horas": 5
+    },
+    {
+      "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Carro",
+      "titulo": "Volkswagen Gol 1.0 MPI", "preco": "63900.00",
+      "cidade_ibge": 5107958, "bairro": "",
+      "detalhes": {"marca": "Volkswagen", "modelo": "Gol 1.0 MPI", "ano": 2020, "km": 61000, "cambio": "manual", "combustivel": "flex"},
+      "destaque": false, "fotos": 7, "estilo_foto": "f1", "publicado_ha_horas": 1
+    },
+    {
+      "loja": "serra-caminhonetes", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
+      "titulo": "Ford Ranger XLT 3.2 4x4 Diesel", "preco": "179000.00",
+      "cidade_ibge": 5107958, "bairro": "",
+      "detalhes": {"marca": "Ford", "modelo": "Ranger XLT 3.2 4x4", "ano": 2020, "km": 87000, "cambio": "automático", "combustivel": "diesel"},
+      "destaque": true, "fotos": 11, "estilo_foto": "f5", "publicado_ha_horas": 9
+    },
+    {
+      "loja": "parecis-veiculos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
+      "titulo": "Fiat Strada Freedom 1.3 CD", "preco": "98900.00",
+      "cidade_ibge": 5102637, "bairro": "",
+      "detalhes": {"marca": "Fiat", "modelo": "Strada Freedom 1.3 CD", "ano": 2022, "km": 41000, "cambio": "manual", "combustivel": "flex"},
+      "destaque": false, "fotos": 8, "estilo_foto": "f6", "publicado_ha_horas": 14
+    },
+    {
+      "loja": "chapada-motos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Moto",
+      "titulo": "Honda CG 160 Fan", "preco": "16900.00",
+      "cidade_ibge": 5106232, "bairro": "",
+      "detalhes": {"marca": "Honda", "modelo": "CG 160 Fan", "ano": 2023, "km": 9000, "cambio": "manual", "combustivel": "flex"},
+      "destaque": false, "fotos": 6, "estilo_foto": "f2", "publicado_ha_horas": 26
+    },
+    {
+      "loja": "chapada-motos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Moto",
+      "titulo": "Yamaha Fazer FZ25 ABS", "preco": "21900.00",
+      "cidade_ibge": 5106232, "bairro": "",
+      "detalhes": {"marca": "Yamaha", "modelo": "Fazer FZ25 ABS", "ano": 2022, "km": 14000, "cambio": "manual", "combustivel": "flex"},
+      "destaque": false, "fotos": 6, "estilo_foto": "f3", "publicado_ha_horas": 40
+    },
+    {
+      "loja": "bugres-auto-center", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
+      "titulo": "Fiat Toro Volcano 2.0 Diesel 4x4", "preco": "129900.00",
+      "cidade_ibge": 5101704, "bairro": "",
+      "detalhes": {"marca": "Fiat", "modelo": "Toro Volcano 2.0 4x4", "ano": 2021, "km": 67000, "cambio": "automático", "combustivel": "diesel"},
+      "destaque": false, "fotos": 9, "estilo_foto": "f6", "publicado_ha_horas": 11
+    }
+  ]
+}

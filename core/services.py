@@ -1,17 +1,23 @@
 """Regras e verificações do app core."""
 
 import csv
+import json
 import logging
+from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import AnonymousUser, Group
 from django.contrib.gis.geos import Point
 from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection
 from django.db import DatabaseError, connection, transaction
 from django.db.models import QuerySet
+from django.utils import timezone
 from django.utils.text import slugify
 
 from core.models import Cidade, Estado
@@ -223,3 +229,245 @@ def enviar_email_agora(dados: dict) -> int:
     )
     mensagem.content_subtype = dados["content_subtype"]
     return mensagem.send()
+
+
+# --- Dados de demonstração (regra do CLAUDE.md) -------------------------------------------
+
+ARQUIVO_DEMO = DIR_DADOS / "demo.json"
+
+# Quantidades da home. Viram campos de Configuracao (editáveis no admin) na Sprint 1.
+LIMITE_DESTAQUES = 4
+LIMITE_RECEM_ANUNCIADOS = 8
+MAX_POR_LOJA_RECEM = 2  # rodízio justo: nenhuma loja grande ocupa a home (ARQUITETURA §9)
+LIMITE_LOJAS_HOME = 6
+
+ROTULOS_TIPO_LOJA = {
+    "corretor_autonomo": "Corretor",
+    "imobiliaria": "Imobiliária",
+    "revenda": "Revenda",
+    "concessionaria": "Concessionária",
+    "garagem": "Garagem",
+}
+
+
+@dataclass(frozen=True)
+class LojaVitrine:
+    """Loja como aparece na home (mini-vitrine). Hoje vem do demo.json; na Sprint 2, do banco."""
+
+    slug: str
+    nome: str
+    tipo: str
+    sigla: str
+    cor: int
+    cidade: str
+    total_anuncios: int
+    url: str | None = None  # None = página ainda não existe ("em breve")
+
+    @property
+    def tipo_rotulo(self) -> str:
+        """Ex.: "Revenda", "Corretor"."""
+        return ROTULOS_TIPO_LOJA.get(self.tipo, self.tipo)
+
+
+@dataclass(frozen=True)
+class AnuncioVitrine:
+    """Anúncio como aparece num card. Hoje vem do demo.json; na Sprint 3, do banco."""
+
+    titulo: str
+    categoria: str  # "imovel" ou "veiculo"
+    finalidade: str  # "venda" ou "aluguel"
+    tipo: str
+    preco: Decimal
+    cidade: str
+    bairro: str
+    resumo: str
+    loja_nome: str
+    loja_slug: str
+    destaque: bool
+    fotos: int
+    estilo_foto: str
+    publicado_em: datetime
+    url: str | None = None  # None = página do anúncio ainda não existe ("em breve")
+
+    @property
+    def local(self) -> str:
+        """Ex.: "Tangará da Serra · Jardim Europa" (veículos: só a cidade)."""
+        return f"{self.cidade} · {self.bairro}" if self.bairro else self.cidade
+
+    @property
+    def aluguel(self) -> bool:
+        """Preço mensal (mostra "/mês" e o selo "Aluguel")."""
+        return self.finalidade == "aluguel"
+
+    @property
+    def icone(self) -> str:
+        """Ícone da foto de exemplo."""
+        return "carro" if self.categoria == "veiculo" else "casa"
+
+
+def ler_demo(arquivo: Path = ARQUIVO_DEMO) -> dict:
+    """Lê core/dados/demo.json (fonte única dos dados fictícios)."""
+    with open(arquivo, encoding="utf-8") as fp:
+        return json.load(fp)
+
+
+def _resumo(categoria: str, detalhes: dict) -> str:
+    """Linha de ficha do card. Ex.: "3 qts · 2 banh · 2 vagas · 180 m²" ou "2019 · 98.000 km · automático"."""
+    if categoria == "veiculo":
+        km = f"{detalhes['km']:,}".replace(",", ".")
+        return f"{detalhes['ano']} · {km} km · {detalhes['cambio']}"
+    partes = []
+    for chave, sufixo in (("quartos", "qts"), ("banheiros", "banh"), ("vagas", "vagas")):
+        if detalhes.get(chave):
+            partes.append(f"{detalhes[chave]} {sufixo}")
+    area = detalhes.get("area_m2")
+    if area:
+        partes.append(f"{area / 10000:g} ha".replace(".", ",") if area >= 10000 else f"{area} m²")
+    return " · ".join(partes)
+
+
+def _vitrine_demo() -> tuple[list[AnuncioVitrine], list[LojaVitrine]]:
+    """Anúncios e lojas do demo.json que podem aparecer: só com MOSTRAR_DEMO e só em cidades liberadas.
+
+    Respeitar as cidades liberadas deixa a demonstração fiel ao site de verdade: cidade
+    desligada no admin some da home, com ou sem dados fictícios.
+    """
+    if not settings.MOSTRAR_DEMO:
+        return [], []
+    dados = ler_demo()
+    codigos = {a["cidade_ibge"] for a in dados["anuncios"]} | {loja["cidade_ibge"] for loja in dados["lojas"]}
+    cidades = {
+        c.codigo_ibge: c.nome
+        for c in Cidade.objects.filter(codigo_ibge__in=codigos, liberada=True, uf__liberado=True)
+    }
+    lojas = {loja["slug"]: loja for loja in dados["lojas"]}
+    agora = timezone.now()
+    anuncios = [
+        AnuncioVitrine(
+            titulo=a["titulo"],
+            categoria=a["categoria"],
+            finalidade=a["finalidade"],
+            tipo=a["tipo"],
+            preco=Decimal(a["preco"]),
+            cidade=cidades[a["cidade_ibge"]],
+            bairro=a["bairro"],
+            resumo=_resumo(a["categoria"], a["detalhes"]),
+            loja_nome=lojas[a["loja"]]["nome"],
+            loja_slug=a["loja"],
+            destaque=a["destaque"],
+            fotos=a["fotos"],
+            estilo_foto=a["estilo_foto"],
+            publicado_em=agora - timedelta(hours=a["publicado_ha_horas"]),
+        )
+        for a in dados["anuncios"]
+        if a["cidade_ibge"] in cidades
+    ]
+    contagem = Counter(a.loja_slug for a in anuncios)
+    vitrine_lojas = [
+        LojaVitrine(
+            slug=loja["slug"],
+            nome=loja["nome"],
+            tipo=loja["tipo"],
+            sigla=loja["sigla"],
+            cor=loja["cor"],
+            cidade=cidades[loja["cidade_ibge"]],
+            total_anuncios=contagem[loja["slug"]],
+        )
+        for loja in dados["lojas"]
+        if loja["cidade_ibge"] in cidades
+    ]
+    return anuncios, vitrine_lojas
+
+
+def destaques(limite: int = LIMITE_DESTAQUES) -> list[AnuncioVitrine]:
+    """Anúncios em destaque (pagos, selo "Patrocinado"), mais novos primeiro."""
+    anuncios, _ = _vitrine_demo()
+    escolhidos = sorted((a for a in anuncios if a.destaque), key=lambda a: a.publicado_em, reverse=True)
+    return escolhidos[:limite]
+
+
+def recem_anunciados(
+    limite: int = LIMITE_RECEM_ANUNCIADOS, por_loja: int = MAX_POR_LOJA_RECEM
+) -> list[AnuncioVitrine]:
+    """Anúncios de todas as lojas, mais novos primeiro, no máximo `por_loja` de cada (ARQUITETURA §9)."""
+    anuncios, _ = _vitrine_demo()
+    usados: Counter[str] = Counter()
+    resultado = []
+    for anuncio in sorted(anuncios, key=lambda a: a.publicado_em, reverse=True):
+        if usados[anuncio.loja_slug] >= por_loja:
+            continue
+        usados[anuncio.loja_slug] += 1
+        resultado.append(anuncio)
+        if len(resultado) == limite:
+            break
+    return resultado
+
+
+def lojas_verificadas(limite: int = LIMITE_LOJAS_HOME) -> list[LojaVitrine]:
+    """Lojas verificadas com anúncios no ar, as com mais anúncios primeiro."""
+    _, lojas = _vitrine_demo()
+    com_anuncio = [loja for loja in lojas if loja.total_anuncios]
+    return sorted(com_anuncio, key=lambda loja: (-loja.total_anuncios, loja.nome))[:limite]
+
+
+@dataclass(frozen=True)
+class ResumoDemo:
+    """O que o criar/apagar_dados_demo fez, para o comando mostrar."""
+
+    usuarios: int
+    cidades: int
+
+
+def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
+    """Cria (ou atualiza) os dados de demonstração do que já existe no sistema. Idempotente.
+
+    Hoje: usuários de equipe demo (um por grupo, senha = DEMO_SENHA) e as cidades do
+    demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
+    essas). Lojas e anúncios entram no banco nas Sprints 1 a 3; até lá a home os lê do
+    mesmo demo.json. Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
+    uma conta real (nunca sobrescreve conta de verdade).
+    """
+    if not settings.DEBUG:
+        raise PermissionError("Dados de demonstração só com DEBUG=True (nunca em produção).")
+    if not senha:
+        raise ValueError("Defina DEMO_SENHA no .env (senha dos usuários de demonstração).")
+    dados = ler_demo(arquivo)
+    Usuario = get_user_model()
+    emails = [pessoa["email"] for pessoa in dados["equipe"]]
+    reais = list(Usuario.objects.filter(email__in=emails, demo=False).values_list("email", flat=True))
+    if reais:
+        raise ValueError(f"E-mail de demonstração já usado por conta real: {', '.join(reais)}.")
+
+    with transaction.atomic():
+        for pessoa in dados["equipe"]:
+            usuario, _ = Usuario.objects.get_or_create(
+                email=pessoa["email"], defaults={"nome": pessoa["nome"], "demo": True}
+            )
+            usuario.nome = pessoa["nome"]
+            usuario.demo = True
+            usuario.is_staff = True
+            usuario.is_active = True
+            usuario.set_password(senha)
+            usuario.save()
+            usuario.groups.set([Group.objects.get(name=pessoa["grupo"])])
+        liberadas = Cidade.objects.filter(codigo_ibge__in=dados["cidades"], liberada=False).update(
+            liberada=True, liberada_pela_demo=True
+        )
+    return ResumoDemo(usuarios=len(dados["equipe"]), cidades=liberadas)
+
+
+def apagar_dados_demo() -> ResumoDemo:
+    """Remove de uma vez tudo o que é demonstração (exceção à regra "nada é apagado de verdade").
+
+    Apaga os registros com `demo=True` e desliga só as cidades que a demonstração
+    ligou (as liberadas à mão continuam). Roda em qualquer ambiente: é o que limpa a
+    base antes do lançamento (Sprint 9).
+    """
+    Usuario = get_user_model()
+    with transaction.atomic():
+        usuarios = Usuario.objects.filter(demo=True).count()
+        Usuario.objects.filter(demo=True).delete()
+        cidades = Cidade.objects.filter(liberada_pela_demo=True).update(
+            liberada=False, liberada_pela_demo=False
+        )
+    return ResumoDemo(usuarios=usuarios, cidades=cidades)

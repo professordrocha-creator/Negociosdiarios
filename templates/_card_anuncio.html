@@ -1,0 +1,18 @@
+{% load nd %}
+{# Card de anúncio (convertido de prototipo/_gerar.py, função card). Recebe "anuncio". #}
+{# Hoje: AnuncioVitrine (core.services, dados do demo.json). Sprint 3: anúncio do banco, mesmos campos. #}
+{# Sem página do anúncio ainda (url vazia): o link fica sem destino, com título "Em breve". #}
+<article class="nd-card position-relative">
+  <div class="nd-foto {{ anuncio.estilo_foto }}">{% icone anuncio.icone "ico marca-foto" %}
+    <div class="selos">{% if anuncio.destaque %}<span class="selo selo-destaque">Destaque</span>{% endif %}{% if anuncio.aluguel %}<span class="selo selo-aluguel">Aluguel</span>{% endif %}</div>
+    <span class="qtd">{{ anuncio.fotos }} foto{{ anuncio.fotos|pluralize }}</span>
+  </div>
+  <div class="corpo">
+    <div class="preco tabular">{{ anuncio.preco|moeda }}{% if anuncio.aluguel %}<small class="fw-semibold">/mês</small>{% endif %}</div>
+    {% if anuncio.url %}<a class="titulo stretched-link" href="{{ anuncio.url }}">{{ anuncio.titulo }}</a>
+    {% else %}<a class="titulo stretched-link" aria-disabled="true" title="Em breve">{{ anuncio.titulo }}</a>{% endif %}
+    <div class="meta">{% icone "pin" %} {{ anuncio.local }}</div>
+    <div class="meta">{{ anuncio.resumo }}</div>
+    <div class="loja">{% icone "verificado" %} {{ anuncio.loja_nome }}</div>
+  </div>
+</article>

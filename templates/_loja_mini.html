@@ -1,0 +1,10 @@
+{# Mini-vitrine de loja (convertida de prototipo/_gerar.py, função loja_mini). Recebe "loja". #}
+{# Hoje: LojaVitrine (core.services, dados do demo.json). Sprint 2: anunciante do banco, mesmos campos. #}
+{# Cor do monograma por classe (nd-cor-1..6), não por style="": a futura CSP não libera estilo inline. #}
+{# Sem a página /loja/<slug>/ ainda (url vazia): sem destino, com título "Em breve". #}
+<a class="nd-loja-mini" {% if loja.url %}href="{{ loja.url }}"{% else %}aria-disabled="true" title="Em breve"{% endif %}>
+  <span class="nd-monograma nd-cor-{{ loja.cor }}" aria-hidden="true">{{ loja.sigla }}</span>
+  <b>{{ loja.nome }}</b>
+  <span>{{ loja.tipo_rotulo }} · {{ loja.total_anuncios }} anúncio{{ loja.total_anuncios|pluralize }}</span>
+  <span>{{ loja.cidade }}</span>
+</a>

@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 {% load nd %}
-{# Home provisória (prototipo/_gerar.py, HOME). Destaques e Recém-anunciados chegam com os anúncios (Sprint 3). #}
+{# Home (prototipo/_gerar.py, HOME). Destaques, recém-anunciados e lojas vêm de core.services: #}
+{# hoje do demo.json (MOSTRAR_DEMO=True, só em dev); a partir da Sprint 3, do banco. Sem dados: "Em breve". #}
 
 {% block titulo %}Imóveis e veículos{% endblock %}
 
 {% block conteudo %}
+{# Aviso fixo quando a página mostra dados fictícios (regra "Dados de demonstração" do CLAUDE.md). #}
+{% if mostrar_demo %}
+<div class="nd-faixa-demo" role="note">{% icone "alerta" %} <b>Dados de demonstração:</b> lojas, anúncios e preços desta página são fictícios.</div>
+{% endif %}
+
 {# Topo azul com a busca. Com um único estado liberado, o título mostra a UF (ex.: "em MT"). #}
 <section class="nd-hero">
   <div class="container">
@@ -50,32 +56,54 @@
       <p class="small text-suave mt-2 mb-0">A busca começa a funcionar em breve, junto com os primeiros anúncios.</p>
     </div>
 
-    {# Atalhos por categoria (viram links para a busca na Sprint 4). #}
+    {# Atalhos por categoria (viram links para a busca na Sprint 4). A classe nd-atalho é obrigatória: #}
+    {# sem href e sem classe, o Bootstrap (a:not([href]):not([class])) faria o texto herdar o branco do topo. #}
     <nav class="nd-atalhos" aria-label="Atalhos">
-      <a aria-disabled="true">{% icone "casa" %} Casas</a>
-      <a aria-disabled="true">{% icone "casa" %} Apartamentos</a>
-      <a aria-disabled="true">{% icone "area" %} Terrenos</a>
-      <a aria-disabled="true">{% icone "pin" %} Chácaras e sítios</a>
-      <a aria-disabled="true">{% icone "loja" %} Salas comerciais</a>
-      <a aria-disabled="true">{% icone "carro" %} Caminhonetes</a>
-      <a aria-disabled="true">{% icone "carro" %} Carros</a>
-      <a aria-disabled="true">{% icone "carro" %} Motos</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "casa" %} Casas</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "casa" %} Apartamentos</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "area" %} Terrenos</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "pin" %} Chácaras e sítios</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "loja" %} Salas comerciais</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Caminhonetes</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Carros</a>
+      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Motos</a>
     </nav>
   </div>
 </section>
 
 <main class="container mt-4 d-grid gap-5">
-  {# Destaques pagos (rótulo "Patrocinado"): entram com anúncios e publicidade. #}
+  {# Destaques pagos (rótulo "Patrocinado"). #}
   <section>
-    <div class="nd-secao-titulo"><h2>Destaques</h2></div>
-    <div class="nd-banner"><b>Em breve</b>Os melhores imóveis e veículos da região vão aparecer aqui.</div>
+    <div class="nd-secao-titulo"><h2>Destaques <span class="selo selo-destaque align-middle">Patrocinado</span></h2></div>
+    {% if destaques %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for anuncio in destaques %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+      </div>
+    {% else %}
+      <div class="nd-banner"><b>Em breve</b>Os melhores imóveis e veículos da região vão aparecer aqui.</div>
+    {% endif %}
   </section>
 
   {# Recém-anunciados: mais novos primeiro, no máximo 2 por loja (ARQUITETURA §9). #}
   <section>
     <div class="nd-secao-titulo"><h2>Recém-anunciados</h2></div>
-    <div class="nd-banner"><b>Em breve</b>Os anúncios mais novos de todas as lojas verificadas.</div>
+    {% if recem_anunciados %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for anuncio in recem_anunciados %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+      </div>
+      <p class="small text-suave mt-2 mb-0">Anúncios de todas as lojas, do mais novo para o mais antigo. No máximo 2 por loja nesta lista, para nenhuma empresa ocupar a home inteira.</p>
+    {% else %}
+      <div class="nd-banner"><b>Em breve</b>Os anúncios mais novos de todas as lojas verificadas.</div>
+    {% endif %}
   </section>
+
+  {# Vitrine de lojas verificadas (CRECI/CNPJ conferidos). #}
+  {% if lojas_verificadas %}
+  <section>
+    <div class="nd-secao-titulo"><h2>Lojas verificadas</h2></div>
+    <div class="nd-lojas">{% for loja in lojas_verificadas %}{% include "_loja_mini.html" %}{% endfor %}</div>
+  </section>
+  {% endif %}
 
   {# Cidades atendidas: só cidades liberadas de estados liberados (core.services.cidades_atendidas). #}
   <section id="cidades">

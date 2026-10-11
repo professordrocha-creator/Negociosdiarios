@@ -1,6 +1,9 @@
 """Testes do layout base, da home provisória, da página Sobre e do favicon."""
 
+import re
+
 import pytest
+from django.conf import settings
 from django.urls import reverse
 
 from contas.models import Usuario
@@ -199,3 +202,39 @@ def test_link_do_admin_aparece_para_equipe_logada_em_producao(client, settings):
     html = client.get(reverse("core:inicio")).content.decode()
 
     assert f'href="{reverse("admin:index")}"' in html
+
+
+# --- Atalhos por categoria (texto visível) -----------------------------------------------
+
+
+def test_atalhos_tem_classe_de_texto_escuro(client):
+    """Cada atalho tem a classe nd-atalho, que pinta o texto de escuro sobre fundo branco.
+
+    Sem classe e sem href, o Bootstrap (a:not([href]):not([class])) faz o link herdar o
+    branco do topo azul: o botão ficava branco sobre branco.
+    """
+    html = client.get(reverse("core:inicio")).content.decode()
+    atalhos = html.split('class="nd-atalhos"', 1)[1].split("</nav>", 1)[0]
+
+    links = re.findall(r"<a\b[^>]*>", atalhos)
+    assert len(links) == 8
+    assert all('class="nd-atalho"' in link for link in links)
+
+
+def test_css_do_atalho_e_escuro_com_borda_e_icone():
+    """A regra .nd-atalho define texto escuro, fundo branco, borda e cor do ícone."""
+    css = (settings.BASE_DIR / "static" / "css" / "nd.css").read_text(encoding="utf-8")
+    regra = re.search(r"\.nd-atalho \{([^}]*)\}", css).group(1)
+
+    assert "color: var(--nd-texto)" in regra
+    assert "background: var(--nd-papel)" in regra
+    assert "border: 1px solid" in regra
+    assert re.search(r"\.nd-atalho \.ico \{[^}]*color: var\(--nd-petroleo\)", css)
+
+
+def test_topo_azul_nao_tem_link_que_herda_o_branco(client):
+    """Nenhum <a> sem href e sem classe no topo azul da home (evita repetir o problema)."""
+    html = client.get(reverse("core:inicio")).content.decode()
+    topo = html.split('class="nd-hero"', 1)[1].split("</section>", 1)[0]
+
+    assert not [a for a in re.findall(r"<a\b[^>]*>", topo) if "href=" not in a and "class=" not in a]

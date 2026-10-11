@@ -15,6 +15,7 @@ def ambiente_de_teste_previsivel(settings):
       sem precisar de worker (`task_always_eager`).
     """
     settings.ADMIN_CODIGO_EMAIL = False
+    settings.MOSTRAR_DEMO = False  # os testes da demonstração ligam quando precisam
     settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
     celery_app.conf.task_always_eager = True
     celery_app.conf.task_eager_propagates = True

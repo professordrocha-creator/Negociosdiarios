@@ -79,6 +79,25 @@ Só funciona com acesso ao servidor (SSH na VPS), e é por isso que é seguro.
 5. Perdeu também o acesso SSH? Usar o console web do provedor da VPS para entrar no
    servidor e seguir do item 2.
 
+## Dados de demonstração (dev)
+Regra do projeto (CLAUDE.md): tudo é construído com dados fictícios até o lançamento.
+1. No `.env`: `MOSTRAR_DEMO=True` e `DEMO_SENHA=<uma senha forte só para a demo>`.
+   Reinicie: `docker compose up -d web`.
+2. Criar/atualizar (pode rodar quantas vezes quiser):
+   ```bash
+   docker compose exec web python manage.py criar_dados_demo
+   ```
+   Libera as cidades da demonstração e cria a equipe demo (`moderador@`, `financeiro@` e
+   `comercial@demo.invalid`, senha = `DEMO_SENHA`), para testar os grupos no admin.
+   O código de login deles cai no Mailpit.
+3. A home mostra a faixa "Dados de demonstração", destaques, recém-anunciados e lojas.
+4. Apagar tudo de uma vez (pede confirmação; contas reais e cidades liberadas à mão ficam):
+   ```bash
+   docker compose exec web python manage.py apagar_dados_demo
+   ```
+Fonte única dos dados: `core/dados/demo.json` (lojas, anúncios, equipe, cidades). Cada
+sprint amplia o arquivo e o comando. Na Sprint 9 os dados demo são apagados antes do lançamento.
+
 ## E-mails e tarefas do Celery
 
 Todo e-mail do sistema vai para a fila (Redis) e o container `worker` envia. A

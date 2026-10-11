@@ -83,6 +83,7 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
 - `nome`, `is_active`, `is_staff`, `is_superuser`, grupos/permissões, `last_login`, `criado_em`
 - Senha em hash Argon2. Mesmo modelo para anunciantes e equipe; o que cada um acessa vem dos grupos
 - Grupos Administrador, Moderador, Financeiro e Comercial (migration `contas/0002`, ver `docs/ADMINISTRACAO.md`)
+- `demo` (de `core.models.MarcaDemo`): conta fictícia criada pelo `criar_dados_demo`
 - Código de navegador novo do admin em tabelas do django-otp ligadas ao usuário:
   `EmailDevice` (código por e-mail) e `StaticDevice`/`StaticToken` (código de emergência
   gerado no servidor). Navegador confiável = cookie assinado (sem tabela). Tentativas de
@@ -180,6 +181,12 @@ Regras:
 - Templates usam `{{ site.* }}` via context processor (em cache, limpo ao salvar).
   Sem logo enviado, cai no SVG padrão em `static/img/`.
 - Favicon gerado automaticamente a partir do símbolo (32, 180 e 512 px).
+
+### Dados de demonstração
+Todo modelo com dados criados pelo `criar_dados_demo` herda `core.models.MarcaDemo`
+(campo `demo`, indexado, não editável); `apagar_dados_demo` remove tudo com `demo=True`.
+`Cidade.liberada_pela_demo` marca as cidades que a demonstração ligou, para desfazer só
+essas. Fonte única dos dados fictícios: `core/dados/demo.json`.
 
 ### Home: o que aparece
 1. Destaques (pagos, rótulo "Patrocinado"). 2. **Recém-anunciados** de todas as lojas,

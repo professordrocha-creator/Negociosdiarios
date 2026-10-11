@@ -82,8 +82,11 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 
 /* Home: atalhos por categoria */
 .nd-atalhos { display: flex; gap: 8px; overflow-x: auto; padding-block: 14px 4px; scrollbar-width: none; }
-.nd-atalhos a { flex: none; display: inline-flex; align-items: center; gap: 6px; background: var(--nd-papel); color: var(--nd-texto); border: 1px solid var(--nd-borda); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; text-decoration: none; }
-.nd-atalhos a:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
+/* Cada atalho tem a classe .nd-atalho: um <a> sem href e sem classe herda a cor do pai pela
+   regra do Bootstrap a:not([href]):not([class]), e o pai (topo azul) tem texto branco. */
+.nd-atalho { flex: none; display: inline-flex; align-items: center; gap: 6px; background: var(--nd-papel); color: var(--nd-texto); border: 1px solid var(--nd-borda); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: default; }
+.nd-atalho .ico { color: var(--nd-petroleo); }
+.nd-atalho:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
 
 /* ---------- Seções e caixas ---------- */
 .nd-secao-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
@@ -97,6 +100,45 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 /* Selos */
 .selo { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; }
 .selo-destaque { background: var(--nd-ipe); color: #2b2100; }
+.selo-aluguel { background: #e8eefc; color: #2c4aa0; }
+
+/* ---------- Card de anúncio (parcial _card_anuncio.html) ---------- */
+.nd-card { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
+.nd-card:hover { box-shadow: 0 8px 22px rgba(8, 50, 59, .12); transform: translateY(-2px); }
+.nd-card a.stretched-link { color: inherit; text-decoration: none; }
+.nd-card .corpo { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.nd-card .preco { font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 20px; color: var(--nd-petroleo); }
+.nd-card .titulo { font-weight: 600; line-height: 1.3; }
+.nd-card .meta { font-size: 13px; color: var(--nd-texto-suave); }
+.nd-card .loja { margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--nd-borda); font-size: 12px; color: var(--nd-texto-suave); display: flex; align-items: center; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { .nd-card, .nd-card:hover { transition: none; transform: none; } }
+
+/* Foto de exemplo (gradiente + ícone). Com as fotos reais (Sprint 3) vira <img> WebP. */
+.nd-foto { position: relative; aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; color: rgba(255, 255, 255, .55); }
+.nd-foto svg.marca-foto { width: 34%; height: auto; stroke-width: 1.4; }
+.nd-foto .selos { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
+.nd-foto .qtd { position: absolute; right: 10px; bottom: 10px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 6px; }
+.f1 { background: linear-gradient(135deg, #6b9aa3, #2f5f69); }
+.f2 { background: linear-gradient(135deg, #c9a46a, #8a6a3a); }
+.f3 { background: linear-gradient(135deg, #8bb08a, #4d7a4e); }
+.f4 { background: linear-gradient(135deg, #a9b4c2, #5b6779); }
+.f5 { background: linear-gradient(135deg, #d4886a, #9b4d34); }
+.f6 { background: linear-gradient(135deg, #7d8f6a, #46553a); }
+
+/* ---------- Vitrine de lojas (parcial _loja_mini.html) ---------- */
+.nd-lojas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.nd-loja-mini { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 14px 10px; text-align: center; text-decoration: none; color: var(--nd-texto); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.nd-loja-mini:hover { border-color: var(--nd-petroleo); color: var(--nd-texto); }
+.nd-loja-mini b { font-size: 13px; line-height: 1.2; }
+.nd-loja-mini span { font-size: 12px; color: var(--nd-texto-suave); }
+.nd-monograma { width: 56px; height: 56px; border-radius: 12px; display: grid; place-items: center; font-family: var(--nd-fonte-titulo); font-weight: 800; color: #fff; font-size: 20px; }
+.nd-loja-mini .nd-monograma { color: #fff; font-size: 20px; }
+/* Cores do monograma por classe (não por style="", por causa da futura CSP) */
+.nd-cor-1 { background: #0e4a57; } .nd-cor-2 { background: #9b4d34; } .nd-cor-3 { background: #4d7a4e; }
+.nd-cor-4 { background: #5b6779; } .nd-cor-5 { background: #8a6a3a; } .nd-cor-6 { background: #2f5f69; }
+
+/* Faixa "Dados de demonstração" (só com MOSTRAR_DEMO=True) */
+.nd-faixa-demo { background: var(--nd-ipe-claro); color: #5c4500; font-size: 13px; text-align: center; padding: 6px 16px; }
 
 /* Caixa "Sobre esta tela" — presente em todas as telas do sistema */
 .nd-ajuda { background: #eef6f7; border: 1px solid #cfe3e6; border-radius: var(--nd-raio); font-size: 14px; }

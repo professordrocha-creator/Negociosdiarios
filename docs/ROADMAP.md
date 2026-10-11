@@ -7,6 +7,20 @@
 - [ ] Contador: abertura de CNPJ e emissão de nota. Advogado: termos de uso e contrato do anunciante.
 - [ ] Estratégia de lançamento: só Tangará da Serra primeiro, com as lojas fundadoras já com estoque.
 
+## Regra: dados de demonstração (decisão de 2026-10-11)
+O sistema é construído inteiro com dados fictícios até o lançamento. Toda sprint deve
+ampliar o comando `criar_dados_demo` para cobrir o que foi criado nela (anunciantes,
+lojas, anúncios com fotos de exemplo, planos, faturas, banners, denúncias etc.), para
+que cada tela possa ser vista e testada no navegador. Regras:
+- só roda com `DEBUG=True`;
+- tudo marcado como demonstração;
+- `apagar_dados_demo` remove tudo de uma vez;
+- senhas dos usuários demo vêm de `DEMO_SENHA` no `.env`;
+- na Sprint 9 (lançamento), os dados demo são apagados e não vão para produção.
+
+**Ordem de trabalho:** 4c (home demo) → Sprint 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9,
+parando no fim de cada etapa para teste no navegador.
+
 ## V1 — Lançar e validar (sprints de 2 semanas)
 | Sprint | Entrega |
 |---|---|
@@ -19,7 +33,7 @@
 | 6 | Pagamento Pix via API + faturas + bloqueio por inadimplência |
 | 7 | Banners/patrocinadores, LGPD (meus dados, exclusão, cookies), termos |
 | 8 | **Importador de anúncios**: XML padrão ZAP/VivaReal (imóveis) e planilha CSV/Excel (veículos e imóveis) |
-| 9 | Testes, `check --deploy`, backup testado, SEO (sitemap, OG), carga das lojas fundadoras → **lançamento** |
+| 9 | Testes, `check --deploy`, backup testado, SEO (sitemap, OG), **apagar os dados demo** (`apagar_dados_demo`), carga das lojas fundadoras → **lançamento** |
 
 Dica: se o tempo apertar, lance **um vertical primeiro** (onde já houver clientes interessados).
 

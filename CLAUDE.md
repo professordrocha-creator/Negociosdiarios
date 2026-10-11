@@ -44,6 +44,14 @@
 - Permissões por grupos do Django (Administrador, Moderador, Financeiro, Comercial);
   Daniel é o único superusuário. Ver `docs/ADMINISTRACAO.md`.
 
+## Dados de demonstração (até o lançamento)
+- O sistema é construído inteiro com dados fictícios. **Toda sprint amplia `criar_dados_demo`**
+  para cobrir o que criou (anunciantes, lojas, anúncios com fotos de exemplo, planos, faturas,
+  banners, denúncias…), para cada tela poder ser vista e testada no navegador.
+- Só roda com `DEBUG=True`; tudo marcado como demonstração; `apagar_dados_demo` remove tudo
+  de uma vez; senhas dos usuários demo vêm de `DEMO_SENHA` no `.env`.
+- Na Sprint 9 (lançamento) os dados demo são apagados e nunca vão para produção. Ver `docs/ROADMAP.md`.
+
 ## Regras de telas (ver `docs/TELAS.md`)
 - Toda tela inclui o parcial `_ajuda.html` ("Sobre esta tela") com texto do modelo `TextoAjuda`.
 - Todo campo com limite/formato tem `help_text`. Limites (tamanho de foto, nº de fotos,

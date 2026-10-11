@@ -32,6 +32,19 @@ def normalizar_admin_url(valor: str) -> str:
     return caminho + "/"
 
 
+def validar_mostrar_demo(mostrar: bool, debug: bool) -> bool:
+    """Garante que a home só mostre dados de demonstração em dev.
+
+    MOSTRAR_DEMO=True com DEBUG=False derruba a subida: dados fictícios nunca podem
+    aparecer em produção (regra "Dados de demonstração" do CLAUDE.md).
+    """
+    if mostrar and not debug:
+        raise ImproperlyConfigured(
+            "MOSTRAR_DEMO=True é proibido com DEBUG=False (dados fictícios em produção)."
+        )
+    return mostrar
+
+
 def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple[dict, str, Path]:
     """Monta STORAGES, MEDIA_URL e MEDIA_ROOT conforme ARMAZENAMENTO (docs/adr/0002).
 
@@ -176,6 +189,13 @@ SITE_EMAIL_CONTATO = "contato@negociosdiarios.com.br"
 SITE_EMAIL_PRIVACIDADE = "privacidade@negociosdiarios.com.br"
 SITE_EMPRESA = "D'Rocha Soluções"
 SITE_CIDADE_SEDE = "Tangará da Serra, MT"
+
+# --- Dados de demonstração (só em dev; regra no CLAUDE.md) --------------------------------
+# MOSTRAR_DEMO: a home mostra lojas e anúncios fictícios de core/dados/demo.json (até a
+# Sprint 3, quando passam a vir do banco). Proibido com DEBUG=False.
+MOSTRAR_DEMO = validar_mostrar_demo(env.bool("MOSTRAR_DEMO", default=False), DEBUG)
+# Senha de todos os usuários criados pelo criar_dados_demo (sem padrão: nada de senha conhecida).
+DEMO_SENHA = env("DEMO_SENHA", default="")
 
 # --- Admin: endereço secreto, código de navegador novo e bloqueio --------------------------
 # (docs/SEGURANCA.md, docs/RUNBOOK.md)

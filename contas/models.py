@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 
 from contas.services import normalizar_email
+from core.models import MarcaDemo
 
 
 class UsuarioManager(BaseUserManager):
@@ -41,10 +42,11 @@ class UsuarioManager(BaseUserManager):
         return self.get(email=normalizar_email(email))
 
 
-class Usuario(AbstractBaseUser, PermissionsMixin):
+class Usuario(AbstractBaseUser, PermissionsMixin, MarcaDemo):
     """Conta de acesso ao sistema (anunciante ou equipe), com login por e-mail.
 
-    Visitantes não têm conta (docs/LGPD.md §2). Os campos `is_active`,
+    Visitantes não têm conta (docs/LGPD.md §2). `demo` marca as contas fictícias
+    do `criar_dados_demo` (MarcaDemo). Os campos `is_active`,
     `is_staff` e `is_superuser` mantêm os nomes do Django porque o admin e o
     sistema de permissões dependem deles.
     """

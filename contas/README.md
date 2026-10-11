@@ -7,7 +7,7 @@ login por e-mail. Visitantes não têm conta.
 - `Usuario` (`AUTH_USER_MODEL = "contas.Usuario"`): `email` (login, único, sempre
   em minúsculas), `nome`, `is_active`, `is_staff`, `is_superuser`, grupos,
   `last_login`, `criado_em`. Sem `username`, `first_name` ou `last_name`.
-  Senhas em hash **Argon2**.
+  Senhas em hash **Argon2**. `demo` marca as contas fictícias do `criar_dados_demo`.
 
 **Serviços (`services.py`):**
 - `normalizar_email(email)`: tira espaços e passa para minúsculas. Usado na
