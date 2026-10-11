@@ -10,9 +10,9 @@
 ## V1 — Lançar e validar (sprints de 2 semanas)
 | Sprint | Entrega |
 |---|---|
-| 0 | Git/GitHub, Docker, Django, PostGIS, CI, cidades IBGE, grupos de permissão, admin com 2FA, deploy de "olá mundo" no VPS com HTTPS e backup testado |
+| 0 | Git/GitHub, Docker, Django, PostGIS, CI, cidades IBGE, layout base, grupos de permissão, admin protegido (URL secreta, código por e-mail, bloqueio), Celery, e-mail e mídia. *A etapa 8 (produção) foi adiada: ver "Produção" abaixo* |
 | 1 | Contas, cadastro de anunciante, verificação CRECI/CNPJ no admin |
-| 2 | **Vitrine do anunciante** `/loja/<slug>/` + planos e limite de anúncios |
+| 2 | **Vitrine do anunciante** `/loja/<slug>/` + planos e limite de anúncios + comando `criar_dados_demo` (1 corretor com CRECI e 5 revendas de veículos fictícios; não roda em produção; tudo marcado como demonstração) |
 | 3 | Anúncio de imóvel + fotos (Celery, WebP, sem EXIF) + moderação |
 | 4 | Anúncio de veículo (catálogo FIPE) + busca com filtros |
 | 5 | Mapa Leaflet, WhatsApp com contagem de cliques, home com vitrine de lojas |
@@ -22,6 +22,14 @@
 | 9 | Testes, `check --deploy`, backup testado, SEO (sitemap, OG), carga das lojas fundadoras → **lançamento** |
 
 Dica: se o tempo apertar, lance **um vertical primeiro** (onde já houver clientes interessados).
+
+### Produção (antiga etapa 8 da Sprint 0) — quando a VPS for contratada, antes do lançamento
+Decisão de 2026-10-11: sem VPS ainda, a Sprint 0 termina no CI (etapa 7) e o trabalho
+segue para as Sprints 1 e 2. Antes do lançamento (no máximo junto da Sprint 9):
+`docker-compose.prod.yml` (Gunicorn, Nginx, Let's Encrypt, beat separado do worker),
+VPS Ubuntu 24.04 endurecida (`docs/SEGURANCA.md` §3), R2 e SMTP reais, axes lendo o IP
+real atrás do Nginx, `check --deploy` sem avisos, backup **restaurado em teste** e
+"olá mundo" no ar com HTTPS.
 
 ## V2 — Monetizar e crescer
 Assinatura no cartão + renovação, destaques, estatísticas para o anunciante,

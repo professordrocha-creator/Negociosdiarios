@@ -1,25 +1,73 @@
-# Roda verificação de código e testes a cada push/PR.
-# Enquanto não houver código Django, os passos são pulados sem falhar.
+# CI: a cada push e pull request, confere formatação, lint, configuração do Django,
+# migrations e roda todos os testes num PostGIS e num Redis próprios.
+# Mesmas versões do docker-compose.yml. Nenhum segredo real: tudo aqui é só para o CI.
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Um push novo cancela a verificação anterior do mesmo branch (economiza minutos do Actions).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   testes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
     services:
       db:
         image: postgis/postgis:16-3.4
         env: {POSTGRES_DB: negocios, POSTGRES_USER: negocios, POSTGRES_PASSWORD: ci}
         ports: ["5432:5432"]
         options: --health-cmd "pg_isready -U negocios" --health-interval 5s --health-retries 10
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+
     env:
+      DJANGO_SECRET_KEY: ci-apenas-nao-e-segredo
+      DJANGO_DEBUG: "True"  # como em dev: sem redirecionamento para HTTPS nos testes
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
       DATABASE_URL: postgis://negocios:ci@localhost:5432/negocios
-      DJANGO_SECRET_KEY: ci-apenas
+      REDIS_URL: redis://localhost:6379/0
+      ADMIN_URL: painel-ci
+      ARMAZENAMENTO: local
+      UV_PYTHON_DOWNLOADS: automatic
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - run: sudo apt-get update && sudo apt-get install -y gdal-bin
-      - run: pip install ruff && ruff check .
+
+      # GDAL/GEOS/PROJ: bibliotecas nativas do GeoDjango (as mesmas do Dockerfile).
+      - name: Bibliotecas do GeoDjango
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.0"  # mesma versão do Dockerfile
+          enable-cache: true
+
+      - name: Dependências (uv.lock, com as de dev)
+        run: uv sync --locked
+
+      - name: Formatação (ruff format)
+        run: uv run ruff format --check .
+
+      - name: Lint (ruff check)
+        run: uv run ruff check .
+
+      - name: Configuração do Django
+        run: uv run python manage.py check
+
+      - name: Migrations em dia
+        run: uv run python manage.py makemigrations --check --dry-run
+
       - name: Testes
-        if: hashFiles('manage.py') != ''
-        run: pip install -r requirements.txt && pytest
+        run: uv run pytest -q

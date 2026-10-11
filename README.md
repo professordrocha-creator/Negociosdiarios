@@ -47,6 +47,8 @@ Dependências: `uv add <pacote>` (ou `uv add --dev <pacote>`) e depois
 - Mailpit (todos os e-mails de dev, inclusive o código do admin): http://localhost:8025
 - Mídia em dev: pasta `media/` (`ARMAZENAMENTO=local`); em produção, Cloudflare R2 (`docs/adr/0002`)
 - Celery: `docker compose logs -f worker`; teste rápido `docker compose exec web python manage.py testar_celery`
+- CI: GitHub Actions (`.github/workflows/ci.yml`) roda lint, checks e testes a cada push/PR;
+  resultado na aba **Actions** do repositório. Push com teste vermelho não vai para produção.
 
 ## Licença e confidencialidade
 Projeto privado — © D'Rocha Soluções. Todos os direitos reservados.
