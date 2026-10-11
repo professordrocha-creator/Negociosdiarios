@@ -1,0 +1,197 @@
+/* ==========================================================================
+   Negócios Diários — identidade visual (protótipo v1)
+   Carrega DEPOIS do bootstrap.min.css e só sobrescreve o necessário.
+   Conceito: "Cerrado ao meio-dia" — azul-petróleo sóbrio (confiança, negócio
+   verificado) + amarelo-ipê (o ipê amarelo do cerrado de MT) como destaque.
+   Layout: cabeçalho fixo com busca, conteúdo em grade de cards, rodapé escuro.
+   ========================================================================== */
+:root {
+  --nd-petroleo: #0e4a57;      /* cor principal: cabeçalho, botões, links */
+  --nd-petroleo-escuro: #08323b;
+  --nd-ipe: #f2b705;           /* destaque: selos, preço em promoção, CTA secundário */
+  --nd-ipe-claro: #fff4cc;
+  --nd-zap: #1f9d55;           /* verde só no botão WhatsApp */
+  --nd-fundo: #f4f6f6;         /* neutro com leve viés para o petróleo */
+  --nd-papel: #ffffff;
+  --nd-texto: #172a2e;
+  --nd-texto-suave: #5a6e72;
+  --nd-borda: #dde4e5;
+  --nd-fonte-titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --nd-fonte-texto: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --nd-raio: 10px;
+  color-scheme: light;
+
+  /* Variáveis do próprio Bootstrap 5.3 que valem a pena trocar */
+  --bs-body-font-family: var(--nd-fonte-texto);
+  --bs-body-color: var(--nd-texto);
+  --bs-body-bg: var(--nd-fundo);
+  --bs-link-color-rgb: 14, 74, 87;
+  --bs-link-hover-color-rgb: 8, 50, 59;
+  --bs-border-color: var(--nd-borda);
+}
+
+body { background: var(--nd-fundo); color: var(--nd-texto); font-size: 15px; }
+h1, h2, h3, h4, .nd-titulo { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.text-suave { color: var(--nd-texto-suave) !important; }
+.tabular { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 3px solid var(--nd-ipe); outline-offset: 2px; }
+
+/* Faixa de aviso do protótipo (remover na versão real) */
+.nd-faixa-prototipo { background: var(--nd-ipe-claro); color: #5c4500; font-size: 13px; text-align: center; padding: 6px 16px; }
+
+/* ---------- Cabeçalho ---------- */
+.nd-topo { background: var(--nd-petroleo); color: #fff; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1030; }
+.nd-topo a { color: #fff; text-decoration: none; }
+.nd-logo { display: flex; align-items: center; gap: 10px; font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 20px; line-height: 1; }
+.nd-logo small { display: block; font-family: var(--nd-fonte-texto); font-weight: 500; font-size: 11px; opacity: .75; letter-spacing: .04em; margin-top: 3px; }
+.nd-menu a { opacity: .85; font-weight: 500; }
+.nd-menu a:hover, .nd-menu a.ativo { opacity: 1; box-shadow: inset 0 -2px 0 var(--nd-ipe); }
+
+/* ---------- Botões ---------- */
+.btn-nd { --bs-btn-bg: var(--nd-petroleo); --bs-btn-border-color: var(--nd-petroleo); --bs-btn-color: #fff;
+  --bs-btn-hover-bg: var(--nd-petroleo-escuro); --bs-btn-hover-border-color: var(--nd-petroleo-escuro); --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: var(--nd-petroleo-escuro); font-weight: 600; }
+.btn-ipe { --bs-btn-bg: var(--nd-ipe); --bs-btn-border-color: var(--nd-ipe); --bs-btn-color: #2b2100;
+  --bs-btn-hover-bg: #d9a300; --bs-btn-hover-border-color: #d9a300; --bs-btn-hover-color: #2b2100; font-weight: 700; }
+.btn-zap { --bs-btn-bg: var(--nd-zap); --bs-btn-border-color: var(--nd-zap); --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #17803f; --bs-btn-hover-border-color: #17803f; --bs-btn-hover-color: #fff; font-weight: 700; }
+.btn-contorno { --bs-btn-color: var(--nd-petroleo); --bs-btn-border-color: var(--nd-borda); --bs-btn-bg: var(--nd-papel);
+  --bs-btn-hover-bg: var(--nd-fundo); --bs-btn-hover-color: var(--nd-petroleo); --bs-btn-hover-border-color: var(--nd-petroleo); font-weight: 600; }
+.ico { width: 1.1em; height: 1.1em; vertical-align: -0.17em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Busca da home ---------- */
+.nd-hero { background: linear-gradient(180deg, var(--nd-petroleo) 0%, var(--nd-petroleo) 62%, var(--nd-fundo) 62%); padding-block: 28px 8px; color: #fff; }
+.nd-busca { background: var(--nd-papel); color: var(--nd-texto); border-radius: var(--nd-raio); box-shadow: 0 10px 30px rgba(8, 50, 59, .18); }
+.nd-abas .nav-link { color: var(--nd-texto-suave); font-weight: 600; border: 0; border-bottom: 3px solid transparent; border-radius: 0; }
+.nd-abas .nav-link.active { color: var(--nd-petroleo); border-bottom-color: var(--nd-ipe); background: none; }
+.form-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--nd-texto-suave); margin-bottom: 4px; }
+
+/* ---------- Seções ---------- */
+.nd-secao-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.nd-secao-titulo h2 { font-size: 22px; margin: 0; }
+
+/* ---------- Card de anúncio ---------- */
+.nd-card { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: box-shadow .15s, transform .15s; }
+.nd-card:hover { box-shadow: 0 8px 22px rgba(8, 50, 59, .12); transform: translateY(-2px); }
+.nd-card a.stretched-link { color: inherit; text-decoration: none; }
+.nd-card .corpo { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.nd-card .preco { font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 20px; color: var(--nd-petroleo); }
+.nd-card .titulo { font-weight: 600; line-height: 1.3; }
+.nd-card .meta { font-size: 13px; color: var(--nd-texto-suave); }
+.nd-card .loja { margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--nd-borda); font-size: 12px; color: var(--nd-texto-suave); display: flex; align-items: center; gap: 6px; }
+
+/* Selos */
+.selo { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; }
+.selo-verificado { background: #e3f1f3; color: var(--nd-petroleo); }
+.selo-destaque { background: var(--nd-ipe); color: #2b2100; }
+.selo-aluguel { background: #e8eefc; color: #2c4aa0; }
+.nd-foto .selos { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
+
+/* Foto (placeholder do protótipo: gradiente + ícone; na versão real é <img> WebP) */
+.nd-foto { position: relative; aspect-ratio: 4 / 3; max-width: 100%; display: grid; place-items: center; color: rgba(255, 255, 255, .55); }
+.nd-foto svg.marca-foto { width: 34%; height: auto; stroke-width: 1.4; }
+.nd-foto .qtd { position: absolute; right: 10px; bottom: 10px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 6px; }
+.f1 { background: linear-gradient(135deg, #6b9aa3, #2f5f69); }
+.f2 { background: linear-gradient(135deg, #c9a46a, #8a6a3a); }
+.f3 { background: linear-gradient(135deg, #8bb08a, #4d7a4e); }
+.f4 { background: linear-gradient(135deg, #a9b4c2, #5b6779); }
+.f5 { background: linear-gradient(135deg, #d4886a, #9b4d34); }
+.f6 { background: linear-gradient(135deg, #7d8f6a, #46553a); }
+
+/* ---------- Vitrine de lojas (home) ---------- */
+.nd-lojas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.nd-loja-mini { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 14px 10px; text-align: center; text-decoration: none; color: var(--nd-texto); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.nd-loja-mini:hover { border-color: var(--nd-petroleo); }
+.nd-monograma { width: 56px; height: 56px; border-radius: 12px; display: grid; place-items: center; font-family: var(--nd-fonte-titulo); font-weight: 800; color: #fff; font-size: 20px; }
+.nd-loja-mini b { font-size: 13px; line-height: 1.2; }
+.nd-loja-mini span { font-size: 12px; color: var(--nd-texto-suave); }
+
+/* ---------- Publicidade ---------- */
+.nd-banner { border: 1px dashed #b9c6c8; border-radius: var(--nd-raio); background: repeating-linear-gradient(-45deg, #eef2f2, #eef2f2 10px, #f6f8f8 10px, #f6f8f8 20px); color: var(--nd-texto-suave); text-align: center; padding: 22px 16px; font-size: 13px; }
+.nd-banner b { display: block; color: var(--nd-texto); font-size: 16px; }
+
+/* ---------- Mapa (protótipo: desenho estático; versão real = Leaflet + OSM) ---------- */
+.nd-mapa { position: relative; border-radius: var(--nd-raio); overflow: hidden; border: 1px solid var(--nd-borda); background-color: #e9efe6;
+  background-image:
+    linear-gradient(90deg, transparent 47%, #fff 47%, #fff 50%, transparent 50%),
+    linear-gradient(0deg, transparent 58%, #fff 58%, #fff 61%, transparent 61%),
+    linear-gradient(28deg, transparent 49%, #f7e7b0 49%, #f7e7b0 51.5%, transparent 51.5%),
+    repeating-linear-gradient(90deg, transparent 0 58px, rgba(255,255,255,.7) 58px 60px),
+    repeating-linear-gradient(0deg, transparent 0 58px, rgba(255,255,255,.7) 58px 60px); }
+.nd-pino { position: absolute; transform: translate(-50%, -100%); background: var(--nd-petroleo); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.nd-pino::after { content: ""; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom: 0; border-top-color: var(--nd-petroleo); }
+.nd-pino.ativo { background: var(--nd-ipe); color: #2b2100; z-index: 2; }
+.nd-pino.ativo::after { border-top-color: var(--nd-ipe); }
+.nd-raio-aprox { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(14, 74, 87, .18); border: 2px solid var(--nd-petroleo); transform: translate(-50%, -50%); }
+.nd-mapa .legenda { position: absolute; left: 8px; bottom: 8px; background: rgba(255,255,255,.9); font-size: 11px; padding: 3px 8px; border-radius: 6px; color: var(--nd-texto-suave); }
+
+/* ---------- Página do anúncio ---------- */
+.nd-caixa { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 18px; }
+.nd-ficha { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.nd-ficha div { background: var(--nd-fundo); border-radius: 8px; padding: 10px 12px; }
+.nd-ficha dt { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--nd-texto-suave); font-weight: 600; }
+.nd-ficha dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.nd-miniaturas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.nd-miniaturas .nd-foto { aspect-ratio: 4 / 3; border-radius: 6px; }
+.nd-contato { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); }
+
+/* ---------- Vitrine da loja ---------- */
+.nd-capa { height: 180px; background: linear-gradient(120deg, var(--nd-petroleo-escuro), var(--nd-petroleo) 55%, #2f7a6f); position: relative; overflow: hidden; }
+.nd-capa::after { content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(242,183,5,.35), transparent 70%); }
+.nd-loja-cab { margin-top: -56px; position: relative; z-index: 1; }
+.nd-loja-logo { width: 112px; height: 112px; border-radius: 18px; border: 4px solid var(--nd-papel); font-size: 38px; }
+
+/* ---------- Painel do anunciante ---------- */
+.nd-lateral a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: var(--nd-texto); text-decoration: none; font-weight: 500; }
+.nd-lateral a.ativo, .nd-lateral a:hover { background: #e3f1f3; color: var(--nd-petroleo); }
+.nd-kpi { background: var(--nd-papel); border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 14px 16px; height: 100%; }
+.nd-kpi .rotulo { font-size: 12px; color: var(--nd-texto-suave); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.nd-kpi .valor { font-family: var(--nd-fonte-titulo); font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.progress { --bs-progress-bar-bg: var(--nd-petroleo); height: 8px; }
+.status { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.st-publicado { background: #def3e6; color: #17663a; }
+.st-moderacao { background: #e8eefc; color: #2c4aa0; }
+.st-pausado { background: #eceff0; color: #4d5b5e; }
+.st-expira { background: var(--nd-ipe-claro); color: #6b5000; }
+.nd-tabela td, .nd-tabela th { vertical-align: middle; }
+.nd-tabela .mini { width: 64px; aspect-ratio: 4 / 3; border-radius: 6px; }
+.nd-tabela .mini svg { width: 40%; }
+
+/* ---------- Rodapé ---------- */
+.nd-rodape { background: var(--nd-petroleo-escuro); color: rgba(255,255,255,.75); font-size: 14px; }
+.nd-rodape a { color: rgba(255,255,255,.85); text-decoration: none; }
+.nd-rodape a:hover { color: #fff; text-decoration: underline; }
+.nd-rodape h3 { color: #fff; font-size: 15px; }
+
+@media (prefers-reduced-motion: reduce) { .nd-card, .nd-card:hover { transition: none; transform: none; } }
+
+/* Grades de uma coluna: impede que tabelas/textos longos alarguem a página no celular */
+.d-grid { grid-template-columns: minmax(0, 1fr); }
+
+/* Caixa "Sobre esta tela" — presente em todas as telas do sistema */
+.nd-ajuda { background: #eef6f7; border: 1px solid #cfe3e6; border-radius: var(--nd-raio); font-size: 14px; }
+.nd-ajuda summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--nd-petroleo); list-style: none; }
+.nd-ajuda summary::-webkit-details-marker { display: none; }
+.nd-ajuda summary::after { content: "mostrar"; float: right; font-weight: 500; font-size: 12px; color: var(--nd-texto-suave); }
+.nd-ajuda[open] summary::after { content: "ocultar"; }
+.nd-ajuda ul { margin: 0; padding: 0 16px 12px 36px; display: grid; gap: 4px; }
+.nd-lateral a .badge { margin-left: auto; }
+
+/* Home: atalhos por categoria */
+.nd-atalhos { display: flex; gap: 8px; overflow-x: auto; padding-block: 14px 4px; scrollbar-width: none; }
+.nd-atalhos a { flex: none; display: inline-flex; align-items: center; gap: 6px; background: var(--nd-papel); color: var(--nd-texto); border: 1px solid var(--nd-borda); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.nd-atalhos a:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
+
+/* Página Sobre */
+.nd-sobre-hero { background: var(--nd-petroleo); color: #fff; position: relative; overflow: hidden; }
+.nd-sobre-hero::after { content: ""; position: absolute; right: -80px; bottom: -160px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(242,183,5,.45), transparent 65%); }
+.nd-sobre-hero .container { position: relative; z-index: 1; }
+.nd-mvv { border-left: 4px solid var(--nd-ipe); }
+.nd-mvv .rotulo { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--nd-texto-suave); margin-bottom: 4px; }
+.nd-valor-ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--nd-ipe-claro); color: var(--nd-petroleo); font-size: 20px; }
+
+/* Admin: uploads da identidade */
+.nd-upload { display: flex; gap: 12px; align-items: flex-start; border: 1px dashed #b9c6c8; border-radius: var(--nd-raio); padding: 12px; height: 100%; }
+.nd-upload-previa { flex: none; width: 84px; height: 84px; display: grid; place-items: center; background: var(--nd-fundo); border-radius: 8px; text-align: center; }
+.nd-previa-escura { display: grid; place-items: center; width: 100%; height: 100%; background: var(--nd-petroleo); border-radius: 8px; }
+.nd-og { display: grid; place-items: center; width: 100%; height: 100%; background: linear-gradient(135deg, var(--nd-petroleo), #2f7a6f); color: #fff; font-size: 10px; font-weight: 700; border-radius: 8px; }

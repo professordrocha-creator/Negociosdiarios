@@ -1,0 +1,25 @@
+# Roda verificação de código e testes a cada push/PR.
+# Enquanto não houver código Django, os passos são pulados sem falhar.
+name: CI
+on: [push, pull_request]
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env: {POSTGRES_DB: negocios, POSTGRES_USER: negocios, POSTGRES_PASSWORD: ci}
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U negocios" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgis://negocios:ci@localhost:5432/negocios
+      DJANGO_SECRET_KEY: ci-apenas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: sudo apt-get update && sudo apt-get install -y gdal-bin
+      - run: pip install ruff && ruff check .
+      - name: Testes
+        if: hashFiles('manage.py') != ''
+        run: pip install -r requirements.txt && pytest

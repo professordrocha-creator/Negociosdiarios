@@ -1,0 +1,52 @@
+# Ambiente de DESENVOLVIMENTO. Produção usa docker-compose.prod.yml (Sprint 0).
+# Só o "web" expõe porta; banco e redis ficam na rede interna.
+services:
+  db:
+    image: postgis/postgis:16-3.4        # PostgreSQL + PostGIS (geolocalização)
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  web:
+    build: .                             # Dockerfile criado na Sprint 0
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file: .env
+    volumes: [.:/app]
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+
+  worker:
+    build: .
+    command: celery -A config worker -B -l info   # tarefas assíncronas + agendadas
+    env_file: .env
+    volumes: [.:/app]
+    depends_on: [db, redis]
+
+  minio:                                 # storage S3 local para fotos
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    ports: ["9001:9001"]
+    volumes: [miniodata:/data]
+
+  mailpit:                               # captura e-mails em dev
+    image: axllent/mailpit:v1.21
+    ports: ["8025:8025"]
+
+volumes:
+  pgdata:
+  miniodata:

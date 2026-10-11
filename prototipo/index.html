@@ -1,0 +1,96 @@
+<title>Protótipo Negócios Diários</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  /* Índice do protótipo: identidade proposta + atalhos para as 5 telas */
+  :root {
+    --petroleo: #0e4a57; --petroleo-escuro: #08323b; --ipe: #f2b705; --zap: #1f9d55;
+    --fundo: #f4f6f6; --papel: #ffffff; --texto: #172a2e; --suave: #5a6e72; --borda: #dde4e5;
+    --titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --corpo: "Figtree", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --fundo: #0b1d21; --papel: #12292e; --texto: #e6eeef; --suave: #9db2b6; --borda: #23434a; color-scheme: dark } }
+  :root[data-theme="dark"] { --fundo: #0b1d21; --papel: #12292e; --texto: #e6eeef; --suave: #9db2b6; --borda: #23434a; color-scheme: dark }
+  body { background: var(--fundo); color: var(--texto); font-family: var(--corpo); font-size: 15px; line-height: 1.55; }
+  .pg { max-width: 1040px; margin: 0 auto; padding: 32px 16px 56px; display: grid; gap: 36px; }
+  h1, h2 { font-family: var(--titulo); letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(28px, 5vw, 40px); }
+  h2 { font-size: 20px; }
+  p { margin: 0; max-width: 65ch; }
+  .suave { color: var(--suave); }
+  .marca { display: flex; align-items: center; gap: 14px; background: var(--petroleo); color: #fff; border-radius: 14px; padding: 22px; }
+  .marca b { font-family: var(--titulo); font-size: 26px; font-weight: 800; display: block; line-height: 1.1; }
+  .marca span { opacity: .75; font-size: 13px; }
+  .ident { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .bloco { background: var(--papel); border: 1px solid var(--borda); border-radius: 14px; padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .rotulo { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
+  .cores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cor { border-radius: 10px; overflow: hidden; border: 1px solid var(--borda); font-size: 12px; }
+  .cor i { display: block; height: 46px; }
+  .cor div { padding: 6px 8px; }
+  .cor small { display: block; color: var(--suave); font-variant-numeric: tabular-nums; }
+  .fonte-a { font-family: var(--titulo); font-weight: 800; font-size: 30px; line-height: 1.1; }
+  .fonte-b { font-size: 16px; }
+  .telas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .tela { background: var(--papel); border: 1px solid var(--borda); border-radius: 14px; padding: 16px; text-decoration: none; color: var(--texto); display: grid; gap: 6px; transition: border-color .15s; }
+  .tela:hover, .tela:focus-visible { border-color: var(--ipe); }
+  .tela:focus-visible { outline: 3px solid var(--ipe); outline-offset: 2px; }
+  .tela b { font-family: var(--titulo); font-size: 18px; }
+  .tela code { font-size: 12px; color: var(--suave); }
+  .tela span { font-size: 14px; color: var(--suave); }
+  .nota { border-left: 4px solid var(--ipe); padding: 10px 14px; background: var(--papel); border-radius: 0 10px 10px 0; font-size: 14px; }
+</style>
+
+<div class="pg">
+  <header class="marca">
+    <img src="img/simbolo-ipe.svg" width="56" height="56" alt="">
+    <div><b>Negócios Diários</b><span>Os melhores negócios da sua região, todos os dias.</span></div>
+  </header>
+
+  <section style="display:grid;gap:10px">
+    <h1>Protótipo v1</h1>
+    <p class="suave">Cinco telas navegáveis em Bootstrap 5. O HTML é reaproveitado nos templates do Django. Lojas, anúncios e preços são exemplos fictícios.</p>
+  </section>
+
+  <section style="display:grid;gap:14px">
+    <h2>Identidade proposta</h2>
+    <div class="ident">
+      <div class="bloco">
+        <div class="rotulo">Cores</div>
+        <div class="cores">
+          <div class="cor"><i style="background:#0e4a57"></i><div>Petróleo<small>#0E4A57</small></div></div>
+          <div class="cor"><i style="background:#f2b705"></i><div>Ipê<small>#F2B705</small></div></div>
+          <div class="cor"><i style="background:#1f9d55"></i><div>WhatsApp<small>#1F9D55</small></div></div>
+        </div>
+        <p class="suave" style="font-size:14px">Azul-petróleo passa confiança de negócio verificado. O amarelo vem do ipê do cerrado mato-grossense e marca destaques e o botão de anunciar. Verde aparece só no WhatsApp.</p>
+      </div>
+      <div class="bloco">
+        <div class="rotulo">Tipografia</div>
+        <div class="fonte-a">Bricolage Grotesque</div>
+        <div class="fonte-b">Figtree para textos, filtros e fichas técnicas: 3 quartos · 180 m² · R$ 420.000</div>
+        <p class="suave" style="font-size:14px">Duas fontes gratuitas do Google Fonts. Títulos com personalidade, texto fácil de ler no celular.</p>
+      </div>
+      <div class="bloco">
+        <div class="rotulo">Logo (rascunho)</div>
+        <div style="display:flex;gap:12px;align-items:center"><img src="img/simbolo.svg" width="56" height="56" alt=""><img src="img/simbolo-ipe.svg" width="56" height="56" alt=""></div><p style="font-size:14px">Sol nascendo sob o telhado: novos negócios todos os dias na região. Duas versões, para fundo claro e escuro. Você troca o logo pelo painel em Identidade do site.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:14px">
+    <h2>Telas</h2>
+    <nav class="telas" aria-label="Telas do protótipo">
+      <a class="tela" href="home.html"><b>Início</b><code>/</code><span>Busca de imóveis e veículos, destaques, vitrine de lojas e espaços de publicidade.</span></a>
+      <a class="tela" href="busca.html"><b>Busca</b><code>/imoveis/tangara-da-serra/</code><span>Filtros, lista de resultados, anúncio patrocinado e mapa ao lado.</span></a>
+      <a class="tela" href="anuncio.html"><b>Anúncio</b><code>/anuncio/ND-IM-10482/</code><span>Fotos, ficha técnica, localização aproximada e botão de WhatsApp.</span></a>
+      <a class="tela" href="loja.html"><b>Página da loja</b><code>/loja/serra-imoveis/</code><span>Capa, logo, selo de verificado, horário, endereço e anúncios da loja.</span></a>
+      <a class="tela" href="painel.html"><b>Painel do anunciante</b><code>/painel/</code><span>Limite do plano, fatura Pix, estatísticas e lista de anúncios.</span></a>
+      <a class="tela" href="sobre.html"><b>Sobre nós</b><code>/sobre/</code><span>Quem somos, missão, visão e valores. Textos editados pelo painel.</span></a>
+      <a class="tela" href="admin-site.html"><b>Admin · Identidade do site</b><code>/admin/identidade/</code><span>Trocar logo, favicon, slogan, textos da página Sobre e contatos.</span></a>
+      <a class="tela" href="admin-cidades.html"><b>Admin · Cidades atendidas</b><code>/admin/cidades/</code><span>Seu painel: liberar estados e cidades, regiões e pedidos de anunciantes de fora.</span></a>
+      <a class="tela" href="painel-loja.html"><b>Editar página da loja</b><code>/painel/loja/</code><span>O anunciante envia logo e capa, escolhe a cor e edita os dados, com prévia ao vivo.</span></a>
+    </nav>
+  </section>
+
+  <p class="nota">Teste no celular também. Os mapas aqui são desenhos ilustrativos; na versão real entram Leaflet e OpenStreetMap. As fotos são placeholders coloridos.</p>
+</div>

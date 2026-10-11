@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Página da loja · Negócios Diários</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/nd.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol><symbol id="i-carro" viewBox="0 0 24 24"><path d="M5 16h14M3 16v-3l2-5h14l2 5v3"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19.3z"/><path d="M9 9.5c.5 2 2.5 4 4.5 4.5l1.2-1.2 2 1-.5 1.7c-3.8.3-8-3.9-7.7-7.7L10.2 7l1 2z"/></symbol><symbol id="i-verificado" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></symbol><symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol><symbol id="i-cama" viewBox="0 0 24 24"><path d="M3 18v-8M3 14h18v4M21 18v-6a2 2 0 0 0-2-2h-8v4"/><circle cx="7" cy="11" r="1.5"/></symbol><symbol id="i-banho" viewBox="0 0 24 24"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M6 12V6a2 2 0 0 1 4 0"/></symbol><symbol id="i-vaga" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/></symbol><symbol id="i-area" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h3M4 14h3M9 4v3M14 4v3"/></symbol><symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol><symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 11l7.6-3.8M8.2 13l7.6 3.8"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol><symbol id="i-plano" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></symbol><symbol id="i-fatura" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol><symbol id="i-grafico" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol><symbol id="i-loja" viewBox="0 0 24 24"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 11v9h14v-9"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></symbol></svg>
+<div class="nd-faixa-prototipo">Protótipo navegável · anúncios, lojas e preços são exemplos fictícios · <a href="index.html">voltar ao índice</a></div>
+<header class="nd-topo">
+  <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
+    <a class="nd-logo me-auto" href="home.html"><img src="img/simbolo-ipe.svg" width="38" height="38" alt=""><span>Negócios Diários<small>Imóveis e veículos de Mato Grosso</small></span></a>
+    <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
+      <a class="px-1 py-2" href="busca.html">Imóveis</a><a class="px-1 py-2" href="busca.html#veiculos">Veículos</a><a class="px-1 py-2" href="loja.html">Lojas</a>
+    </nav>
+    <a class="btn btn-sm btn-ipe" href="painel.html"><svg class="ico" aria-hidden="true"><use href="#i-mais"/></svg> Anunciar</a>
+    <a class="small d-none d-sm-inline" href="painel.html">Entrar</a>
+  </div>
+</header>
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3"><div class="nd-caixa">
+  <div class="d-flex gap-2 align-items-center mb-3"><span class="nd-monograma" style="background:#0e4a57;width:44px;height:44px;font-size:16px">SI</span><div><b class="d-block">Serra Imóveis</b><a class="small" href="loja.html">Ver minha loja ›</a></div></div>
+  <nav class="nd-lateral d-grid gap-1"><a class="" href="painel.html"><svg class="ico" aria-hidden="true"><use href="#i-lista"/></svg> Meus anúncios</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-mais"/></svg> Novo anúncio</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-grafico"/></svg> Estatísticas</a><a class="ativo" href="painel-loja.html"><svg class="ico" aria-hidden="true"><use href="#i-loja"/></svg> Página da loja</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-plano"/></svg> Meu plano</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-fatura"/></svg> Faturas</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Meus dados (LGPD)</a><a class="" href="#"><svg class="ico" aria-hidden="true"><use href="#i-sair"/></svg> Sair</a></nav></div></aside>
+    <div class="col-lg-9">
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3"><h1 class="h4 m-0 me-auto">Página da loja</h1><a class="btn btn-contorno btn-sm" href="loja.html">Ver como o cliente vê ›</a></div>
+      <div class="mb-3"><details class="nd-ajuda" open><summary><svg class="ico" aria-hidden="true"><use href="#i-alerta"/></svg> Sobre esta tela</summary><ul><li>Esta é a vitrine da sua empresa no site. Tudo aqui aparece para os visitantes.</li><li><b>Logo</b>: quadrada, mínimo 400×400 px, até 2 MB (PNG, JPG ou WebP). Aparece na loja e nos anúncios.</li><li><b>Capa</b>: 1600×400 px (proporção 4:1), até 4 MB. Evite texto nas bordas: no celular elas são cortadas.</li><li>As imagens são convertidas e otimizadas automaticamente. Dados de localização das fotos são removidos.</li><li>CRECI e CNPJ não podem ser alterados aqui porque passaram por verificação. Fale com o suporte.</li></ul></details></div>
+      <div class="row g-4">
+        <form class="col-xl-7 d-grid gap-3" id="form-loja">
+          <div class="nd-caixa d-grid gap-3">
+            <h2 class="h6 m-0">Logo e capa</h2>
+            <div class="d-flex gap-3 align-items-center flex-wrap">
+              <span class="nd-monograma" id="logo-mini" style="background:#0e4a57;width:88px;height:88px;font-size:30px;background-size:cover;background-position:center">SI</span>
+              <div class="d-grid gap-1" style="min-width:0"><label class="btn btn-contorno btn-sm" for="logo">Enviar logo</label><input id="logo" type="file" accept="image/png,image/jpeg,image/webp" class="d-none">
+                <span class="form-text m-0">Quadrada, mínimo 400×400 px, até 2 MB. PNG, JPG ou WebP.</span></div>
+            </div>
+            <div><label class="btn btn-contorno btn-sm" for="capa">Enviar capa</label><input id="capa" type="file" accept="image/png,image/jpeg,image/webp" class="d-none">
+              <span class="form-text ms-2">1600×400 px. Sem capa, usamos a cor abaixo.</span></div>
+            <div class="d-flex align-items-center gap-2"><input id="cor" type="color" class="form-control form-control-color" value="#0e4a57"><label for="cor" class="m-0">Cor da loja (capa e logo sem imagem)</label></div>
+          </div>
+          <div class="nd-caixa row g-3 mx-0">
+            <h2 class="h6 m-0 col-12 px-0">Dados públicos</h2>
+            <div class="col-12"><label class="form-label" for="nome">Nome da loja</label><input id="nome" type="text" class="form-control" value="Serra Imóveis"></div>
+            <div class="col-12"><label class="form-label" for="slug">Endereço da página</label><div class="input-group"><span class="input-group-text small">negociosdiarios.com.br/loja/</span><input id="slug" class="form-control" value="serra-imoveis"></div><div class="form-text">Só letras minúsculas, números e hífen. Mudar quebra links já compartilhados.</div></div>
+            <div class="col-12"><label class="form-label" for="sobre">Sobre a loja</label><textarea id="sobre" class="form-control" rows="3" maxlength="500">Venda e locação de casas, apartamentos e chácaras em Tangará da Serra e região. Avaliação gratuita do seu imóvel.</textarea><div class="form-text"><span id="sobre-n">0</span>/500 caracteres</div></div>
+            <div class="col-md-6"><label class="form-label" for="zap">WhatsApp</label><input id="zap" type="tel" class="form-control" value="(65) 9 0000-0000"><div class="form-text">Recebe os contatos dos anúncios.</div></div>
+            <div class="col-md-6"><label class="form-label" for="tel">Telefone fixo (opcional)</label><input id="tel" type="tel" class="form-control" value=""></div>
+            <div class="col-12"><label class="form-label" for="end">Endereço da loja</label><input id="end" type="text" class="form-control" value="Av. Brasil, 1.250 · Centro · Tangará da Serra"></div>
+            <div class="col-12 form-check form-switch ms-2"><input class="form-check-input" type="checkbox" id="mapa" checked><label class="form-check-label" for="mapa">Mostrar a loja no mapa</label></div>
+            <div class="col-12"><label class="form-label" for="hor">Horário</label><input id="hor" type="text" class="form-control" value="Seg a sex 8h–18h · Sáb 8h–12h"></div>
+            <div class="col-md-6"><label class="form-label" for="insta">Instagram (opcional)</label><input id="insta" type="text" class="form-control" value="@serraimoveis"></div>
+            <div class="col-md-6"><label class="form-label" for="site">Site (opcional)</label><input id="site" type="url" class="form-control" value=""></div>
+          </div>
+          <div class="nd-caixa d-flex flex-wrap gap-2 align-items-center">
+            <span class="small text-suave me-auto"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Imobiliária · CRECI verificado. Para alterar CRECI ou CNPJ, fale com o suporte.</span>
+            <button class="btn btn-nd" type="submit">Salvar alterações</button>
+          </div>
+          <div id="salvo" class="alert alert-success py-2 mb-0" role="status" hidden>Alterações salvas. Sua página já está atualizada.</div>
+        </form>
+        <div class="col-xl-5">
+          <div style="position:sticky;top:90px" class="d-grid gap-2">
+            <span class="form-label m-0">Prévia</span>
+            <div class="nd-caixa p-0 overflow-hidden">
+              <div id="prev-capa" style="height:96px;background:#0e4a57;background-size:cover;background-position:center"></div>
+              <div class="px-3 pb-3" style="margin-top:-36px">
+                <span class="nd-monograma" id="prev-logo" style="background:#0e4a57;width:72px;height:72px;font-size:26px;border:3px solid var(--nd-papel);background-size:cover;background-position:center">SI</span>
+                <b class="d-block mt-2 nd-titulo fs-5" id="prev-nome">Serra Imóveis</b>
+                <span class="selo selo-verificado mt-1"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> CRECI verificado</span>
+                <p class="small text-suave mt-2 mb-0" id="prev-url">negociosdiarios.com.br/loja/serra-imoveis</p>
+              </div>
+            </div>
+            <span class="form-label m-0 mt-2">Como aparece nos anúncios</span>
+            <div class="nd-caixa py-2 small d-flex align-items-center gap-2"><span class="nd-monograma" id="prev-logo2" style="background:#0e4a57;width:28px;height:28px;font-size:11px;border-radius:6px;background-size:cover;background-position:center">SI</span><span id="prev-nome2">Serra Imóveis</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+/* Prévia ao vivo (protótipo). No Django: upload vai para o servidor, que redimensiona e remove EXIF. */
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const logos = ["logo-mini", "prev-logo", "prev-logo2"].map($);
+  function imagem(input, aplicar) {
+    input.addEventListener("change", () => {
+      const f = input.files[0]; if (!f) return;
+      if (f.size > 2 * 1024 * 1024) { input.value = ""; $("salvo").hidden = false; $("salvo").className = "alert alert-warning py-2 mb-0"; $("salvo").textContent = "Imagem maior que 2 MB. Reduza o tamanho e envie de novo."; return; }
+      const r = new FileReader(); r.onload = () => aplicar(r.result); r.readAsDataURL(f);
+    });
+  }
+  imagem($("logo"), (url) => logos.forEach((el) => { el.style.backgroundImage = `url(${url})`; el.textContent = ""; }));
+  imagem($("capa"), (url) => { $("prev-capa").style.backgroundImage = `url(${url})`; });
+  $("cor").addEventListener("input", (e) => { $("prev-capa").style.backgroundColor = e.target.value; logos.forEach((el) => { el.style.backgroundColor = e.target.value; }); });
+  $("nome").addEventListener("input", (e) => { $("prev-nome").textContent = e.target.value || "Nome da loja"; $("prev-nome2").textContent = e.target.value || "Nome da loja"; });
+  $("slug").addEventListener("input", (e) => { e.target.value = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9-]/g, "-"); $("prev-url").textContent = "negociosdiarios.com.br/loja/" + e.target.value; });
+  const n = () => { $("sobre-n").textContent = $("sobre").value.length; }; $("sobre").addEventListener("input", n); n();
+  $("form-loja").addEventListener("submit", (e) => { e.preventDefault(); const s = $("salvo"); s.className = "alert alert-success py-2 mb-0"; s.textContent = "Alterações salvas. Sua página já está atualizada."; s.hidden = false; });
+})();
+</script>
+<footer class="nd-rodape mt-5">
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-12 col-md-4">
+        <div class="nd-logo mb-2 text-white"><img src="img/simbolo-ipe.svg" width="38" height="38" alt=""><span>Negócios Diários</span></div>
+        <p class="mb-0">Os melhores negócios da sua região, todos os dias. Só anunciantes verificados: corretores com CRECI e revendas com CNPJ.</p>
+      </div>
+      <div class="col-6 col-md-2"><h3>Buscar</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="busca.html">Imóveis à venda</a></li><li><a href="busca.html">Imóveis para alugar</a></li><li><a href="busca.html">Carros e motos</a></li><li><a href="loja.html">Lojas</a></li></ul></div>
+      <div class="col-6 col-md-3"><h3>Para anunciantes</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="painel.html">Planos e preços</a></li><li><a href="painel.html">Painel do anunciante</a></li><li><a href="#">Anuncie sua marca</a></li></ul></div>
+      <div class="col-12 col-md-3"><h3>Institucional</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="sobre.html">Sobre nós</a></li><li><a href="#">Política de Privacidade</a></li><li><a href="#">Termos de Uso</a></li><li><a href="#">Preferências de cookies</a></li><li><a href="#">Denunciar anúncio</a></li></ul></div>
+    </div>
+    <hr class="border-secondary my-4">
+    <p class="small mb-0">© 2026 Negócios Diários · D'Rocha Soluções · Tangará da Serra, MT · privacidade@negociosdiarios.com.br</p>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

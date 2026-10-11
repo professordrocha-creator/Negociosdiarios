@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Início · Negócios Diários</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/nd.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol><symbol id="i-carro" viewBox="0 0 24 24"><path d="M5 16h14M3 16v-3l2-5h14l2 5v3"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19.3z"/><path d="M9 9.5c.5 2 2.5 4 4.5 4.5l1.2-1.2 2 1-.5 1.7c-3.8.3-8-3.9-7.7-7.7L10.2 7l1 2z"/></symbol><symbol id="i-verificado" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></symbol><symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol><symbol id="i-cama" viewBox="0 0 24 24"><path d="M3 18v-8M3 14h18v4M21 18v-6a2 2 0 0 0-2-2h-8v4"/><circle cx="7" cy="11" r="1.5"/></symbol><symbol id="i-banho" viewBox="0 0 24 24"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M6 12V6a2 2 0 0 1 4 0"/></symbol><symbol id="i-vaga" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/></symbol><symbol id="i-area" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h3M4 14h3M9 4v3M14 4v3"/></symbol><symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol><symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol><symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 11l7.6-3.8M8.2 13l7.6 3.8"/></symbol><symbol id="i-filtro" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol><symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol><symbol id="i-plano" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></symbol><symbol id="i-fatura" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol><symbol id="i-grafico" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol><symbol id="i-loja" viewBox="0 0 24 24"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 11v9h14v-9"/></symbol><symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></symbol><symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></symbol></svg>
+<div class="nd-faixa-prototipo">Protótipo navegável · anúncios, lojas e preços são exemplos fictícios · <a href="index.html">voltar ao índice</a></div>
+<header class="nd-topo">
+  <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
+    <a class="nd-logo me-auto" href="home.html"><img src="img/simbolo-ipe.svg" width="38" height="38" alt=""><span>Negócios Diários<small>Imóveis e veículos de Mato Grosso</small></span></a>
+    <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
+      <a class="px-1 py-2" href="busca.html">Imóveis</a><a class="px-1 py-2" href="busca.html#veiculos">Veículos</a><a class="px-1 py-2" href="loja.html">Lojas</a>
+    </nav>
+    <a class="btn btn-sm btn-ipe" href="painel.html"><svg class="ico" aria-hidden="true"><use href="#i-mais"/></svg> Anunciar</a>
+    <a class="small d-none d-sm-inline" href="painel.html">Entrar</a>
+  </div>
+</header>
+<section class="nd-hero">
+  <div class="container">
+    <h1 class="h2 mb-1">Encontre seu próximo imóvel ou veículo em MT</h1>
+    <p class="mb-3 opacity-75">Anúncios de corretores e revendas verificados. Fale direto pelo WhatsApp, sem cadastro.</p>
+    <div class="nd-busca p-3 p-md-4">
+      <ul class="nav nd-abas mb-3" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#b-imovel" type="button"><svg class="ico" aria-hidden="true"><use href="#i-casa"/></svg> Imóveis</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#b-veiculo" type="button"><svg class="ico" aria-hidden="true"><use href="#i-carro"/></svg> Veículos</button></li>
+      </ul>
+      <div class="tab-content">
+        <form class="tab-pane fade show active" id="b-imovel" action="busca.html"><div class="row g-2 align-items-end">
+          <div class="col-6 col-md-2"><label class="form-label" for="h-mod">Quero</label><select id="h-mod" class="form-select"><option>Comprar</option><option>Alugar</option></select></div>
+          <div class="col-6 col-md-3"><label class="form-label" for="h-tipo">Tipo</label><select id="h-tipo" class="form-select"><option>Todos</option><option>Casa</option><option>Apartamento</option><option>Kitnet</option><option>Terreno</option><option>Chácara</option><option>Sítio</option><option>Fazenda</option><option>Sala comercial</option></select></div>
+          <div class="col-12 col-md-3"><label class="form-label" for="h-cid">Cidade</label><select id="h-cid" class="form-select"><option>Todas as cidades</option><option>Tangará da Serra</option><option>Cuiabá</option><option>Barra do Bugres</option><option>Campo Novo do Parecis</option><option>Nova Olímpia</option><option>Sinop</option><option>Rondonópolis</option></select></div>
+          <div class="col-12 col-md-2"><label class="form-label" for="h-max">Até (R$)</label><input id="h-max" class="form-control" inputmode="numeric" placeholder="500.000"></div>
+          <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd"><svg class="ico" aria-hidden="true"><use href="#i-busca"/></svg> Buscar</button></div>
+        </div></form>
+        <form class="tab-pane fade" id="b-veiculo" action="busca.html"><div class="row g-2 align-items-end">
+          <div class="col-6 col-md-2"><label class="form-label" for="h-vt">Tipo</label><select id="h-vt" class="form-select"><option>Carros</option><option>Caminhonetes</option><option>Motos</option><option>Caminhões</option></select></div>
+          <div class="col-6 col-md-3"><label class="form-label" for="h-marca">Marca</label><select id="h-marca" class="form-select"><option>Todas</option><option>Chevrolet</option><option>Fiat</option><option>Honda</option><option>Toyota</option><option>Volkswagen</option></select></div>
+          <div class="col-12 col-md-3"><label class="form-label" for="h-vcid">Cidade</label><select id="h-vcid" class="form-select"><option>Todas as cidades</option><option>Tangará da Serra</option><option>Cuiabá</option><option>Barra do Bugres</option><option>Campo Novo do Parecis</option><option>Nova Olímpia</option><option>Sinop</option><option>Rondonópolis</option></select></div>
+          <div class="col-12 col-md-2"><label class="form-label" for="h-ano">Ano a partir de</label><input id="h-ano" class="form-control" inputmode="numeric" placeholder="2018"></div>
+          <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd"><svg class="ico" aria-hidden="true"><use href="#i-busca"/></svg> Buscar</button></div>
+        </div></form>
+      </div>
+    </div>
+    <nav class="nd-atalhos" aria-label="Atalhos">
+      <a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-casa"/></svg> Casas</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-casa"/></svg> Apartamentos</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-area"/></svg> Terrenos</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Chácaras e sítios</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-loja"/></svg> Salas comerciais</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-carro"/></svg> Caminhonetes</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-carro"/></svg> Carros</a><a href="busca.html"><svg class="ico" aria-hidden="true"><use href="#i-carro"/></svg> Motos</a>
+    </nav>
+  </div>
+</section>
+<main class="container mt-4 d-grid gap-5">
+  <div class="nd-banner"><b>Banner topo · 970×90 (desktop) / 320×100 (celular)</b>Espaço publicitário para construtoras e empresas locais</div>
+  <section><div class="nd-secao-titulo"><h2>Imóveis em destaque <span class="selo selo-destaque align-middle">Patrocinado</span></h2><a href="busca.html">Ver todos os imóveis</a></div><div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f1"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"><span class="selo selo-destaque">Destaque</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 420.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Casa 3 quartos com área gourmet</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Jardim Europa</div>
+    <div class="meta">3 qts · 2 banh · 2 vagas · 180 m²</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Serra Imóveis</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f2"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"><span class="selo selo-aluguel">Aluguel</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 1.600/mês</div>
+    <a class="titulo stretched-link" href="anuncio.html">Apartamento 2 quartos mobiliado</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Centro</div>
+    <div class="meta">2 qts · 1 banh · 1 vaga · 64 m²</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Cerrado Imobiliária</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f3"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 380.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Chácara 2 ha com represa e pomar</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Estrada da Serra</div>
+    <div class="meta">2 qts · poço artesiano · 2 ha</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Serra Imóveis</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f4"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 95.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Terreno 12×30 em rua asfaltada</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Barra do Bugres · Jardim Primavera</div>
+    <div class="meta">360 m² · escriturado</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Paulo Mendes Corretor</div>
+  </div></article></div></div></section>
+  <section><div class="nd-secao-titulo"><h2>Veículos em destaque <span class="selo selo-destaque align-middle">Patrocinado</span></h2><a href="busca.html#veiculos">Ver todos os veículos</a></div><div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f5"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"><span class="selo selo-destaque">Destaque</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 189.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Toyota Hilux SRV 2.8 4x4 Diesel</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra</div>
+    <div class="meta">2019 · 98.000 km · automático</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Garagem Rota 358</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f6"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 98.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Fiat Strada Freedom 1.3 CD</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Campo Novo do Parecis</div>
+    <div class="meta">2022 · 41.000 km · manual</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Parecis Veículos</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f4"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 72.500</div>
+    <a class="titulo stretched-link" href="anuncio.html">Chevrolet Onix LT 1.0 Turbo</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra</div>
+    <div class="meta">2021 · 52.000 km · manual</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Garagem Rota 358</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f2"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 16.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Honda CG 160 Fan</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Nova Olímpia</div>
+    <div class="meta">2023 · 9.000 km · flex</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Parecis Veículos</div>
+  </div></article></div></div></section>
+  <section><div class="nd-secao-titulo"><h2>Recém-anunciados</h2><a href="busca.html">Ver todos</a></div>
+    <ul class="nav nd-abas mb-3"><li class="nav-item"><button class="nav-link active" type="button">Todos</button></li><li class="nav-item"><button class="nav-link" type="button">Imóveis</button></li><li class="nav-item"><button class="nav-link" type="button">Veículos</button></li></ul>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3"><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f2"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"><span class="selo selo-aluguel">Aluguel</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 1.600/mês</div>
+    <a class="titulo stretched-link" href="anuncio.html">Apartamento 2 quartos mobiliado</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Centro</div>
+    <div class="meta">2 qts · 1 banh · 1 vaga · 64 m²</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Cerrado Imobiliária</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f6"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 98.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Fiat Strada Freedom 1.3 CD</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Campo Novo do Parecis</div>
+    <div class="meta">2022 · 41.000 km · manual</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Parecis Veículos</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f4"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 95.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Terreno 12×30 em rua asfaltada</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Barra do Bugres · Jardim Primavera</div>
+    <div class="meta">360 m² · escriturado</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Paulo Mendes Corretor</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f2"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 16.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Honda CG 160 Fan</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Nova Olímpia</div>
+    <div class="meta">2023 · 9.000 km · flex</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Parecis Veículos</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f3"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 380.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Chácara 2 ha com represa e pomar</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Estrada da Serra</div>
+    <div class="meta">2 qts · poço artesiano · 2 ha</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Serra Imóveis</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f4"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 72.500</div>
+    <a class="titulo stretched-link" href="anuncio.html">Chevrolet Onix LT 1.0 Turbo</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra</div>
+    <div class="meta">2021 · 52.000 km · manual</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Garagem Rota 358</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f1"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-casa"/></svg>
+    <div class="selos"><span class="selo selo-destaque">Destaque</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 420.000</div>
+    <a class="titulo stretched-link" href="anuncio.html">Casa 3 quartos com área gourmet</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra · Jardim Europa</div>
+    <div class="meta">3 qts · 2 banh · 2 vagas · 180 m²</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Serra Imóveis</div>
+  </div></article></div><div class="col"><article class="nd-card position-relative">
+  <div class="nd-foto f5"><svg class="ico marca-foto" aria-hidden="true"><use href="#i-carro"/></svg>
+    <div class="selos"><span class="selo selo-destaque">Destaque</span></div><span class="qtd">1/10</span></div>
+  <div class="corpo">
+    <div class="preco tabular">R$ 189.900</div>
+    <a class="titulo stretched-link" href="anuncio.html">Toyota Hilux SRV 2.8 4x4 Diesel</a>
+    <div class="meta"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Tangará da Serra</div>
+    <div class="meta">2019 · 98.000 km · automático</div>
+    <div class="loja"><svg class="ico" aria-hidden="true"><use href="#i-verificado"/></svg> Garagem Rota 358</div>
+  </div></article></div></div>
+    <p class="small text-suave mt-2 mb-0">Anúncios de todas as lojas, do mais novo para o mais antigo. No máximo 2 por loja nesta lista, para nenhuma empresa grande ocupar a home inteira.</p></section>
+  <section><div class="nd-secao-titulo"><h2>Lojas verificadas</h2><a href="loja.html">Ver todas</a></div><div class="nd-lojas"><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#0e4a57">SI</span><b>Serra Imóveis</b><span>Imobiliária · 38 anúncios</span></a><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#9b4d34">R3</span><b>Garagem Rota 358</b><span>Revenda · 24 anúncios</span></a><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#4d7a4e">CI</span><b>Cerrado Imobiliária</b><span>Imobiliária · 19 anúncios</span></a><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#5b6779">PV</span><b>Parecis Veículos</b><span>Revenda · 31 anúncios</span></a><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#8a6a3a">PM</span><b>Paulo Mendes</b><span>Corretor · 9 anúncios</span></a><a class="nd-loja-mini" href="loja.html"><span class="nd-monograma" style="background:#2f5f69">CM</span><b>Chapada Motors</b><span>Concessionária · 45 anúncios</span></a></div></section>
+  <section class="nd-caixa d-flex flex-column flex-md-row align-items-md-center gap-3">
+    <div class="me-auto"><h2 class="h4 mb-1">É corretor ou tem uma revenda?</h2><p class="mb-0 text-suave">Ganhe uma página própria para sua loja e anuncie a partir de R$ 49,90 por mês.</p></div>
+    <a class="btn btn-ipe btn-lg" href="painel.html">Ver planos</a>
+  </section>
+  <section><div class="nd-secao-titulo"><h2 class="h5">Patrocinadores</h2></div>
+    <div class="row row-cols-1 row-cols-md-3 g-3"><div class="col"><div class="nd-banner"><b>Card patrocinador</b>Rodapé da home · logo + frase + link</div></div><div class="col"><div class="nd-banner"><b>Card patrocinador</b>Rodapé da home · logo + frase + link</div></div><div class="col"><div class="nd-banner"><b>Card patrocinador</b>Rodapé da home · logo + frase + link</div></div></div></section>
+</main>
+<footer class="nd-rodape mt-5">
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-12 col-md-4">
+        <div class="nd-logo mb-2 text-white"><img src="img/simbolo-ipe.svg" width="38" height="38" alt=""><span>Negócios Diários</span></div>
+        <p class="mb-0">Os melhores negócios da sua região, todos os dias. Só anunciantes verificados: corretores com CRECI e revendas com CNPJ.</p>
+      </div>
+      <div class="col-6 col-md-2"><h3>Buscar</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="busca.html">Imóveis à venda</a></li><li><a href="busca.html">Imóveis para alugar</a></li><li><a href="busca.html">Carros e motos</a></li><li><a href="loja.html">Lojas</a></li></ul></div>
+      <div class="col-6 col-md-3"><h3>Para anunciantes</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="painel.html">Planos e preços</a></li><li><a href="painel.html">Painel do anunciante</a></li><li><a href="#">Anuncie sua marca</a></li></ul></div>
+      <div class="col-12 col-md-3"><h3>Institucional</h3><ul class="list-unstyled d-grid gap-1 mb-0"><li><a href="sobre.html">Sobre nós</a></li><li><a href="#">Política de Privacidade</a></li><li><a href="#">Termos de Uso</a></li><li><a href="#">Preferências de cookies</a></li><li><a href="#">Denunciar anúncio</a></li></ul></div>
+    </div>
+    <hr class="border-secondary my-4">
+    <p class="small mb-0">© 2026 Negócios Diários · D'Rocha Soluções · Tangará da Serra, MT · privacidade@negociosdiarios.com.br</p>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

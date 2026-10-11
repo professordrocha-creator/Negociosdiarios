@@ -1,0 +1,7 @@
+# Finais de linha LF no repositório: scripts rodam em Linux (Docker/VPS),
+# e CRLF quebra shell scripts e entrypoints.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary

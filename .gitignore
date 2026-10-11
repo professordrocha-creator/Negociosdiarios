@@ -1,0 +1,32 @@
+# Segredos: nunca versionar (só o modelo .env.example)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Django
+media/
+staticfiles/
+*.sqlite3
+celerybeat-schedule*
+
+# Backups e dumps locais (podem conter dados pessoais)
+*.sql
+*.sql.gz
+*.dump
+backups/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+*.log
+node_modules/

@@ -1,0 +1,13 @@
+# Configuração das ferramentas de qualidade (ruff e pytest).
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = ["**/migrations/**", "prototipo/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "DJ", "S"]   # S = regras de segurança (bandit)
+ignore = ["S101"]                                 # assert é permitido nos testes
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
