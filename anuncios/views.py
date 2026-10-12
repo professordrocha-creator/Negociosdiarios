@@ -8,6 +8,7 @@ o código na URL de outra loja dá 404 (sem IDOR). Regras ficam em anuncios.serv
 from django.contrib import messages
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from anunciantes.views import anunciante_ativo
@@ -71,11 +72,19 @@ def novo(request: HttpRequest) -> HttpResponse:
     """
     anunciante = request.user.anunciante
     categoria = request.GET.get("categoria", "")
-    if categoria not in Anuncio.Categoria.values:
+    permitidas = services.categorias_permitidas(anunciante)
+    if categoria not in permitidas:
+        if categoria:  # categoria de outro ramo (URL montada à mão): avisa e leva à certa
+            try:
+                services.conferir_categoria(anunciante, categoria)
+            except services.CategoriaNaoPermitida as aviso:
+                messages.info(request, str(aviso))
+        if len(permitidas) == 1:  # o normal: a loja tem um ramo só, sem tela de escolha
+            return redirect(f"{reverse('anuncios:novo')}?categoria={permitidas[0]}")
         return render(
             request,
             "anuncios/escolher_categoria.html",
-            _contexto(request, "categoria", None, categorias=Anuncio.Categoria.choices),
+            _contexto(request, "categoria", None, permitidas=permitidas),
         )
     veiculo = categoria == Anuncio.Categoria.VEICULO
     Formulario = _formulario_de_dados(categoria)

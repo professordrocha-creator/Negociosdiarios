@@ -73,9 +73,8 @@ def test_paginas_de_anuncio_loja_e_painel_sem_nada_inline(client, loja, publicad
         reverse("anunciantes:painel"),
         reverse("anunciantes:painel_loja"),
         reverse("planos:meu_plano"),
-        reverse("anuncios:novo"),
         reverse("anuncios:novo") + "?categoria=imovel",
-        reverse("anuncios:novo") + "?categoria=veiculo",
+        reverse("pagamentos:faturas"),
         reverse("anuncios:editar", args=[rascunho.codigo]),
         reverse("anuncios:localizacao", args=[rascunho.codigo]),
         reverse("anuncios:fotos", args=[rascunho.codigo]),
@@ -86,6 +85,10 @@ def test_paginas_de_anuncio_loja_e_painel_sem_nada_inline(client, loja, publicad
         resposta = client.get(url)
         assert resposta.status_code == 200, url
         assert problemas(resposta.content.decode()) == [], url
+
+    client.force_login(loja("revenda@exemplo.com", "Revenda Beta").usuario)  # formulário de veículo
+    resposta = client.get(reverse("anuncios:novo") + "?categoria=veiculo")
+    assert resposta.status_code == 200 and problemas(resposta.content.decode()) == []
 
 
 def test_admin_sem_script_inline(client, entrar_no_admin, loja, imovel):

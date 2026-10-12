@@ -88,9 +88,10 @@ def criar_anunciante(tangara):
             email_confirmado_em=None if sem_confirmacao else timezone.now(),
         )
         documento = ("creci", "CRECI/MT 12345-F") if corretor else ("cnpj", next(cnpjs))
+        tipo = campos.pop("tipo", Anunciante.Tipo.CORRETOR_AUTONOMO if corretor else Anunciante.Tipo.REVENDA)
         return Anunciante.objects.create(
             usuario=usuario,
-            tipo=Anunciante.Tipo.CORRETOR_AUTONOMO if corretor else Anunciante.Tipo.REVENDA,
+            tipo=tipo,
             nome_publico=nome,
             slug=nome.lower().replace(" ", "-"),
             documento_tipo=documento[0],
@@ -134,6 +135,20 @@ def catalogo_teste(db):
     }
 
 
+def do_ramo(anunciante, tipo: str):
+    """Ajusta o tipo da loja ao que o teste anuncia (corretor/imobiliária = imóvel; revenda = veículo).
+
+    As fábricas `loja`/`criar_anunciante` nascem como revenda; quem cria imóvel vira imobiliária.
+    """
+    from anuncios.services import categorias_permitidas
+
+    categoria = "veiculo" if tipo == Anunciante.Tipo.REVENDA else "imovel"
+    if categoria not in categorias_permitidas(anunciante):
+        Anunciante.objects.filter(pk=anunciante.pk).update(tipo=tipo)
+        anunciante.tipo = tipo
+    return anunciante
+
+
 @pytest.fixture
 def veiculo(catalogo_teste, tangara):
     """Fábrica: anúncio de veículo em rascunho; `completo=True` já tem descrição e foto."""
@@ -162,7 +177,7 @@ def veiculo(catalogo_teste, tangara):
             "opcionais": ["ar_condicionado", "tracao_4x4"],
             **ficha,
         }
-        anuncio = services.criar_anuncio_veiculo(anunciante, dados, ficha)
+        anuncio = services.criar_anuncio_veiculo(do_ramo(anunciante, Anunciante.Tipo.REVENDA), dados, ficha)
         if completo:
             foto_pronta(anuncio)
         return anuncio
@@ -180,9 +195,13 @@ def loja(criar_anunciante, tangara):
     from planos.services import criar_assinatura
 
     def _criar(
-        email: str = "loja@exemplo.com", nome: str = "Loja Alfa", slug_plano: str = "basico", limite=None
+        email: str = "loja@exemplo.com",
+        nome: str = "Loja Alfa",
+        slug_plano: str = "basico",
+        limite=None,
+        tipo: str = Anunciante.Tipo.REVENDA,
     ):
-        anunciante = criar_anunciante(email, nome)
+        anunciante = criar_anunciante(email, nome, tipo=tipo)
         plano = Plano.objects.get(slug=slug_plano)
         if limite is not None:
             plano.limite_anuncios = limite
@@ -208,7 +227,9 @@ def imovel(tangara):
             "preco": Decimal("420000"),
         }
         ficha = {"tipo": "casa", "modalidade": "venda", "quartos": 3, "area_total": Decimal("180"), **ficha}
-        anuncio = services.criar_anuncio_imovel(anunciante, dados, ficha)
+        anuncio = services.criar_anuncio_imovel(
+            do_ramo(anunciante, Anunciante.Tipo.IMOBILIARIA), dados, ficha
+        )
         if completo:
             anuncio.imovel.ponto = Point(-57.49, -14.62, srid=4326)
             anuncio.imovel.save()

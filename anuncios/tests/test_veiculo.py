@@ -44,13 +44,49 @@ def dados(catalogo, tangara, **mudancas):
 # --- Criação pelo painel --------------------------------------------------------------------
 
 
-def test_novo_pergunta_a_categoria(client, loja):
-    """Sem categoria, o "Novo anúncio" mostra a escolha entre imóvel e veículo."""
+@pytest.mark.parametrize(
+    ("tipo", "categoria"),
+    [
+        ("corretor_autonomo", "imovel"),
+        ("imobiliaria", "imovel"),
+        ("revenda", "veiculo"),
+        ("concessionaria", "veiculo"),
+        ("garagem", "veiculo"),
+    ],
+)
+def test_novo_vai_direto_para_o_ramo_da_loja(client, loja, tipo, categoria):
+    """Corretor e imobiliária anunciam só imóvel; revenda, concessionária e garagem, só veículo."""
+    client.force_login(loja(tipo=tipo).usuario)
+
+    resposta = client.get(reverse("anuncios:novo"))
+
+    assert resposta.status_code == 302 and resposta["Location"].endswith(f"?categoria={categoria}")
+
+
+def test_categoria_de_outro_ramo_pela_url_leva_ao_certo(client, loja):
+    """Revenda pedindo ?categoria=imovel (URL à mão): aviso e o formulário de veículo; nada é criado."""
     client.force_login(loja().usuario)
 
-    html = client.get(reverse("anuncios:novo")).content.decode()
+    resposta = client.get(reverse("anuncios:novo") + "?categoria=imovel", follow=True)
 
-    assert "?categoria=imovel" in html and "?categoria=veiculo" in html
+    assert resposta.redirect_chain[-1][0].endswith("?categoria=veiculo")
+    assert "anuncia só veículos" in resposta.content.decode()
+    resposta = client.post(
+        reverse("anuncios:novo") + "?categoria=imovel", {"titulo": "Casa grande no centro"}
+    )
+    assert resposta.status_code == 302 and not Anuncio.objects.exists()
+
+
+def test_servico_recusa_categoria_de_outro_ramo(loja, criar_anunciante, catalogo_teste):
+    """A regra vale no serviço (não só na tela): corretor não cria veículo, revenda não cria imóvel."""
+    corretor = criar_anunciante("c@exemplo.com", "Corretor Zé", corretor=True)
+    with pytest.raises(services.CategoriaNaoPermitida, match="só imóveis"):
+        services.criar_anuncio_veiculo(
+            corretor, {"preco": 1}, {"versao": catalogo_teste["cg_fan"], "ano_modelo": 2023}
+        )
+    with pytest.raises(services.CategoriaNaoPermitida, match="só veículos"):
+        services.criar_anuncio_imovel(loja(), {"titulo": "Casa", "preco": 1}, {"tipo": "casa"})
+    assert not Anuncio.objects.exists()
 
 
 def test_cria_veiculo_com_codigo_titulo_automatico_e_vai_para_fotos(client, loja, catalogo_teste, tangara):

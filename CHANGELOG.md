@@ -34,4 +34,5 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/). Versões: 
 - Logo novo (símbolo SVG claro/escuro); tela Admin › Identidade do site; página Sobre (missão, visão, valores); home com atalhos por categoria e Recém-anunciados.
 
 ### Corrigido
+- Cada loja anuncia só o seu ramo: corretor autônomo e imobiliária só imóveis; revenda, concessionária e garagem só veículos (regra no serviço; "Novo anúncio" vai direto ao formulário certo, sem a escolha de categoria). Antes qualquer loja podia anunciar as duas coisas.
 - Banco novo (testes e, no lançamento, produção): a migration de reindexação da busca (`anuncios/0009`) lia todas as colunas do anúncio e da ficha e falhava quando uma migration posterior criava coluna nova (`ponto_publico`); o reindexador (`anuncios/indice.py`) agora lê só as colunas que usa.

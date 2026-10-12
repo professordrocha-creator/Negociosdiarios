@@ -74,7 +74,7 @@ def test_equipe_sem_loja_recebe_403(client):
 
 def test_novo_cria_rascunho_e_segue_para_localizacao(client, loja):
     """Etapa 1: cria o rascunho com preço e área no formato brasileiro; caixa de ajuda presente."""
-    anunciante = loja()
+    anunciante = loja(tipo="imobiliaria")
     client.force_login(anunciante.usuario)
     assert "Sobre esta tela" in client.get(NOVO_IMOVEL).content.decode()
 
@@ -97,7 +97,7 @@ def test_novo_cria_rascunho_e_segue_para_localizacao(client, loja):
 )
 def test_dados_invalidos(client, loja, mudanca, erro):
     """Título curto (limite da Configuracao), área construída maior que a total, preço inválido."""
-    client.force_login(loja().usuario)
+    client.force_login(loja(tipo="imobiliaria").usuario)
 
     html = client.post(NOVO_IMOVEL, {**DADOS, **mudanca}).content.decode()
 

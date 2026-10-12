@@ -224,6 +224,9 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
 6. **Visibilidade pública** (`anuncios.services.anuncios_visiveis`): publicado, de loja visível (ativa, área
    atendida; demo só com MOSTRAR_DEMO) e em cidade liberada de estado liberado. Vale para a página do
    anúncio, a home, a vitrine da loja, "Mais desta loja", os parecidos e o sitemap.
+6a. **Ramo da loja** (`anuncios.services.categorias_permitidas` / `conferir_categoria`): corretor autônomo e
+   imobiliária anunciam só imóveis; revenda, concessionária e garagem, só veículos. Vale no serviço que
+   cria o anúncio (não só na tela), então URL montada à mão também é recusada.
 7. **Localização pública** (`anuncios/localizacao.py`, a única regra; `localizacao_publica` para a página):
    exata → o ponto; aproximada → círculo de 300 m com o centro deslocado de 60 a 150 m de forma fixa por
    anúncio (HMAC do código com a SECRET_KEY: recarregar não revela o ponto pela média); só o bairro → sem

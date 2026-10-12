@@ -109,13 +109,44 @@ def pendencias(anuncio: Anuncio) -> list[str]:
 
 # --- Criar e editar -----------------------------------------------------------------------
 
+# O que cada tipo de loja anuncia: CRECI = imóveis; revenda, concessionária e garagem = veículos.
+CATEGORIAS_POR_TIPO = {
+    Anunciante.Tipo.CORRETOR_AUTONOMO: (Anuncio.Categoria.IMOVEL,),
+    Anunciante.Tipo.IMOBILIARIA: (Anuncio.Categoria.IMOVEL,),
+    Anunciante.Tipo.REVENDA: (Anuncio.Categoria.VEICULO,),
+    Anunciante.Tipo.CONCESSIONARIA: (Anuncio.Categoria.VEICULO,),
+    Anunciante.Tipo.GARAGEM: (Anuncio.Categoria.VEICULO,),
+}
+
+
+PLURAL_DA_CATEGORIA = {Anuncio.Categoria.IMOVEL: "imóveis", Anuncio.Categoria.VEICULO: "veículos"}
+
+
+class CategoriaNaoPermitida(ValueError):
+    """A loja tentou anunciar fora do seu ramo (ex.: corretor anunciando veículo)."""
+
+
+def categorias_permitidas(anunciante: Anunciante) -> tuple[str, ...]:
+    """O que a loja pode anunciar, pelo tipo dela (corretor/imobiliária: imóvel; revendas: veículo)."""
+    return tuple(CATEGORIAS_POR_TIPO.get(anunciante.tipo, ()))
+
+
+def conferir_categoria(anunciante: Anunciante, categoria: str) -> None:
+    """CategoriaNaoPermitida se a categoria não é do ramo da loja (vale também para URL montada à mão)."""
+    if categoria not in categorias_permitidas(anunciante):
+        nomes = " e ".join(PLURAL_DA_CATEGORIA[c] for c in categorias_permitidas(anunciante))
+        raise CategoriaNaoPermitida(
+            f"{anunciante.get_tipo_display()} anuncia só {nomes or 'o que o plano permitir'}."
+        )
+
 
 def criar_anuncio_imovel(anunciante: Anunciante, dados: dict, ficha: dict) -> Anuncio:
     """Cria o rascunho do imóvel (cidade padrão = a da loja; muda na etapa de localização).
 
     `dados` tem os campos do Anuncio (titulo, descricao, preco); `ficha`, os do DetalheImovel.
-    Anúncio de loja demo nasce demo (some no apagar_dados_demo).
+    Anúncio de loja demo nasce demo (some no apagar_dados_demo). Só loja de imóveis (CRECI/imobiliária).
     """
+    conferir_categoria(anunciante, Anuncio.Categoria.IMOVEL)
     with transaction.atomic():
         anuncio = Anuncio(
             anunciante=anunciante,
@@ -140,7 +171,9 @@ def criar_anuncio_veiculo(anunciante: Anunciante, dados: dict, ficha: dict) -> A
     """Cria o rascunho do veículo (código ND-VE-...). Sem título, usa marca, modelo, versão e ano.
 
     `dados` tem os campos do Anuncio (titulo, descricao, preco, cidade); `ficha`, os do DetalheVeiculo.
+    Só loja de veículos (revenda, concessionária, garagem).
     """
+    conferir_categoria(anunciante, Anuncio.Categoria.VEICULO)
     with transaction.atomic():
         dados = {"cidade": anunciante.cidade, **dados}
         if not dados.get("titulo"):
