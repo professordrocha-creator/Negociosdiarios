@@ -3,7 +3,7 @@
 {% if assinatura %}
   {% if assinatura.situacao == "em_atraso" %}
     <div class="alert alert-warning py-2 mb-0" role="alert">
-      {% icone "alerta" %} <b>Assinatura em atraso.</b> Seus anúncios estão pausados (nada foi apagado) e voltam assim que o pagamento for registrado. Fale com a gente.
+      {% icone "alerta" %} <b>Assinatura em atraso.</b> Seus anúncios estão pausados (nada foi apagado) e voltam assim que o pagamento for confirmado. <a href="{% url 'pagamentos:faturas' %}">Pagar a fatura</a>.
     </div>
   {% elif assinatura.situacao == "cancelada" %}
     <div class="alert alert-secondary py-2 mb-0" role="status">{% icone "alerta" %} <b>Assinatura cancelada.</b> Peça um plano em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para voltar a anunciar.</div>

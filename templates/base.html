@@ -54,6 +54,7 @@
 
   {# JS do Bootstrap (abas da busca). Local, para a futura CSP não precisar liberar CDN. #}
   <script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
+<script src="{% static 'js/ver-senha.js' %}" defer></script>
   {# HTMX 2.0.4 servido localmente (selects encadeados do painel, filtros da busca). #}
   <script src="{% static 'vendor/htmx/htmx.min.js' %}" defer></script>
   {% block scripts %}{% endblock %}

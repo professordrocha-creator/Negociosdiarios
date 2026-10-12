@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load nd %}
-{# Painel › Meu plano (docs/TELAS.md). Sempre a assinatura de quem está logado. Sem pagamento online por enquanto: #}
-{# o pedido de troca vai para a equipe (admin + e-mail). #}
+{# Painel › Meu plano (docs/TELAS.md). Sempre a assinatura de quem está logado. O pedido de troca vai para a #}
+{# equipe (admin + e-mail); o pagamento é pelas faturas (Sprint 6: Pix estático + comprovante). #}
 
 {% block titulo %}Meu plano · {{ anunciante.nome_publico }}{% endblock %}
 {% block descricao %}Seu plano, uso e vencimento; peça a troca de plano.{% endblock %}
@@ -28,7 +28,7 @@
 
       <section class="nd-caixa">
         <h2 class="h5">{% if assinatura %}Trocar de plano{% else %}Escolher um plano{% endif %}</h2>
-        <p class="small text-suave">Sem pagamento online por enquanto: a equipe confere o pedido, combina o pagamento e avisa por e-mail. Ao mudar para um plano menor, você escolhe quais anúncios manter; os demais ficam pausados. Com o pagamento atrasado mais de {{ carencia_dias }} dia{{ carencia_dias|pluralize }}, os anúncios ficam pausados até a regularização.</p>
+        <p class="small text-suave">A equipe confere o pedido e avisa por e-mail; o pagamento é feito pelas <a href="{% url 'pagamentos:faturas' %}">faturas</a> (Pix). Ao mudar para um plano menor, você escolhe quais anúncios manter; os demais ficam pausados. Com o pagamento atrasado mais de {{ carencia_dias }} dia{{ carencia_dias|pluralize }}, os anúncios ficam pausados até a regularização.</p>
         <form method="post" class="d-grid gap-3" novalidate>
           {% csrf_token %}
           {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors }}</div>{% endif %}

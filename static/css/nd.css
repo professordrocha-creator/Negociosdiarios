@@ -355,3 +355,8 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-cartao-mapa img.nd-cartao-logo { width: 56px; height: 56px; aspect-ratio: 1; }
 .nd-cartao-mapa .preco { font-weight: 800; color: var(--nd-petroleo); }
 .nd-cartao-mapa .titulo { font-weight: 600; line-height: 1.25; }
+
+/* ---------- Painel › Faturas (Sprint 6) ---------- */
+.nd-qr-pix { width: 100%; max-width: 220px; height: auto; background: #fff; border: 1px solid var(--nd-borda); border-radius: var(--nd-raio); padding: 6px; }
+.nd-ja-paguei summary { list-style: none; display: inline-block; }
+.nd-ja-paguei summary::-webkit-details-marker { display: none; }

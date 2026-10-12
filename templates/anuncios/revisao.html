@@ -32,7 +32,7 @@
           <div class="alert alert-warning mb-0" role="status">
             {% icone "alerta" %}
             {% if not assinatura %}<b>Você ainda não tem plano.</b> Escolha um em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para publicar.
-            {% elif assinatura.situacao != "ativa" %}<b>Assinatura {{ assinatura.get_situacao_display|lower }}.</b> Regularize para publicar.
+            {% elif assinatura.situacao != "ativa" %}<b>Assinatura {{ assinatura.get_situacao_display|lower }}.</b> <a href="{% url 'pagamentos:faturas' %}">Regularize nas Faturas</a> para publicar.
             {% else %}<b>Seu plano está no limite ({{ uso }} de {{ assinatura.plano.limite_anuncios }}).</b> Pause um anúncio ou <a href="{% url 'planos:meu_plano' %}">mude para um plano maior</a>.{% endif %}
           </div>
         {% elif vai_para_moderacao %}

@@ -1,5 +1,5 @@
 """Testes das regras de planos.services: limite do plano (com concorrência), downgrade,
-vencimento, atraso com carência e pagamento."""
+vencimento, atraso com carência (ligado à fatura vencida, Sprint 6) e pagamento manual."""
 
 import threading
 import time
@@ -12,6 +12,9 @@ from django.db import connection
 from django.utils import timezone
 
 from core.services import configuracao
+from pagamentos.models import Fatura
+from pagamentos.services import gerar_fatura, registrar_pagamento_manual
+from pagamentos.tasks import rotina_de_cobranca
 from planos.models import Assinatura, Periodicidade
 from planos.services import (
     LimiteDoPlano,
@@ -21,11 +24,9 @@ from planos.services import (
     pode_publicar,
     processar_atrasos,
     proximo_vencimento,
-    registrar_pagamento,
     reservar_vaga,
 )
 from planos.sinais import assinatura_em_atraso, assinatura_regularizada
-from planos.tasks import verificar_atrasos
 
 pytestmark = pytest.mark.django_db
 
@@ -223,10 +224,11 @@ def test_proximo_vencimento(data, periodicidade, esperado):
 
 
 def vencer(loja, dias_atras: int):
-    """Põe o vencimento da assinatura `dias_atras` dias no passado."""
+    """Põe o vencimento da assinatura `dias_atras` dias no passado, com a fatura desse ciclo sem pagar."""
     Assinatura.objects.filter(anunciante=loja).update(
         vencimento=timezone.localdate() - timedelta(days=dias_atras)
     )
+    gerar_fatura(assinatura_de(loja), avisar=False)
 
 
 def test_dentro_da_carencia_continua_ativa(assinante):
@@ -286,12 +288,25 @@ def test_atraso_nao_reprocessa_quem_ja_esta_em_atraso(assinante):
 
 
 def test_tarefa_diaria_chama_o_processamento(assinante, settings):
-    """A tarefa do Celery beat roda o processamento e está agendada."""
+    """A rotina de cobrança do Celery beat roda o atraso e está agendada."""
     loja = assinante()
     vencer(loja, 30)
 
-    assert verificar_atrasos.delay().get() == 1
-    assert settings.CELERY_BEAT_SCHEDULE["atrasos"]["task"] == "planos.tasks.verificar_atrasos"
+    assert rotina_de_cobranca.delay().get()["em_atraso"] == 1
+    assert settings.CELERY_BEAT_SCHEDULE["cobranca"]["task"] == "pagamentos.tasks.rotina_de_cobranca"
+
+
+def test_sem_fatura_a_pagar_nao_entra_em_atraso(assinante):
+    """O atraso vem da fatura: vencida mas paga, ou com comprovante aguardando, não pausa."""
+    loja = assinante()
+    vencer(loja, 20)
+    Fatura.objects.update(situacao=Fatura.Situacao.AGUARDANDO)
+
+    assert processar_atrasos() == 0
+    Fatura.objects.update(situacao=Fatura.Situacao.PAGA)
+    assert processar_atrasos() == 0
+    Fatura.objects.update(situacao=Fatura.Situacao.VENCIDA)
+    assert processar_atrasos() == 1
 
 
 # --- Pagamento --------------------------------------------------------------------------------
@@ -303,10 +318,14 @@ def test_pagamento_em_dia_empurra_o_vencimento(assinante):
     assinatura = assinatura_de(loja)
     vencimento = assinatura.vencimento
 
-    registrar_pagamento(assinatura, None, "Pix 123")
+    fatura = registrar_pagamento_manual(assinatura, None, "Pix 123")
 
+    assinatura.refresh_from_db()
     assert assinatura.vencimento == proximo_vencimento(vencimento, Periodicidade.MENSAL)
-    assert assinatura.history.first().history_change_reason == "Pagamento registrado: Pix 123"
+    assert (
+        assinatura.history.first().history_change_reason == f"Pagamento registrado: {fatura.codigo} (Pix 123)"
+    )
+    assert (fatura.situacao, fatura.forma, fatura.competencia) == ("paga", "outro", vencimento)
 
 
 def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
@@ -322,9 +341,11 @@ def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
 
     assinatura_regularizada.connect(ouvir)
     try:
-        registrar_pagamento(assinatura, None, "Comprovante 456")
+        registrar_pagamento_manual(assinatura, None, "Comprovante 456")
     finally:
         assinatura_regularizada.disconnect(ouvir)
+
+    assinatura.refresh_from_db()
 
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
     assert assinatura.vencimento == proximo_vencimento(timezone.localdate(), Periodicidade.MENSAL)
@@ -334,4 +355,4 @@ def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
 def test_pagamento_exige_motivo(assinante):
     """Baixa manual sem motivo/comprovante é recusada."""
     with pytest.raises(ValueError, match="motivo"):
-        registrar_pagamento(assinatura_de(assinante()), None, "  ")
+        registrar_pagamento_manual(assinatura_de(assinante()), None, "  ")

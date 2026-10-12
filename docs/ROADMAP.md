@@ -30,7 +30,7 @@ parando no fim de cada etapa para teste no navegador.
 | 3 | Anúncio de imóvel + fotos (Celery, WebP, sem EXIF) + moderação |
 | 4 | Anúncio de veículo (catálogo FIPE) + busca com filtros |
 | 5 | Mapa Leaflet, WhatsApp com contagem de cliques, home com vitrine de lojas |
-| 6 | Pagamento Pix via API + faturas + bloqueio por inadimplência |
+| 6 | **Cobrança manual assistida** (decisão de 2026-10-12): faturas geradas X dias antes, Pix estático (copia e cola + QR Code, sem API), "Já paguei" com comprovante, confirmação no admin (painel de cobrança), régua de e-mails editáveis e pausa por fatura vencida. Integração com gateway: V2 |
 | 7 | Banners/patrocinadores, LGPD (meus dados, exclusão, cookies), termos |
 | 8 | **Importador de anúncios**: XML padrão ZAP/VivaReal (imóveis) e planilha CSV/Excel (veículos e imóveis) |
 | 9 | Testes, `check --deploy`, backup testado, SEO (sitemap, OG), **apagar os dados demo** (`apagar_dados_demo`), carga das lojas fundadoras → **lançamento** |
@@ -56,7 +56,7 @@ quando chegarmos nela; por enquanto, o combinado:
   eletrônico** antes de a página ser publicada (LGPD: registrar finalidade e base legal em `docs/LGPD.md`).
 
 ## V2 — Monetizar e crescer
-Assinatura no cartão + renovação, destaques, estatísticas para o anunciante,
+**Pagamento integrado (Mercado Pago)**: Pix com confirmação automática por webhook e assinatura no cartão com renovação (ver `docs/PAGAMENTOS.md`, V2), destaques, estatísticas para o anunciante,
 favoritos, busca por raio, novos verticais (máquinas agrícolas, gado, empregos).
 
 ## V3 — Marketplace do agro

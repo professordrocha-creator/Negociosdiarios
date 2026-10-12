@@ -43,6 +43,10 @@ class Command(BaseCommand):
             f"em atraso, com os anúncios pausados: {', '.join(em_atraso) or 'nenhuma'}."
         )
         self.stdout.write(
+            "Faturas demo (Painel › Faturas e admin › Cobrança): histórico pago em todas as lojas, uma "
+            "aberta, uma aguardando confirmação (comprovante fictício) e a das lojas em atraso vencida."
+        )
+        self.stdout.write(
             f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
             "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
             "e no painel de cada loja."

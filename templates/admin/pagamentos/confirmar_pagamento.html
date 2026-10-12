@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{# Tela intermediária da ação "Confirmar pagamento" (forma de pagamento + observação). #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{{ url_voltar }}">{{ opts.verbose_name_plural|capfirst }}</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+  <p>Faturas selecionadas (cada uma é baixada como paga; a assinatura é renovada e, se estava em atraso, os anúncios voltam):</p>
+  <ul>{% for item in itens %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% for id in ids %}<input type="hidden" name="{{ action_checkbox_name }}" value="{{ id }}">{% endfor %}
+  <input type="hidden" name="action" value="{{ acao }}">
+  <input type="hidden" name="aplicar" value="1">
+  <fieldset class="module aligned">
+    {% for campo in form %}
+    <div class="form-row">
+      {{ campo.errors }}
+      {{ campo.label_tag }} {{ campo }}
+      {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="Confirmar pagamento">
+    <a href="{{ url_voltar }}" class="button cancel-link">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

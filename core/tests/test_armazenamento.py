@@ -14,6 +14,7 @@ R2 = {
     "S3_ENDPOINT_URL": "https://conta.r2.cloudflarestorage.com",
     "S3_ACCESS_KEY": "chave",
     "S3_SECRET_KEY": "segredo",
+    "S3_BUCKET_PRIVADO": "privado",
 }
 
 
@@ -59,6 +60,21 @@ def test_s3_sem_dominio_publico_gera_urls_assinadas(variaveis_r2):
     storages, _, _ = armazenamento_de_midia("s3", environ.Env(), BASE_DIR)
 
     assert storages["default"]["OPTIONS"]["querystring_auth"] is True
+
+
+def test_comprovantes_ficam_em_armazenamento_privado(variaveis_r2):
+    """Sprint 6: comprovantes num bucket próprio, sem domínio público e sempre com URL assinada."""
+    variaveis_r2.setenv("S3_DOMINIO_PUBLICO", "midia.negociosdiarios.com.br")
+
+    storages, _, _ = armazenamento_de_midia("s3", environ.Env(), BASE_DIR)
+    opcoes = storages["privado"]["OPTIONS"]
+
+    assert opcoes["bucket_name"] == "privado"
+    assert opcoes["custom_domain"] is None
+    assert opcoes["querystring_auth"] is True
+    assert opcoes["object_parameters"] == {"CacheControl": "private, no-store"}
+    local, _, _ = armazenamento_de_midia("local", environ.Env(), BASE_DIR)
+    assert local["privado"]["BACKEND"] == "pagamentos.armazenamento.PastaPrivada"
 
 
 def test_s3_sem_variavel_obrigatoria_nao_sobe(variaveis_r2):

@@ -27,6 +27,14 @@ PLANOS_TUDO = PLANOS_VER | {
     "planos.change_assinatura",
     "planos.change_pedidotrocaplano",
 }
+# Sprint 6 (pagamentos/0002): só Financeiro e Administrador veem e decidem faturas e editam os e-mails
+# de cobrança (Moderador e Comercial não veem faturas, docs/ADMINISTRACAO.md).
+COBRANCA = {
+    "pagamentos.view_fatura",
+    "pagamentos.change_fatura",
+    "pagamentos.view_modeloemailcobranca",
+    "pagamentos.change_modeloemailcobranca",
+}
 
 ESPERADO = {
     "Administrador": {
@@ -65,7 +73,8 @@ ESPERADO = {
     }
     | PLANOS_TUDO
     | ANUNCIOS_MODERAR
-    | CATALOGO_TUDO,
+    | CATALOGO_TUDO
+    | COBRANCA,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -78,7 +87,13 @@ ESPERADO = {
     | PLANOS_VER
     | ANUNCIOS_MODERAR
     | CATALOGO_VER,
-    "Financeiro": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_TUDO | ANUNCIOS_VER | CATALOGO_VER,
+    "Financeiro": SO_CIDADES
+    | VER_ANUNCIANTE
+    | GEOGRAFIA
+    | PLANOS_TUDO
+    | ANUNCIOS_VER
+    | CATALOGO_VER
+    | COBRANCA,
     "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_VER | ANUNCIOS_VER | CATALOGO_VER,
 }
 

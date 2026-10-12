@@ -55,7 +55,7 @@ interna. Containers rodam com usuário não-root.
 | `anuncios` | Anúncio base + detalhes de imóvel e veículo, fotos, busca, expiração |
 | `catalogo` | Catálogo de veículos da Tabela FIPE: marca → modelo → versão, por tipo (carro, caminhonete, moto, caminhão) |
 | `planos` | Planos, assinatura do anunciante, regra de limite de anúncios |
-| `pagamentos` | Faturas, integração Mercado Pago (camada de gateway), webhooks |
+| `pagamentos` | Faturas, Pix estático, comprovantes, régua de cobrança (V1, Sprint 6); gateway Mercado Pago e webhooks na V2 |
 | `publicidade` | Banners, cards de patrocinador, anúncio nativo; contagem de impressões |
 | `moderacao` | Filas de aprovação, denúncias de anúncios, histórico de decisões |
 | `estatisticas` | Visualizações e cliques no WhatsApp por anúncio (sem dado pessoal) |
@@ -74,8 +74,8 @@ Usuario 1──1 Anunciante 1──N Anuncio 1──N Foto
                  │                └──1 DetalheVeiculo  (marca/modelo FIPE, ano, km…)
                  │
                  ├──1 Assinatura N──1 Plano
+                 │        └──N Fatura   (Sprint 6; EventoPagamento dos webhooks só na V2)
                  ├──N PedidoTrocaPlano
-                 │        └──N Fatura ──N EventoPagamento (webhooks brutos, idempotência)
                  └──N Denuncia (via anúncio)
 ```
 
@@ -120,6 +120,18 @@ Planejado: `telefone`.
 - `Configuracao.carencia_dias` (padrão 5): dias depois do vencimento até a assinatura virar em_atraso.
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
+
+### Fatura e ModeloEmailCobranca — app `pagamentos` (Sprint 6; docs/PAGAMENTOS.md)
+- `Fatura`: `assinatura` (PROTECT), `codigo` (`ND-FT-00001`, do id), `competencia` (início do período) e
+  `periodo_fim`, `descricao` ("Profissional · mensal"), `valor` (Decimal), `vencimento`, `situacao` (aberta |
+  aguardando_confirmacao | paga | vencida | cancelada), `pago_em`, `forma` (pix | boleto | transferencia |
+  dinheiro | outro), `link_boleto` (opcional), `comprovante` (armazenamento **privado**, nome aleatório),
+  `comprovante_enviado_em`, `observacao`, `motivo_recusa`, `confirmado_por`, `avisos_enviados` (régua; fora
+  do histórico), `demo`, histórico. Única por assinatura + competência (cancelada não conta). Nada se apaga.
+- `ModeloEmailCobranca`: `chave` (fatura_disponivel, lembrete_3_dias, vence_hoje, vencida_1_dia,
+  vencida_3_dias, pagamento_confirmado, comprovante_recusado), `assunto`, `corpo` (variáveis entre chaves,
+  conferidas no `clean`), `ativo`, histórico. Os registros vêm da migration `pagamentos/0002`.
+- `Configuracao` ganhou `fatura_antecedencia_dias` (padrão 10) e `limite_comprovante_kb` (padrão 5120).
 
 ### Anuncio — app `anuncios` (Sprint 3, parte A; índices de busca na 4B)
 - `anunciante` (PROTECT), `categoria` (imovel | veiculo), `codigo` público único (`ND-IM-00001`, gerado do id
@@ -180,10 +192,15 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
    Implementado em `planos.services.reservar_vaga(anunciante, contar, publicar)`: trava a linha da
    assinatura com `select_for_update()` numa transação (dois cliques simultâneos: só um publica;
    teste de concorrência com duas conexões). `pode_publicar` é só a resposta rápida para a tela.
-2. **Inadimplência:** vencimento + `Configuracao.carencia_dias` (padrão 5) → assinatura `em_atraso`,
-   sinal para **pausar** os anúncios (nunca apagar) e e-mail (`planos.tasks.verificar_atrasos`,
-   Celery beat diário às 6h). Pagamento registrado (`registrar_pagamento`; baixa manual no admin até
-   o Pix da Sprint 6) → volta a ativa e o sinal reativa os anúncios.
+2. **Inadimplência (Sprint 6: ligada à fatura):** a rotina diária `pagamentos.services.rotina_de_cobranca`
+   (Celery beat, 6h) gera a fatura do próximo ciclo `Configuracao.fatura_antecedencia_dias` antes do
+   vencimento, marca como vencida a fatura não paga no dia seguinte ao vencimento e, com fatura a pagar
+   vencida há mais que `Configuracao.carencia_dias` (padrão 5), põe a assinatura `em_atraso`
+   (`planos.services.processar_atrasos`): sinal para **pausar** os anúncios (nunca apagar) e e-mail.
+   Comprovante aguardando confirmação não pausa (a equipe decide; recusado, volta a vencida). Pagamento
+   confirmado (`pagamentos.services.confirmar_pagamento`: ação do admin ou "Registrar pagamento manual")
+   → fatura paga, assinatura renovada uma vez (`planos.services.renovar_assinatura`) e, se estava em
+   atraso, volta a ativa e o sinal reativa os anúncios.
 3. **Downgrade de plano:** `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: o
    anunciante escolhe quais manter (no máximo o novo limite, só dentre os dele); o excedente fica
    pausado. Tela `/painel/plano/escolher-anuncios/`: a escolha fica no `PedidoTrocaPlano.anuncios_manter`

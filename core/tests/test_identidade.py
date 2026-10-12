@@ -86,6 +86,8 @@ def postar_config(client, **mudancas):
             "titulo_max_caracteres",
             "descricao_max_caracteres",
             "carencia_dias",
+            "fatura_antecedencia_dias",
+            "limite_comprovante_kb",
             "expiracao_dias",
             "aviso_expiracao_dias",
             "moderacao",

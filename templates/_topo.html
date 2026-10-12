@@ -16,7 +16,13 @@
       <a class="px-1 py-2{% if atual == 'veiculos' or atual == 'veiculos_cidade' %} ativo{% endif %}" href="{% url 'busca:veiculos' %}"{% if atual == 'veiculos' or atual == 'veiculos_cidade' %} aria-current="page"{% endif %}>Veículos</a>
       <a class="px-1 py-2{% if atual == 'lojas' %} ativo{% endif %}" href="{% url 'anunciantes:lojas' %}"{% if atual == 'lojas' %} aria-current="page"{% endif %}>Lojas</a>
     </nav>
-    {# "Anunciar" leva aos planos. #}
+    {# Área do anunciante: logado (cliente), vai direto ao painel; senão, ao login do cliente (/entrar/, #}
+    {# nunca o admin). "Anunciar" leva aos planos. #}
+    {% if user.is_authenticated and not user.is_staff %}
+      <a class="btn btn-sm btn-outline-light" href="{% url 'anunciantes:painel' %}">{% icone "loja" %} Meu painel</a>
+    {% else %}
+      <a class="btn btn-sm btn-outline-light" href="{% url 'contas:entrar' %}">{% icone "loja" %} Área do anunciante</a>
+    {% endif %}
     <a class="btn btn-sm btn-ipe" href="{% url 'core:planos' %}">{% icone "mais" %} Anunciar</a>
   </div>
 </header>

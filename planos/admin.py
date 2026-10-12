@@ -6,8 +6,10 @@ from django.http import HttpRequest
 from simple_history.admin import SimpleHistoryAdmin
 
 from core.admin_acoes import tela_motivo
+from pagamentos.models import Fatura
+from pagamentos.services import registrar_pagamento_manual
 from planos.models import Assinatura, PedidoTrocaPlano, Plano
-from planos.services import aprovar_pedido, recusar_pedido, registrar_pagamento
+from planos.services import aprovar_pedido, recusar_pedido
 
 
 @admin.register(Plano)
@@ -23,9 +25,28 @@ class PlanoAdmin(SimpleHistoryAdmin):
         return False
 
 
+class FaturaInline(admin.TabularInline):
+    """Faturas da assinatura (só leitura; as decisões ficam em Cobrança › Faturas)."""
+
+    model = Fatura
+    fields = ("codigo", "competencia", "valor", "vencimento", "situacao", "pago_em")
+    readonly_fields = fields
+    extra = 0
+    show_change_link = True
+    ordering = ("-vencimento",)
+
+    def has_add_permission(self, request: HttpRequest, obj=None) -> bool:
+        """Faturas nascem da rotina diária ou do pagamento manual."""
+        return False
+
+    def has_delete_permission(self, request: HttpRequest, obj=None) -> bool:
+        """Registro financeiro: nunca se apaga."""
+        return False
+
+
 @admin.register(Assinatura)
 class AssinaturaAdmin(SimpleHistoryAdmin):
-    """Assinaturas: filtro por situação; pagamento manual (com motivo) regulariza o atraso."""
+    """Assinaturas: filtro por situação; pagamento manual (com motivo) baixa a fatura e tira do atraso."""
 
     list_display = ("anunciante", "plano", "periodicidade", "vencimento", "situacao", "demo")
     list_filter = ("situacao", "periodicidade", "plano", "demo")
@@ -34,14 +55,18 @@ class AssinaturaAdmin(SimpleHistoryAdmin):
     autocomplete_fields = ("anunciante",)
     readonly_fields = ("situacao", "demo", "criado_em", "atualizado_em")
     actions = ["registrar_pagamento_manual"]
+    inlines = [FaturaInline]
 
     def has_delete_permission(self, request: HttpRequest, obj: Assinatura | None = None) -> bool:
         """Assinatura não é apagada (histórico financeiro)."""
         return False
 
-    @admin.action(description="Registrar pagamento manual (renova e reativa)", permissions=["change"])
+    @admin.action(
+        description="Registrar pagamento manual (baixa a fatura, renova e reativa)", permissions=["change"]
+    )
     def registrar_pagamento_manual(self, request: HttpRequest, queryset: QuerySet[Assinatura]):
-        """Baixa manual com motivo/comprovante: renova o vencimento; em atraso volta a ativa."""
+        """Baixa manual com motivo: paga a fatura em aberto (ou cria a do ciclo e paga), renova o vencimento;
+        em atraso volta a ativa."""
         return tela_motivo(
             self,
             request,
@@ -49,7 +74,7 @@ class AssinaturaAdmin(SimpleHistoryAdmin):
             "registrar_pagamento_manual",
             "Registrar pagamento manual",
             True,
-            registrar_pagamento,
+            registrar_pagamento_manual,
             "{n} pagamento(s) registrado(s).",
         )
 

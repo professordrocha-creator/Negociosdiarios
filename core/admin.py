@@ -212,6 +212,8 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
                 "description": "Prazos e moderação valem para todas as lojas a partir do próximo uso.",
                 "fields": (
                     "carencia_dias",
+                    "fatura_antecedencia_dias",
+                    "limite_comprovante_kb",
                     "expiracao_dias",
                     "aviso_expiracao_dias",
                     "moderacao",

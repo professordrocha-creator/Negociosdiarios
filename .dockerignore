@@ -12,3 +12,5 @@ media/
 staticfiles/
 backups/
 prototipo/
+# Comprovantes de pagamento (Sprint 6): arquivos privados, nunca no Git
+privado/

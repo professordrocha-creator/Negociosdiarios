@@ -66,6 +66,11 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
 
 ### Pagamentos
+- [x] V1 (Sprint 6) sem gateway: Pix estático gerado no servidor, sem chave de API; nada de cartão.
+- [x] Comprovantes em armazenamento **privado** (fora da mídia pública), entregues só ao dono da fatura
+      ou à equipe com permissão; imagem regravada sem EXIF, PDF sem conteúdo ativo; resposta com
+      `Content-Security-Policy: sandbox`, `nosniff` e sem cache. Pagamento só é confirmado por pessoa.
+- V2 (gateway Mercado Pago):
 - [ ] **Nenhum dado de cartão passa pelo nosso servidor** (checkout do Mercado Pago)
 - [ ] Webhook: validar header `x-signature` com a chave secreta; rejeitar se inválido
 - [ ] Webhook idempotente: guardar `id` do evento; processar uma vez só

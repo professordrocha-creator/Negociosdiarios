@@ -30,3 +30,5 @@ backups/
 Thumbs.db
 *.log
 node_modules/
+# Comprovantes de pagamento (Sprint 6): arquivos privados, nunca no Git
+privado/

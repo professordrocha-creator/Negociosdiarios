@@ -55,12 +55,17 @@ def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple
       S3_DOMINIO_PUBLICO (ex.: midia.negociosdiarios.com.br), as URLs são públicas e
       cacheáveis; sem ele, saem assinadas e temporárias.
     Qualquer outro valor derruba a subida, para um erro de digitação não gravar fotos no lugar errado.
+
+    "privado" (Sprint 6, comprovantes de pagamento; pagamentos/armazenamento.py): nunca público. Local:
+    pasta privado/ ao lado da media/; s3: outro bucket (S3_BUCKET_PRIVADO), sem domínio público e com URLs
+    assinadas. As views servem o arquivo depois de conferir quem pede.
     """
     estaticos = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
     media_root = base_dir / "media"
     if tipo == "local":
         midia = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
-        return {"default": midia, "staticfiles": estaticos}, "/media/", media_root
+        privado = {"BACKEND": "pagamentos.armazenamento.PastaPrivada"}
+        return {"default": midia, "privado": privado, "staticfiles": estaticos}, "/media/", media_root
     if tipo == "s3":
         dominio = env("S3_DOMINIO_PUBLICO", default="")
         opcoes = {
@@ -77,8 +82,18 @@ def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple
             "object_parameters": {"CacheControl": "public, max-age=31536000, immutable"},
         }
         midia = {"BACKEND": "storages.backends.s3.S3Storage", "OPTIONS": opcoes}
+        privado = {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                **opcoes,
+                "bucket_name": env("S3_BUCKET_PRIVADO"),
+                "custom_domain": None,
+                "querystring_auth": True,
+                "object_parameters": {"CacheControl": "private, no-store"},
+            },
+        }
         media_url = f"https://{dominio}/" if dominio else "/media/"
-        return {"default": midia, "staticfiles": estaticos}, media_url, media_root
+        return {"default": midia, "privado": privado, "staticfiles": estaticos}, media_url, media_root
     raise ImproperlyConfigured(f"ARMAZENAMENTO inválido: {tipo!r}. Use 'local' (dev) ou 's3' (produção).")
 
 
@@ -116,6 +131,7 @@ INSTALLED_APPS = [
     "contas",
     "anunciantes",
     "planos",
+    "pagamentos",
     "catalogo",
     "anuncios",
     "busca",
@@ -272,6 +288,12 @@ DEMO_SENHA = env("DEMO_SENHA", default="")
 # Mapa da busca (Sprint 5): máximo de pontos por resposta do JSON (desempenho do servidor e do navegador).
 MAPA_LIMITE_PONTOS = env.int("MAPA_LIMITE_PONTOS", default=500)
 
+# Pix estático das faturas (Sprint 6, docs/PAGAMENTOS.md): chave, nome (até 25) e cidade (até 15) de quem
+# recebe. Vazios = a tela de faturas avisa que o Pix ainda não está configurado (sem QR Code).
+PIX_CHAVE = env("PIX_CHAVE", default="")
+PIX_NOME = env("PIX_NOME", default="")
+PIX_CIDADE = env("PIX_CIDADE", default="")
+
 # --- Admin: endereço secreto, código de navegador novo e bloqueio --------------------------
 # (docs/SEGURANCA.md, docs/RUNBOOK.md)
 # Sem valor padrão: um padrão no código seria um endereço conhecido. /admin/ não existe (404).
@@ -364,8 +386,9 @@ CELERY_TASK_PUBLISH_RETRY_POLICY = {
 CELERY_BEAT_SCHEDULE = {
     # Exemplo: prova que o agendador está vivo (aparece no log do worker a cada 5 minutos).
     "batimento": {"task": "core.tasks.batimento", "schedule": 5 * 60},
-    # Todo dia às 6h (Cuiabá): vencidas além da carência viram "em atraso" (anúncios pausados).
-    "atrasos": {"task": "planos.tasks.verificar_atrasos", "schedule": crontab(hour=6, minute=0)},
+    # Todo dia às 6h (Cuiabá): gera as faturas do próximo ciclo, marca as vencidas, põe em atraso quem
+    # passou da carência com fatura vencida (anúncios pausados) e manda os lembretes de cobrança.
+    "cobranca": {"task": "pagamentos.tasks.rotina_de_cobranca", "schedule": crontab(hour=6, minute=0)},
     "expiracao": {"task": "anuncios.tasks.expirar_anuncios", "schedule": crontab(hour=3, minute=0)},
 }
 

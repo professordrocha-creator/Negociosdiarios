@@ -1,7 +1,7 @@
 # App `planos`
 
 **Responsabilidade:** planos de assinatura, a assinatura de cada anunciante e as regras que
-dependem dela (limite de anúncios, downgrade, atraso e pagamento). Não conhece o modelo de
+dependem dela (limite de anúncios, downgrade, atraso e renovação). Faturas e cobrança: app `pagamentos`. Não conhece o modelo de
 anúncio: recebe funções de quem chama ou dispara sinais (ARQUITETURA §5).
 
 **Modelos:**
@@ -19,12 +19,14 @@ anúncio: recebe funções de quem chama ou dispara sinais (ARQUITETURA §5).
 - `reservar_vaga(anunciante, contar, publicar)`: a decisão que vale; trava a assinatura com
   `select_for_update` (sem corrida entre dois cliques). Levanta `SemAssinaturaAtiva` ou `LimiteDoPlano`.
 - `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: pausa o que não foi escolhido.
-- `proximo_vencimento`, `criar_assinatura`, `registrar_pagamento` (baixa manual com motivo; em
-  atraso volta a ativa e dispara `assinatura_regularizada`).
-- `processar_atrasos()`: vencida há mais que `Configuracao.carencia_dias` → em_atraso, sinal
-  `assinatura_em_atraso` e e-mail. Tarefa diária `tasks.verificar_atrasos` (Celery beat, 6h).
-- `pedir_troca`, `aprovar_pedido`, `recusar_pedido`: pedidos de plano com e-mails
-  (equipe: superusuários + Financeiro; anunciante).
+- `proximo_vencimento`, `criar_assinatura`, `renovar_assinatura` (chamada por
+  `pagamentos.services.confirmar_pagamento`: empurra o vencimento; em atraso volta a ativa e dispara
+  `assinatura_regularizada`).
+- `processar_atrasos()`: assinatura com **fatura** a pagar vencida há mais que `Configuracao.carencia_dias`
+  → em_atraso, sinal `assinatura_em_atraso` e e-mail. Roda dentro da rotina diária de cobrança
+  (`pagamentos.tasks.rotina_de_cobranca`, Celery beat, 6h).
+- `pedir_troca`, `aprovar_pedido` (a fatura ainda aberta passa a cobrar o plano novo), `recusar_pedido`:
+  pedidos de plano com e-mails (equipe: superusuários + Financeiro; anunciante).
 - `precisa_escolher_anuncios`, `escolher_anuncios_para_manter`: plano menor que o uso; a escolha fica em
   `PedidoTrocaPlano.anuncios_manter` e a aprovação pausa o resto (`anuncios.services.pausar_por_downgrade`).
 - `criar_assinaturas_demo` / `apagar_assinaturas_demo`: chamados pelo `criar/apagar_dados_demo` do core.

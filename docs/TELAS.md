@@ -63,8 +63,8 @@ tela aparecem como "em breve".
 | Importar anúncios | Envio de XML/planilha, prévia com erros, confirmação |
 | Estatísticas | Visualizações e cliques no WhatsApp por anúncio e por período |
 | Página da loja (`/painel/loja/`) | Logo e capa (validados; WebP pelo Celery), cor (paleta), nome, endereço da página, sobre, WhatsApp, horário, endereço e "mostrar no mapa", ponto da loja no mapa (toque/arraste; "Tirar o ponto"; perto da cidade da loja; Sprint 5), Instagram, site; prévia ao vivo (`static/js/painel-loja.js`). CRECI/CNPJ só leitura |
-| Meu plano (`/painel/plano/`) | Card do plano, pedido em análise e pedido de troca (plano + mensal/anual; sem pagamento online: vai para o admin e envia e-mail). Carência vem da `Configuracao`. Pedido para plano menor que o uso leva a **Escolher anúncios** (`/painel/plano/escolher-anuncios/`: marca até o novo limite; os outros são pausados na aprovação) |
-| Faturas | Histórico, Pix, comprovantes, notas fiscais |
+| Meu plano (`/painel/plano/`) | Card do plano, pedido em análise e pedido de troca (plano + mensal/anual; vai para o admin e envia e-mail; o pagamento é pelas Faturas). Carência vem da `Configuracao`. Pedido para plano menor que o uso leva a **Escolher anúncios** (`/painel/plano/escolher-anuncios/`: marca até o novo limite; os outros são pausados na aprovação) |
+| Faturas (`/painel/faturas/`) | Sprint 6. Faturas em aberto com valor, vencimento, período, **QR Code** e **Pix copia e cola** com botão Copiar (`static/js/copiar.js`), link do boleto se a equipe colou, aviso de vencida (carência da `Configuracao`) e de comprovante recusado (com o motivo); "Já paguei" abre o envio do comprovante (PDF/JPG/PNG/WebP, limite da `Configuracao`) e um recado opcional; fatura aguardando confirmação com link para o comprovante enviado; histórico (pagas e canceladas). Sem Pix configurado no `.env`: aviso. Notas fiscais: depois do CNPJ |
 | Meus dados (LGPD) | Ver, baixar e excluir dados; encerrar conta |
 
 ## 4. Painel do administrador (Daniel)
@@ -74,10 +74,10 @@ tela aparecem como "em breve".
 | Aprovações | Cadastros (CRECI/CNPJ) em Anunciantes; anúncios em **Anúncios › Fila de moderação** (mais antigos primeiro, capa na lista, fotos grandes, ficha, endereço e ponto privados; ações Aprovar e Recusar com motivo, os dois com e-mail). **Anúncios** lista todos (filtros por situação, categoria, cidade), só leitura |
 | Anúncios / Anunciantes | Busca, edição, suspensão (com motivo) |
 | Denúncias | Fila de denúncias com decisão registrada |
-| Regras do negócio (em Identidade do site) | Carência de pagamento, validade do anúncio, aviso de expiração e quais anúncios passam por moderação |
+| Regras do negócio (em Identidade do site) | Carência de pagamento, dias de antecedência da fatura, limite do comprovante, validade do anúncio, aviso de expiração e quais anúncios passam por moderação |
 | Catálogo de veículos | Marcas, modelos e versões da Tabela FIPE (só consulta; "ativo" editável para esconder do formulário; sem criar nem apagar) |
 | Planos e preços | Planos: preço mensal/anual, limite, ordem e "à venda" editáveis na lista (com histórico; sem apagar). Assinaturas: filtro por situação/periodicidade/plano, ação "Registrar pagamento manual" (motivo). Pedidos de troca: Aprovar / Recusar (motivo), com e-mail. Carência em Identidade do site › Regras do negócio |
-| Faturas | Status, baixa manual com motivo, inadimplentes |
+| Faturas (Cobrança) | Sprint 6. Lista com filtros (situação, vencimento, forma), busca por código/loja e botão **Painel de cobrança** (a receber no mês, recebido no mês, vencendo em 7 dias, vencidas, aguardando confirmação; cada número abre a lista filtrada). Ações: **Confirmar pagamento** (forma + observação; renova e reativa), **Recusar comprovante** (motivo por e-mail) e **Cancelar** (motivo). Ficha: link do boleto, observação e valor (só aberta) editáveis; comprovante abre pelo admin. Sem criar nem apagar. E-mails de cobrança: assunto, texto e "enviar" editáveis |
 | Publicidade | Patrocinadores, contratos, peças, métricas |
 | **Cidades atendidas** | Liberar estados/cidades; regiões (`Regiao`); bairros por cidade (`Bairro`, também dentro da cidade); "Solicitações de cidade" com as ações Liberar cidade e Recusar (motivo + e-mail) |
 | Textos de ajuda | Editar os textos "Sobre esta tela" (`TextoAjuda`: chave da tela + um item por linha; em branco = sem caixa) |

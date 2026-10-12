@@ -1,4 +1,4 @@
-"""Regras do app planos (ARQUITETURA §5): limite do plano, downgrade, atraso e pedidos de troca.
+"""Regras do app planos (ARQUITETURA §5): limite do plano, downgrade, atraso, renovação e pedidos de troca.
 
 O app planos não conhece o modelo de anúncio (Sprint 3). Onde precisa contar, publicar ou
 pausar anúncios, recebe funções de quem chama (`reservar_vaga`, `aplicar_downgrade`) ou
@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Q, QuerySet
+from django.db.models import Exists, OuterRef, Q, QuerySet
 from django.urls import reverse
 from django.utils import timezone
 
@@ -189,15 +189,22 @@ def criar_assinatura(
 
 
 def processar_atrasos(hoje: date | None = None) -> int:
-    """Tarefa diária: assinatura vencida há mais que a carência vira "em atraso".
+    """Rotina diária (pagamentos.services.rotina_de_cobranca): assinatura ativa com FATURA a pagar
+    (aberta ou vencida) que venceu há mais que a carência vira "em atraso".
 
-    Carência em Configuracao.carencia_dias (padrão 5). Para cada uma: muda a situação,
-    dispara `assinatura_em_atraso` (o app de anúncios pausa os anúncios; nunca apaga) e
-    avisa o anunciante por e-mail. Devolve quantas mudaram.
+    Carência em Configuracao.carencia_dias (padrão 5). Fatura com comprovante aguardando confirmação
+    não pausa (a equipe decide; se recusar, a fatura volta a vencida e a próxima rotina pausa). Para cada
+    uma: muda a situação, dispara `assinatura_em_atraso` (o app de anúncios pausa os anúncios; nunca
+    apaga) e avisa o anunciante por e-mail. Devolve quantas mudaram.
     """
+    from pagamentos.models import Fatura  # import local: o app pagamentos depende deste
+
     hoje = hoje or timezone.localdate()
     limite = hoje - timedelta(days=configuracao().carencia_dias)
-    vencidas = Assinatura.objects.filter(situacao=Assinatura.Situacao.ATIVA, vencimento__lt=limite)
+    fatura_atrasada = Fatura.objects.filter(
+        assinatura=OuterRef("pk"), situacao__in=Fatura.A_PAGAR, vencimento__lt=limite
+    )
+    vencidas = Assinatura.objects.filter(situacao=Assinatura.Situacao.ATIVA).filter(Exists(fatura_atrasada))
     total = 0
     for assinatura in vencidas.select_related("anunciante__usuario", "plano"):
         assinatura.situacao = Assinatura.Situacao.EM_ATRASO
@@ -208,22 +215,23 @@ def processar_atrasos(hoje: date | None = None) -> int:
             "assinatura_em_atraso",
             "Sua assinatura está em atraso",
             [assinatura.anunciante.usuario.email],
-            {"assinatura": assinatura, "link_plano": settings.SITE_URL + reverse("planos:meu_plano")},
+            {"assinatura": assinatura, "link_faturas": settings.SITE_URL + reverse("pagamentos:faturas")},
         )
         total += 1
     return total
 
 
-def registrar_pagamento(
+def renovar_assinatura(
     assinatura: Assinatura, por: Usuario | None, motivo: str, hoje: date | None = None
 ) -> Assinatura:
-    """Pagamento recebido (por enquanto, baixa manual pela equipe; Pix na Sprint 6).
+    """Ciclo pago: chamado por `pagamentos.services.confirmar_pagamento` (fatura confirmada ou
+    "Registrar pagamento manual"), nunca direto pela tela.
 
-    Empurra o vencimento um período (a partir de hoje, se estava em atraso) e, se estava em
-    atraso, volta a "ativa" e dispara `assinatura_regularizada` (o app de anúncios reativa).
+    Empurra o vencimento um período (a partir de hoje, se estava em atraso ou já vencida) e, se estava
+    em atraso, volta a "ativa" e dispara `assinatura_regularizada` (o app de anúncios reativa).
     """
     if not motivo.strip():
-        raise ValueError("Informe o motivo/comprovante da baixa manual.")
+        raise ValueError("Informe o motivo/comprovante do pagamento.")
     hoje = hoje or timezone.localdate()
     estava_em_atraso = assinatura.situacao == Assinatura.Situacao.EM_ATRASO
     base = hoje if estava_em_atraso or assinatura.vencimento < hoje else assinatura.vencimento
@@ -325,11 +333,14 @@ def aprovar_pedido(pedido: PedidoTrocaPlano, por: Usuario | None) -> Assinatura:
                 pausar=lambda ids: pausar_por_downgrade(anunciante, ids),
             )
         if assinatura:  # troca: mantém o vencimento atual
+            from pagamentos.services import atualizar_fatura_aberta
+
             assinatura.plano = pedido.plano_novo
             assinatura.periodicidade = pedido.periodicidade
             assinatura._history_user = por
             assinatura._change_reason = f"Troca aprovada: pedido {pedido.pk}."
             assinatura.save(update_fields=["plano", "periodicidade", "atualizado_em"])
+            atualizar_fatura_aberta(assinatura)  # a fatura ainda aberta passa a cobrar o plano novo
         else:  # primeiro plano
             assinatura = criar_assinatura(pedido.anunciante, pedido.plano_novo, pedido.periodicidade)
         pedido.status = PedidoTrocaPlano.Status.APROVADO
@@ -408,8 +419,12 @@ def criar_assinaturas_demo(slugs_em_atraso: Iterable[str] = ()) -> int:
 def apagar_assinaturas_demo() -> int:
     """Apaga assinaturas e pedidos de demonstração, com o histórico. Devolve quantas assinaturas eram.
 
-    Chamado pelo `core.services.apagar_dados_demo` antes de apagar os anunciantes demo.
+    Chamado pelo `core.services.apagar_dados_demo` antes de apagar os anunciantes demo (as faturas demo,
+    que protegem a assinatura, saem antes, em `pagamentos.services.apagar_faturas_demo`).
     """
+    from pagamentos.services import apagar_faturas_demo
+
+    apagar_faturas_demo()
     with transaction.atomic():
         quantas = Assinatura.objects.filter(demo=True).count()
         PedidoTrocaPlano.objects.filter(Q(demo=True) | Q(anunciante__demo=True)).delete()

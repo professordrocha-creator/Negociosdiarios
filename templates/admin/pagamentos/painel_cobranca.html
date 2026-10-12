@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load nd %}
+{# Painel de cobrança (Sprint 6): números do mês e pendências, cada um com o link para a lista filtrada. #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{% url 'admin:pagamentos_fatura_changelist' %}">Faturas</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<p>Hoje: {{ hoje|date:"d/m/Y" }}. Clique num número para ver as faturas.</p>
+<table>
+  <thead><tr><th scope="col">Situação</th><th scope="col">Faturas</th><th scope="col">Total</th></tr></thead>
+  <tbody>
+    {% for cartao in cartoes %}
+    <tr>
+      <th scope="row"><a href="{{ cartao.url }}">{{ cartao.titulo }}</a></th>
+      <td>{{ cartao.quantas }}</td>
+      <td>{{ cartao.total|moeda|default:"R$ 0" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="help">"A receber no mês": abertas, vencidas e aguardando confirmação com vencimento neste mês.
+"Aguardando confirmação": o anunciante enviou o comprovante; selecione na lista e use "Confirmar pagamento" ou "Recusar comprovante".</p>
+{% endblock %}

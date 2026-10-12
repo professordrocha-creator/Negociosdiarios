@@ -13,6 +13,7 @@ from anuncios import services
 from anuncios.models import Anuncio
 from anuncios.tasks import expirar_anuncios
 from core.services import configuracao
+from pagamentos.services import registrar_pagamento_manual
 from planos.models import Assinatura, Periodicidade, Plano
 from planos.services import (
     LimiteDoPlano,
@@ -22,7 +23,6 @@ from planos.services import (
     escolher_anuncios_para_manter,
     pedir_troca,
     processar_atrasos,
-    registrar_pagamento,
     uso_do_plano,
 )
 
@@ -312,10 +312,13 @@ def test_excluir_o_primeiro_nao_reabre_a_moderacao(loja, publicado, imovel):
 
 
 def atrasar(anunciante, dias: int = 30):
-    """Vence a assinatura há `dias` e roda a tarefa diária do planos."""
+    """Vence a assinatura há `dias` (com a fatura do ciclo em aberto) e roda a regra do atraso."""
+    from pagamentos.services import gerar_fatura
+
     Assinatura.objects.filter(anunciante=anunciante).update(
         vencimento=timezone.localdate() - timedelta(days=dias)
     )
+    gerar_fatura(assinatura_de(anunciante), avisar=False)
     processar_atrasos()
 
 
@@ -332,7 +335,7 @@ def test_atraso_pausa_os_publicados_e_pagamento_reativa(loja, publicado):
     with pytest.raises(ValueError, match="pagamento"):
         services.reativar(no_ar)
 
-    registrar_pagamento(assinatura_de(anunciante), None, "Pix conferido")
+    registrar_pagamento_manual(assinatura_de(anunciante), None, "Pix conferido")
     no_ar.refresh_from_db()
     do_cliente.refresh_from_db()
     assert no_ar.situacao == Situacao.PUBLICADO
@@ -346,7 +349,7 @@ def test_prazo_vencido_durante_o_atraso_volta_expirado(loja, publicado):
     atrasar(anunciante)
     Anuncio.objects.filter(pk=anuncio.pk).update(expira_em=timezone.now() - timedelta(days=1))
 
-    registrar_pagamento(assinatura_de(anunciante), None, "Pix conferido")
+    registrar_pagamento_manual(assinatura_de(anunciante), None, "Pix conferido")
 
     anuncio.refresh_from_db()
     assert anuncio.situacao == Situacao.EXPIRADO

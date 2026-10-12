@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Painel › Faturas (Sprint 6; docs/TELAS.md). Sempre a loja de quem está logado. Pix estático: copia e cola + QR Code #}
+{# (data URI, a CSP libera data: em imagens); botão Copiar em static/js/copiar.js (sem script inline). #}
+
+{% block titulo %}Faturas · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Suas faturas: Pix, comprovante e histórico.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-4">
+      <h1 class="h4 m-0">Faturas</h1>
+      {% include "_ajuda.html" %}
+      {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' or m.tags == 'error' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+
+      {% if not a_pagar and not aguardando %}
+        <div class="nd-caixa">
+          <b class="d-block">{% icone "verificado" %} Nenhuma fatura em aberto.</b>
+          {% if assinatura %}<span class="small text-suave">Próximo vencimento: {{ assinatura.vencimento|date:"d/m/Y" }}. A fatura chega por e-mail alguns dias antes.</span>{% endif %}
+        </div>
+      {% endif %}
+
+      {% for item in a_pagar %}{% with fatura=item.fatura pix=item.pix %}
+      <section class="nd-caixa d-grid gap-3" id="fatura-{{ fatura.codigo }}" aria-labelledby="titulo-{{ fatura.codigo }}">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <h2 class="h5 m-0 me-auto" id="titulo-{{ fatura.codigo }}">Fatura {{ fatura.codigo }}</h2>
+          <span class="selo {% if fatura.situacao == 'vencida' %}selo-destaque{% else %}selo-verificado{% endif %}">{{ fatura.get_situacao_display }}</span>
+        </div>
+        <div class="row g-3 align-items-end">
+          <div class="col-sm-6">
+            <span class="d-block small text-suave">{{ fatura.descricao }} · {{ fatura.competencia|date:"d/m/Y" }} a {{ fatura.periodo_fim|date:"d/m/Y" }}</span>
+            <span class="nd-preco-grande tabular">{{ fatura.valor|moeda }}</span>
+          </div>
+          <div class="col-sm-6 text-sm-end">
+            <span class="d-block small text-suave">Vencimento</span>
+            <b class="fs-5 tabular">{{ fatura.vencimento|date:"d/m/Y" }}</b>
+          </div>
+        </div>
+        {% if fatura.situacao == "vencida" %}
+          <div class="alert alert-warning py-2 mb-0" role="status">{% icone "alerta" %} Esta fatura venceu. Depois de {{ carencia_dias }} dia{{ carencia_dias|pluralize }} de carência os anúncios ficam pausados (nada é apagado) até o pagamento ser confirmado.</div>
+        {% endif %}
+        {% if fatura.motivo_recusa %}
+          <div class="alert alert-warning py-2 mb-0" role="status"><b>Comprovante recusado:</b> {{ fatura.motivo_recusa }} Envie outro comprovante abaixo.</div>
+        {% endif %}
+
+        {% if pix %}
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4 text-center">
+              <img class="nd-qr-pix" src="{{ pix.qr_code }}" width="220" height="220" alt="QR Code Pix da fatura {{ fatura.codigo }}, valor {{ fatura.valor|moeda }}">
+            </div>
+            <div class="col-md-8 d-grid gap-2">
+              <label class="form-label m-0" for="pix-{{ fatura.codigo }}">Pix copia e cola</label>
+              <textarea class="form-control font-monospace small" id="pix-{{ fatura.codigo }}" rows="3" readonly>{{ pix.copia_e_cola }}</textarea>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button type="button" class="btn btn-nd" data-copiar="pix-{{ fatura.codigo }}"><span>Copiar código Pix</span></button>
+                {% if fatura.link_boleto %}<a class="btn btn-outline-secondary" href="{{ fatura.link_boleto }}" target="_blank" rel="noopener nofollow">Abrir boleto</a>{% endif %}
+              </div>
+              <span class="small text-suave">No app do banco: Pix › Copia e cola (ou leia o QR Code). O valor e o identificador <b>{{ fatura.identificador_pix }}</b> já vão preenchidos.</span>
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-info py-2 mb-0" role="status">O Pix ainda não está disponível aqui. {% if fatura.link_boleto %}Use o boleto abaixo ou {% endif %}<a href="{% url 'core:contato' %}">fale com a gente</a> para pagar.</div>
+          {% if fatura.link_boleto %}<div><a class="btn btn-outline-secondary" href="{{ fatura.link_boleto }}" target="_blank" rel="noopener nofollow">Abrir boleto</a></div>{% endif %}
+        {% endif %}
+
+        <details class="nd-ja-paguei" {% if form_de == fatura.codigo %}open{% endif %}>
+          <summary class="btn btn-ipe">Já paguei: enviar comprovante</summary>
+          <form method="post" action="{% url 'pagamentos:ja_paguei' fatura.codigo %}" enctype="multipart/form-data" class="d-grid gap-3 mt-3" novalidate>
+            {% csrf_token %}
+            {% include "anunciantes/_campo.html" with campo=item.form.comprovante %}
+            {% include "anunciantes/_campo.html" with campo=item.form.recado %}
+            <div><button type="submit" class="btn btn-nd">Enviar comprovante</button></div>
+          </form>
+        </details>
+      </section>
+      {% endwith %}{% endfor %}
+
+      {% for fatura in aguardando %}
+      <section class="nd-caixa" aria-label="Fatura {{ fatura.codigo }} aguardando confirmação">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <b class="me-auto">Fatura {{ fatura.codigo }} · <span class="tabular">{{ fatura.valor|moeda }}</span></b>
+          <span class="selo selo-aluguel">{{ fatura.get_situacao_display }}</span>
+        </div>
+        <p class="small mb-0 mt-2">{% icone "relogio" %} Recebemos seu comprovante em {{ fatura.comprovante_enviado_em|date:"d/m/Y \à\s H:i" }}. A equipe confere e avisa por e-mail; enquanto isso seus anúncios não são pausados por esta fatura. <a href="{% url 'pagamentos:comprovante' fatura.codigo %}" target="_blank" rel="noopener">Ver comprovante enviado</a></p>
+      </section>
+      {% endfor %}
+
+      <section class="nd-caixa">
+        <h2 class="h5">Histórico</h2>
+        {% if historico %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0 nd-tabela">
+            <thead><tr><th scope="col">Fatura</th><th scope="col">Período</th><th scope="col" class="text-end">Valor</th><th scope="col">Vencimento</th><th scope="col">Situação</th><th scope="col">Pago em</th><th scope="col"><span class="visually-hidden">Comprovante</span></th></tr></thead>
+            <tbody>
+              {% for fatura in historico %}
+              <tr>
+                <td>{{ fatura.codigo }}</td>
+                <td class="small">{{ fatura.competencia|date:"d/m/Y" }} a {{ fatura.periodo_fim|date:"d/m/Y" }}</td>
+                <td class="text-end tabular">{{ fatura.valor|moeda }}</td>
+                <td class="tabular">{{ fatura.vencimento|date:"d/m/Y" }}</td>
+                <td>{{ fatura.get_situacao_display }}</td>
+                <td class="tabular">{{ fatura.pago_em|date:"d/m/Y"|default:"—" }}</td>
+                <td>{% if fatura.comprovante %}<a class="small" href="{% url 'pagamentos:comprovante' fatura.codigo %}" target="_blank" rel="noopener">Comprovante</a>{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+          <p class="small text-suave mb-0">As faturas pagas aparecem aqui.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/copiar.js' %}" defer></script>{% endblock %}

@@ -291,6 +291,16 @@ class Configuracao(models.Model):
         default=5,
         help_text="Dias depois do vencimento até a assinatura ficar em atraso e os anúncios serem pausados.",
     )
+    fatura_antecedencia_dias = models.PositiveSmallIntegerField(
+        "fatura gerada (dias antes do vencimento)",
+        default=10,
+        help_text="Quantos dias antes do vencimento a fatura do próximo ciclo é gerada e enviada por e-mail.",
+    )
+    limite_comprovante_kb = models.PositiveIntegerField(
+        "limite do comprovante de pagamento (KB)",
+        default=5120,
+        help_text="Tamanho máximo do comprovante enviado pelo anunciante (imagem ou PDF).",
+    )
     expiracao_dias = models.PositiveSmallIntegerField(
         "validade do anúncio (dias)",
         default=60,

@@ -1,0 +1,11 @@
+{% autoescape off %}Comprovante de pagamento para conferir no {{ site_nome }}.
+
+Loja: {{ fatura.assinatura.anunciante.nome_publico }}
+Fatura: {{ fatura.codigo }} ({{ fatura.descricao }})
+Valor: R$ {{ fatura.valor }}
+Vencimento: {{ fatura.vencimento|date:"d/m/Y" }}
+{% if recado %}Recado do anunciante: {{ recado }}
+{% endif %}
+Confira no extrato (identificador {{ fatura.identificador_pix }}) e confirme ou recuse no admin:
+{{ link_admin }}
+{% endautoescape %}

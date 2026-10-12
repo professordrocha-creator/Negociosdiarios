@@ -372,7 +372,8 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
     demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
     essas), as 6 lojas como anunciantes ativos com login próprio e uma assinatura
     para cada loja ativa (planos diferentes; as de `assinaturas_em_atraso` já em atraso).
-    Os imóveis viram anúncios publicados no banco (`anuncios.demo`), com fotos de exemplo.
+    Os imóveis viram anúncios publicados no banco (`anuncios.demo`), com fotos de exemplo. Faturas
+    (Sprint 6): histórico pago, uma aberta, uma aguardando confirmação e as das lojas em atraso vencidas.
     Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
     uma conta real (nunca sobrescreve conta de verdade).
     """
@@ -420,6 +421,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from planos.services import criar_assinaturas_demo
 
         criar_assinaturas_demo(dados.get("assinaturas_em_atraso", []))
+        from pagamentos.services import criar_faturas_demo
+
+        criar_faturas_demo(dados.get("assinaturas_em_atraso", []))
         from anuncios.demo import criar_anuncios_demo
 
         anuncios = criar_anuncios_demo(dados["anuncios"])
