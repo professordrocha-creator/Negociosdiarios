@@ -461,9 +461,9 @@ caminhao,Iveco,EUROCARGO,170-E21 3-Eixos 2p (diesel),4036
 caminhao,Iveco,EUROCARGO,170-E22 3-Eixos 2p (diesel),4038
 caminhao,Iveco,EUROCARGO,230-E22 3-Eixos 2p (diesel),4039
 caminhao,Iveco,EUROCARGO,260-E25 6x4 2p (diesel),4964
+caminhao,Iveco,EUROCARGO,ATTACK 170-E22 2p (diesel),4037
+caminhao,Iveco,EUROCARGO,ATTACK 230-E24 3-E. 2p (dies.),4180
 caminhao,Iveco,EUROCARGO,CAVALLINO 450-E32 T 2p (dies.),4181
-caminhao,Iveco,EUROCARGO/ATTACK,170-E22 2p (diesel),4037
-caminhao,Iveco,EUROCARGO/ATTACK,230-E24 3-E. 2p (dies.),4180
 caminhao,Iveco,EUROTECH,MP 450-E37 2p (diesel),4040
 caminhao,Iveco,EUROTECH,TZ 740-E42 6x4 2p (diesel),4041
 caminhao,Iveco,EUROTRAKKER,380-E38 H 2p (diesel),4042
@@ -745,8 +745,8 @@ caminhao,Mercedes-Benz,1720,2p (diesel),3327
 caminhao,Mercedes-Benz,1720,3-Eixos 2p (diesel),3328
 caminhao,Mercedes-Benz,1720-A,2p (diesel),3329
 caminhao,Mercedes-Benz,1720-K,2p (diesel),3330
-caminhao,Mercedes-Benz,1721/,1721 S 2p (diesel),3331
-caminhao,Mercedes-Benz,1721/,1721 S 3-Eixos 2p (diesel),3332
+caminhao,Mercedes-Benz,1721,1721 S 2p (diesel),3331
+caminhao,Mercedes-Benz,1721,1721 S 3-Eixos 2p (diesel),3332
 caminhao,Mercedes-Benz,1723,2p (diesel),3333
 caminhao,Mercedes-Benz,1723,3-Eixos 2p (diesel),3334
 caminhao,Mercedes-Benz,1723-S,2p (diesel),3335
@@ -766,7 +766,7 @@ caminhao,Mercedes-Benz,2726,6x4 2p (diesel),4693
 caminhao,Mercedes-Benz,608,2p (diesel),3348
 caminhao,Mercedes-Benz,708,2p (diesel),3349
 caminhao,Mercedes-Benz,709,2p (diesel),3350
-caminhao,Mercedes-Benz,710/,710 Plus 2p (diesel),3351
+caminhao,Mercedes-Benz,710,710 Plus 2p (diesel),3351
 caminhao,Mercedes-Benz,712,2p (diesel),3352
 caminhao,Mercedes-Benz,912,2p (diesel),3353
 caminhao,Mercedes-Benz,914,2p (diesel),3354
@@ -1041,7 +1041,7 @@ caminhao,Navistar,INTERNATIONAL,9800/9800i 6x2 2p (diesel),5524
 caminhao,Navistar,INTERNATIONAL,9800/9800i 6x4 2p (diesel),3485
 caminhao,Navistar,INTERNATIONAL,9800i 6x2 2p (diesel)(E5),6374
 caminhao,Navistar,INTERNATIONAL,9800i 6x4 2p (diesel)(E5),6375
-caminhao,Neobus,T.BOY/,WAY LOT./ESC./ SPTRANS (diesel),3494
+caminhao,Neobus,T.BOY,WAY LOT./ESC./ SPTRANS (diesel),3494
 caminhao,Neobus,THUNDER,+ EXECUTIVO (diesel)(E5),6221
 caminhao,Neobus,THUNDER,+ EXECUTIVO 1p (diesel),3491
 caminhao,Neobus,THUNDER,+ LOT./ESC. (diesel)(E5),6222
@@ -1557,14 +1557,14 @@ caminhao,Volkswagen,13-130,2p (diesel),3643
 caminhao,Volkswagen,13-130,3-Eixos 2p (diesel),3644
 caminhao,Volkswagen,13-150,2p (diesel),3645
 caminhao,Volkswagen,13-160,E Delivery 6x2 2p (diesel)(E5),7683
-caminhao,Volkswagen,13-170/13-170,E Worker 2p (diesel),3646
-caminhao,Volkswagen,13-170/13-170,E Worker 3-Eixos 2p (die.),3647
+caminhao,Volkswagen,13-170,13-170 E Worker 2p (diesel),3646
+caminhao,Volkswagen,13-170,13-170 E Worker 3-Eixos 2p (die.),3647
+caminhao,Volkswagen,13-180,13-180 E Worker 2p (diesel),3648
+caminhao,Volkswagen,13-180,13-180 E Worker 3-Eixos 2p (die.),3649
 caminhao,Volkswagen,13-180,Delivery 6x2 2p (diesel)(E5),8733
 caminhao,Volkswagen,13-180,Delivery 6x2 2p (diesel)(E6),10900
 caminhao,Volkswagen,13-180,E Constellation 2p (diesel),4197
 caminhao,Volkswagen,13-180,E Constellation 3-Eixos 2p (die.),4270
-caminhao,Volkswagen,13-180/13-180,E Worker 2p (diesel),3648
-caminhao,Volkswagen,13-180/13-180,E Worker 3-Eixos 2p (die.),3649
 caminhao,Volkswagen,13-190,2p (diesel),3650
 caminhao,Volkswagen,13-190,3-Eixos 2p (diesel),3651
 caminhao,Volkswagen,13-190,E Constellation 2p (diesel)(E5),5962
@@ -1587,11 +1587,11 @@ caminhao,Volkswagen,14-210,Turbo 2p (diesel),3663
 caminhao,Volkswagen,14-220,2p (diesel),3664
 caminhao,Volkswagen,14-220,3-Eixos 2p (diesel),3665
 caminhao,Volkswagen,14-410,e-Delivery 6x2 2p (Elétrico),10088
-caminhao,Volkswagen,15-170/15-170,E Worker 2p (diesel),3666
-caminhao,Volkswagen,15-170/15-170,E Worker 3-Eixos 2p (die.),3667
+caminhao,Volkswagen,15-170,15-170 E Worker 2p (diesel),3666
+caminhao,Volkswagen,15-170,15-170 E Worker 3-Eixos 2p (die.),3667
+caminhao,Volkswagen,15-180,15-180 E Worker 2p (diesel),3668
+caminhao,Volkswagen,15-180,15-180 E Worker 3-Eixos 2p (die.),3669
 caminhao,Volkswagen,15-180,E Constellation 2p (diesel),4198
-caminhao,Volkswagen,15-180/15-180,E Worker 2p (diesel),3668
-caminhao,Volkswagen,15-180/15-180,E Worker 3-Eixos 2p (die.),3669
 caminhao,Volkswagen,15-190,2p (diesel),3670
 caminhao,Volkswagen,15-190,3-Eixos 2p (diesel),3671
 caminhao,Volkswagen,15-190,E Constellation 2p (diesel)(E5),5953
@@ -1617,8 +1617,8 @@ caminhao,Volkswagen,17-190,E Worker 2p (diesel)(E5),6257
 caminhao,Volkswagen,17-210,2p (diesel),3685
 caminhao,Volkswagen,17-210,3-Eixos 2p (diesel),3686
 caminhao,Volkswagen,17-210,Constellation 4x2 2p (diesel)(E6),10245
-caminhao,Volkswagen,17-220/17-220,Worker 2p (diesel),3687
-caminhao,Volkswagen,17-220/17-220,Worker 3-Eixos 2p (diesel),3688
+caminhao,Volkswagen,17-220,17-220 Worker 2p (diesel),3687
+caminhao,Volkswagen,17-220,17-220 Worker 3-Eixos 2p (diesel),3688
 caminhao,Volkswagen,17-230,E Constellation 2p (diesel)(E5),7390
 caminhao,Volkswagen,17-230,Worker 2p (diesel)(E5),6863
 caminhao,Volkswagen,17-250,E Constel. Tractor 4x2 2p (dies.),5686
@@ -1655,9 +1655,9 @@ caminhao,Volkswagen,23-230,Constellat. 3-Eixos (diesel)(E5),7446
 caminhao,Volkswagen,23-230,Worker 3-Eixos 2p (diesel)(E5),6864
 caminhao,Volkswagen,23-250,E 6x2 3-Eixos 2p (diesel),3702
 caminhao,Volkswagen,23-310,6x2 3-Eixos 2p (diesel),3703
-caminhao,Volkswagen,24-220/24-220,Worker T 3-Eixos 2p (die.),3704
+caminhao,Volkswagen,24-220,24-220 Worker T 3-Eixos 2p (die.),3704
+caminhao,Volkswagen,24-250,24-250 E T Work. 3-Eixos 2p(die.),3705
 caminhao,Volkswagen,24-250,E Constellation 3-Eixos 2p (diese,3949
-caminhao,Volkswagen,24-250/24-250,E T Work. 3-Eixos 2p(die.),3705
 caminhao,Volkswagen,24-260,E Constel. 6x2 2p (diesel)(E5),8767
 caminhao,Volkswagen,24-280,E Constel. 6x2 2p (diesel)(E5),5948
 caminhao,Volkswagen,24-280,E Constel. 8x2 2p (diesel)(E5),6509
@@ -1672,10 +1672,10 @@ caminhao,Volkswagen,25-420,Constellation 6x2 2p (Diesel)(E5),6684
 caminhao,Volkswagen,25-460,Constel. 6x2 Tractor 2p (die)(E5),9727
 caminhao,Volkswagen,25.480,Constellation 6x2 2p (diesel)(E6),10249
 caminhao,Volkswagen,26-220,6x4 3-Eixos 2p (diesel),3706
+caminhao,Volkswagen,26-260,26-260 Work. 6x4 3-Eixos 2p(die.),3707
 caminhao,Volkswagen,26-260,8x4 4-Eixos 2p (diesel),3708
 caminhao,Volkswagen,26-260,Constellation 6x2 2p (diesel)(E6),10250
 caminhao,Volkswagen,26-260,E Constel. 6x4 2p (diesel)(E5),10901
-caminhao,Volkswagen,26-260/26-260,Work. 6x4 3-Eixos 2p(die.),3707
 caminhao,Volkswagen,26-280,E Constel. 6x4 2p (diesel)(E5),5950
 caminhao,Volkswagen,26-300,2p (diesel),3709
 caminhao,Volkswagen,26-300,3-Eixos 2p (diesel),3710
@@ -1689,8 +1689,8 @@ caminhao,Volkswagen,27-320,Constellation 6x4 2p (E6),11940
 caminhao,Volkswagen,30-280,Constellation 8x2 2p (diesel)(E5),8626
 caminhao,Volkswagen,30-330,Constellation 8x2 2p (diesel)(E5),7822
 caminhao,Volkswagen,30.320,Constellation 8x2 2p (diesel)(E6),10253
+caminhao,Volkswagen,31-260,31-260 Work. 6x4 3-Eixos 2p (die),3712
 caminhao,Volkswagen,31-260,E Constel. 6x4 3-Eixos 2p (die.),4760
-caminhao,Volkswagen,31-260/31-260,Work. 6x4 3-Eixos 2p (die),3712
 caminhao,Volkswagen,31-280,E Constel. 6x4 2p (diesel)(E5),5952
 caminhao,Volkswagen,31-310,6x4 3-Eixos 2p (diesel),3713
 caminhao,Volkswagen,31-320,Constellation 6x4 2p (diesel)(E6),10254
@@ -1718,11 +1718,11 @@ caminhao,Volkswagen,7-110,2p (diesel),3719
 caminhao,Volkswagen,7-110,S 2p (diesel),3720
 caminhao,Volkswagen,7-90,2p (diesel),3721
 caminhao,Volkswagen,8-100,2p (diesel),3722
-caminhao,Volkswagen,8-120/8-120,euro3 Worker 2p (diesel),3723
+caminhao,Volkswagen,8-120,8-120 euro3 Worker 2p (diesel),3723
 caminhao,Volkswagen,8-140,2p (diesel),3724
+caminhao,Volkswagen,8-150,8-150 E Worker 2p (diesel),3725
 caminhao,Volkswagen,8-150,E Delivery 2p (diesel),3876
 caminhao,Volkswagen,8-150,E Delivery Plus 2p (diesel),5291
-caminhao,Volkswagen,8-150/8-150,E Worker 2p (diesel),3725
 caminhao,Volkswagen,8-160,E Delivery 2p (diesel)(E5),5961
 caminhao,Volkswagen,9-150,E Delivery 2p (diesel),5334
 caminhao,Volkswagen,9-150,E Worker 2p (diesel),3877
@@ -2188,6 +2188,8 @@ caminhonete,Fiat,Strada,Opening Edition 1.3 Flex 8V CD,9229
 caminhonete,Fiat,Strada,Ranch 1.0 Flex Turbo CD Aut.,10836
 caminhonete,Fiat,Strada,Ranch 1.3 Flex 8V CD Aut.,9723
 caminhonete,Fiat,Strada,Sporting 1.8 Flex 16V CE,5464
+caminhonete,Fiat,Strada,Strada Working 1.5 mpi 8V CE,616
+caminhonete,Fiat,Strada,Strada Working 1.5 mpi 8V CS,617
 caminhonete,Fiat,Strada,Trek. M. March. 1.6 Flex 16V CE,6519
 caminhonete,Fiat,Strada,Trekking 1.4 mpi Fire Flex 8V CE,3884
 caminhonete,Fiat,Strada,Trekking 1.4 mpi Fire Flex 8V CS,3885
@@ -2987,12 +2989,6 @@ carro,Audi,A8,6.0 W12 48V 450cv Quattro Tiptronic,3928
 carro,Audi,A8,6.3 W12 48V Quattro Tiptronic,5717
 carro,Audi,Allroad,2.7 30V Quattro Turbo Tiptronic,128
 carro,Audi,Avant,RS2,129
-carro,Audi,E-TRON GT,Aut. (Elétrico),10814
-carro,Audi,E-TRON Performa.,Black Aut. (Elétrico),9077
-carro,Audi,E-TRON Performace,Aut. (Elétrico),9078
-carro,Audi,E-TRON S,Sportback Quat. Aut. (Elétrico),9605
-carro,Audi,E-TRON Sportb.,Perf.Black Aut.(Elétrico),9186
-carro,Audi,E-TRON Sportback,Perf. Aut. (Elétrico),9187
 carro,Audi,Q3,1.4 TFSI/TFSI Flex S-tronic 5p,7255
 carro,Audi,Q3,2.0 TFSI Anniversary Edition Quattro,10888
 carro,Audi,Q3,2.0 TFSI Quat. 170/180cv S-tronic 5p,6044
@@ -3122,13 +3118,19 @@ carro,Audi,TTRS,2.5 TFSI QUATTRO S Tronic,6258
 carro,Audi,TTRS,Roadster 2.5 TB FSI Quat. S Tronic,6259
 carro,Audi,TTS,2.0 TFSI QUATTRO S Tronic,5128
 carro,Audi,TTS,Roadster 2.0 TB FSI Quattro S Tronic,5129
+carro,Audi,e-tron,Performa. Black Aut. (Elétrico),9077
+carro,Audi,e-tron,Performace Aut. (Elétrico),9078
+carro,Audi,e-tron,S Sportback Quat. Aut. (Elétrico),9605
+carro,Audi,e-tron GT,Aut. (Elétrico),10814
+carro,Audi,e-tron Sportback,Perf. Aut. (Elétrico),9187
+carro,Audi,e-tron Sportback,Perf.Black Aut.(Elétrico),9186
 carro,BMW,116iA,1.6 TB 16V 136cv 5p,6146
 carro,BMW,118i,M Sport 1.5 TB 12V Aut. 5p,9955
 carro,BMW,118i,Sport 1.5 TB 12V Aut. 5p,8946
 carro,BMW,118iA,2.0 16V 136cv 3p,5576
 carro,BMW,118iA,2.0 16V 136cv 5p,4960
 carro,BMW,118iA,Full 1.6 TB 16V 170cv 5p,6147
-carro,BMW,118iA/,Urban/Sport 1.6 TB 16V 170cv 5p,5923
+carro,BMW,118iA,Urban/Sport 1.6 TB 16V 170cv 5p,5923
 carro,BMW,120i,2.0 16V 150cv/ 156cv 5p,152
 carro,BMW,120iA,2.0 16V 150cv/ 156cv 5p,153
 carro,BMW,120iA,2.0 16V 156cv 3p,4700
@@ -3147,12 +3149,12 @@ carro,BMW,225i,Active Tourer Sport 2.0 TB Aut.,7129
 carro,BMW,316,(todas),154
 carro,BMW,316i,1.6 TB 16V 136cv 4p,6660
 carro,BMW,318Ti,Compact Mec,159
-carro,BMW,318Ti/TiA,Compact 1.9 16V,160
+carro,BMW,318Ti,TiA Compact 1.9 16V,160
 carro,BMW,318i,Cabrio 1.8 16V,155
-carro,BMW,318i/iA,1.8 16V,156
-carro,BMW,318i/iA,Compact 1.8 16V,157
+carro,BMW,318i,iA 1.8 16V,156
+carro,BMW,318i,iA Compact 1.8 16V,157
 carro,BMW,318iA,2.0 16V 136cv 5p,5607
-carro,BMW,318iS/ISA,1.9 16V,158
+carro,BMW,318iS,ISA 1.9 16V,158
 carro,BMW,320i,320i,161
 carro,BMW,320iA,2.0 TB M Sport A.Flex/M.Sport 4p,7256
 carro,BMW,320iA,2.0 Turbo/ActiveFlex 16V/GP 4p,6090
@@ -3168,7 +3170,7 @@ carro,BMW,323i,2.5 24V,165
 carro,BMW,323i,Confort,166
 carro,BMW,323i,Sport,167
 carro,BMW,323i,Touring,168
-carro,BMW,323i/iA,Exclusive,172
+carro,BMW,323i,iA Exclusive,172
 carro,BMW,323iA,2.5 24V,169
 carro,BMW,323iA,Confort,170
 carro,BMW,323iA,Entry Sedan,171
@@ -3176,16 +3178,16 @@ carro,BMW,323iA,Sport,173
 carro,BMW,323iA,Top Sedan,174
 carro,BMW,323iA,Touring,175
 carro,BMW,325i,325i,179
-carro,BMW,325i/iA,Cabrio,180
+carro,BMW,325i,iA Cabrio,180
 carro,BMW,325iA,2.5 24V Protection,182
 carro,BMW,325iA,325iA,181
 carro,BMW,325iA,Coupé 2.5 24V 2p,183
 carro,BMW,325iA,Touring,3955
 carro,BMW,328i,Exclusive 2.8 24V,184
 carro,BMW,328i,Touring/Sport,185
-carro,BMW,328i/iA,(modelo antigo),186
-carro,BMW,328i/iA,(novo modelo),187
-carro,BMW,328i/iA,Cabrio,188
+carro,BMW,328i,iA (modelo antigo),186
+carro,BMW,328i,iA (novo modelo),187
+carro,BMW,328i,iA Cabrio,188
 carro,BMW,328iA,2.0 TB/2.0 TB Flex 16V 4p,6046
 carro,BMW,328iA,Exclusive 2.8 24V,189
 carro,BMW,328iA,GT M Sport 2.0 Turbo 16V 245cv 5p,6633
@@ -3219,9 +3221,9 @@ carro,BMW,430i,Cabriolet Sport 2.0 TB 252cv 2p,7875
 carro,BMW,430i,Gran Coupé M Sport TB 5p,7729
 carro,BMW,435iA,M Sport Coupe 3.0 24V 306cv 2p,6691
 carro,BMW,520i,2.0 16V,196
-carro,BMW,525i/iA,525i/iA,197
-carro,BMW,525i/iA,Touring,198
-carro,BMW,528i/iA,528i/iA,199
+carro,BMW,525i,iA,197
+carro,BMW,525i,iA Touring,198
+carro,BMW,528i,iA,199
 carro,BMW,528iA,2.0 Turbo 16V 245cv 4p,6149
 carro,BMW,528iA,High,200
 carro,BMW,528iA,M Sport 2.0 Turbo 16V 245cv 4p,6514
@@ -3230,15 +3232,15 @@ carro,BMW,530e,Luxury 2.0 Turbo (Híbrido),9959
 carro,BMW,530e,M Sport 2.0 Turbo Aut. (Híbrido),9960
 carro,BMW,530i,M Sport 2.0 Turbo 252cv Aut.,7918
 carro,BMW,530i,Security,8816
-carro,BMW,530i/iA,530i/iA,202
-carro,BMW,530i/iA,Touring,203
-carro,BMW,535i/iA,3.5 24V,204
+carro,BMW,530i,iA,202
+carro,BMW,530i,iA Touring,203
+carro,BMW,535i,iA 3.5 24V,204
 carro,BMW,535iA,3.0 24V 306cv Bi-Turbo,5267
 carro,BMW,535iA,GT 3.0 306cv Bi-Turbo,5292
 carro,BMW,535iA,M Sport 3.0 24V 306cv Bi-Turbo,6415
 carro,BMW,540i,540i,205
 carro,BMW,540i,M Sport 3.0 Turbo 340cv Aut.,7919
-carro,BMW,540i/iA,Touring,206
+carro,BMW,540i,iA Touring,206
 carro,BMW,540iA,540iA,207
 carro,BMW,540iA,MotorSport,208
 carro,BMW,540iA,Protection,209
@@ -3259,10 +3261,10 @@ carro,BMW,650iA,4.8 V8 32V 360cv,4125
 carro,BMW,650iA,Limited Sport Edition 4.8 32V,5057
 carro,BMW,730i,3.0 32V,213
 carro,BMW,730iA,3.0 32V,214
-carro,BMW,735i/iA,3.5 32V,215
+carro,BMW,735i,iA 3.5 32V,215
 carro,BMW,740i,740i,216
 carro,BMW,740iA,740iA,217
-carro,BMW,740iL/iLA,Highline 4.4 32V,218
+carro,BMW,740iL,iLA Highline 4.4 32V,218
 carro,BMW,740iLA,Protection,219
 carro,BMW,745Le,M Sport Sedan 3.0 V6 Aut. (Híb.),9961
 carro,BMW,745iA,4.4 V8 32V 333cv,220
@@ -3277,8 +3279,8 @@ carro,BMW,760iL,6.0 V12 445cv/544cv,224
 carro,BMW,840Ci,840Ci,225
 carro,BMW,840CiA,840CiA,226
 carro,BMW,850CSi,5.6 24V,229
-carro,BMW,850Ci/CiA,5.0 24V,227
-carro,BMW,850Ci/CiA,5.4 24V,228
+carro,BMW,850Ci,CiA 5.0 24V,227
+carro,BMW,850Ci,CiA 5.4 24V,228
 carro,BMW,850i,5.0 24V,230
 carro,BMW,M,135i 3.0 TB 24V 320cv,10784
 carro,BMW,M,135i XDRIVE 2.0 TB Aut.,11919
@@ -3470,14 +3472,14 @@ carro,BYD,eT3,(Elétrico),9831
 carro,Baby,Buggy,1.6 2-Lug.,8274
 carro,Baby,Buggy,1.6/ TST/ RS 1.6 4-Lug.,8275
 carro,Baby,Buggy,RS Evolution 1.8 8V,8276
+carro,Brm,Buggy,M-8/M-8 Long 1.6,254
 carro,Brm,Buggy,W. Turing/Luxo/M-11 Absolut 1.6 8V,255
-carro,Brm,Buggy/M-8/M-8,Long 1.6,254
 carro,Bugre,Buggy,IV e V,4053
 carro,Bugre,Buggy,VII/VII BIG/VII Flex,5190
 carro,CAB Motors,Stark,Mountaim 2.3 AWD TDI Diesel 3p,9561
 carro,CAB Motors,Stark,Superação 2.3 AWD 2.3 TDI Die. 3p,9562
 carro,CBT Jipe,Javali,3.0 4x4 Diesel,260
-carro,Cadillac,Deville/Eldorado,4.9,258
+carro,Cadillac,Deville,Eldorado 4.9,258
 carro,Cadillac,Seville,4.6,259
 carro,Caoa Changan,AVATR11,AVATR11,11987
 carro,Caoa Changan,CS55,INFINITY 1.5 16V TGDi,12198
@@ -4100,56 +4102,56 @@ carro,Citroën,C3,XTR 1.0 6V 5p,12012
 carro,Citroën,C3,XTR 1.4 Flex 8V 5p,4302
 carro,Citroën,C3,XTR 1.6 Flex 16V 5p,4054
 carro,Citroën,C3,YOU! 1.0 Flex Turbo 200 Aut.,11176
-carro,Citroën,C4 CACTUS,100 Anos 1.6 TB 16V Flex Aut.,8739
-carro,Citroën,C4 CACTUS,C-SERIES 1.6 16V Flex Aut.,9207
-carro,Citroën,C4 CACTUS,FEEL 1.6 16V Flex Aut.,8466
-carro,Citroën,C4 CACTUS,FEEL 1.6 16V Flex Mec.,8467
-carro,Citroën,C4 CACTUS,FEEL Bus. 1.6 Flex Aut.,9586
-carro,Citroën,C4 CACTUS,FEEL Pack 1.6 16V Flex Aut.,8469
-carro,Citroën,C4 CACTUS,LIVE 1.6 16V Flex Aut.,9191
-carro,Citroën,C4 CACTUS,LIVE 1.6 16V Flex Mec.,8470
-carro,Citroën,C4 CACTUS,NOIR 1.6 Turbo Flex Aut.,10807
-carro,Citroën,C4 CACTUS,Rip Curl 1.6 16V Flex Aut.,9453
-carro,Citroën,C4 CACTUS,SHINE 1.6 16V Flex Aut.,9757
-carro,Citroën,C4 CACTUS,SHINE 1.6 Turbo Flex Aut.,8471
-carro,Citroën,C4 CACTUS,SHINE Pack 1.6 Turbo Flex Aut.,8472
-carro,Citroën,C4 CACTUS,X-Series 1.6 16V Flex Aut.,9609
-carro,Citroën,C4 Competition,1.6 Flex 16V 5p Mec.,6574
-carro,Citroën,C4 Competition,2.0 Flex 16V 5p Aut.,6559
-carro,Citroën,C4 Excl./Excl.,Solar. 2.0 Flex 16V Mec.,4888
-carro,Citroën,C4 Excl.2.0/2.0,Solaris Flex 16V 5p Aut.,4845
-carro,Citroën,C4 GLX,1.6 Flex 16V 5p Mec.,4846
-carro,Citroën,C4 GLX,2.0 Flex 16V 5p Aut.,4847
-carro,Citroën,C4 GLX,2.0 Flex 16V 5p Mec.,4889
-carro,Citroën,C4 LOUNGE,100 Anos 1.6 16V TB Flex Aut.,8740
-carro,Citroën,C4 LOUNGE,Exclusive 1.6 Turbo 4p Aut.,6575
-carro,Citroën,C4 LOUNGE,Exclusive 1.6 Turbo Flex Aut.,7094
-carro,Citroën,C4 LOUNGE,Exclusive 2.0 Flex 4p Aut.,6576
-carro,Citroën,C4 LOUNGE,Feel 1.6 Turbo Flex Aut.,8234
-carro,Citroën,C4 LOUNGE,Live 1.6 Turbo Flex Aut.,8515
-carro,Citroën,C4 LOUNGE,Live Bus. 1.6 Flex Aut.,9347
-carro,Citroën,C4 LOUNGE,Orig.Business 1.6 TB Flex Aut.,7658
-carro,Citroën,C4 LOUNGE,Origine 1.6 Turbo Flex Aut.,7684
-carro,Citroën,C4 LOUNGE,Origine 1.6 Turbo Flex Mec.,7685
-carro,Citroën,C4 LOUNGE,Origine 2.0 Flex 4p Aut.,7370
-carro,Citroën,C4 LOUNGE,Origine 2.0 Flex 4p Mec.,6577
-carro,Citroën,C4 LOUNGE,S 1.6 Turbo Flex Aut.,7787
-carro,Citroën,C4 LOUNGE,Shine 1.6 Turbo Flex Aut.,8235
-carro,Citroën,C4 LOUNGE,Tendance 1.6 Turbo 4p Aut,6884
-carro,Citroën,C4 LOUNGE,Tendance 1.6 Turbo Flex Aut.,7118
-carro,Citroën,C4 LOUNGE,Tendance 2.0 Flex 4p Aut.,6578
-carro,Citroën,C4 LOUNGE,Tendance 2.0 Flex 4p Mec.,6579
-carro,Citroën,C4 PAL.Excl/Excl(Tech.),2.0/2.0 Flex Aut,4397
-carro,Citroën,C4 PALLAS,Exclusive 2.0/2.0 Flex 16V Mec,4398
-carro,Citroën,C4 PALLAS,GLX 2.0/ 2.0 Flex Aut.,4399
-carro,Citroën,C4 PALLAS,GLX 2.0/2.0 Flex 16V Mec.,4400
+carro,Citroën,C4,Competition 1.6 Flex 16V 5p Mec.,6574
+carro,Citroën,C4,Competition 2.0 Flex 16V 5p Aut.,6559
+carro,Citroën,C4,Excl./Excl. Solar. 2.0 Flex 16V Mec.,4888
+carro,Citroën,C4,Excl.2.0/2.0 Solaris Flex 16V 5p Aut.,4845
+carro,Citroën,C4,GLX 1.6 Flex 16V 5p Mec.,4846
+carro,Citroën,C4,GLX 2.0 Flex 16V 5p Aut.,4847
+carro,Citroën,C4,GLX 2.0 Flex 16V 5p Mec.,4889
+carro,Citroën,C4,Rock You 1.6 Flex 16V 5p Mec.,6580
+carro,Citroën,C4,Tendance 1.6 Flex 16V 5p Mec.,6737
+carro,Citroën,C4,Tendance 2.0 Flex 16V 5p Aut.,6738
+carro,Citroën,C4,VTR 2.0 16V 143cv,4159
+carro,Citroën,C4 Cactus,100 Anos 1.6 TB 16V Flex Aut.,8739
+carro,Citroën,C4 Cactus,C-SERIES 1.6 16V Flex Aut.,9207
+carro,Citroën,C4 Cactus,FEEL 1.6 16V Flex Aut.,8466
+carro,Citroën,C4 Cactus,FEEL 1.6 16V Flex Mec.,8467
+carro,Citroën,C4 Cactus,FEEL Bus. 1.6 Flex Aut.,9586
+carro,Citroën,C4 Cactus,FEEL Pack 1.6 16V Flex Aut.,8469
+carro,Citroën,C4 Cactus,LIVE 1.6 16V Flex Aut.,9191
+carro,Citroën,C4 Cactus,LIVE 1.6 16V Flex Mec.,8470
+carro,Citroën,C4 Cactus,NOIR 1.6 Turbo Flex Aut.,10807
+carro,Citroën,C4 Cactus,Rip Curl 1.6 16V Flex Aut.,9453
+carro,Citroën,C4 Cactus,SHINE 1.6 16V Flex Aut.,9757
+carro,Citroën,C4 Cactus,SHINE 1.6 Turbo Flex Aut.,8471
+carro,Citroën,C4 Cactus,SHINE Pack 1.6 Turbo Flex Aut.,8472
+carro,Citroën,C4 Cactus,X-Series 1.6 16V Flex Aut.,9609
+carro,Citroën,C4 Lounge,100 Anos 1.6 16V TB Flex Aut.,8740
+carro,Citroën,C4 Lounge,Exclusive 1.6 Turbo 4p Aut.,6575
+carro,Citroën,C4 Lounge,Exclusive 1.6 Turbo Flex Aut.,7094
+carro,Citroën,C4 Lounge,Exclusive 2.0 Flex 4p Aut.,6576
+carro,Citroën,C4 Lounge,Feel 1.6 Turbo Flex Aut.,8234
+carro,Citroën,C4 Lounge,Live 1.6 Turbo Flex Aut.,8515
+carro,Citroën,C4 Lounge,Live Bus. 1.6 Flex Aut.,9347
+carro,Citroën,C4 Lounge,Orig.Business 1.6 TB Flex Aut.,7658
+carro,Citroën,C4 Lounge,Origine 1.6 Turbo Flex Aut.,7684
+carro,Citroën,C4 Lounge,Origine 1.6 Turbo Flex Mec.,7685
+carro,Citroën,C4 Lounge,Origine 2.0 Flex 4p Aut.,7370
+carro,Citroën,C4 Lounge,Origine 2.0 Flex 4p Mec.,6577
+carro,Citroën,C4 Lounge,S 1.6 Turbo Flex Aut.,7787
+carro,Citroën,C4 Lounge,Shine 1.6 Turbo Flex Aut.,8235
+carro,Citroën,C4 Lounge,Tendance 1.6 Turbo 4p Aut,6884
+carro,Citroën,C4 Lounge,Tendance 1.6 Turbo Flex Aut.,7118
+carro,Citroën,C4 Lounge,Tendance 2.0 Flex 4p Aut.,6578
+carro,Citroën,C4 Lounge,Tendance 2.0 Flex 4p Mec.,6579
+carro,Citroën,C4 Pallas,Excl/Excl(Tech.) 2.0/2.0 Flex Aut,4397
+carro,Citroën,C4 Pallas,Exclusive 2.0/2.0 Flex 16V Mec,4398
+carro,Citroën,C4 Pallas,GLX 2.0/ 2.0 Flex Aut.,4399
+carro,Citroën,C4 Pallas,GLX 2.0/2.0 Flex 16V Mec.,4400
 carro,Citroën,C4 Picasso,Intensive 1.6 Turbo 16V Aut.,7426
+carro,Citroën,C4 Picasso,Pic. La Luna 2.0 16V Aut.,4824
 carro,Citroën,C4 Picasso,Seduction 1.6 Turbo 16V Aut.,7427
-carro,Citroën,C4 Picasso/Pic.,La Luna 2.0 16V Aut.,4824
-carro,Citroën,C4 Rock,You 1.6 Flex 16V 5p Mec.,6580
-carro,Citroën,C4 Tendance,1.6 Flex 16V 5p Mec.,6737
-carro,Citroën,C4 Tendance,2.0 Flex 16V 5p Aut.,6738
-carro,Citroën,C4 VTR,2.0 16V 143cv,4159
 carro,Citroën,C5,3.0 24V 210cv 4p Aut.,293
 carro,Citroën,C5,Exclusive 2.0 16V 138cv 4p Mec.,294
 carro,Citroën,C5,Exclusive 2.0 16V 4p Aut.,295
@@ -4800,8 +4802,6 @@ carro,Fiat,Stilo,Dualogic 1.8 BlackMotion Flex 8V,4862
 carro,Fiat,Stilo,Dualogic 1.8 Flex 8V 5p,4529
 carro,Fiat,Stilo,Dualogic 1.8 SP Flex 8V 5p,4530
 carro,Fiat,Stilo,Dualogic 1.8 Sporting Flex 8V 5p,4531
-carro,Fiat,Strada/,Strada Working 1.5 mpi 8V CE,616
-carro,Fiat,Strada/,Strada Working 1.5 mpi 8V CS,617
 carro,Fiat,Tempra,2.0 i.e 16V 2p e 4p,618
 carro,Fiat,Tempra,2.0 i.e. 8V 2p e 4p,619
 carro,Fiat,Tempra,2.0 mpi 16V,620
@@ -5277,7 +5277,7 @@ carro,Great Wall,HOVER,CUV 2.4 16V 4WD 5p Mec.,4791
 carro,Great Wall,HOVER,CUV 2.4 16V 5p Mec.,4792
 carro,Gurgel,BR-800,(todos)/Supermini,1238
 carro,Gurgel,Carajas,Diesel,1239
-carro,Gurgel,Carajas/Tocantis/Xavante/Vip,Carajas/Tocantis/Xavante/Vip,1240
+carro,Gurgel,Carajas,Tocantis/Xavante/Vip,1240
 carro,Hafei,Towner,Furgão 1.0 8V 48cv 5p,4771
 carro,Hafei,Towner,Jr. Pick-up 1.0 8V 48cv CD 4p,5277
 carro,Hafei,Towner,Jr. Pick-up 1.0 8V 48cv CS 2p,5278
@@ -5495,7 +5495,7 @@ carro,Hyundai,Galloper,2.5 Super Luxo Turbo Diesel,1311
 carro,Hyundai,Galloper,3.0 V6 Luxo,1312
 carro,Hyundai,Galloper,3.0 V6 Super Luxo Aut,1313
 carro,Hyundai,Galloper,3.0 V6 Super Luxo Mec,1314
-carro,Hyundai,Grand Santa,Fé 3.3 V6 4X4 Tiptronic,6694
+carro,Hyundai,Grand Santa Fe,Fé 3.3 V6 4X4 Tiptronic,6694
 carro,Hyundai,H1,Starex HSV 2.4 16V 137cv Aut.,1315
 carro,Hyundai,H1,Starex HSV 2.5 Diesel,1316
 carro,Hyundai,H1,Starex SVX 2.4 16V,4801
@@ -5649,8 +5649,8 @@ carro,Hyundai,Porter,GLS CD 4x2 2.6 8V Diesel,1332
 carro,Hyundai,Santa Fe,3.5 V6 4X4 Aut.,8860
 carro,Hyundai,Santa Fe,GLS 2.4 Tiptronic,5727
 carro,Hyundai,Santa Fe,GLS 2.7 V6 4x4TipTronic,1333
+carro,Hyundai,Santa Fe,GLS 3.3 V6 4X4 Tiptronic,6439
 carro,Hyundai,Santa Fe,GLS 3.5 V6 4x4 Tiptronic,5212
-carro,Hyundai,Santa Fe/GLS,3.3 V6 4X4 Tiptronic,6439
 carro,Hyundai,Scoupe,Scoupe,1334
 carro,Hyundai,Sonata,2.4 16V 182cv 4p Aut.,5398
 carro,Hyundai,Sonata,GL 2.0 4p,1335
@@ -6149,13 +6149,6 @@ carro,Lamborghini,URUS,650-4,11517
 carro,Lamborghini,URUS,Performante 650-4,11518
 carro,Lamborghini,URUS,S 650-4,11519
 carro,Lamborghini,URUS,SE 800-4 V.8 BT (Híbrido),11520
-carro,Land Rover,Def.,90 X-DY D350 HSE Die. Aut.( Híb.),11490
-carro,Land Rover,Defe.,110 X-DY HSE P400e Aut. (Hib.),10912
-carro,Land Rover,Defe.,110 X-DY SE D300 Die Aut. (Hib.),10653
-carro,Land Rover,Defe.,110 X-DY.HSE D300 Die Aut. (Híb.),11259
-carro,Land Rover,Defe.,110 X-DY.HSE D350 Die Aut. (Híb.),11260
-carro,Land Rover,Defe.,130 Outbound D300 Die. Aut. (Hib.),10913
-carro,Land Rover,Defe.,130 X-DY S 3.0 I6 Die.Aut.(Hib.),10914
 carro,Land Rover,Defender,110 2.0 Turbo HSE Si4 Aut.,9136
 carro,Land Rover,Defender,110 2.0 Turbo S Si4 Aut.,9137
 carro,Land Rover,Defender,110 2.0 Turbo SE Si4 Aut.,9138
@@ -6177,12 +6170,18 @@ carro,Land Rover,Defender,110 TROPHY Edition 3.0 D350 4X4 Aut.,11636
 carro,Land Rover,Defender,110 X D300 Die. Aut. (Híb.),10657
 carro,Land Rover,Defender,110 X D350 Die. Aut. (Híb.),11315
 carro,Land Rover,Defender,110 X P400e Aut. (Hibrido),10915
+carro,Land Rover,Defender,110 X-DY HSE P400e Aut. (Hib.),10912
 carro,Land Rover,Defender,110 X-DY S D300 Die Aut. (Hib.),10658
+carro,Land Rover,Defender,110 X-DY SE D300 Die Aut. (Hib.),10653
+carro,Land Rover,Defender,110 X-DY.HSE D300 Die Aut. (Híb.),11259
+carro,Land Rover,Defender,110 X-DY.HSE D350 Die Aut. (Híb.),11260
 carro,Land Rover,Defender,130 Chassis CD Diesel,1450
 carro,Land Rover,Defender,130 High CAP Diesel,1451
+carro,Land Rover,Defender,130 Outbound D300 Die. Aut. (Hib.),10913
 carro,Land Rover,Defender,130 TDI CD Diesel,1452
 carro,Land Rover,Defender,130 X 3.0 I6 D350.Aut.(Hibrido),11292
 carro,Land Rover,Defender,130 X 3.0 I6 Die.Aut.(Hibrido),10367
+carro,Land Rover,Defender,130 X-DY S 3.0 I6 Die.Aut.(Hib.),10914
 carro,Land Rover,Defender,90 2.0 Turbo SE Si4 Aut.,9630
 carro,Land Rover,Defender,90 2.4 122cv T.Diesel,4533
 carro,Land Rover,Defender,90 2.5 TDi CS Diesel,1453
@@ -6195,10 +6194,23 @@ carro,Land Rover,Defender,90 Soft Top Diesel,1454
 carro,Land Rover,Defender,90 TDI CSW Diesel,1455
 carro,Land Rover,Defender,90 TDI Hard Top Diesel,1456
 carro,Land Rover,Defender,90 TDI SW Diesel,1457
-carro,Land Rover,Disc.,Sp. S 2.0 4x4 Dies. Aut. (Híb.),9997
-carro,Land Rover,Disc.,Sp. SE Dyn 2.0 D200 Die.Aut.(Híb.),10967
-carro,Land Rover,Discov.,Metrop. Edt. 3.0 4x4 Die. (Híb.),10916
-carro,Land Rover,Discov.,Sp. HSE 2.0 TB 240cv Die. Aut,8241
+carro,Land Rover,Defender,90 X-DY D350 HSE Die. Aut.( Híb.),11490
+carro,Land Rover,Discovery,3 HSE 2.7 4x4 TDI Diesel Aut.,1463
+carro,Land Rover,Discovery,3 HSE 4.4 V8 4x4 299cv Aut.,1464
+carro,Land Rover,Discovery,3 S 2.7 4x4 TDI Diesel Aut.,1465
+carro,Land Rover,Discovery,3 S 4.0 V6 4x4 215cv Aut.,4201
+carro,Land Rover,Discovery,3 SE 2.7 4x4 TDI Diesel Aut.,4417
+carro,Land Rover,Discovery,3 SE 4.0 V6 4x4 215cv Aut.,1466
+carro,Land Rover,Discovery,4 B&W 3.0 4x4 TDV6 Diesel Aut.,5624
+carro,Land Rover,Discovery,4 BLACK 3.0 4x4 SDV6 Dies. Aut.,7353
+carro,Land Rover,Discovery,4 GRAPHITE 3.0 4x4 SDV6 Die.Aut,7704
+carro,Land Rover,Discovery,4 HSE 2.7 4x4 TDV6 Diesel Aut.,5141
+carro,Land Rover,Discovery,4 HSE 3.0 4x4 TDV6/SDV6 Die.Aut,5142
+carro,Land Rover,Discovery,4 HSE 5.0 4x4 Aut.,5143
+carro,Land Rover,Discovery,4 S 2.7 4x4 TDV6 Diesel Aut.,5131
+carro,Land Rover,Discovery,4 S 3.0 4X4 TDV6 Diesel Aut.,5899
+carro,Land Rover,Discovery,4 SE 2.7 4x4 TDV6 Diesel Aut.,5109
+carro,Land Rover,Discovery,4 SE 3.0 4x4 TDV6/SDV6 Die.Aut.,5144
 carro,Land Rover,Discovery,Dyn HSE 3.0 4x4 Die. (Hib.),11316
 carro,Land Rover,Discovery,ES 3.9 V8,1458
 carro,Land Rover,Discovery,ES 4.0 V8 Aut.,1459
@@ -6210,6 +6222,7 @@ carro,Land Rover,Discovery,HSE 3.0 V6 4x4 Aut.,8408
 carro,Land Rover,Discovery,HSE 3.0 V6 4x4 TD6 Diesel Aut.,7973
 carro,Land Rover,Discovery,HSE Lux. 3.0 TD6 4x4 Die. Aut.,8016
 carro,Land Rover,Discovery,HSE Lux. 3.0 V6 4x4 Aut.,8409
+carro,Land Rover,Discovery,Metrop. Edt. 3.0 4x4 Die. (Híb.),10916
 carro,Land Rover,Discovery,R- Dyn HSE 3.0 4x4 Die. (Hib.),10395
 carro,Land Rover,Discovery,R-Dynamic S 3.0 4x4 Die (Hib.),10396
 carro,Land Rover,Discovery,RAW 3.0 4x4 TDV6 Diesel Aut.,7286
@@ -6218,155 +6231,53 @@ carro,Land Rover,Discovery,S 3.0 V6 4x4 TD6 Diesel Aut.,8411
 carro,Land Rover,Discovery,SE 3.0 I6 Diesel Aut.,9349
 carro,Land Rover,Discovery,SE 3.0 V6 4x4 Aut.,8412
 carro,Land Rover,Discovery,SE 3.0 V6 4x4 TD6 Diesel Aut.,8017
-carro,Land Rover,Discovery,Sp. SE 2.0 4x4 Dies Aut.(Híb.),9999
-carro,Land Rover,Discovery,Sp. SE Dyn 2.0 P250 Flex Aut.,10968
-carro,Land Rover,Discovery,Sp. SE Dyn 2.0 TB Die.(Híb.),11317
-carro,Land Rover,Discovery,Sp. SE R-Dyn 2.0 TB Die.(Híb.),10000
-carro,Land Rover,Discovery,Sport BLACK 2.2 4x4 Dies. Aut.,7550
-carro,Land Rover,Discovery,Sport HSE 2.0 4x4 Aut/ Flex,7192
-carro,Land Rover,Discovery,Sport HSE 2.0 4x4 Diesel Aut.,7796
-carro,Land Rover,Discovery,Sport HSE 2.2 4x4 Diesel Aut.,7392
-carro,Land Rover,Discovery,Sport HSE L. 2.0 4x4 Die. Aut.,7925
-carro,Land Rover,Discovery,Sport HSE L. 2.2 4x4 Die. Aut.,7457
-carro,Land Rover,Discovery,Sport HSE Lux. 2.0 4x4 /Flex,7193
-carro,Land Rover,Discovery,Sport Landmark 2.0 4x4 Aut.,11921
-carro,Land Rover,Discovery,Sport Landmark 2.0 4x4 Diesel,8631
-carro,Land Rover,Discovery,Sport S 2.0 4x4 Flex Aut.,9022
-carro,Land Rover,Discovery,Sport SE 2.0 4x4 Aut./Flex,7194
-carro,Land Rover,Discovery,Sport SE 2.2 4x4 Diesel Aut.,7393
-carro,Land Rover,Discovery,Sport SE R-Dyn 2.0 Si4 Flex,9023
 carro,Land Rover,Discovery,TDI 2.5 Diesel,1462
 carro,Land Rover,Discovery,Tempest 3.0 D350 4X4 Aut.,11637
-carro,Land Rover,Discovery3,HSE 2.7 4x4 TDI Diesel Aut.,1463
-carro,Land Rover,Discovery3,HSE 4.4 V8 4x4 299cv Aut.,1464
-carro,Land Rover,Discovery3,S 2.7 4x4 TDI Diesel Aut.,1465
-carro,Land Rover,Discovery3,S 4.0 V6 4x4 215cv Aut.,4201
-carro,Land Rover,Discovery3,SE 2.7 4x4 TDI Diesel Aut.,4417
-carro,Land Rover,Discovery3,SE 4.0 V6 4x4 215cv Aut.,1466
-carro,Land Rover,Discovery4,B&W 3.0 4x4 TDV6 Diesel Aut.,5624
-carro,Land Rover,Discovery4,BLACK 3.0 4x4 SDV6 Dies. Aut.,7353
-carro,Land Rover,Discovery4,GRAPHITE 3.0 4x4 SDV6 Die.Aut,7704
-carro,Land Rover,Discovery4,HSE 2.7 4x4 TDV6 Diesel Aut.,5141
-carro,Land Rover,Discovery4,HSE 3.0 4x4 TDV6/SDV6 Die.Aut,5142
-carro,Land Rover,Discovery4,HSE 5.0 4x4 Aut.,5143
-carro,Land Rover,Discovery4,S 2.7 4x4 TDV6 Diesel Aut.,5131
-carro,Land Rover,Discovery4,S 3.0 4X4 TDV6 Diesel Aut.,5899
-carro,Land Rover,Discovery4,SE 2.7 4x4 TDV6 Diesel Aut.,5109
-carro,Land Rover,Discovery4,SE 3.0 4x4 TDV6/SDV6 Die.Aut.,5144
+carro,Land Rover,Discovery Sport,BLACK 2.2 4x4 Dies. Aut.,7550
+carro,Land Rover,Discovery Sport,HSE 2.0 4x4 Aut/ Flex,7192
+carro,Land Rover,Discovery Sport,HSE 2.0 4x4 Diesel Aut.,7796
+carro,Land Rover,Discovery Sport,HSE 2.0 TB 240cv Die. Aut,8241
+carro,Land Rover,Discovery Sport,HSE 2.2 4x4 Diesel Aut.,7392
+carro,Land Rover,Discovery Sport,HSE L. 2.0 4x4 Die. Aut.,7925
+carro,Land Rover,Discovery Sport,HSE L. 2.2 4x4 Die. Aut.,7457
+carro,Land Rover,Discovery Sport,HSE Lux. 2.0 4x4 /Flex,7193
+carro,Land Rover,Discovery Sport,Landmark 2.0 4x4 Aut.,11921
+carro,Land Rover,Discovery Sport,Landmark 2.0 4x4 Diesel,8631
+carro,Land Rover,Discovery Sport,S 2.0 4x4 Dies. Aut. (Híb.),9997
+carro,Land Rover,Discovery Sport,S 2.0 4x4 Flex Aut.,9022
+carro,Land Rover,Discovery Sport,SE 2.0 4x4 Aut./Flex,7194
+carro,Land Rover,Discovery Sport,SE 2.0 4x4 Dies Aut.(Híb.),9999
+carro,Land Rover,Discovery Sport,SE 2.2 4x4 Diesel Aut.,7393
+carro,Land Rover,Discovery Sport,SE Dyn 2.0 D200 Die.Aut.(Híb.),10967
+carro,Land Rover,Discovery Sport,SE Dyn 2.0 P250 Flex Aut.,10968
+carro,Land Rover,Discovery Sport,SE Dyn 2.0 TB Die.(Híb.),11317
+carro,Land Rover,Discovery Sport,SE R-Dyn 2.0 Si4 Flex,9023
+carro,Land Rover,Discovery Sport,SE R-Dyn 2.0 TB Die.(Híb.),10000
 carro,Land Rover,Freelander,1.8 16v,1467
+carro,Land Rover,Freelander,2 Dynamique 2.2 SD4 T. Diesel,6177
+carro,Land Rover,Freelander,2 HSE 2.2 SD4 190cv T.Diesel,5557
+carro,Land Rover,Freelander,2 I6 HSE 3.2 232cv Aut. 5p,4303
+carro,Land Rover,Freelander,2 I6 LE Sport 3.2 232cv Aut. 5,5537
+carro,Land Rover,Freelander,2 I6 S 3.2 232cv Aut. 5p,4304
+carro,Land Rover,Freelander,2 I6 S Sport 3.2 232cv Aut. 5p,5379
+carro,Land Rover,Freelander,2 I6 SE 3.2 232cv Aut. 5p,4305
+carro,Land Rover,Freelander,2 S 2.2 SD4 190cv T.Diesel,5558
+carro,Land Rover,Freelander,2 SE 2.2 SD4 190cv T.Diesel,5559
+carro,Land Rover,Freelander,2 Si4 Dyn. 2.0 240cv Aut. 5p,6385
+carro,Land Rover,Freelander,2 Si4 HSE 2.0 240cv Aut. 5p,6386
+carro,Land Rover,Freelander,2 Si4 S 2.0 240cv Aut. 5p,6387
+carro,Land Rover,Freelander,2 Si4 SE 2.0 240cv Aut. 5p,6388
 carro,Land Rover,Freelander,HSE 2.5 V6 24V 177cv 5p,1468
 carro,Land Rover,Freelander,HSE3 2.5 V6 24V 177cv 3p,3823
 carro,Land Rover,Freelander,S/ SE 2.5 V6 24V 177cv 5p,1469
 carro,Land Rover,Freelander,SE3 2.5 V6 24V 177cv 3p,1470
-carro,Land Rover,Freelander2,Dynamique 2.2 SD4 T. Diesel,6177
-carro,Land Rover,Freelander2,HSE 2.2 SD4 190cv T.Diesel,5557
-carro,Land Rover,Freelander2,I6 HSE 3.2 232cv Aut. 5p,4303
-carro,Land Rover,Freelander2,I6 LE Sport 3.2 232cv Aut. 5,5537
-carro,Land Rover,Freelander2,I6 S 3.2 232cv Aut. 5p,4304
-carro,Land Rover,Freelander2,I6 S Sport 3.2 232cv Aut. 5p,5379
-carro,Land Rover,Freelander2,I6 SE 3.2 232cv Aut. 5p,4305
-carro,Land Rover,Freelander2,S 2.2 SD4 190cv T.Diesel,5558
-carro,Land Rover,Freelander2,SE 2.2 SD4 190cv T.Diesel,5559
-carro,Land Rover,Freelander2,Si4 Dyn. 2.0 240cv Aut. 5p,6385
-carro,Land Rover,Freelander2,Si4 HSE 2.0 240cv Aut. 5p,6386
-carro,Land Rover,Freelander2,Si4 S 2.0 240cv Aut. 5p,6387
-carro,Land Rover,Freelander2,Si4 SE 2.0 240cv Aut. 5p,6388
-carro,Land Rover,New Range/Range,Rover Vogue 3.9 V8,1471
-carro,Land Rover,Range R.,Autobio. 3.0 I6 TB Die. (Híb.),10220
-carro,Land Rover,Range R.,Autobio. 3.0 I6 TB P550e (Híb.),11275
-carro,Land Rover,Range R.,EVO HSE Si4 R-Dyn.2.0 300cv Aut,8751
-carro,Land Rover,Range R.,EVO SE Si4 R-Dyn. 2.0 Flex Aut.,8904
-carro,Land Rover,Range R.,First Ed.3.0 350cv Die.(Hib.),11731
-carro,Land Rover,Range R.,First.Ed. 4.4 V8 TB 530cv Aut.,10221
-carro,Land Rover,Range R.,SV Autob. Sc. Dyn. SWB 5.0 V8,9341
-carro,Land Rover,Range R.,SV Autob. Super. LWB 5.0 V8,9053
-carro,Land Rover,Range R.,SVAutobiography SUPERC. 5.0 V8,7667
-carro,Land Rover,Range R.,Sp. Dyn. HSE 3.0I6 Die. (Hib.),10673
-carro,Land Rover,Range R.,Sp. Dynam. HSE 3.0 (Híb.),11328
-carro,Land Rover,Range R.,Sp. First Ed. 3.0 510cv (Híb.),10675
-carro,Land Rover,Range R.,Sp.SVR AWD 5.0 Carbon Ed. Aut.,9559
-carro,Land Rover,Range R.,Sport Autob. 3.0 SDV6 Diesel,6389
-carro,Land Rover,Range R.,Sport Autob. 3.0 TB Die. (Híb.),10890
-carro,Land Rover,Range R.,Sport Autob. Dyn.SCHA. 5.0 V8,7139
-carro,Land Rover,Range R.,Sport Autob. SUPERCHAR. 5.0 V8,6390
-carro,Land Rover,Range R.,Sport Autobio. 3.0 P550e (Híb.),11233
-carro,Land Rover,Range R.,Sport HSE Dyna. 3.0 SDV6 Dies.,8459
-carro,Land Rover,Range R.,Sport HSE Dynamic SUPERC.5.0 V8,6641
-carro,Land Rover,Range R.,Sport HSE SUPERCHARGED 3.0 V6,6665
-carro,Land Rover,Range R.,Sport HST SUPERCHARGED 3.0 V6,7483
-carro,Land Rover,Range R.,Sport L. Edit. SCHARGED 3.0 V6,7764
-carro,Land Rover,Range R.,Sport TECH S 3.0 SDV6 Diesel,7307
-carro,Land Rover,Range R.,VE. R-Dyn HSE 2.0 4X4 300cv Aut,8522
-carro,Land Rover,Range R.,VE. R-Dyn S 2.0 4X4 300cv Aut.,8523
-carro,Land Rover,Range R.,VE. R-Dyn SE 2.0 4x4 250cv Aut.,8095
-carro,Land Rover,Range R.,VE. R-Dyn SE 2.0 4x4 300cv Aut.,8478
-carro,Land Rover,Range R.,VEL. R-Dyn HSE 3.0 Aut.(Híb.),10112
-carro,Land Rover,Range R.,VEL. R-Dyn. 2.0 4x4 250cv Aut.,8090
-carro,Land Rover,Range R.,VEL. R-Dyn. 2.0 4x4 300cv Aut.,8479
-carro,Land Rover,Range R.,VEL. R-Dyn. HSE 2.0 Aut. (Híb.),10407
-carro,Land Rover,Range R.,VEL. R-Dyn. S 2.0 Aut. (Híbrido),11944
-carro,Land Rover,Range R.,VEL. R-Dyn. SE 3.0 Aut. (Híb.),10409
-carro,Land Rover,Range R.,VELAR 2.0 4x4 TB 250cv Aut.,8085
-carro,Land Rover,Range R.,VELAR 3.0 4x4 V6 380cv Aut.,8086
-carro,Land Rover,Range R.,VELAR Autobio. 2.0 P400e (Híb),11463
-carro,Land Rover,Range R.,VELAR First Ed. 3.0 4x4 V6 Aut.,8087
-carro,Land Rover,Range R.,VELAR HSE 2.0 4x4 TB 250cv Aut.,8088
-carro,Land Rover,Range R.,VELAR HSE 3.0 4x4 V6 380cv Aut,8089
-carro,Land Rover,Range R.,VELAR HSE Dyn 2.0 P400e (Hib.),11276
-carro,Land Rover,Range R.,VELAR R-Dyn. 3.0 4x4 V6 Aut.,8091
-carro,Land Rover,Range R.,VELAR R-Dyn. HSE 2.0 4x4 TB Aut,8092
-carro,Land Rover,Range R.,VELAR R-Dyn. HSE 3.0 4x4 V6 Aut,8093
-carro,Land Rover,Range R.,VELAR R-Dyn. S 2.0 4x4 TB Aut.,8097
-carro,Land Rover,Range R.,VELAR R-Dyn. S 3.0 4x4 V6 Aut.,8094
-carro,Land Rover,Range R.,VELAR R-Dyn. SE 3.0 4x4 V6 Aut.,8096
-carro,Land Rover,Range R.,VELAR S 2.0 4x4 TB 250cv Aut.,8098
-carro,Land Rover,Range R.,VELAR S 2.0 4x4 TB 300cv Aut.,8497
-carro,Land Rover,Range R.,VELAR S 3.0 4x4 V6 380cv Aut.,8099
-carro,Land Rover,Range R.,VELAR SE 2.0 4x4 TB 250cv Aut.,8100
-carro,Land Rover,Range R.,VELAR SE 3.0 4x4 V6 380cv Aut.,8101
-carro,Land Rover,Range R.,VELAR SV Autob. Super.C 5.0 V8,8961
-carro,Land Rover,Range R.,Velar HSE R-Dyn 2.0 Si4(Hib.),10410
-carro,Land Rover,Range R.,Vogue 4.4 TDV8/SDV8 Diesel Aut.,5421
-carro,Land Rover,Range R.,Vogue Autob. SUPERCHAR. 5.0 V8,6391
-carro,Land Rover,Range R.,Vogue/4.4 Autobio. SDV8 Diesel.,6392
-carro,Land Rover,Range R.EVO,DYNAMIC. BLACK 2.0 Aut. 5p,7354
-carro,Land Rover,Range R.EVO,STYLE 2.0 Aut. 5p,7355
-carro,Land Rover,Range R.EVOQ.,HSE Dyn. Convers 2.0 Aut.,7926
-carro,Land Rover,Range R.EVOQUE,Autob. 2.0 P250 Flex Aut,11420
-carro,Land Rover,Range R.EVOQUE,Dynamic 2.0 Aut 3p,5700
-carro,Land Rover,Range R.EVOQUE,Dynamic 2.0 Aut 5p,5701
-carro,Land Rover,Range R.EVOQUE,Dynamic Tech 2.0 Aut 3p,5707
-carro,Land Rover,Range R.EVOQUE,Dynamic Tech 2.0 Aut 5p,5702
-carro,Land Rover,Range R.EVOQUE,HSE Dyna. 2.0 Dies. Aut.,8214
-carro,Land Rover,Range R.EVOQUE,LONDON 2.0 240cv Aut. 5p,7287
-carro,Land Rover,Range R.EVOQUE,ONE SICILIAN 2.0 Aut. 5p,6697
-carro,Land Rover,Range R.EVOQUE,Prestige 2.0 Aut. 5p,5703
-carro,Land Rover,Range R.EVOQUE,Prestige 2.2 5p Dies.,6923
-carro,Land Rover,Range R.EVOQUE,Prestige Tech 2.0 Aut 5p,5704
-carro,Land Rover,Range R.EVOQUE,PrestigeTech 2.2 5p Dies.,6924
-carro,Land Rover,Range R.EVOQUE,Pure 2.0 Aut. 3p,5706
-carro,Land Rover,Range R.EVOQUE,Pure 2.0 Aut. 5p,5705
-carro,Land Rover,Range R.EVOQUE,SD4 HSE 2.2 Dies. Aut.5p,7551
-carro,Land Rover,Range R.EVOQUE,SD4 SE 2.2 Dies. Aut. 5p,7374
-carro,Land Rover,Range R.EVOQUE,Si4 HSE Dyn. 2.0/Flex Aut,7394
-carro,Land Rover,Range R.EVOQUE,Si4 SE 2.0 Aut.5p/Flex,7375
-carro,Land Rover,Range R.EVOQUE,Si4 SE Dynamic 2.0 Aut.,7395
-carro,Land Rover,Range R.Sp.,First.Ed.4.4 V8 TB 530cv Aut,10177
-carro,Land Rover,Range R.Sp.,SE 3.0 4x4 I6 TB Die. (Híb.),10053
-carro,Land Rover,Range R.Sp.HSE,Dyn.Bl. 3.0 I6 Die.(Híb.),10054
-carro,Land Rover,Range R.Sport,First.Ed.3.0 I6 Die.(Hib.),10676
-carro,Land Rover,Range R.Sport,HSE 3.0 I6 TB Die. (Híb.),10055
-carro,Land Rover,Range R.Sport,HSE Dynamic 4.4 SDV8 Dies.,7396
-carro,Land Rover,Range R.Sport,SE 3.0 4x4 TDV6/SDV6 Dies.,5133
 carro,Land Rover,Range Rover,Autobio 4.4 V8 TB 530cv Aut.,10222
 carro,Land Rover,Range Rover,Autobio. 2.0 Si4 (Hibrido),9487
+carro,Land Rover,Range Rover,Autobio. 3.0 I6 TB Die. (Híb.),10220
+carro,Land Rover,Range Rover,Autobio. 3.0 I6 TB P550e (Híb.),11275
 carro,Land Rover,Range Rover,Autobio.3.0 I6 510cv (Híb.),10677
-carro,Land Rover,Range Rover,EVOQUE Autobiography 2.0 Aut,8413
-carro,Land Rover,Range Rover,EVOQUE HSE 2.0 Diesel Aut.,8498
-carro,Land Rover,Range Rover,EVOQUE Pure Tech 2.0 Aut. 3p,6466
-carro,Land Rover,Range Rover,EVOQUE Pure Tech 2.0 Aut. 5p,6328
-carro,Land Rover,Range Rover,EVOQUE SE 2.0 Diesel Aut.,7798
-carro,Land Rover,Range Rover,EVOQUE Zanzibar 2.0 Aut. 5p,7121
+carro,Land Rover,Range Rover,First Ed.3.0 350cv Die.(Hib.),11731
+carro,Land Rover,Range Rover,First.Ed. 4.4 V8 TB 530cv Aut.,10221
 carro,Land Rover,Range Rover,HSE 3.0 I6 510cv (Híbrido),10678
 carro,Land Rover,Range Rover,HSE 4.4/ 4.6,1472
 carro,Land Rover,Range Rover,SE 3.0 I6 510cv (Híbrido),10679
@@ -6375,28 +6286,117 @@ carro,Land Rover,Range Rover,SE. 3.0 I6 TB Die. (Híb.),10224
 carro,Land Rover,Range Rover,SUPERCHARGED 4.2 V8 396cv,1473
 carro,Land Rover,Range Rover,SV 3.0 I6 TB (Híb.),11542
 carro,Land Rover,Range Rover,SV 4.4 V8 TB 530cv Aut.,10225
+carro,Land Rover,Range Rover,SV Autob. Sc. Dyn. SWB 5.0 V8,9341
+carro,Land Rover,Range Rover,SV Autob. Super. LWB 5.0 V8,9053
 carro,Land Rover,Range Rover,SV. 3.0 I6 TB Die. (Híb.),10226
-carro,Land Rover,Range Rover,Sport 3.6 TDV8 272cv Diesel,4385
-carro,Land Rover,Range Rover,Sport Dynamic HSE 3.0 4X4 P550e,11652
-carro,Land Rover,Range Rover,Sport HSE 2.0 Si4 (Híbrido),8993
-carro,Land Rover,Range Rover,Sport HSE 2.7 190cv TB Dies.,3892
-carro,Land Rover,Range Rover,Sport HSE 3.0 4x4 SDV6 Dies.,5145
-carro,Land Rover,Range Rover,Sport HSE 4.4 V8 32V 295cv,3824
-carro,Land Rover,Range Rover,Sport HSE SUPERCHAR. 5.0 V8,5132
-carro,Land Rover,Range Rover,Sport SE 2.7 190cv TB Diesel,4275
-carro,Land Rover,Range Rover,Sport SE 3.6 TDV8 272cv Dies,4499
-carro,Land Rover,Range Rover,Sport SE 4.4 V8 32V 299cv,4276
-carro,Land Rover,Range Rover,Sport SE Dy.3.0 I6 Die.(Hib),10760
-carro,Land Rover,Range Rover,Sport SE SUPERCH. 3.0 Aut.,8040
-carro,Land Rover,Range Rover,Sport SUPERCHAGED 4.2 V8,3825
-carro,Land Rover,Range Rover,Sport SVR SUPERCHA. 5.0 V8,7157
+carro,Land Rover,Range Rover,SVAutobiography SUPERC. 5.0 V8,7667
+carro,Land Rover,Range Rover,VE. R-Dyn HSE 2.0 4X4 300cv Aut,8522
+carro,Land Rover,Range Rover,VE. R-Dyn S 2.0 4X4 300cv Aut.,8523
+carro,Land Rover,Range Rover,VE. R-Dyn SE 2.0 4x4 250cv Aut.,8095
+carro,Land Rover,Range Rover,VE. R-Dyn SE 2.0 4x4 300cv Aut.,8478
+carro,Land Rover,Range Rover,VEL. R-Dyn HSE 3.0 Aut.(Híb.),10112
+carro,Land Rover,Range Rover,VEL. R-Dyn. 2.0 4x4 250cv Aut.,8090
+carro,Land Rover,Range Rover,VEL. R-Dyn. 2.0 4x4 300cv Aut.,8479
+carro,Land Rover,Range Rover,VEL. R-Dyn. HSE 2.0 Aut. (Híb.),10407
+carro,Land Rover,Range Rover,VEL. R-Dyn. S 2.0 Aut. (Híbrido),11944
+carro,Land Rover,Range Rover,VEL. R-Dyn. SE 3.0 Aut. (Híb.),10409
 carro,Land Rover,Range Rover,Vogue 3.0 TDV6 Diesel Aut.,6783
 carro,Land Rover,Range Rover,Vogue 3.6 TDV8 272cv Diesel,4332
+carro,Land Rover,Range Rover,Vogue 3.9 V8,1471
+carro,Land Rover,Range Rover,Vogue 4.4 TDV8/SDV8 Diesel Aut.,5421
+carro,Land Rover,Range Rover,Vogue Autob. SUPERCHAR. 5.0 V8,6391
 carro,Land Rover,Range Rover,Vogue HSE 3.0 TDV6 Diesel,6925
 carro,Land Rover,Range Rover,Vogue SE 2.0 Si4 (Híbrido),9116
 carro,Land Rover,Range Rover,Vogue SE 4.4 SDV8 Dies. Aut,6393
 carro,Land Rover,Range Rover,Vogue SE SUPERCHAR. 5.0 V8,5146
-carro,Land Rover,Range.R.,SP.HSE Dyn.BL. 2.0 Si4(Hibrido),9305
+carro,Land Rover,Range Rover,Vogue/4.4 Autobio. SDV8 Diesel.,6392
+carro,Land Rover,Range Rover Evoque,Autob. 2.0 P250 Flex Aut,11420
+carro,Land Rover,Range Rover Evoque,Autobiography 2.0 Aut,8413
+carro,Land Rover,Range Rover Evoque,DYNAMIC. BLACK 2.0 Aut. 5p,7354
+carro,Land Rover,Range Rover Evoque,Dynamic 2.0 Aut 3p,5700
+carro,Land Rover,Range Rover Evoque,Dynamic 2.0 Aut 5p,5701
+carro,Land Rover,Range Rover Evoque,Dynamic Tech 2.0 Aut 3p,5707
+carro,Land Rover,Range Rover Evoque,Dynamic Tech 2.0 Aut 5p,5702
+carro,Land Rover,Range Rover Evoque,HSE 2.0 Diesel Aut.,8498
+carro,Land Rover,Range Rover Evoque,HSE Dyn. Convers 2.0 Aut.,7926
+carro,Land Rover,Range Rover Evoque,HSE Dyna. 2.0 Dies. Aut.,8214
+carro,Land Rover,Range Rover Evoque,HSE Si4 R-Dyn.2.0 300cv Aut,8751
+carro,Land Rover,Range Rover Evoque,LONDON 2.0 240cv Aut. 5p,7287
+carro,Land Rover,Range Rover Evoque,ONE SICILIAN 2.0 Aut. 5p,6697
+carro,Land Rover,Range Rover Evoque,Prestige 2.0 Aut. 5p,5703
+carro,Land Rover,Range Rover Evoque,Prestige 2.2 5p Dies.,6923
+carro,Land Rover,Range Rover Evoque,Prestige Tech 2.0 Aut 5p,5704
+carro,Land Rover,Range Rover Evoque,PrestigeTech 2.2 5p Dies.,6924
+carro,Land Rover,Range Rover Evoque,Pure 2.0 Aut. 3p,5706
+carro,Land Rover,Range Rover Evoque,Pure 2.0 Aut. 5p,5705
+carro,Land Rover,Range Rover Evoque,Pure Tech 2.0 Aut. 3p,6466
+carro,Land Rover,Range Rover Evoque,Pure Tech 2.0 Aut. 5p,6328
+carro,Land Rover,Range Rover Evoque,SD4 HSE 2.2 Dies. Aut.5p,7551
+carro,Land Rover,Range Rover Evoque,SD4 SE 2.2 Dies. Aut. 5p,7374
+carro,Land Rover,Range Rover Evoque,SE 2.0 Diesel Aut.,7798
+carro,Land Rover,Range Rover Evoque,SE Si4 R-Dyn. 2.0 Flex Aut.,8904
+carro,Land Rover,Range Rover Evoque,STYLE 2.0 Aut. 5p,7355
+carro,Land Rover,Range Rover Evoque,Si4 HSE Dyn. 2.0/Flex Aut,7394
+carro,Land Rover,Range Rover Evoque,Si4 SE 2.0 Aut.5p/Flex,7375
+carro,Land Rover,Range Rover Evoque,Si4 SE Dynamic 2.0 Aut.,7395
+carro,Land Rover,Range Rover Evoque,Zanzibar 2.0 Aut. 5p,7121
+carro,Land Rover,Range Rover Sport,3.6 TDV8 272cv Diesel,4385
+carro,Land Rover,Range Rover Sport,Autob. 3.0 SDV6 Diesel,6389
+carro,Land Rover,Range Rover Sport,Autob. 3.0 TB Die. (Híb.),10890
+carro,Land Rover,Range Rover Sport,Autob. Dyn.SCHA. 5.0 V8,7139
+carro,Land Rover,Range Rover Sport,Autob. SUPERCHAR. 5.0 V8,6390
+carro,Land Rover,Range Rover Sport,Autobio. 3.0 P550e (Híb.),11233
+carro,Land Rover,Range Rover Sport,Dyn. HSE 3.0I6 Die. (Hib.),10673
+carro,Land Rover,Range Rover Sport,Dynam. HSE 3.0 (Híb.),11328
+carro,Land Rover,Range Rover Sport,Dynamic HSE 3.0 4X4 P550e,11652
+carro,Land Rover,Range Rover Sport,First Ed. 3.0 510cv (Híb.),10675
+carro,Land Rover,Range Rover Sport,First.Ed.3.0 I6 Die.(Hib.),10676
+carro,Land Rover,Range Rover Sport,First.Ed.4.4 V8 TB 530cv Aut,10177
+carro,Land Rover,Range Rover Sport,HSE 2.0 Si4 (Híbrido),8993
+carro,Land Rover,Range Rover Sport,HSE 2.7 190cv TB Dies.,3892
+carro,Land Rover,Range Rover Sport,HSE 3.0 4x4 SDV6 Dies.,5145
+carro,Land Rover,Range Rover Sport,HSE 3.0 I6 TB Die. (Híb.),10055
+carro,Land Rover,Range Rover Sport,HSE 4.4 V8 32V 295cv,3824
+carro,Land Rover,Range Rover Sport,HSE Dyn.BL. 2.0 Si4(Hibrido),9305
+carro,Land Rover,Range Rover Sport,HSE Dyn.Bl. 3.0 I6 Die.(Híb.),10054
+carro,Land Rover,Range Rover Sport,HSE Dyna. 3.0 SDV6 Dies.,8459
+carro,Land Rover,Range Rover Sport,HSE Dynamic 4.4 SDV8 Dies.,7396
+carro,Land Rover,Range Rover Sport,HSE Dynamic SUPERC.5.0 V8,6641
+carro,Land Rover,Range Rover Sport,HSE SUPERCHAR. 5.0 V8,5132
+carro,Land Rover,Range Rover Sport,HSE SUPERCHARGED 3.0 V6,6665
+carro,Land Rover,Range Rover Sport,HST SUPERCHARGED 3.0 V6,7483
+carro,Land Rover,Range Rover Sport,L. Edit. SCHARGED 3.0 V6,7764
+carro,Land Rover,Range Rover Sport,SE 2.7 190cv TB Diesel,4275
+carro,Land Rover,Range Rover Sport,SE 3.0 4x4 I6 TB Die. (Híb.),10053
+carro,Land Rover,Range Rover Sport,SE 3.0 4x4 TDV6/SDV6 Dies.,5133
+carro,Land Rover,Range Rover Sport,SE 3.6 TDV8 272cv Dies,4499
+carro,Land Rover,Range Rover Sport,SE 4.4 V8 32V 299cv,4276
+carro,Land Rover,Range Rover Sport,SE Dy.3.0 I6 Die.(Hib),10760
+carro,Land Rover,Range Rover Sport,SE SUPERCH. 3.0 Aut.,8040
+carro,Land Rover,Range Rover Sport,SUPERCHAGED 4.2 V8,3825
+carro,Land Rover,Range Rover Sport,SVR AWD 5.0 Carbon Ed. Aut.,9559
+carro,Land Rover,Range Rover Sport,SVR SUPERCHA. 5.0 V8,7157
+carro,Land Rover,Range Rover Sport,TECH S 3.0 SDV6 Diesel,7307
+carro,Land Rover,Range Rover Velar,2.0 4x4 TB 250cv Aut.,8085
+carro,Land Rover,Range Rover Velar,3.0 4x4 V6 380cv Aut.,8086
+carro,Land Rover,Range Rover Velar,Autobio. 2.0 P400e (Híb),11463
+carro,Land Rover,Range Rover Velar,First Ed. 3.0 4x4 V6 Aut.,8087
+carro,Land Rover,Range Rover Velar,HSE 2.0 4x4 TB 250cv Aut.,8088
+carro,Land Rover,Range Rover Velar,HSE 3.0 4x4 V6 380cv Aut,8089
+carro,Land Rover,Range Rover Velar,HSE Dyn 2.0 P400e (Hib.),11276
+carro,Land Rover,Range Rover Velar,HSE R-Dyn 2.0 Si4(Hib.),10410
+carro,Land Rover,Range Rover Velar,R-Dyn. 3.0 4x4 V6 Aut.,8091
+carro,Land Rover,Range Rover Velar,R-Dyn. HSE 2.0 4x4 TB Aut,8092
+carro,Land Rover,Range Rover Velar,R-Dyn. HSE 3.0 4x4 V6 Aut,8093
+carro,Land Rover,Range Rover Velar,R-Dyn. S 2.0 4x4 TB Aut.,8097
+carro,Land Rover,Range Rover Velar,R-Dyn. S 3.0 4x4 V6 Aut.,8094
+carro,Land Rover,Range Rover Velar,R-Dyn. SE 3.0 4x4 V6 Aut.,8096
+carro,Land Rover,Range Rover Velar,S 2.0 4x4 TB 250cv Aut.,8098
+carro,Land Rover,Range Rover Velar,S 2.0 4x4 TB 300cv Aut.,8497
+carro,Land Rover,Range Rover Velar,S 3.0 4x4 V6 380cv Aut.,8099
+carro,Land Rover,Range Rover Velar,SE 2.0 4x4 TB 250cv Aut.,8100
+carro,Land Rover,Range Rover Velar,SE 3.0 4x4 V6 380cv Aut.,8101
+carro,Land Rover,Range Rover Velar,SV Autob. Super.C 5.0 V8,8961
 carro,Leapmotor,B10,(Elétrico),11751
 carro,Lexus,CT200h,1.8 16V Aut. (Híbrido),9992
 carro,Lexus,CT200h,F-Sport 1.8 16V Aut. (Híbrido),9993
@@ -6625,149 +6625,57 @@ carro,Mercedes-Benz,300-SE,3.0/3.2,1534
 carro,Mercedes-Benz,300-SL,3.0,1535
 carro,Mercedes-Benz,300-TE,Wagon 3.0,1536
 carro,Mercedes-Benz,500-E,5.0,1537
-carro,Mercedes-Benz,500-SEC/,SL,1538
+carro,Mercedes-Benz,500-SEC,SL,1538
 carro,Mercedes-Benz,500-SEL,5.0/ 5.6,1539
 carro,Mercedes-Benz,560-SEL,5.6,1540
-carro,Mercedes-Benz,A-200,1.3 TB Advance Aut.,12187
-carro,Mercedes-Benz,A-200,1.3 TB Hatch Aut.,12188
-carro,Mercedes-Benz,A-200,1.3 TB Style Aut.,12189
-carro,Mercedes-Benz,A-200,AMG Line 1.3 TB Aut.,12190
-carro,Mercedes-Benz,A-200,AMG Line 1.3 TB Aut. (Híbrido),12191
-carro,Mercedes-Benz,A-250,2.0 TB Hatch,12192
-carro,Mercedes-Benz,A-250,2.0 TB Hatch Vision,12193
-carro,Mercedes-Benz,A-250,2.0 TB Launch Edition,12194
-carro,Mercedes-Benz,A-35,AMG 4MATIC 2.0 TB Aut.,9117
-carro,Mercedes-Benz,A-35,AMG Laun. Edition 4MATIC 2.0 TB Aut,11836
-carro,Mercedes-Benz,A-35,AMG Sedan 4MATIC 2.0 TB Aut.,9118
-carro,Mercedes-Benz,A-45,S AMG 4MATIC CGI 2.0 TB Aut.,9166
-carro,Mercedes-Benz,C-180,1.6 Turbo 16V/Flex 16V Aut.,7308
-carro,Mercedes-Benz,C-180,CGI Avant. 1.6/1.6 FlexTB 16V Aut.,6928
-carro,Mercedes-Benz,C-180,CGI Classic 1.8 16V 156cv Aut.,5399
-carro,Mercedes-Benz,C-180,CGI Coupe 1.8 16V 156cv Aut.,5625
-carro,Mercedes-Benz,C-180,CGI Coupe Avant. 1.6 TB 16V Aut.,7957
-carro,Mercedes-Benz,C-180,CGI Coupe Sport 1.5 TB 16V Aut.,8963
-carro,Mercedes-Benz,C-180,CGI Coupe Sport 1.6 TB 16V Aut.,6329
-carro,Mercedes-Benz,C-180,CGI Estate Avant. 1.6 TB 16V Aut.,7140
-carro,Mercedes-Benz,C-180,CGI Exc. 1.6/1.6 Flex TB 16V Aut.,6929
-carro,Mercedes-Benz,C-180,CGI Sport 1.6 TB 16V 156cv Aut.,6300
-carro,Mercedes-Benz,C-180,CGI Touring 1.8 16V Aut.,5979
-carro,Mercedes-Benz,C-180,CGI Touring Sport 1.6 TB Aut.,6357
-carro,Mercedes-Benz,C-180,Classic/Classic Plus/Elegance,1541
-carro,Mercedes-Benz,C-180,Kompressor Classic 1.6 16V Aut.,5213
-carro,Mercedes-Benz,C-180,Kompressor Classic 1.8 16V 143cv,1542
-carro,Mercedes-Benz,C-200,1.5 TB 16V 183cv Aut. (Híbrido),9966
-carro,Mercedes-Benz,C-200,AMG Line EQ Boost 1.5 TB (Hib.),10134
-carro,Mercedes-Benz,C-200,Avantgarde 2.0 TB 16V 184cv Aut.,6963
-carro,Mercedes-Benz,C-200,CGI Avantgarde 1.8 16V 184cv Aut.,5307
-carro,Mercedes-Benz,C-200,CGI Sport 1.8 TB 16V 184cv Aut.,5308
-carro,Mercedes-Benz,C-200,CGI Touring Avantgarde 1.8 16V Aut,5348
-carro,Mercedes-Benz,C-200,Classic/Sport,1543
-carro,Mercedes-Benz,C-200,Kompressor 2.0 V6 16v 4p Aut.,1544
-carro,Mercedes-Benz,C-200,Kompressor Avant.1.8 16V Aut,3938
-carro,Mercedes-Benz,C-200,Kompressor Classic 1.8 16V Aut.,4358
-carro,Mercedes-Benz,C-200,Sportcoupé Komp. 2.0 16V 163cv Aut,1545
-carro,Mercedes-Benz,C-200,Touring Komp. 2.0 16V 163cv 5p Aut,1546
-carro,Mercedes-Benz,C-200,Touring Komp. Avant. 1.8 16V Aut.,4662
-carro,Mercedes-Benz,C-220,Classic/Elegance/Sport,1547
-carro,Mercedes-Benz,C-230,Avantgarde 2.5 V6 24V 204cv Aut,3826
-carro,Mercedes-Benz,C-230,Komp. Sportcoupé 2.3 16V 197cv Aut,1548
-carro,Mercedes-Benz,C-230,Kompressor Avantgarde,1549
-carro,Mercedes-Benz,C-230,Sport/ Eleg./Touring Eleg.Plus 2.3,1550
-carro,Mercedes-Benz,C-230,Touring Avant. 2.5 24V 204cv Aut.,3939
-carro,Mercedes-Benz,C-230,Touring Kompressor,1551
-carro,Mercedes-Benz,C-240,AvantGarde 2.4/ 2.6 4p,1552
-carro,Mercedes-Benz,C-240,Classic,1553
-carro,Mercedes-Benz,C-240,Elegance 2.4,1554
-carro,Mercedes-Benz,C-240,Elegance 2.4 V6 24v 4p Aut.,1555
-carro,Mercedes-Benz,C-250,Avantgarde 2.0 TB 211cv Aut.,7975
-carro,Mercedes-Benz,C-250,CGI Sport 1.8 16V Aut.,5500
-carro,Mercedes-Benz,C-250,CGI Sport Coupe 1.8 16V TB Aut.,6358
-carro,Mercedes-Benz,C-250,Sport 2.0 16V 211cv Aut.,6964
-carro,Mercedes-Benz,C-250,Sport Coupe 2.0 16V 211cv Aut.,7668
-carro,Mercedes-Benz,C-280,Avantgarde 3.0 V6 231cv Aut.,4386
-carro,Mercedes-Benz,C-280,Classic/Sport,1556
-carro,Mercedes-Benz,C-280,Elegance,1557
-carro,Mercedes-Benz,C-280,Touring,1558
-carro,Mercedes-Benz,C-300,AMG Line 2.0 TB Aut. (Híbrido),9967
-carro,Mercedes-Benz,C-300,Anniversary Lim. Edit. 2.0 Aut.,7800
-carro,Mercedes-Benz,C-300,Avantgarde 3.0 V6 24V 231cv Aut.,5002
-carro,Mercedes-Benz,C-300,Cabriolet 2.0 245/258cv Aut.,7801
-carro,Mercedes-Benz,C-300,Coupé Sport 2.0 16V Aut.,8780
-carro,Mercedes-Benz,C-300,Estate Avantgarde 2.0 245cv Aut.,7976
-carro,Mercedes-Benz,C-300,Sport 2.0 16V Aut.,7977
-carro,Mercedes-Benz,C-300,Sport 3.0 V6 231cv Aut.,5349
-carro,Mercedes-Benz,C-320,AvantGarde 3.2 V6 24v 4p Aut.,1559
-carro,Mercedes-Benz,C-320,Elegance 3.2 V6 24v 4p Aut.,1560
-carro,Mercedes-Benz,C-320,Touring 3.2 V6 18v 4p Aut.,1561
-carro,Mercedes-Benz,C-350,Avantgarde/ Elegance 3.5 V6 272cv,3802
-carro,Mercedes-Benz,C-350,CGI Sport 3.5 306cv Aut.,5730
-carro,Mercedes-Benz,C-350,Sport 3.5 V6 272cv,4717
-carro,Mercedes-Benz,C-350,Sportcoupé 3.5 24V 272cv,3893
-carro,Mercedes-Benz,C-350,Touring AvantGarde 3.5 24V 272cv,3894
-carro,Mercedes-Benz,C-36,AMG,1562
-carro,Mercedes-Benz,C-43,AMG,1563
-carro,Mercedes-Benz,C-43,AMG 3.0 V6 Bi-Turbo 367cv Aut,7765
-carro,Mercedes-Benz,C-43,Coupe AMG 3.0 V6 Bi-Turbo Aut.,7738
-carro,Mercedes-Benz,C-450,AMG Sport 3.0 TB 362cv Aut.,7376
-carro,Mercedes-Benz,C-55,AMG 24V 367cv Aut.,3827
-carro,Mercedes-Benz,C-55,Touring AMG 24V 367cv Aut.,3828
-carro,Mercedes-Benz,C-63,AMG 4.0 V8 Bi-Turbo Aut.,7620
-carro,Mercedes-Benz,C-63,AMG 6.2 V8 Aut.,4663
-carro,Mercedes-Benz,C-63,AMG S E Perf. F1 Ed. Aut.(Híbrido),11174
-carro,Mercedes-Benz,C-63,AMG S E Performance Aut.(Híbrido),11175
-carro,Mercedes-Benz,C-63,Coupe AMG 6.2 V8 Aut.,5745
-carro,Mercedes-Benz,C-63,Coupe AMG Black Series 6.3 V8 Aut.,6273
-carro,Mercedes-Benz,C-63,S AMG 4.0 V8 Bi-Turbo Aut.,7309
-carro,Mercedes-Benz,C-63,S Coupe AMG 4.0 V8 Bi-Turbo Aut.,7837
-carro,Mercedes-Benz,C-63,Touring AMG 6.2 V8 Aut.,5031
-carro,Mercedes-Benz,CL-500,5.0/ 5.5,1564
-carro,Mercedes-Benz,CL-600,6.0/ 5.5,1565
-carro,Mercedes-Benz,CL-63,AMG 6.2 V8 32V 525cv,4516
-carro,Mercedes-Benz,CL-65,AMG 6.0 V12 Aut.,9679
-carro,Mercedes-Benz,CLA-180,1.6 16V 122cv Aut.,8215
-carro,Mercedes-Benz,CLA-200,1.6 TB 16V Flex Aut.,7958
-carro,Mercedes-Benz,CLA-200,AMG Line 1.3 TB 16V Aut. (Híb.),11122
-carro,Mercedes-Benz,CLA-200,First Edition 1.6 TB 16V Aut.,6699
-carro,Mercedes-Benz,CLA-200,Progressive 1.3 TB 16V Aut.(Híb),11177
-carro,Mercedes-Benz,CLA-200,Urban 1.6 TB 16V/Flex Aut.,6965
-carro,Mercedes-Benz,CLA-200,Vision 1.6 TB 16V Flex Aut.,7039
-carro,Mercedes-Benz,CLA-250,2.0 16V TB Aut.,8866
-carro,Mercedes-Benz,CLA-250,Sport 4MATIC 2.0 16V 211cv Aut.,6966
-carro,Mercedes-Benz,CLA-35,AMG 4MATIC 2.0 TB Aut.,9139
-carro,Mercedes-Benz,CLA-35,AMG 4MATIC 2.0 TB Aut. (Híbrido),11042
-carro,Mercedes-Benz,CLA-35,AMG Launch Edition 4MATIC 2.0 TB,8994
-carro,Mercedes-Benz,CLA-45,AMG 4MATIC CGI 2.0 TB Aut.,6867
-carro,Mercedes-Benz,CLA-45,S AMG 4MATIC CGI 2.0 TB Aut.,9167
-carro,Mercedes-Benz,CLC-200,Kompressor 1.8 184cv Aut.,12197
-carro,Mercedes-Benz,CLK-230,Cabriolet Kompressor,1578
-carro,Mercedes-Benz,CLK-230,Kompressor,1579
-carro,Mercedes-Benz,CLK-320,AvantGarde,1580
-carro,Mercedes-Benz,CLK-320,AvantGarde Cabriolet,1581
-carro,Mercedes-Benz,CLK-320,Elegance,1582
-carro,Mercedes-Benz,CLK-320,Elegance Cabriolet,1583
-carro,Mercedes-Benz,CLK-320,Sport,1584
-carro,Mercedes-Benz,CLK-320,Sport Cabriolet,1585
-carro,Mercedes-Benz,CLK-350,Avant./ Elegance 3.5 24V 272cv,3895
-carro,Mercedes-Benz,CLK-350,Avant./Eleg. Cabriolet 3.5 272cv,3896
-carro,Mercedes-Benz,CLK-430,AvantGarde 4.3,1587
-carro,Mercedes-Benz,CLK-430,Avantgard Cabriolet 4.3 V8 24v,1586
-carro,Mercedes-Benz,CLK-430,Elegance,1588
-carro,Mercedes-Benz,CLK-430,Elegance Cabriolet 4.3 V8 24v,1589
-carro,Mercedes-Benz,CLK-430,Sport 4.3,1590
-carro,Mercedes-Benz,CLK-500,Cabriolet V8 24V 306cv,1591
-carro,Mercedes-Benz,CLK-500,Elegance/ Avant. 5.0 V8 24V Aut,1592
-carro,Mercedes-Benz,CLK-55,AMG Cabriolet V8 24v 367cv,1593
-carro,Mercedes-Benz,CLK-55,AMG V8 24V 367cv,1594
-carro,Mercedes-Benz,CLS-350,CGI 3.5 306cv Aut.,5746
-carro,Mercedes-Benz,CLS-350,V6 24V 272cv,3897
-carro,Mercedes-Benz,CLS-400,3.5 V6 Bi-Turbo 333cv Aut.,7141
-carro,Mercedes-Benz,CLS-450,3.0 TB 4MATIC (Híb.),9977
-carro,Mercedes-Benz,CLS-450,3.0 TB 4MATIC SPORT (Híbrido),9978
-carro,Mercedes-Benz,CLS-500,V8 24V,1595
-carro,Mercedes-Benz,CLS-53,AMG 3.0 TB 4MATIC+ (Híbrido),9979
-carro,Mercedes-Benz,CLS-55,Kompressor AMG 5.5 V8 24V 476cv,3803
-carro,Mercedes-Benz,CLS-63,AMG 5.5 V8 557cv Aut.,5593
-carro,Mercedes-Benz,CLS-63,AMG 6.2 V8 32V 514cv,4191
+carro,Mercedes-Benz,CL,CL 500 5.0/ 5.5,1564
+carro,Mercedes-Benz,CL,CL 600 6.0/ 5.5,1565
+carro,Mercedes-Benz,CL,CL 63 AMG 6.2 V8 32V 525cv,4516
+carro,Mercedes-Benz,CL,CL 65 AMG 6.0 V12 Aut.,9679
+carro,Mercedes-Benz,CLA,CLA 180 1.6 16V 122cv Aut.,8215
+carro,Mercedes-Benz,CLA,CLA 200 1.6 TB 16V Flex Aut.,7958
+carro,Mercedes-Benz,CLA,CLA 200 AMG Line 1.3 TB 16V Aut. (Híb.),11122
+carro,Mercedes-Benz,CLA,CLA 200 First Edition 1.6 TB 16V Aut.,6699
+carro,Mercedes-Benz,CLA,CLA 200 Progressive 1.3 TB 16V Aut.(Híb),11177
+carro,Mercedes-Benz,CLA,CLA 200 Urban 1.6 TB 16V/Flex Aut.,6965
+carro,Mercedes-Benz,CLA,CLA 200 Vision 1.6 TB 16V Flex Aut.,7039
+carro,Mercedes-Benz,CLA,CLA 250 2.0 16V TB Aut.,8866
+carro,Mercedes-Benz,CLA,CLA 250 Sport 4MATIC 2.0 16V 211cv Aut.,6966
+carro,Mercedes-Benz,CLA,CLA 35 AMG 4MATIC 2.0 TB Aut.,9139
+carro,Mercedes-Benz,CLA,CLA 35 AMG 4MATIC 2.0 TB Aut. (Híbrido),11042
+carro,Mercedes-Benz,CLA,CLA 35 AMG Launch Edition 4MATIC 2.0 TB,8994
+carro,Mercedes-Benz,CLA,CLA 45 AMG 4MATIC CGI 2.0 TB Aut.,6867
+carro,Mercedes-Benz,CLA,CLA 45 S AMG 4MATIC CGI 2.0 TB Aut.,9167
+carro,Mercedes-Benz,CLC,CLC 200 Kompressor 1.8 184cv Aut.,12197
+carro,Mercedes-Benz,CLK,CLK 230 Cabriolet Kompressor,1578
+carro,Mercedes-Benz,CLK,CLK 230 Kompressor,1579
+carro,Mercedes-Benz,CLK,CLK 320 AvantGarde,1580
+carro,Mercedes-Benz,CLK,CLK 320 AvantGarde Cabriolet,1581
+carro,Mercedes-Benz,CLK,CLK 320 Elegance,1582
+carro,Mercedes-Benz,CLK,CLK 320 Elegance Cabriolet,1583
+carro,Mercedes-Benz,CLK,CLK 320 Sport,1584
+carro,Mercedes-Benz,CLK,CLK 320 Sport Cabriolet,1585
+carro,Mercedes-Benz,CLK,CLK 350 Avant./ Elegance 3.5 24V 272cv,3895
+carro,Mercedes-Benz,CLK,CLK 350 Avant./Eleg. Cabriolet 3.5 272cv,3896
+carro,Mercedes-Benz,CLK,CLK 430 AvantGarde 4.3,1587
+carro,Mercedes-Benz,CLK,CLK 430 Avantgard Cabriolet 4.3 V8 24v,1586
+carro,Mercedes-Benz,CLK,CLK 430 Elegance,1588
+carro,Mercedes-Benz,CLK,CLK 430 Elegance Cabriolet 4.3 V8 24v,1589
+carro,Mercedes-Benz,CLK,CLK 430 Sport 4.3,1590
+carro,Mercedes-Benz,CLK,CLK 500 Cabriolet V8 24V 306cv,1591
+carro,Mercedes-Benz,CLK,CLK 500 Elegance/ Avant. 5.0 V8 24V Aut,1592
+carro,Mercedes-Benz,CLK,CLK 55 AMG Cabriolet V8 24v 367cv,1593
+carro,Mercedes-Benz,CLK,CLK 55 AMG V8 24V 367cv,1594
+carro,Mercedes-Benz,CLS,CLS 350 CGI 3.5 306cv Aut.,5746
+carro,Mercedes-Benz,CLS,CLS 350 V6 24V 272cv,3897
+carro,Mercedes-Benz,CLS,CLS 400 3.5 V6 Bi-Turbo 333cv Aut.,7141
+carro,Mercedes-Benz,CLS,CLS 450 3.0 TB 4MATIC (Híb.),9977
+carro,Mercedes-Benz,CLS,CLS 450 3.0 TB 4MATIC SPORT (Híbrido),9978
+carro,Mercedes-Benz,CLS,CLS 500 V8 24V,1595
+carro,Mercedes-Benz,CLS,CLS 53 AMG 3.0 TB 4MATIC+ (Híbrido),9979
+carro,Mercedes-Benz,CLS,CLS 55 Kompressor AMG 5.5 V8 24V 476cv,3803
+carro,Mercedes-Benz,CLS,CLS 63 AMG 5.5 V8 557cv Aut.,5593
+carro,Mercedes-Benz,CLS,CLS 63 AMG 6.2 V8 32V 514cv,4191
 carro,Mercedes-Benz,Classe A,160 Classic Semi-Aut.,1566
 carro,Mercedes-Benz,Classe A,160 Classic/ Spirit Mec.,1567
 carro,Mercedes-Benz,Classe A,160 Elegance Mec.,1568
@@ -6785,81 +6693,203 @@ carro,Mercedes-Benz,Classe A,200 1.6 TB/Flex Aut.,7228
 carro,Mercedes-Benz,Classe A,200 Elegance 2.0 136cv Aut.,3829
 carro,Mercedes-Benz,Classe A,250 2.0 TB Sport Aut.,6754
 carro,Mercedes-Benz,Classe A,45 AMG 4MATIC 2.0 Turbo Aut.,12168
+carro,Mercedes-Benz,Classe A,A 200 1.3 TB Advance Aut.,12187
+carro,Mercedes-Benz,Classe A,A 200 1.3 TB Hatch Aut.,12188
+carro,Mercedes-Benz,Classe A,A 200 1.3 TB Style Aut.,12189
+carro,Mercedes-Benz,Classe A,A 200 AMG Line 1.3 TB Aut.,12190
+carro,Mercedes-Benz,Classe A,A 200 AMG Line 1.3 TB Aut. (Híbrido),12191
+carro,Mercedes-Benz,Classe A,A 250 2.0 TB Hatch,12192
+carro,Mercedes-Benz,Classe A,A 250 2.0 TB Hatch Vision,12193
+carro,Mercedes-Benz,Classe A,A 250 2.0 TB Launch Edition,12194
+carro,Mercedes-Benz,Classe A,A 35 AMG 4MATIC 2.0 TB Aut.,9117
+carro,Mercedes-Benz,Classe A,A 35 AMG Laun. Edition 4MATIC 2.0 TB Aut,11836
+carro,Mercedes-Benz,Classe A,A 35 AMG Sedan 4MATIC 2.0 TB Aut.,9118
+carro,Mercedes-Benz,Classe A,A 45 S AMG 4MATIC CGI 2.0 TB Aut.,9166
 carro,Mercedes-Benz,Classe B,170 1.7 116cv Aut.,4831
 carro,Mercedes-Benz,Classe B,180 1.7 116cv Aut.,5003
 carro,Mercedes-Benz,Classe B,200 2.0 136cv Aut.,4012
 carro,Mercedes-Benz,Classe B,200 2.0 Turbo 193cv Aut.,4202
 carro,Mercedes-Benz,Classe B,200 CGI 1.6 TB Sport 156cv Aut,6238
 carro,Mercedes-Benz,Classe B,200 CGI 1.6 TB/Flex Aut.,6237
+carro,Mercedes-Benz,Classe C,C 180 1.6 Turbo 16V/Flex 16V Aut.,7308
+carro,Mercedes-Benz,Classe C,C 180 CGI Avant. 1.6/1.6 FlexTB 16V Aut.,6928
+carro,Mercedes-Benz,Classe C,C 180 CGI Classic 1.8 16V 156cv Aut.,5399
+carro,Mercedes-Benz,Classe C,C 180 CGI Coupe 1.8 16V 156cv Aut.,5625
+carro,Mercedes-Benz,Classe C,C 180 CGI Coupe Avant. 1.6 TB 16V Aut.,7957
+carro,Mercedes-Benz,Classe C,C 180 CGI Coupe Sport 1.5 TB 16V Aut.,8963
+carro,Mercedes-Benz,Classe C,C 180 CGI Coupe Sport 1.6 TB 16V Aut.,6329
+carro,Mercedes-Benz,Classe C,C 180 CGI Estate Avant. 1.6 TB 16V Aut.,7140
+carro,Mercedes-Benz,Classe C,C 180 CGI Exc. 1.6/1.6 Flex TB 16V Aut.,6929
+carro,Mercedes-Benz,Classe C,C 180 CGI Sport 1.6 TB 16V 156cv Aut.,6300
+carro,Mercedes-Benz,Classe C,C 180 CGI Touring 1.8 16V Aut.,5979
+carro,Mercedes-Benz,Classe C,C 180 CGI Touring Sport 1.6 TB Aut.,6357
+carro,Mercedes-Benz,Classe C,C 180 Classic/Classic Plus/Elegance,1541
+carro,Mercedes-Benz,Classe C,C 180 Kompressor Classic 1.6 16V Aut.,5213
+carro,Mercedes-Benz,Classe C,C 180 Kompressor Classic 1.8 16V 143cv,1542
+carro,Mercedes-Benz,Classe C,C 200 1.5 TB 16V 183cv Aut. (Híbrido),9966
+carro,Mercedes-Benz,Classe C,C 200 AMG Line EQ Boost 1.5 TB (Hib.),10134
+carro,Mercedes-Benz,Classe C,C 200 Avantgarde 2.0 TB 16V 184cv Aut.,6963
+carro,Mercedes-Benz,Classe C,C 200 CGI Avantgarde 1.8 16V 184cv Aut.,5307
+carro,Mercedes-Benz,Classe C,C 200 CGI Sport 1.8 TB 16V 184cv Aut.,5308
+carro,Mercedes-Benz,Classe C,C 200 CGI Touring Avantgarde 1.8 16V Aut,5348
+carro,Mercedes-Benz,Classe C,C 200 Classic/Sport,1543
+carro,Mercedes-Benz,Classe C,C 200 Kompressor 2.0 V6 16v 4p Aut.,1544
+carro,Mercedes-Benz,Classe C,C 200 Kompressor Avant.1.8 16V Aut,3938
+carro,Mercedes-Benz,Classe C,C 200 Kompressor Classic 1.8 16V Aut.,4358
+carro,Mercedes-Benz,Classe C,C 200 Sportcoupé Komp. 2.0 16V 163cv Aut,1545
+carro,Mercedes-Benz,Classe C,C 200 Touring Komp. 2.0 16V 163cv 5p Aut,1546
+carro,Mercedes-Benz,Classe C,C 200 Touring Komp. Avant. 1.8 16V Aut.,4662
+carro,Mercedes-Benz,Classe C,C 220 Classic/Elegance/Sport,1547
+carro,Mercedes-Benz,Classe C,C 230 Avantgarde 2.5 V6 24V 204cv Aut,3826
+carro,Mercedes-Benz,Classe C,C 230 Komp. Sportcoupé 2.3 16V 197cv Aut,1548
+carro,Mercedes-Benz,Classe C,C 230 Kompressor Avantgarde,1549
+carro,Mercedes-Benz,Classe C,C 230 Sport/ Eleg./Touring Eleg.Plus 2.3,1550
+carro,Mercedes-Benz,Classe C,C 230 Touring Avant. 2.5 24V 204cv Aut.,3939
+carro,Mercedes-Benz,Classe C,C 230 Touring Kompressor,1551
+carro,Mercedes-Benz,Classe C,C 240 AvantGarde 2.4/ 2.6 4p,1552
+carro,Mercedes-Benz,Classe C,C 240 Classic,1553
+carro,Mercedes-Benz,Classe C,C 240 Elegance 2.4,1554
+carro,Mercedes-Benz,Classe C,C 240 Elegance 2.4 V6 24v 4p Aut.,1555
+carro,Mercedes-Benz,Classe C,C 250 Avantgarde 2.0 TB 211cv Aut.,7975
+carro,Mercedes-Benz,Classe C,C 250 CGI Sport 1.8 16V Aut.,5500
+carro,Mercedes-Benz,Classe C,C 250 CGI Sport Coupe 1.8 16V TB Aut.,6358
+carro,Mercedes-Benz,Classe C,C 250 Sport 2.0 16V 211cv Aut.,6964
+carro,Mercedes-Benz,Classe C,C 250 Sport Coupe 2.0 16V 211cv Aut.,7668
+carro,Mercedes-Benz,Classe C,C 280 Avantgarde 3.0 V6 231cv Aut.,4386
+carro,Mercedes-Benz,Classe C,C 280 Classic/Sport,1556
+carro,Mercedes-Benz,Classe C,C 280 Elegance,1557
+carro,Mercedes-Benz,Classe C,C 280 Touring,1558
+carro,Mercedes-Benz,Classe C,C 300 AMG Line 2.0 TB Aut. (Híbrido),9967
+carro,Mercedes-Benz,Classe C,C 300 Anniversary Lim. Edit. 2.0 Aut.,7800
+carro,Mercedes-Benz,Classe C,C 300 Avantgarde 3.0 V6 24V 231cv Aut.,5002
+carro,Mercedes-Benz,Classe C,C 300 Cabriolet 2.0 245/258cv Aut.,7801
+carro,Mercedes-Benz,Classe C,C 300 Coupé Sport 2.0 16V Aut.,8780
+carro,Mercedes-Benz,Classe C,C 300 Estate Avantgarde 2.0 245cv Aut.,7976
+carro,Mercedes-Benz,Classe C,C 300 Sport 2.0 16V Aut.,7977
+carro,Mercedes-Benz,Classe C,C 300 Sport 3.0 V6 231cv Aut.,5349
+carro,Mercedes-Benz,Classe C,C 320 AvantGarde 3.2 V6 24v 4p Aut.,1559
+carro,Mercedes-Benz,Classe C,C 320 Elegance 3.2 V6 24v 4p Aut.,1560
+carro,Mercedes-Benz,Classe C,C 320 Touring 3.2 V6 18v 4p Aut.,1561
+carro,Mercedes-Benz,Classe C,C 350 Avantgarde/ Elegance 3.5 V6 272cv,3802
+carro,Mercedes-Benz,Classe C,C 350 CGI Sport 3.5 306cv Aut.,5730
+carro,Mercedes-Benz,Classe C,C 350 Sport 3.5 V6 272cv,4717
+carro,Mercedes-Benz,Classe C,C 350 Sportcoupé 3.5 24V 272cv,3893
+carro,Mercedes-Benz,Classe C,C 350 Touring AvantGarde 3.5 24V 272cv,3894
+carro,Mercedes-Benz,Classe C,C 36 AMG,1562
+carro,Mercedes-Benz,Classe C,C 43 AMG,1563
+carro,Mercedes-Benz,Classe C,C 43 AMG 3.0 V6 Bi-Turbo 367cv Aut,7765
+carro,Mercedes-Benz,Classe C,C 43 Coupe AMG 3.0 V6 Bi-Turbo Aut.,7738
+carro,Mercedes-Benz,Classe C,C 450 AMG Sport 3.0 TB 362cv Aut.,7376
+carro,Mercedes-Benz,Classe C,C 55 AMG 24V 367cv Aut.,3827
+carro,Mercedes-Benz,Classe C,C 55 Touring AMG 24V 367cv Aut.,3828
+carro,Mercedes-Benz,Classe C,C 63 AMG 4.0 V8 Bi-Turbo Aut.,7620
+carro,Mercedes-Benz,Classe C,C 63 AMG 6.2 V8 Aut.,4663
+carro,Mercedes-Benz,Classe C,C 63 AMG S E Perf. F1 Ed. Aut.(Híbrido),11174
+carro,Mercedes-Benz,Classe C,C 63 AMG S E Performance Aut.(Híbrido),11175
+carro,Mercedes-Benz,Classe C,C 63 Coupe AMG 6.2 V8 Aut.,5745
+carro,Mercedes-Benz,Classe C,C 63 Coupe AMG Black Series 6.3 V8 Aut.,6273
+carro,Mercedes-Benz,Classe C,C 63 S AMG 4.0 V8 Bi-Turbo Aut.,7309
+carro,Mercedes-Benz,Classe C,C 63 S Coupe AMG 4.0 V8 Bi-Turbo Aut.,7837
+carro,Mercedes-Benz,Classe C,C 63 Touring AMG 6.2 V8 Aut.,5031
+carro,Mercedes-Benz,Classe E,E 190,1596
+carro,Mercedes-Benz,Classe E,E 190 Classic,1597
+carro,Mercedes-Benz,Classe E,E 200 Classic 2.0,1598
+carro,Mercedes-Benz,Classe E,E 220 Classic/Touring 2.2,1599
+carro,Mercedes-Benz,Classe E,E 230 Elegance,1600
+carro,Mercedes-Benz,Classe E,E 240 Elegance,1601
+carro,Mercedes-Benz,Classe E,E 250 CGI Avantgarde 1.8 16V 204cv Aut.,5538
+carro,Mercedes-Benz,Classe E,E 250 CGI Avantgarde 2.0 TB 211cv Aut.,6540
+carro,Mercedes-Benz,Classe E,E 250 CGI Coupe 1.8 16V 204cv Aut.,5594
+carro,Mercedes-Benz,Classe E,E 250 CGI VR4 2.0 TB Aut.,7160
+carro,Mercedes-Benz,Classe E,E 250 Cabriolet 2.0 TB 211CV Aut.,6840
+carro,Mercedes-Benz,Classe E,E 250 Coupe 2.0 TB 211cv Aut.,6615
+carro,Mercedes-Benz,Classe E,E 250 Excl. Launch Ed. 2.0 TB 211cv Aut.,7766
+carro,Mercedes-Benz,Classe E,E 250 Exclusive 2.0 TB 211cv Aut.,7895
+carro,Mercedes-Benz,Classe E,E 280 Classic 2.8,1602
+carro,Mercedes-Benz,Classe E,E 280 Touring 2.8,1603
+carro,Mercedes-Benz,Classe E,E 300 AMG Line 2.0 TB 258cv Aut.,9551
+carro,Mercedes-Benz,Classe E,E 300 Avantgarde 2.0 TB 258cv Aut.,8781
+carro,Mercedes-Benz,Classe E,E 300 Avantgarde Sport 2.0 TB 258cv Aut.,9289
+carro,Mercedes-Benz,Classe E,E 300 Cabriolet 2.0 TB 245cv Aut.,8320
+carro,Mercedes-Benz,Classe E,E 300 Coupe 2.0 TB 245cv Aut.,8102
+carro,Mercedes-Benz,Classe E,E 300 Exclusive 2.0 TB 258cv Aut.,8782
+carro,Mercedes-Benz,Classe E,E 300 Exclusive 2.0 TB 258cv Aut. (Híb.),11071
+carro,Mercedes-Benz,Classe E,E 320,1604
+carro,Mercedes-Benz,Classe E,E 320 3.2 Elegance,1605
+carro,Mercedes-Benz,Classe E,E 320 Avantgarde,1606
+carro,Mercedes-Benz,Classe E,E 320 C 3.2/ CA Classic 3.2,1607
+carro,Mercedes-Benz,Classe E,E 320 Cabriolet,1608
+carro,Mercedes-Benz,Classe E,E 320 Touring Avantgarde 24V V6 5p Aut.,1609
+carro,Mercedes-Benz,Classe E,E 320 Touring Eleg./Classic,1610
+carro,Mercedes-Benz,Classe E,E 350 Avant./Avant. Execut. 3.5 V6 272cv,5004
+carro,Mercedes-Benz,Classe E,E 350 Avantgarde/ Elegance 3.5 V6 272cv,1611
+carro,Mercedes-Benz,Classe E,E 350 CGI Avant. Sport 3.5 306cv Aut.,6210
+carro,Mercedes-Benz,Classe E,E 350 CGI Cabriolet 3.5 306cv Aut.,6541
+carro,Mercedes-Benz,Classe E,E 350 CGI Executive 3.5 306cv Aut.,6033
+carro,Mercedes-Benz,Classe E,E 350 CGI Guard VR4 3.5 306cv Aut.,6542
+carro,Mercedes-Benz,Classe E,E 350 Cabrio 3.5 V6 272cv 2p,5309
+carro,Mercedes-Benz,Classe E,E 350 Coupe 3.5 V6 272cv 2p,5034
+carro,Mercedes-Benz,Classe E,E 350 Sport 3.5 V6 272cv,4627
+carro,Mercedes-Benz,Classe E,E 350 Touring Avant/Eleg. 3.5 24V 272cv,3898
+carro,Mercedes-Benz,Classe E,E 400 Avantgarde 3.5 V6 Bi-Turbo Aut.,7103
+carro,Mercedes-Benz,Classe E,E 400 Cabriolet 3.5 V6 Bi-Turbo Aut.,7262
+carro,Mercedes-Benz,Classe E,E 420 Classic/Elegance/Avantgarde,1612
+carro,Mercedes-Benz,Classe E,E 420 Touring Avantgarde,1613
+carro,Mercedes-Benz,Classe E,E 43 AMG 4MATIC 3.0 V6 401cv Aut.,7978
+carro,Mercedes-Benz,Classe E,E 430 Avantgarde,1614
+carro,Mercedes-Benz,Classe E,E 430 Elegance,1615
+carro,Mercedes-Benz,Classe E,E 430 Touring Avantgarde,1616
+carro,Mercedes-Benz,Classe E,E 500 Avangarde Executive 5.5 V8 388cv,5423
+carro,Mercedes-Benz,Classe E,E 500 Avant. 5.0 V8 4p Aut. (Blindada),4774
+carro,Mercedes-Benz,Classe E,E 500 CGI Guard VR4 4.7 V8 408cv 4p,6211
+carro,Mercedes-Benz,Classe E,E 500 CGI Guard VR4 5.5 V8 4p,6116
+carro,Mercedes-Benz,Classe E,E 500 Coupe Sport 4.7 V8 408cv Aut 2p,6118
+carro,Mercedes-Benz,Classe E,E 500 Coupe Sport 5.5 V8 388cv 2p,5380
+carro,Mercedes-Benz,Classe E,E 500 Elegance/ Avant. 5.0 V8 24V 4p Aut,1617
+carro,Mercedes-Benz,Classe E,E 500 Sport Avantgarde 5.0 V8 24V 4p Aut,4685
+carro,Mercedes-Benz,Classe E,E 500 Tour. Avant./ Eleg. 24V V8 5p Aut.,1618
+carro,Mercedes-Benz,Classe E,E 53 AMG 3.0 TB 24V 4MATIC+ Aut. (Híb.),10001
+carro,Mercedes-Benz,Classe E,E 55 AMG,1619
+carro,Mercedes-Benz,Classe E,E 55 Touring AMG 24V V8 5p Aut.,1620
+carro,Mercedes-Benz,Classe E,E 63 AMG 5.5 V8 Bi-Turbo Aut.,6120
+carro,Mercedes-Benz,Classe E,E 63 AMG 6.2 V8 32V,4245
+carro,Mercedes-Benz,Classe E,E 63 S AMG 4MATIC 4.0 V8 612cv,8018
+carro,Mercedes-Benz,Classe E,E 63 S AMG 4MATIC Final Ed. 4.0 V8 612cv,9644
+carro,Mercedes-Benz,Classe E,E 63 Touring AMG 5.5 V8 Bi-Turbo Aut.,6122
+carro,Mercedes-Benz,Classe E,E 63 Touring AMG 6.2 V8 Aut.,5489
+carro,Mercedes-Benz,Classe G,G 55 Kompressor AMG 5.5 V8 507cv Aut.,5151
+carro,Mercedes-Benz,Classe G,G 63 AMG 4M 4.0 Bi-TB Magno Edition Aut.,9471
+carro,Mercedes-Benz,Classe G,G 63 AMG 4M 4.0 V8 Bi-TB Aut. (Híb.),11342
+carro,Mercedes-Benz,Classe G,G 63 AMG 4M Man.4.0 V8 Bi-TB Aut. (Híb.),11538
+carro,Mercedes-Benz,Classe G,G 63 AMG 4MATIC 4.0 V8 Bi-TB 585cv Aut.,8499
+carro,Mercedes-Benz,Classe G,G 63 AMG 5.5 Bi-Turbo 32V 4x4 Aut.,6491
+carro,Mercedes-Benz,Classe G,G 63 AMG ED1 4MATIC 4.0 V8 Bi-TB Aut.,8500
 carro,Mercedes-Benz,Classe R,500 5.0 V8 306cv Aut.,4064
 carro,Mercedes-Benz,Classe R,500 L 5.5 V8 388cv Aut.,5033
+carro,Mercedes-Benz,Classe S,S 320 L Classic/Wagon Classic 3.2,1627
+carro,Mercedes-Benz,Classe S,S 400 3.5 V6 279cv Aut. (Híbrido),10062
+carro,Mercedes-Benz,Classe S,S 420 Classic 4.0,1628
+carro,Mercedes-Benz,Classe S,S 500 5.0,1629
+carro,Mercedes-Benz,Classe S,S 500 C Classic 5.0,1630
+carro,Mercedes-Benz,Classe S,S 500 L/ L Classic/ Wagon Classic 5.0,1631
+carro,Mercedes-Benz,Classe S,S 500 Maybach 4.7 Bi-Turbo V8 455cv Aut.,8060
+carro,Mercedes-Benz,Classe S,S 500L 4.7 Bi-Turbo V8 455cv Aut.,6700
+carro,Mercedes-Benz,Classe S,S 500L 5.0,1632
+carro,Mercedes-Benz,Classe S,S 55 AMG V8 24V 364cv/ 500cv,1633
+carro,Mercedes-Benz,Classe S,S 560L 4.0 Bi-Turbo V8 469cv Aut.,8216
+carro,Mercedes-Benz,Classe S,S 600 L/ L Classic/ Wagon Classic 6.0,1634
+carro,Mercedes-Benz,Classe S,S 600 S-600 C Classic 6.0,1635
+carro,Mercedes-Benz,Classe S,S 63 AMG 5.5 V8 BI-TURBO Aut.,5747
+carro,Mercedes-Benz,Classe S,S 63 AMG 6.2 V8 525cv Aut,4517
+carro,Mercedes-Benz,Classe S,S 63 AMG S E Performance Aut. (Híbrido),11237
+carro,Mercedes-Benz,Classe S,S 63 Cabriolet AMG 5.5 V8 Bi-Turbo Aut.,7804
+carro,Mercedes-Benz,Classe S,S 63 Coupe AMG 4MATIC 4.0 V8 Bi-TB Aut.,8548
+carro,Mercedes-Benz,Classe S,S 63 Coupe AMG 5.5 V8 Bi-Turbo Aut.,7229
+carro,Mercedes-Benz,Classe S,S 63 L AMG 6.2 V8/5.5 V8 Bi-TB Aut,4518
+carro,Mercedes-Benz,Classe S,S 65 AMG 6.0 V12 612cv Aut,4261
+carro,Mercedes-Benz,Classe S,S 65 AMG Coupe 6.0 Bi-TB V12 630cv Aut.,8502
+carro,Mercedes-Benz,Classe S,S 65 L AMG 6.0 V12 630cv Aut.,7770
 carro,Mercedes-Benz,Classic,6.0,1577
-carro,Mercedes-Benz,E-190,Classic,1597
-carro,Mercedes-Benz,E-190,E-190,1596
-carro,Mercedes-Benz,E-200,Classic 2.0,1598
-carro,Mercedes-Benz,E-220,Classic/Touring 2.2,1599
-carro,Mercedes-Benz,E-230,Elegance,1600
-carro,Mercedes-Benz,E-240,Elegance,1601
-carro,Mercedes-Benz,E-250,CGI Avantgarde 1.8 16V 204cv Aut.,5538
-carro,Mercedes-Benz,E-250,CGI Avantgarde 2.0 TB 211cv Aut.,6540
-carro,Mercedes-Benz,E-250,CGI Coupe 1.8 16V 204cv Aut.,5594
-carro,Mercedes-Benz,E-250,CGI VR4 2.0 TB Aut.,7160
-carro,Mercedes-Benz,E-250,Cabriolet 2.0 TB 211CV Aut.,6840
-carro,Mercedes-Benz,E-250,Coupe 2.0 TB 211cv Aut.,6615
-carro,Mercedes-Benz,E-250,Excl. Launch Ed. 2.0 TB 211cv Aut.,7766
-carro,Mercedes-Benz,E-250,Exclusive 2.0 TB 211cv Aut.,7895
-carro,Mercedes-Benz,E-280,Classic 2.8,1602
-carro,Mercedes-Benz,E-280,Touring 2.8,1603
-carro,Mercedes-Benz,E-300,AMG Line 2.0 TB 258cv Aut.,9551
-carro,Mercedes-Benz,E-300,Avantgarde 2.0 TB 258cv Aut.,8781
-carro,Mercedes-Benz,E-300,Avantgarde Sport 2.0 TB 258cv Aut.,9289
-carro,Mercedes-Benz,E-300,Cabriolet 2.0 TB 245cv Aut.,8320
-carro,Mercedes-Benz,E-300,Coupe 2.0 TB 245cv Aut.,8102
-carro,Mercedes-Benz,E-300,Exclusive 2.0 TB 258cv Aut.,8782
-carro,Mercedes-Benz,E-300,Exclusive 2.0 TB 258cv Aut. (Híb.),11071
-carro,Mercedes-Benz,E-320,3.2 Elegance,1605
-carro,Mercedes-Benz,E-320,Avantgarde,1606
-carro,Mercedes-Benz,E-320,C 3.2/ CA Classic 3.2,1607
-carro,Mercedes-Benz,E-320,Cabriolet,1608
-carro,Mercedes-Benz,E-320,E-320,1604
-carro,Mercedes-Benz,E-320,Touring Avantgarde 24V V6 5p Aut.,1609
-carro,Mercedes-Benz,E-320,Touring Eleg./Classic,1610
-carro,Mercedes-Benz,E-350,Avant./Avant. Execut. 3.5 V6 272cv,5004
-carro,Mercedes-Benz,E-350,Avantgarde/ Elegance 3.5 V6 272cv,1611
-carro,Mercedes-Benz,E-350,CGI Avant. Sport 3.5 306cv Aut.,6210
-carro,Mercedes-Benz,E-350,CGI Cabriolet 3.5 306cv Aut.,6541
-carro,Mercedes-Benz,E-350,CGI Executive 3.5 306cv Aut.,6033
-carro,Mercedes-Benz,E-350,CGI Guard VR4 3.5 306cv Aut.,6542
-carro,Mercedes-Benz,E-350,Cabrio 3.5 V6 272cv 2p,5309
-carro,Mercedes-Benz,E-350,Coupe 3.5 V6 272cv 2p,5034
-carro,Mercedes-Benz,E-350,Sport 3.5 V6 272cv,4627
-carro,Mercedes-Benz,E-350,Touring Avant/Eleg. 3.5 24V 272cv,3898
-carro,Mercedes-Benz,E-400,Avantgarde 3.5 V6 Bi-Turbo Aut.,7103
-carro,Mercedes-Benz,E-400,Cabriolet 3.5 V6 Bi-Turbo Aut.,7262
-carro,Mercedes-Benz,E-420,Classic/Elegance/Avantgarde,1612
-carro,Mercedes-Benz,E-420,Touring Avantgarde,1613
-carro,Mercedes-Benz,E-43,AMG 4MATIC 3.0 V6 401cv Aut.,7978
-carro,Mercedes-Benz,E-430,Avantgarde,1614
-carro,Mercedes-Benz,E-430,Elegance,1615
-carro,Mercedes-Benz,E-430,Touring Avantgarde,1616
-carro,Mercedes-Benz,E-500,Avangarde Executive 5.5 V8 388cv,5423
-carro,Mercedes-Benz,E-500,Avant. 5.0 V8 4p Aut. (Blindada),4774
-carro,Mercedes-Benz,E-500,CGI Guard VR4 4.7 V8 408cv 4p,6211
-carro,Mercedes-Benz,E-500,CGI Guard VR4 5.5 V8 4p,6116
-carro,Mercedes-Benz,E-500,Coupe Sport 4.7 V8 408cv Aut 2p,6118
-carro,Mercedes-Benz,E-500,Coupe Sport 5.5 V8 388cv 2p,5380
-carro,Mercedes-Benz,E-500,Elegance/ Avant. 5.0 V8 24V 4p Aut,1617
-carro,Mercedes-Benz,E-500,Sport Avantgarde 5.0 V8 24V 4p Aut,4685
-carro,Mercedes-Benz,E-500,Tour. Avant./ Eleg. 24V V8 5p Aut.,1618
-carro,Mercedes-Benz,E-53,AMG 3.0 TB 24V 4MATIC+ Aut. (Híb.),10001
-carro,Mercedes-Benz,E-55,AMG,1619
-carro,Mercedes-Benz,E-55,Touring AMG 24V V8 5p Aut.,1620
-carro,Mercedes-Benz,E-63,AMG 5.5 V8 Bi-Turbo Aut.,6120
-carro,Mercedes-Benz,E-63,AMG 6.2 V8 32V,4245
-carro,Mercedes-Benz,E-63,S AMG 4MATIC 4.0 V8 612cv,8018
-carro,Mercedes-Benz,E-63,S AMG 4MATIC Final Ed. 4.0 V8 612cv,9644
-carro,Mercedes-Benz,E-63,Touring AMG 5.5 V8 Bi-Turbo Aut.,6122
-carro,Mercedes-Benz,E-63,Touring AMG 6.2 V8 Aut.,5489
 carro,Mercedes-Benz,EQA,250 (Elétrico),10163
 carro,Mercedes-Benz,EQA,250 AMG Line (Elétrico),11220
 carro,Mercedes-Benz,EQB,250 (Elétrico),10164
@@ -6877,92 +6907,85 @@ carro,Mercedes-Benz,EQE,53 SUV AMG 4MATIC+ (Elétrico),10987
 carro,Mercedes-Benz,EQS,450 SUV 4MATIC ( Elétrico),11186
 carro,Mercedes-Benz,EQS,450+ SUV AMG Line ( Elétrico),11187
 carro,Mercedes-Benz,EQS,53 AMG 4MATIC+ ( Elétrico),10002
-carro,Mercedes-Benz,G-55,Kompressor AMG 5.5 V8 507cv Aut.,5151
-carro,Mercedes-Benz,G-63,AMG 4M 4.0 Bi-TB Magno Edition Aut.,9471
-carro,Mercedes-Benz,G-63,AMG 4M 4.0 V8 Bi-TB Aut. (Híb.),11342
-carro,Mercedes-Benz,G-63,AMG 4M Man.4.0 V8 Bi-TB Aut. (Híb.),11538
-carro,Mercedes-Benz,G-63,AMG 4MATIC 4.0 V8 Bi-TB 585cv Aut.,8499
-carro,Mercedes-Benz,G-63,AMG 5.5 Bi-Turbo 32V 4x4 Aut.,6491
-carro,Mercedes-Benz,G-63,AMG ED1 4MATIC 4.0 V8 Bi-TB Aut.,8500
-carro,Mercedes-Benz,GL-350,Sport 3.0 V6 258cv 4x4 Diesel,6642
-carro,Mercedes-Benz,GL-500,4.7 Bi-Turbo V8 4x4 Aut.,6445
-carro,Mercedes-Benz,GL-500,5.5 V8 32V 4x4 388cv Aut.,4250
-carro,Mercedes-Benz,GL-63,AMG 5.5 Bi-Turbo 32V 4x4 Aut.,6468
-carro,Mercedes-Benz,GLA-200,AMG Line 1.3 16V TB Aut.,12205
-carro,Mercedes-Benz,GLA-200,AMG Line 1.3 16V TB Aut.(Híb.),12206
-carro,Mercedes-Benz,GLA-200,Advance 1.6/1.6 TB 16V Flex Aut.,12204
-carro,Mercedes-Benz,GLA-200,Enduro 1.6 TB 16V Flex Aut.,12207
-carro,Mercedes-Benz,GLA-200,Night 1.6. TB 16V Flex Aut.,12208
-carro,Mercedes-Benz,GLA-200,Night Edition 1.3 TB 16V Aut.,12209
-carro,Mercedes-Benz,GLA-200,Progressive 1.3 TB 16V Aut.(Híb),12210
-carro,Mercedes-Benz,GLA-200,Style 1.6 TB 16V/Flex Aut.,12211
-carro,Mercedes-Benz,GLA-200,Vis. Black Ed. 1.6 TB 16V Aut.,12212
-carro,Mercedes-Benz,GLA-200,Vision 1.6/1.6 TB 16V Flex Aut.,12213
-carro,Mercedes-Benz,GLA-250,Enduro 2.0 TB 16V 211cv Aut.,12214
-carro,Mercedes-Benz,GLA-250,Sport 2.0 TB 16V 4x2 211cv Aut.,12215
-carro,Mercedes-Benz,GLA-250,Sport 2.0 TB 16V 4x4 211cv Aut.,12216
-carro,Mercedes-Benz,GLA-250,Vision 2.0 TB 16V 211cv Aut.,12217
-carro,Mercedes-Benz,GLA-35,AMG 4MATIC 2.0 Turbo Aut.,12218
-carro,Mercedes-Benz,GLA-35,AMG 4MATIC 2.0 Turbo Aut. (Híb.),12219
-carro,Mercedes-Benz,GLA-45,AMG 4MATIC 2.0 Turbo Aut.,12220
-carro,Mercedes-Benz,GLB-200,Advance 1.3 TB 16V Aut.,12221
-carro,Mercedes-Benz,GLB-200,Launch Edition 1.3 TB 16V Aut.,12222
-carro,Mercedes-Benz,GLB-200,Progressive 1.3 TB 16V Aut.,12223
-carro,Mercedes-Benz,GLB-200,Progressive 1.3 TB 16V Aut.(Híb),12224
-carro,Mercedes-Benz,GLB-220,4M AMG Line 2.0 TB Aut. (Híb.),12225
-carro,Mercedes-Benz,GLB-220,4M Night Edition 2.0 TB Aut.,12226
-carro,Mercedes-Benz,GLB-220,4M Progressive 2.0 TB Aut. (Híb),12227
-carro,Mercedes-Benz,GLB-35,AMG 4MATIC 2.0 Turbo Aut.,12228
-carro,Mercedes-Benz,GLB-35,AMG 4MATIC 2.0 Turbo Aut. (Híb.),12229
-carro,Mercedes-Benz,GLC-220D,2.0 TB 4M Enduro Diesel,12230
-carro,Mercedes-Benz,GLC-220D,2.0 TB 4M Off-Road Diesel,12231
-carro,Mercedes-Benz,GLC-250,4MATIC 2.0 TB 16V Aut.,12232
-carro,Mercedes-Benz,GLC-250,Coupe 4MATIC 2.0 TB 16V Aut.,12233
-carro,Mercedes-Benz,GLC-250,Coupe Highway 4MATIC 2.0 TB Aut.,12234
-carro,Mercedes-Benz,GLC-250,Highway 4MATIC 2.0 TB Aut.,12235
-carro,Mercedes-Benz,GLC-250,Sport 4MATIC 2.0 TB 16V Aut.,12236
-carro,Mercedes-Benz,GLC-300,4MATIC 2.0 TB Aut. (Híb),10973
-carro,Mercedes-Benz,GLC-300,AMG L. Cou. 4M 2.0 TB Aut. (Híb),10952
-carro,Mercedes-Benz,GLC-300,AMG Line 4MATIC 2.0 TB Aut (Híb),11224
-carro,Mercedes-Benz,GLC-300,AMG Line Coupe 4M 2.0 TB Aut.,9721
-carro,Mercedes-Benz,GLC-300,Coupe 4MATIC 2.0 TB 16V Aut.,11841
-carro,Mercedes-Benz,GLC-43,AMG 4M Coupe 2.0 Turbo Aut.(Híb).,11102
-carro,Mercedes-Benz,GLC-43,AMG 4MATIC 2.0 Turbo Aut. (Híb).,11191
-carro,Mercedes-Benz,GLC-43,AMG 4MATIC 3.0 V6 Bi-Turbo Aut.,7802
-carro,Mercedes-Benz,GLC-43,AMG Coupe 3.0 V6 Bi-TB Aut.,9660
-carro,Mercedes-Benz,GLC-63,AMG 4MATIC 4.0 Bi-TB V8,8633
-carro,Mercedes-Benz,GLC-63,S AMG 4MATIC Coupe 4.0 Bi-TB V8,8483
-carro,Mercedes-Benz,GLC-63,S AMG E Perf. Coupe 2.0 Aut (Híb),11295
-carro,Mercedes-Benz,GLE-350,3.0 V6 258cv 4x4 Diesel,7484
-carro,Mercedes-Benz,GLE-350,Family 3.0 V6 258cv 4x4 Diesel,7485
-carro,Mercedes-Benz,GLE-350,Highway 4MATIC 3.0 V6 Diesel,7927
-carro,Mercedes-Benz,GLE-350,Sport 4MATIC 3.0 V6 4x4 Diesel,7486
-carro,Mercedes-Benz,GLE-400,3.0 TB 4MATIC Coupe Diesel Aut.,9251
-carro,Mercedes-Benz,GLE-400,3.0 TB 4MATIC Diesel Aut.,9056
-carro,Mercedes-Benz,GLE-400,Coupe 3.0 V6 333cv Aut.,7510
-carro,Mercedes-Benz,GLE-400,Coupe High. 4MATIC 3.0 V6 Aut.,7803
-carro,Mercedes-Benz,GLE-400,Night Coupe 3.0 V6 333cv Aut.,7511
-carro,Mercedes-Benz,GLE-43,AMG 4MATIC 3.0 V6 Bi-TB Aut.,8103
-carro,Mercedes-Benz,GLE-43,AMG 4MATIC Coupe 3.0 V6 Bi-TB Aut,7838
-carro,Mercedes-Benz,GLE-450,4MATIC 3.0 AMG Line,12169
-carro,Mercedes-Benz,GLE-450,4MATIC 3.0 V6 Diesel (Híb),10923
-carro,Mercedes-Benz,GLE-450,AMG 3.0 V6 367cv Aut.,7739
-carro,Mercedes-Benz,GLE-450,Coupe 3.0 4MATIC AMG Line Diesel (Híb),11880
-carro,Mercedes-Benz,GLE-450,Coupe 3.0 4MATIC Diesel (Híb),11018
-carro,Mercedes-Benz,GLE-53,AMG 3.0 TB 4MATIC+ (Híbrido),10009
-carro,Mercedes-Benz,GLE-63,AMG 4MATIC Coupe 5.5 V8 Aut.,7512
-carro,Mercedes-Benz,GLE-63,AMG 5.5 V8 557cv Aut.,7768
-carro,Mercedes-Benz,GLE-63,S AMG 4M+ Coupé 4.0 Aut,9330
-carro,Mercedes-Benz,GLK-220,CDI 2.2 TB 4X4 170cv Aut. Diesel,11842
-carro,Mercedes-Benz,GLK-220,Sport CDI 2.2 TB 4X4 Aut. Diesel,11843
-carro,Mercedes-Benz,GLK-280,3.0 V6 24V 4x4 231cv Aut.,11844
-carro,Mercedes-Benz,GLK-300,3.0 V6 24V 4x4 231cv Aut.,11845
-carro,Mercedes-Benz,GLK-300,3.5 CGI V6 4x4 252cv Aut.,11846
-carro,Mercedes-Benz,GLS-350,V6 258cv 4x4 Diesel,7594
-carro,Mercedes-Benz,GLS-450,4M 3.0 Bi-TB Aut. (Híbrido),11847
-carro,Mercedes-Benz,GLS-450,AMG Line 4M 3.0 Bi-TB Aut. (Híbrido),11848
-carro,Mercedes-Benz,GLS-500,4MATIC 4.7 Bi-Turbo V8 455cv,7896
-carro,Mercedes-Benz,GLS-63,AMG 4MATIC 5.5 V8 Bi-TB Aut.,8130
+carro,Mercedes-Benz,GL,GL 350 Sport 3.0 V6 258cv 4x4 Diesel,6642
+carro,Mercedes-Benz,GL,GL 500 4.7 Bi-Turbo V8 4x4 Aut.,6445
+carro,Mercedes-Benz,GL,GL 500 5.5 V8 32V 4x4 388cv Aut.,4250
+carro,Mercedes-Benz,GL,GL 63 AMG 5.5 Bi-Turbo 32V 4x4 Aut.,6468
+carro,Mercedes-Benz,GLA,GLA 200 AMG Line 1.3 16V TB Aut.,12205
+carro,Mercedes-Benz,GLA,GLA 200 AMG Line 1.3 16V TB Aut.(Híb.),12206
+carro,Mercedes-Benz,GLA,GLA 200 Advance 1.6/1.6 TB 16V Flex Aut.,12204
+carro,Mercedes-Benz,GLA,GLA 200 Enduro 1.6 TB 16V Flex Aut.,12207
+carro,Mercedes-Benz,GLA,GLA 200 Night 1.6. TB 16V Flex Aut.,12208
+carro,Mercedes-Benz,GLA,GLA 200 Night Edition 1.3 TB 16V Aut.,12209
+carro,Mercedes-Benz,GLA,GLA 200 Progressive 1.3 TB 16V Aut.(Híb),12210
+carro,Mercedes-Benz,GLA,GLA 200 Style 1.6 TB 16V/Flex Aut.,12211
+carro,Mercedes-Benz,GLA,GLA 200 Vis. Black Ed. 1.6 TB 16V Aut.,12212
+carro,Mercedes-Benz,GLA,GLA 200 Vision 1.6/1.6 TB 16V Flex Aut.,12213
+carro,Mercedes-Benz,GLA,GLA 250 Enduro 2.0 TB 16V 211cv Aut.,12214
+carro,Mercedes-Benz,GLA,GLA 250 Sport 2.0 TB 16V 4x2 211cv Aut.,12215
+carro,Mercedes-Benz,GLA,GLA 250 Sport 2.0 TB 16V 4x4 211cv Aut.,12216
+carro,Mercedes-Benz,GLA,GLA 250 Vision 2.0 TB 16V 211cv Aut.,12217
+carro,Mercedes-Benz,GLA,GLA 35 AMG 4MATIC 2.0 Turbo Aut.,12218
+carro,Mercedes-Benz,GLA,GLA 35 AMG 4MATIC 2.0 Turbo Aut. (Híb.),12219
+carro,Mercedes-Benz,GLA,GLA 45 AMG 4MATIC 2.0 Turbo Aut.,12220
+carro,Mercedes-Benz,GLB,GLB 200 Advance 1.3 TB 16V Aut.,12221
+carro,Mercedes-Benz,GLB,GLB 200 Launch Edition 1.3 TB 16V Aut.,12222
+carro,Mercedes-Benz,GLB,GLB 200 Progressive 1.3 TB 16V Aut.,12223
+carro,Mercedes-Benz,GLB,GLB 200 Progressive 1.3 TB 16V Aut.(Híb),12224
+carro,Mercedes-Benz,GLB,GLB 220 4M AMG Line 2.0 TB Aut. (Híb.),12225
+carro,Mercedes-Benz,GLB,GLB 220 4M Night Edition 2.0 TB Aut.,12226
+carro,Mercedes-Benz,GLB,GLB 220 4M Progressive 2.0 TB Aut. (Híb),12227
+carro,Mercedes-Benz,GLB,GLB 35 AMG 4MATIC 2.0 Turbo Aut.,12228
+carro,Mercedes-Benz,GLB,GLB 35 AMG 4MATIC 2.0 Turbo Aut. (Híb.),12229
+carro,Mercedes-Benz,GLC,GLC 220D 2.0 TB 4M Enduro Diesel,12230
+carro,Mercedes-Benz,GLC,GLC 220D 2.0 TB 4M Off-Road Diesel,12231
+carro,Mercedes-Benz,GLC,GLC 250 4MATIC 2.0 TB 16V Aut.,12232
+carro,Mercedes-Benz,GLC,GLC 250 Coupe 4MATIC 2.0 TB 16V Aut.,12233
+carro,Mercedes-Benz,GLC,GLC 250 Coupe Highway 4MATIC 2.0 TB Aut.,12234
+carro,Mercedes-Benz,GLC,GLC 250 Highway 4MATIC 2.0 TB Aut.,12235
+carro,Mercedes-Benz,GLC,GLC 250 Sport 4MATIC 2.0 TB 16V Aut.,12236
+carro,Mercedes-Benz,GLC,GLC 300 4MATIC 2.0 TB Aut. (Híb),10973
+carro,Mercedes-Benz,GLC,GLC 300 AMG L. Cou. 4M 2.0 TB Aut. (Híb),10952
+carro,Mercedes-Benz,GLC,GLC 300 AMG Line 4MATIC 2.0 TB Aut (Híb),11224
+carro,Mercedes-Benz,GLC,GLC 300 AMG Line Coupe 4M 2.0 TB Aut.,9721
+carro,Mercedes-Benz,GLC,GLC 300 Coupe 4MATIC 2.0 TB 16V Aut.,11841
+carro,Mercedes-Benz,GLC,GLC 43 AMG 4M Coupe 2.0 Turbo Aut.(Híb).,11102
+carro,Mercedes-Benz,GLC,GLC 43 AMG 4MATIC 2.0 Turbo Aut. (Híb).,11191
+carro,Mercedes-Benz,GLC,GLC 43 AMG 4MATIC 3.0 V6 Bi-Turbo Aut.,7802
+carro,Mercedes-Benz,GLC,GLC 43 AMG Coupe 3.0 V6 Bi-TB Aut.,9660
+carro,Mercedes-Benz,GLC,GLC 63 AMG 4MATIC 4.0 Bi-TB V8,8633
+carro,Mercedes-Benz,GLC,GLC 63 S AMG 4MATIC Coupe 4.0 Bi-TB V8,8483
+carro,Mercedes-Benz,GLC,GLC 63 S AMG E Perf. Coupe 2.0 Aut (Híb),11295
+carro,Mercedes-Benz,GLE,GLE 350 3.0 V6 258cv 4x4 Diesel,7484
+carro,Mercedes-Benz,GLE,GLE 350 Family 3.0 V6 258cv 4x4 Diesel,7485
+carro,Mercedes-Benz,GLE,GLE 350 Highway 4MATIC 3.0 V6 Diesel,7927
+carro,Mercedes-Benz,GLE,GLE 350 Sport 4MATIC 3.0 V6 4x4 Diesel,7486
+carro,Mercedes-Benz,GLE,GLE 400 3.0 TB 4MATIC Coupe Diesel Aut.,9251
+carro,Mercedes-Benz,GLE,GLE 400 3.0 TB 4MATIC Diesel Aut.,9056
+carro,Mercedes-Benz,GLE,GLE 400 Coupe 3.0 V6 333cv Aut.,7510
+carro,Mercedes-Benz,GLE,GLE 400 Coupe High. 4MATIC 3.0 V6 Aut.,7803
+carro,Mercedes-Benz,GLE,GLE 400 Night Coupe 3.0 V6 333cv Aut.,7511
+carro,Mercedes-Benz,GLE,GLE 43 AMG 4MATIC 3.0 V6 Bi-TB Aut.,8103
+carro,Mercedes-Benz,GLE,GLE 43 AMG 4MATIC Coupe 3.0 V6 Bi-TB Aut,7838
+carro,Mercedes-Benz,GLE,GLE 450 4MATIC 3.0 AMG Line,12169
+carro,Mercedes-Benz,GLE,GLE 450 4MATIC 3.0 V6 Diesel (Híb),10923
+carro,Mercedes-Benz,GLE,GLE 450 AMG 3.0 V6 367cv Aut.,7739
+carro,Mercedes-Benz,GLE,GLE 450 Coupe 3.0 4MATIC AMG Line Diesel (Híb),11880
+carro,Mercedes-Benz,GLE,GLE 450 Coupe 3.0 4MATIC Diesel (Híb),11018
+carro,Mercedes-Benz,GLE,GLE 53 AMG 3.0 TB 4MATIC+ (Híbrido),10009
+carro,Mercedes-Benz,GLE,GLE 63 AMG 4MATIC Coupe 5.5 V8 Aut.,7512
+carro,Mercedes-Benz,GLE,GLE 63 AMG 5.5 V8 557cv Aut.,7768
+carro,Mercedes-Benz,GLE,GLE 63 S AMG 4M+ Coupé 4.0 Aut,9330
+carro,Mercedes-Benz,GLK,GLK 220 CDI 2.2 TB 4X4 170cv Aut. Diesel,11842
+carro,Mercedes-Benz,GLK,GLK 220 Sport CDI 2.2 TB 4X4 Aut. Diesel,11843
+carro,Mercedes-Benz,GLK,GLK 280 3.0 V6 24V 4x4 231cv Aut.,11844
+carro,Mercedes-Benz,GLK,GLK 300 3.0 V6 24V 4x4 231cv Aut.,11845
+carro,Mercedes-Benz,GLK,GLK 300 3.5 CGI V6 4x4 252cv Aut.,11846
+carro,Mercedes-Benz,GLS,GLS 350 V6 258cv 4x4 Diesel,7594
+carro,Mercedes-Benz,GLS,GLS 450 4M 3.0 Bi-TB Aut. (Híbrido),11847
+carro,Mercedes-Benz,GLS,GLS 450 AMG Line 4M 3.0 Bi-TB Aut. (Híbrido),11848
+carro,Mercedes-Benz,GLS,GLS 500 4MATIC 4.7 Bi-Turbo V8 455cv,7896
+carro,Mercedes-Benz,GLS,GLS 63 AMG 4MATIC 5.5 V8 Bi-TB Aut.,8130
 carro,Mercedes-Benz,GT,43 AMG 3.0 Bi-Turbo Aut. (Híbrido),10011
 carro,Mercedes-Benz,GT,63 S AMG 4.0 V8 Bi-Turbo,9332
 carro,Mercedes-Benz,GT,63 S AMG E Performance Aut. 2p,11717
@@ -6972,70 +6995,44 @@ carro,Mercedes-Benz,GT,AMG BLACK SERIES 4.0 V8 Bi-Turbo,9740
 carro,Mercedes-Benz,GT,C Roadster AMG 4.0 V8 Bi-Turbo,9333
 carro,Mercedes-Benz,GT,R AMG 4.0 V8 Bi-Turbo 585cv,8104
 carro,Mercedes-Benz,GT,S AMG 4.0 V8 Bi-Turbo 510cv,7356
-carro,Mercedes-Benz,ML-230,4x4,1621
-carro,Mercedes-Benz,ML-320,3.0 V6 224cv 4x4 diesel,4686
-carro,Mercedes-Benz,ML-320,4x4,1622
-carro,Mercedes-Benz,ML-350,3.0 V6 4x4 Diesel,5035
-carro,Mercedes-Benz,ML-350,3.5 4x4,1623
-carro,Mercedes-Benz,ML-350,Sport 3.0 V6 258cv 4X4 Diesel,6591
-carro,Mercedes-Benz,ML-350,Sport CGI 3.5 V6 306cv 4x4 Aut.,6124
-carro,Mercedes-Benz,ML-430,ML-430,1624
-carro,Mercedes-Benz,ML-500,V8 24V,1625
-carro,Mercedes-Benz,ML-55,AMG 5.5 24v,1626
-carro,Mercedes-Benz,ML-63,AMG 5.5 V8 Bi-Turbo Aut.,6239
-carro,Mercedes-Benz,ML-63,AMG 6.2 V8 32V 510cv,4318
-carro,Mercedes-Benz,S-320,L Classic/Wagon Classic 3.2,1627
-carro,Mercedes-Benz,S-400,3.5 V6 279cv Aut. (Híbrido),10062
-carro,Mercedes-Benz,S-420,Classic 4.0,1628
-carro,Mercedes-Benz,S-500,5.0,1629
-carro,Mercedes-Benz,S-500,C Classic 5.0,1630
-carro,Mercedes-Benz,S-500,L/ L Classic/ Wagon Classic 5.0,1631
-carro,Mercedes-Benz,S-500,Maybach 4.7 Bi-Turbo V8 455cv Aut.,8060
-carro,Mercedes-Benz,S-500L,4.7 Bi-Turbo V8 455cv Aut.,6700
-carro,Mercedes-Benz,S-500L,5.0,1632
-carro,Mercedes-Benz,S-55,AMG V8 24V 364cv/ 500cv,1633
-carro,Mercedes-Benz,S-560L,4.0 Bi-Turbo V8 469cv Aut.,8216
-carro,Mercedes-Benz,S-600,L/ L Classic/ Wagon Classic 6.0,1634
-carro,Mercedes-Benz,S-600/,S-600 C Classic 6.0,1635
-carro,Mercedes-Benz,S-63,AMG 5.5 V8 BI-TURBO Aut.,5747
-carro,Mercedes-Benz,S-63,AMG 6.2 V8 525cv Aut,4517
-carro,Mercedes-Benz,S-63,AMG S E Performance Aut. (Híbrido),11237
-carro,Mercedes-Benz,S-63,Cabriolet AMG 5.5 V8 Bi-Turbo Aut.,7804
-carro,Mercedes-Benz,S-63,Coupe AMG 4MATIC 4.0 V8 Bi-TB Aut.,8548
-carro,Mercedes-Benz,S-63,Coupe AMG 5.5 V8 Bi-Turbo Aut.,7229
-carro,Mercedes-Benz,S-63,L AMG 6.2 V8/5.5 V8 Bi-TB Aut,4518
-carro,Mercedes-Benz,S-65,AMG 6.0 V12 612cv Aut,4261
-carro,Mercedes-Benz,S-65,AMG Coupe 6.0 Bi-TB V12 630cv Aut.,8502
-carro,Mercedes-Benz,S-65,L AMG 6.0 V12 630cv Aut.,7770
+carro,Mercedes-Benz,ML,ML 230 4x4,1621
+carro,Mercedes-Benz,ML,ML 320 3.0 V6 224cv 4x4 diesel,4686
+carro,Mercedes-Benz,ML,ML 320 4x4,1622
+carro,Mercedes-Benz,ML,ML 350 3.0 V6 4x4 Diesel,5035
+carro,Mercedes-Benz,ML,ML 350 3.5 4x4,1623
+carro,Mercedes-Benz,ML,ML 350 Sport 3.0 V6 258cv 4X4 Diesel,6591
+carro,Mercedes-Benz,ML,ML 350 Sport CGI 3.5 V6 306cv 4x4 Aut.,6124
+carro,Mercedes-Benz,ML,ML 430,1624
+carro,Mercedes-Benz,ML,ML 500 V8 24V,1625
+carro,Mercedes-Benz,ML,ML 55 AMG 5.5 24v,1626
+carro,Mercedes-Benz,ML,ML 63 AMG 5.5 V8 Bi-Turbo Aut.,6239
+carro,Mercedes-Benz,ML,ML 63 AMG 6.2 V8 32V 510cv,4318
 carro,Mercedes-Benz,SE-500,SE-500,1636
-carro,Mercedes-Benz,SL-280,Classic 2.8,1637
-carro,Mercedes-Benz,SL-320,3.2/Classic 3.2,1638
-carro,Mercedes-Benz,SL-350,3.5 V6 2p,3899
-carro,Mercedes-Benz,SL-350,Sport 3.5 V6 316cv,5281
-carro,Mercedes-Benz,SL-400,3.0 Bi-Turbo V6 2p,7197
-carro,Mercedes-Benz,SL-500,5.0 e 5.5/ Classic 5.0,1639
-carro,Mercedes-Benz,SL-55,AMG V8 24V 500cv,1640
-carro,Mercedes-Benz,SL-600,SL-600,1641
-carro,Mercedes-Benz,SL-63,AMG 5.5 Bi-Turbo V8 Aut.,6359
-carro,Mercedes-Benz,SL-63,AMG 6.2 V8 525cv Aut,4701
-carro,Mercedes-Benz,SL-63,AMG S E Performance Aut. (Híbrido),11278
-carro,Mercedes-Benz,SL-65,AMG 6.0 V12 612cv Aut,4702
-carro,Mercedes-Benz,SLC-300,2.0 Turbo 245cv Aut.,7705
-carro,Mercedes-Benz,SLC-43,AMG 3.0 V6 Aut.,7719
-carro,Mercedes-Benz,SLK-200,Kompressor 16V/ 200 CGI 16V,1642
-carro,Mercedes-Benz,SLK-230,Kompressor,1643
-carro,Mercedes-Benz,SLK-230,Plus,1644
-carro,Mercedes-Benz,SLK-250,CGI 1.8 16V 204cv Aut.,5935
-carro,Mercedes-Benz,SLK-300,2.0 Turbo 245cv Aut.,7398
-carro,Mercedes-Benz,SLK-320,3.2 218cv,1645
-carro,Mercedes-Benz,SLK-350,3.5 V6/SLK-350 CGI,1646
-carro,Mercedes-Benz,SLK-55,AMG V8 24V,1647
-carro,Mercedes-Benz,SLS-63,AMG 6.2 8V Black Series Aut.,6755
-carro,Mercedes-Benz,SLS-63,AMG 6.2 V8 Aut.,5641
-carro,Mercedes-Benz,SLS-63,AMG Roadster 6.3 V8 Aut.,5900
-carro,Mercedes-Benz,Sprin.,417 F Vidr. Extra L.T.A. Die.(E6),11050
-carro,Mercedes-Benz,Sprin.,517 VAN E.L.P.T.A. 20L Die. (E6),10685
-carro,Mercedes-Benz,Sprin.,517 VAN E.L.P.T.A. 21L Die. (E6),10686
+carro,Mercedes-Benz,SL,SL 280 Classic 2.8,1637
+carro,Mercedes-Benz,SL,SL 320 3.2/Classic 3.2,1638
+carro,Mercedes-Benz,SL,SL 350 3.5 V6 2p,3899
+carro,Mercedes-Benz,SL,SL 350 Sport 3.5 V6 316cv,5281
+carro,Mercedes-Benz,SL,SL 400 3.0 Bi-Turbo V6 2p,7197
+carro,Mercedes-Benz,SL,SL 500 5.0 e 5.5/ Classic 5.0,1639
+carro,Mercedes-Benz,SL,SL 55 AMG V8 24V 500cv,1640
+carro,Mercedes-Benz,SL,SL 600,1641
+carro,Mercedes-Benz,SL,SL 63 AMG 5.5 Bi-Turbo V8 Aut.,6359
+carro,Mercedes-Benz,SL,SL 63 AMG 6.2 V8 525cv Aut,4701
+carro,Mercedes-Benz,SL,SL 63 AMG S E Performance Aut. (Híbrido),11278
+carro,Mercedes-Benz,SL,SL 65 AMG 6.0 V12 612cv Aut,4702
+carro,Mercedes-Benz,SLC,SLC 300 2.0 Turbo 245cv Aut.,7705
+carro,Mercedes-Benz,SLC,SLC 43 AMG 3.0 V6 Aut.,7719
+carro,Mercedes-Benz,SLK,SLK 200 Kompressor 16V/ 200 CGI 16V,1642
+carro,Mercedes-Benz,SLK,SLK 230 Kompressor,1643
+carro,Mercedes-Benz,SLK,SLK 230 Plus,1644
+carro,Mercedes-Benz,SLK,SLK 250 CGI 1.8 16V 204cv Aut.,5935
+carro,Mercedes-Benz,SLK,SLK 300 2.0 Turbo 245cv Aut.,7398
+carro,Mercedes-Benz,SLK,SLK 320 3.2 218cv,1645
+carro,Mercedes-Benz,SLK,SLK 350 3.5 V6/SLK-350 CGI,1646
+carro,Mercedes-Benz,SLK,SLK 55 AMG V8 24V,1647
+carro,Mercedes-Benz,SLS,SLS 63 AMG 6.2 8V Black Series Aut.,6755
+carro,Mercedes-Benz,SLS,SLS 63 AMG 6.2 V8 Aut.,5641
+carro,Mercedes-Benz,SLS,SLS 63 AMG Roadster 6.3 V8 Aut.,5900
 carro,Mercedes-Benz,Sprinter,310 Chassi Diesel,1648
 carro,Mercedes-Benz,Sprinter,310 Furgão 2.5 Diesel,1649
 carro,Mercedes-Benz,Sprinter,310 Pick-Up Diesel,1650
@@ -7132,6 +7129,7 @@ carro,Mercedes-Benz,Sprinter,416 VAN L. T.B. 10L 2.2 Diesel,8921
 carro,Mercedes-Benz,Sprinter,416 VAN L. T.B. 16L 2.2 Diesel,8922
 carro,Mercedes-Benz,Sprinter,417 Chassi L.T.B. Dies. (E6),10579
 carro,Mercedes-Benz,Sprinter,417 Chassi Longo T. B. 2.0 Aut. (E6),11957
+carro,Mercedes-Benz,Sprinter,417 F Vidr. Extra L.T.A. Die.(E6),11050
 carro,Mercedes-Benz,Sprinter,417 F. Vidrado L.T.A. Die. (E6),10581
 carro,Mercedes-Benz,Sprinter,417 Furgão Curto T.B. Die. (E6),10687
 carro,Mercedes-Benz,Sprinter,417 Furgão Ext. L.T.A Die. (E6),10583
@@ -7164,6 +7162,8 @@ carro,Mercedes-Benz,Sprinter,517 F. Ext. L. T.A. Die. (E6),10592
 carro,Mercedes-Benz,Sprinter,517 F. Ext. L.P.T.A. Die. (E6),10593
 carro,Mercedes-Benz,Sprinter,517 F.Vidr. E.L.P.T.A. Die (E6),10594
 carro,Mercedes-Benz,Sprinter,517 Furgão Extra Lon. P.T.A. 2.0 Aut.(E6),11964
+carro,Mercedes-Benz,Sprinter,517 VAN E.L.P.T.A. 20L Die. (E6),10685
+carro,Mercedes-Benz,Sprinter,517 VAN E.L.P.T.A. 21L Die. (E6),10686
 carro,Mercedes-Benz,Sprinter,517 VAN E.L.T.A. 18L Die (E6),11108
 carro,Mercedes-Benz,Sprinter,517 VAN Extra Longo P.T.A. 21L Aut. (E6),11965
 carro,Mercedes-Benz,VITO,111 CDI Furgão 1.6 TB Diesel 4p Mec,7399
@@ -7334,8 +7334,8 @@ carro,Mitsubishi,Pajero,iO SE 1.8 16V Aut.,1763
 carro,Mitsubishi,Pajero,iO SE 1.8 16V Mec.,1764
 carro,Mitsubishi,Space Wagon,GLS 2.0,1776
 carro,Mitsubishi,Space Wagon,GLS 2.4,1777
+carro,Mitsubishi,Space Wagon,GLXi 2.4,1779
 carro,Mitsubishi,Space Wagon,GLXi 2.4 (Nova Série),1778
-carro,Mitsubishi,Space Wagon/,GLXi 2.4,1779
 carro,Miura,Picape,BG-Truck CD Turbo Diesel,1780
 carro,Neta,AYA,Comfort 4S Aut. (Elétrico),11336
 carro,Neta,AYA,Luxury 4S Aut. (Elétrico),11337
@@ -8538,14 +8538,14 @@ carro,Suzuki,Wagon,R+ 1.0 Mec.,2203
 carro,Suzuki,e-Vitara,4STYLE ALLGRIP,12126
 carro,Tac,Stark,2.3 4WD 127cv TDI Diesel 3p,5192
 carro,Toyota,Avalon,XLS 3.0,2204
-carro,Toyota,Band.,Jipe 4x4 Sport 3.7 Diesel,2205
-carro,Toyota,Band.Jipe,Cap.de Aço Chas. Curto Diesel,2206
-carro,Toyota,Band.Jipe,Cap.de Aço Chas. Longo Diesel,2207
-carro,Toyota,Band.Jipe,Capota de Lona Diesel,2208
-carro,Toyota,Band.Picape,CD 2p Chassi Longo Diesel,2209
-carro,Toyota,Band.Picape,CD 4p Chassi Longo Diesel,2210
-carro,Toyota,Band.Picape,Chassi Curto Diesel,2211
-carro,Toyota,Band.Picape,Chassi Longo Diesel,2212
+carro,Toyota,Bandeirante,Jipe 4x4 Sport 3.7 Diesel,2205
+carro,Toyota,Bandeirante,Jipe Cap.de Aço Chas. Curto Diesel,2206
+carro,Toyota,Bandeirante,Jipe Cap.de Aço Chas. Longo Diesel,2207
+carro,Toyota,Bandeirante,Jipe Capota de Lona Diesel,2208
+carro,Toyota,Bandeirante,Picape CD 2p Chassi Longo Diesel,2209
+carro,Toyota,Bandeirante,Picape CD 4p Chassi Longo Diesel,2210
+carro,Toyota,Bandeirante,Picape Chassi Curto Diesel,2211
+carro,Toyota,Bandeirante,Picape Chassi Longo Diesel,2212
 carro,Toyota,Camry,LE,2213
 carro,Toyota,Camry,SW LE 2.2 16V,2214
 carro,Toyota,Camry,SW XLE 3.0 24V,2215
@@ -9307,67 +9307,67 @@ carro,Volvo,V70,T 2.4,2352
 carro,Volvo,V70,T 2.4/ 2.5 Premium,2353
 carro,Volvo,V70,T5 2.3,2354
 carro,Volvo,V70,XC/ XC 70,2355
-carro,Volvo,XC,40 Pure (Elétrico),10080
-carro,Volvo,XC,40 Recharge Plus (Elétrico),10377
-carro,Volvo,XC,40 T-4 2.0 190cv FWD,8368
-carro,Volvo,XC,40 T-4 INSCRIPTION 2.0 190cv FWD,9066
-carro,Volvo,XC,40 T-4 MOMENTUM 2.0 190cv FWD,9067
-carro,Volvo,XC,40 T-5 INSC. EXPRE. 1.5 FWD (Híbrido),9928
-carro,Volvo,XC,40 T-5 INSCRIPTION 1.5 FWD (Híbrido),9929
-carro,Volvo,XC,40 T-5 MOMENT FIRST ED. 2.0 252cv AWD,8253
-carro,Volvo,XC,40 T-5 MOMENTUM 1.5 FWD (Híbrido),9930
-carro,Volvo,XC,40 T-5 MOMENTUM 2.0 252cv AWD,8254
-carro,Volvo,XC,40 T-5 R-DESIGN 1.5 FWD (Híbrido),9931
-carro,Volvo,XC,40 T-5 R-DESIGN 2.0 252cv AWD,8255
-carro,Volvo,XC,40 T-5 R-DESIGN FIR. ED 2.0 252cv AWD,8256
-carro,Volvo,XC,40 T-5 R-DESIGN SPE. ED 2.0 252cv AWD,8877
-carro,Volvo,XC,40 Twin Ultimate (Elétrico),9932
-carro,Volvo,XC,60 2.0 T5 5p,5561
-carro,Volvo,XC,60 3.0 AWD 5p,4816
-carro,Volvo,XC,60 D-5 INSCRIPT 2.0 AWD Diesel 5p,8507
-carro,Volvo,XC,60 D-5 KINETIC 2.4 AWD Diesel 5p,7714
-carro,Volvo,XC,60 D-5 MOMENTUM 2.0 AWD Diesel 5p,8485
-carro,Volvo,XC,60 D-5 MOMENTUM 2.4 AWD Diesel 5p,7715
-carro,Volvo,XC,60 R-DESIGN 3.0 304cv AWD 5p,5459
-carro,Volvo,XC,60 T-5 INSCRIPTION 2.0 245 cv FWD 5p,7716
-carro,Volvo,XC,60 T-5 INSCRIPTION 2.0 AWD 5p,8066
-carro,Volvo,XC,60 T-5 KINETIC 2.0 245cv FWD 5p,7365
-carro,Volvo,XC,60 T-5 MOMENTUM 2.0 245cv FWD 5p,7366
-carro,Volvo,XC,60 T-5 MOMENTUM 2.0 254cv AWD 5p,8043
-carro,Volvo,XC,60 T-5 R-DESIGN 2.0 AWD 5p,8044
-carro,Volvo,XC,60 T-5 R-DESIGN 2.0 FWD 5p,6131
-carro,Volvo,XC,60 T-6 INSCRIPTION 2.0 FWD 5p,7291
-carro,Volvo,XC,60 T-6 R-DESIGN 2.0 306cv FWD 5p,7319
-carro,Volvo,XC,60 T-8 INSC. EXPRESS. 2.0 (Híbrido),9933
-carro,Volvo,XC,60 T-8 INSCRIPTION 2.0 (Híbrido),9934
-carro,Volvo,XC,60 T-8 MOMENTUM 2.0 (Híbrido),9935
-carro,Volvo,XC,60 T-8 POLESTAR 2.0 (Híbrido),9938
-carro,Volvo,XC,60 T-8 Plus 2.0 AWD (Híbrido),9936
-carro,Volvo,XC,60 T-8 Pol. Eng. 2.0 AWD (Híbrido),9937
-carro,Volvo,XC,60 T-8 R-DESIGN 2.0 (Híbrido),9939
-carro,Volvo,XC,60 T-8 Ultim.Dark 2.0 AWD (Híbrido),9940
-carro,Volvo,XC,60 T-8 Ultimate 2.0 AWD (Híbrido),9941
-carro,Volvo,XC,60 T-8 Ultra 2.0 AWD (Híbrido),11356
-carro,Volvo,XC,60 T-8 Ultra Dark 2.0 AWD (Híbrido),11357
-carro,Volvo,XC,90 2.5T 210cv AWD 5p,2356
-carro,Volvo,XC,90 3.2 238cv AWD 5p,4450
-carro,Volvo,XC,90 4.4 V8 315cv AWD 5p,2357
-carro,Volvo,XC,90 D-5 INSCRIPTION 2.0 235cv Dies. 5p,7879
-carro,Volvo,XC,90 D-5 MOMENTUM 2.0 235cv Diesel 5p,7853
-carro,Volvo,XC,90 T-6 FIRST EDITION 2.0 320cv 5p,7292
-carro,Volvo,XC,90 T-6 INSCRIPTION 2.0 320CV 5p,7293
-carro,Volvo,XC,90 T-6 MOMENTUM 2.0 320cv 5P,7294
-carro,Volvo,XC,90 T-8 EXCELLENCE 2.0 (Híbrido),9942
-carro,Volvo,XC,90 T-8 INSC. EXPRESS. 2.0 (Híbrido),9943
-carro,Volvo,XC,90 T-8 INSCRIPT 2.0 (Híbrido),9944
-carro,Volvo,XC,90 T-8 MOMENTUM 2.0 (Híbrido),9945
-carro,Volvo,XC,90 T-8 Plus 2.0 AWD (Híbrido),9946
-carro,Volvo,XC,90 T-8 R-DESIGN 2.0 (Híbrido),9947
-carro,Volvo,XC,90 T-8 Ultim. Dark 2.0 AWD (Híbrido),9948
-carro,Volvo,XC,90 T-8 Ultimate 2.0 AWD (Híbrido),9949
-carro,Volvo,XC,90 T-8 Ultra 2.0 AWD (Híbrido),11303
-carro,Volvo,XC,90 T-8 Ultra Dark 2.0 AWD (Híbrido),11304
-carro,Volvo,XC,90 T6 2.9 BI-TB 272cv AWD 5p,2358
+carro,Volvo,XC40,Pure (Elétrico),10080
+carro,Volvo,XC40,Recharge Plus (Elétrico),10377
+carro,Volvo,XC40,T-4 2.0 190cv FWD,8368
+carro,Volvo,XC40,T-4 INSCRIPTION 2.0 190cv FWD,9066
+carro,Volvo,XC40,T-4 MOMENTUM 2.0 190cv FWD,9067
+carro,Volvo,XC40,T-5 INSC. EXPRE. 1.5 FWD (Híbrido),9928
+carro,Volvo,XC40,T-5 INSCRIPTION 1.5 FWD (Híbrido),9929
+carro,Volvo,XC40,T-5 MOMENT FIRST ED. 2.0 252cv AWD,8253
+carro,Volvo,XC40,T-5 MOMENTUM 1.5 FWD (Híbrido),9930
+carro,Volvo,XC40,T-5 MOMENTUM 2.0 252cv AWD,8254
+carro,Volvo,XC40,T-5 R-DESIGN 1.5 FWD (Híbrido),9931
+carro,Volvo,XC40,T-5 R-DESIGN 2.0 252cv AWD,8255
+carro,Volvo,XC40,T-5 R-DESIGN FIR. ED 2.0 252cv AWD,8256
+carro,Volvo,XC40,T-5 R-DESIGN SPE. ED 2.0 252cv AWD,8877
+carro,Volvo,XC40,Twin Ultimate (Elétrico),9932
+carro,Volvo,XC60,2.0 T5 5p,5561
+carro,Volvo,XC60,3.0 AWD 5p,4816
+carro,Volvo,XC60,D-5 INSCRIPT 2.0 AWD Diesel 5p,8507
+carro,Volvo,XC60,D-5 KINETIC 2.4 AWD Diesel 5p,7714
+carro,Volvo,XC60,D-5 MOMENTUM 2.0 AWD Diesel 5p,8485
+carro,Volvo,XC60,D-5 MOMENTUM 2.4 AWD Diesel 5p,7715
+carro,Volvo,XC60,R-DESIGN 3.0 304cv AWD 5p,5459
+carro,Volvo,XC60,T-5 INSCRIPTION 2.0 245 cv FWD 5p,7716
+carro,Volvo,XC60,T-5 INSCRIPTION 2.0 AWD 5p,8066
+carro,Volvo,XC60,T-5 KINETIC 2.0 245cv FWD 5p,7365
+carro,Volvo,XC60,T-5 MOMENTUM 2.0 245cv FWD 5p,7366
+carro,Volvo,XC60,T-5 MOMENTUM 2.0 254cv AWD 5p,8043
+carro,Volvo,XC60,T-5 R-DESIGN 2.0 AWD 5p,8044
+carro,Volvo,XC60,T-5 R-DESIGN 2.0 FWD 5p,6131
+carro,Volvo,XC60,T-6 INSCRIPTION 2.0 FWD 5p,7291
+carro,Volvo,XC60,T-6 R-DESIGN 2.0 306cv FWD 5p,7319
+carro,Volvo,XC60,T-8 INSC. EXPRESS. 2.0 (Híbrido),9933
+carro,Volvo,XC60,T-8 INSCRIPTION 2.0 (Híbrido),9934
+carro,Volvo,XC60,T-8 MOMENTUM 2.0 (Híbrido),9935
+carro,Volvo,XC60,T-8 POLESTAR 2.0 (Híbrido),9938
+carro,Volvo,XC60,T-8 Plus 2.0 AWD (Híbrido),9936
+carro,Volvo,XC60,T-8 Pol. Eng. 2.0 AWD (Híbrido),9937
+carro,Volvo,XC60,T-8 R-DESIGN 2.0 (Híbrido),9939
+carro,Volvo,XC60,T-8 Ultim.Dark 2.0 AWD (Híbrido),9940
+carro,Volvo,XC60,T-8 Ultimate 2.0 AWD (Híbrido),9941
+carro,Volvo,XC60,T-8 Ultra 2.0 AWD (Híbrido),11356
+carro,Volvo,XC60,T-8 Ultra Dark 2.0 AWD (Híbrido),11357
+carro,Volvo,XC90,2.5T 210cv AWD 5p,2356
+carro,Volvo,XC90,3.2 238cv AWD 5p,4450
+carro,Volvo,XC90,4.4 V8 315cv AWD 5p,2357
+carro,Volvo,XC90,D-5 INSCRIPTION 2.0 235cv Dies. 5p,7879
+carro,Volvo,XC90,D-5 MOMENTUM 2.0 235cv Diesel 5p,7853
+carro,Volvo,XC90,T-6 FIRST EDITION 2.0 320cv 5p,7292
+carro,Volvo,XC90,T-6 INSCRIPTION 2.0 320CV 5p,7293
+carro,Volvo,XC90,T-6 MOMENTUM 2.0 320cv 5P,7294
+carro,Volvo,XC90,T-8 EXCELLENCE 2.0 (Híbrido),9942
+carro,Volvo,XC90,T-8 INSC. EXPRESS. 2.0 (Híbrido),9943
+carro,Volvo,XC90,T-8 INSCRIPT 2.0 (Híbrido),9944
+carro,Volvo,XC90,T-8 MOMENTUM 2.0 (Híbrido),9945
+carro,Volvo,XC90,T-8 Plus 2.0 AWD (Híbrido),9946
+carro,Volvo,XC90,T-8 R-DESIGN 2.0 (Híbrido),9947
+carro,Volvo,XC90,T-8 Ultim. Dark 2.0 AWD (Híbrido),9948
+carro,Volvo,XC90,T-8 Ultimate 2.0 AWD (Híbrido),9949
+carro,Volvo,XC90,T-8 Ultra 2.0 AWD (Híbrido),11303
+carro,Volvo,XC90,T-8 Ultra Dark 2.0 AWD (Híbrido),11304
+carro,Volvo,XC90,T6 2.9 BI-TB 272cv AWD 5p,2358
 carro,Wake,Cross,TSI 1.0 TB 12V Flex Mec.,9680
 carro,Wake,Cross,W 1.0 12V Flex Mec.,10966
 carro,Wake,Street,TSI 1.0 TB 12V Flex Mec.,10066
@@ -9384,28 +9384,28 @@ carro,smart,fortwo,BRABUS cabrio 1.0 72kw,5403
 carro,smart,fortwo,coupé/Brasil.Edition 1.0 mhd 71cv,5284
 carro,smart,fortwo,passion cabrio 1.0 62kw/Tritop,4902
 carro,smart,fortwo,passion coupé 1.0 62kw,4903
-moto,Adly,ATV,100,2576
-moto,Adly,ATV,50,2577
+moto,Adly,ATV 100,ATV 100,2576
+moto,Adly,ATV 50,ATV 50,2577
 moto,Adly,JAGUAR,JT 100,2578
 moto,Adly,JAGUAR,JT 50,2579
-moto,Adly,RT,50,2580
-moto,Agrale,CITY,50,2581
-moto,Agrale,CITY,90,2582
+moto,Adly,RT 50,RT 50,2580
+moto,Agrale,CITY 50,CITY 50,2581
+moto,Agrale,CITY 90,CITY 90,2582
 moto,Agrale,DAKAR,30.0 190cc,2583
-moto,Agrale,DAKAR,50,2584
+moto,Agrale,DAKAR 50,DAKAR 50,2584
 moto,Agrale,ELEFANT,16.5 125cc,2585
 moto,Agrale,ELEFANT,27.5 190cc,2586
 moto,Agrale,ELEFANTRE,16.5 ES 125cc,2587
 moto,Agrale,ELEFANTRE,30.0 ES 190cc,2588
-moto,Agrale,FORCE,50,2589
-moto,Agrale,FORCE,90,2590
+moto,Agrale,FORCE 50,FORCE 50,2589
+moto,Agrale,FORCE 90,FORCE 90,2590
 moto,Agrale,JUNIOR,50,2591
 moto,Agrale,SST,13.5 125cc,2592
 moto,Agrale,SUPER,CITY 125,2593
 moto,Agrale,SUPER,CITY 150,2594
 moto,Agrale,SXT,27.5 E 190cc,2595
 moto,Agrale,SXT,27.5 EX 190cc,2596
-moto,Agrale,TCHAU,50,2597
+moto,Agrale,TCHAU 50,TCHAU 50,2597
 moto,Amazonas,AME-110,MIX,4360
 moto,Amazonas,AME-150,TC/ SC,4361
 moto,Amazonas,AME-250,C1,4362
@@ -9413,173 +9413,173 @@ moto,Amazonas,AME-LX,125/26,4363
 moto,Aprilia,AREA-51,50cc,2598
 moto,Aprilia,CLASSIC,50cc,2599
 moto,Aprilia,LEONARDO,150cc,2600
-moto,Aprilia,MOTO,650cc,2601
+moto,Aprilia,MOTO 650cc,MOTO 650cc,2601
 moto,Aprilia,PEGASO,650cc,2602
-moto,Aprilia,RALLY,50cc,2603
-moto,Aprilia,RS,250cc,2604
-moto,Aprilia,RS,50cc,2605
+moto,Aprilia,RALLY 50cc,RALLY 50cc,2603
+moto,Aprilia,RS 250cc,RS 250cc,2604
+moto,Aprilia,RS 50cc,RS 50cc,2605
 moto,Aprilia,RSV,MILLE 1000cc,2606
-moto,Aprilia,RX,50cc,2607
+moto,Aprilia,RX 50cc,RX 50cc,2607
 moto,Aprilia,SCARABEO,BRIGTH 50cc,2608
 moto,Aprilia,SCARABEO,CLASSIC 50cc,2609
 moto,Aprilia,SCARABEO,DELUXE 50cc,2610
-moto,Aprilia,SONIC,50cc,2611
-moto,Aprilia,SR,150cc,8303
+moto,Aprilia,SONIC 50cc,SONIC 50cc,2611
 moto,Aprilia,SR,RACE 150cc,8304
 moto,Aprilia,SR,RACING 50cc,2612
 moto,Aprilia,SR,WWW 50cc,2613
-moto,Aprilia,SXR,160cc,10130
+moto,Aprilia,SR 150cc,SR 150cc,8303
+moto,Aprilia,SXR 160cc,SXR 160cc,10130
 moto,Atala,CALIFFONE,50cc,2614
 moto,Atala,MASTER,50cc,2615
 moto,Atala,SKEGIA,50cc,2616
-moto,Avelloz,AZ,01 50cc,9409
-moto,Avelloz,AZ,125 ALFA,11306
-moto,Avelloz,AZ,160 XTREME,11329
-moto,BMW,C,400 X,10895
-moto,BMW,C,400 X Sport,10896
-moto,BMW,C,600 Sport,6760
-moto,BMW,C,650 GT,7219
-moto,BMW,F,650,2624
-moto,BMW,F,650 CS,2625
-moto,BMW,F,650 GS/Dakar,2626
-moto,BMW,F,700 GS,7819
-moto,BMW,F,750 GS Premium,8533
-moto,BMW,F,750 GS Premium 40 Anos,9570
-moto,BMW,F,750 GS Sport,8534
-moto,BMW,F,800 GS 798cc,4805
-moto,BMW,F,800 GS 895cc,11145
-moto,BMW,F,800 GS Adventure,6653
-moto,BMW,F,800 GS Plus 895cc,11146
-moto,BMW,F,800 GS Triple Black/trophy,6362
-moto,BMW,F,800 R,5048
-moto,BMW,F,800 S 798cc,4252
-moto,BMW,F,850 GS Adventure Premium,8646
-moto,BMW,F,850 GS Adventure Premium 40 anos,9571
-moto,BMW,F,850 GS Adventure Sport,8647
-moto,BMW,F,850 GS Premium,8535
-moto,BMW,F,850 GS Premium 40 anos,10124
-moto,BMW,F,850 GS Sport,8536
-moto,BMW,F,900 GS,11147
-moto,BMW,F,900 GS Adventure Plus,11148
-moto,BMW,F,900 GS Plus,11149
-moto,BMW,F,900 GS Trophy,11150
-moto,BMW,F,900 GS Trophy Pro,11151
-moto,BMW,F,900 R,11865
-moto,BMW,F,900 R Plus,11866
-moto,BMW,F,900 R Plus Racing Blue,11867
-moto,BMW,F,900 R Plus Triple Black,11868
-moto,BMW,F,900 R Sport,10383
-moto,BMW,F,900 R Sport Plus,10384
-moto,BMW,G,310 GS,8221
-moto,BMW,G,310 R,8029
-moto,BMW,G,450 X,4817
-moto,BMW,G,650 GS,5196
-moto,BMW,G,650 GS Sertão,5985
-moto,BMW,G,650 X Challenge,4443
-moto,BMW,G,650 X Country,4650
-moto,BMW,G,650 X Moto,4444
-moto,BMW,K,1100 LT,2627
-moto,BMW,K,1100 RS,2628
-moto,BMW,K,1200 GT,2629
-moto,BMW,K,1200 LT,2630
-moto,BMW,K,1200 R,3836
-moto,BMW,K,1200 RS,2631
-moto,BMW,K,1200 S,2632
-moto,BMW,K,1300 GT,4870
-moto,BMW,K,1300 R,4871
-moto,BMW,K,1300 S,4872
-moto,BMW,K,1600 BAGGER,8187
-moto,BMW,K,1600 GT,5631
-moto,BMW,K,1600 GTL,5630
-moto,BMW,K,1600 GTL Exclusive,6847
-moto,BMW,R,1100 GS,2633
-moto,BMW,R,1100 GS-75,2634
-moto,BMW,R,1100 R,2635
-moto,BMW,R,1100 RS,2636
-moto,BMW,R,1100 RT,2637
-moto,BMW,R,1100 S,2638
-moto,BMW,R,1150 GS,2639
-moto,BMW,R,1150 GS Adventure,2640
-moto,BMW,R,1150 R/ R 1150 R Rockster,2641
-moto,BMW,R,1150 RS,2642
-moto,BMW,R,1150 RT,2643
-moto,BMW,R,12,11204
-moto,BMW,R,12 719,11205
-moto,BMW,R,12 Cruiser,11206
-moto,BMW,R,12 GS,11896
-moto,BMW,R,12 GS 719,11897
-moto,BMW,R,1200 C AVANTGARD,2644
-moto,BMW,R,1200 C Classic,2645
-moto,BMW,R,1200 C Independent,2646
-moto,BMW,R,1200 CL,2647
-moto,BMW,R,1200 GS,2648
-moto,BMW,R,1200 GS Adventure,4150
-moto,BMW,R,1200 GS Adventure Exclusive,8328
-moto,BMW,R,1200 GS Adventure RALLYE,8257
-moto,BMW,R,1200 GS Adventure Triple Black,6333
-moto,BMW,R,1200 GS Exclusive,8428
-moto,BMW,R,1200 GS HP2,4069
-moto,BMW,R,1200 GS Rallye,6334
-moto,BMW,R,1200 GS Triple Black,6363
-moto,BMW,R,1200 Nine T,6848
-moto,BMW,R,1200 R/ R Classic,5712
-moto,BMW,R,1200 RT,2649
-moto,BMW,R,1250 GS Adv.Premium Triple Black 719,9750
-moto,BMW,R,1250 GS Adventure Premium,8718
-moto,BMW,R,1250 GS Adventure Premium 40 Anos,9511
-moto,BMW,R,1250 GS Adventure Premium Exclusive,8719
-moto,BMW,R,1250 GS Adventure Premium HP,8720
-moto,BMW,R,1250 GS Adventure Premium Rallye,9512
-moto,BMW,R,1250 GS Adventure Premium Triple Black,9513
-moto,BMW,R,1250 GS Adventure Premium Trophy,10385
-moto,BMW,R,1250 GS Ed. Especial,9781
-moto,BMW,R,1250 GS Premium 40 Anos,9514
-moto,BMW,R,1250 GS Premium Exclusive,8721
-moto,BMW,R,1250 GS Premium HP,8722
-moto,BMW,R,1250 GS Premium Rallye,9515
-moto,BMW,R,1250 GS Premium Triple Black,9516
-moto,BMW,R,1250 GS Premium Triple Black 719,10087
-moto,BMW,R,1250 GS Premium Trophy,10425
-moto,BMW,R,1250 GS Sport,8723
-moto,BMW,R,1250 RT Premium,9217
-moto,BMW,R,1250 RT Premium Spezial,9218
-moto,BMW,R,1300 GS,11026
-moto,BMW,R,1300 GS 719,11027
-moto,BMW,R,1300 GS 719 ASA,11741
-moto,BMW,R,1300 GS Adventure 719,11442
-moto,BMW,R,1300 GS Adventure 719 ASA,11443
-moto,BMW,R,1300 GS Adventure Plus,11444
-moto,BMW,R,1300 GS Adventure Premium 719 ASA,12069
-moto,BMW,R,1300 GS Adventure Premium Triple Black,12070
-moto,BMW,R,1300 GS Adventure Premium Triple Black ASA,12071
-moto,BMW,R,1300 GS Adventure Premium Trophy,12146
-moto,BMW,R,1300 GS Adventure Triple Black,11445
-moto,BMW,R,1300 GS Adventure Triple Black ASA,11446
-moto,BMW,R,1300 GS Adventure Trophy,11447
-moto,BMW,R,1300 GS Plus,11028
-moto,BMW,R,1300 GS Premium,12147
-moto,BMW,R,1300 GS Premium 719 ASA,12072
-moto,BMW,R,1300 GS Premium ASA,12148
-moto,BMW,R,1300 GS Premium Triple Black,12073
-moto,BMW,R,1300 GS Premium Triple Black ASA,12074
-moto,BMW,R,1300 GS Premium Trophy,12075
-moto,BMW,R,1300 GS Sport,12076
-moto,BMW,R,1300 GS Triple Black,11029
-moto,BMW,R,1300 GS Trophy,11030
-moto,BMW,R,1300 RT 719,11742
-moto,BMW,R,1300 RT 719 ASA,11743
-moto,BMW,R,1300 RT Triple Black,11744
-moto,BMW,R,1300 RT Triple Black ASA,11745
-moto,BMW,R,18,10185
-moto,BMW,R,18 100 Anos,10843
-moto,BMW,S,1000 R,6874
-moto,BMW,S,1000 RR,5286
-moto,BMW,S,1000 RR HP4 Competition,11829
-moto,BMW,S,1000 RR HP4 Street,11830
-moto,BMW,S,1000 RR-M,9202
-moto,BMW,S,1000 RR-M Carbon,9519
-moto,BMW,S,1000 RR-M Package,11525
-moto,BMW,S,1000 XR,7411
+moto,Avelloz,AZ 01,50cc,9409
+moto,Avelloz,AZ 125,ALFA,11306
+moto,Avelloz,AZ 160,XTREME,11329
+moto,BMW,C 400,X,10895
+moto,BMW,C 400,X Sport,10896
+moto,BMW,C 600,Sport,6760
+moto,BMW,C 650,GT,7219
+moto,BMW,F 650,CS,2625
+moto,BMW,F 650,F 650,2624
+moto,BMW,F 650,GS/Dakar,2626
+moto,BMW,F 700,GS,7819
+moto,BMW,F 750,GS Premium,8533
+moto,BMW,F 750,GS Premium 40 Anos,9570
+moto,BMW,F 750,GS Sport,8534
+moto,BMW,F 800,GS 798cc,4805
+moto,BMW,F 800,GS 895cc,11145
+moto,BMW,F 800,GS Adventure,6653
+moto,BMW,F 800,GS Plus 895cc,11146
+moto,BMW,F 800,GS Triple Black/trophy,6362
+moto,BMW,F 800,R,5048
+moto,BMW,F 800,S 798cc,4252
+moto,BMW,F 850,GS Adventure Premium,8646
+moto,BMW,F 850,GS Adventure Premium 40 anos,9571
+moto,BMW,F 850,GS Adventure Sport,8647
+moto,BMW,F 850,GS Premium,8535
+moto,BMW,F 850,GS Premium 40 anos,10124
+moto,BMW,F 850,GS Sport,8536
+moto,BMW,F 900,GS,11147
+moto,BMW,F 900,GS Adventure Plus,11148
+moto,BMW,F 900,GS Plus,11149
+moto,BMW,F 900,GS Trophy,11150
+moto,BMW,F 900,GS Trophy Pro,11151
+moto,BMW,F 900,R,11865
+moto,BMW,F 900,R Plus,11866
+moto,BMW,F 900,R Plus Racing Blue,11867
+moto,BMW,F 900,R Plus Triple Black,11868
+moto,BMW,F 900,R Sport,10383
+moto,BMW,F 900,R Sport Plus,10384
+moto,BMW,G 310,GS,8221
+moto,BMW,G 310,R,8029
+moto,BMW,G 450,X,4817
+moto,BMW,G 650,GS,5196
+moto,BMW,G 650,GS Sertão,5985
+moto,BMW,G 650,X Challenge,4443
+moto,BMW,G 650,X Country,4650
+moto,BMW,G 650,X Moto,4444
+moto,BMW,K 1100,LT,2627
+moto,BMW,K 1100,RS,2628
+moto,BMW,K 1200,GT,2629
+moto,BMW,K 1200,LT,2630
+moto,BMW,K 1200,R,3836
+moto,BMW,K 1200,RS,2631
+moto,BMW,K 1200,S,2632
+moto,BMW,K 1300,GT,4870
+moto,BMW,K 1300,R,4871
+moto,BMW,K 1300,S,4872
+moto,BMW,K 1600,BAGGER,8187
+moto,BMW,K 1600,GT,5631
+moto,BMW,K 1600,GTL,5630
+moto,BMW,K 1600,GTL Exclusive,6847
+moto,BMW,R 1100,GS,2633
+moto,BMW,R 1100,GS-75,2634
+moto,BMW,R 1100,R,2635
+moto,BMW,R 1100,RS,2636
+moto,BMW,R 1100,RT,2637
+moto,BMW,R 1100,S,2638
+moto,BMW,R 1150,GS,2639
+moto,BMW,R 1150,GS Adventure,2640
+moto,BMW,R 1150,R/ R 1150 R Rockster,2641
+moto,BMW,R 1150,RS,2642
+moto,BMW,R 1150,RT,2643
+moto,BMW,R 12,719,11205
+moto,BMW,R 12,Cruiser,11206
+moto,BMW,R 12,GS,11896
+moto,BMW,R 12,GS 719,11897
+moto,BMW,R 12,R 12,11204
+moto,BMW,R 1200,C AVANTGARD,2644
+moto,BMW,R 1200,C Classic,2645
+moto,BMW,R 1200,C Independent,2646
+moto,BMW,R 1200,CL,2647
+moto,BMW,R 1200,GS,2648
+moto,BMW,R 1200,GS Adventure,4150
+moto,BMW,R 1200,GS Adventure Exclusive,8328
+moto,BMW,R 1200,GS Adventure RALLYE,8257
+moto,BMW,R 1200,GS Adventure Triple Black,6333
+moto,BMW,R 1200,GS Exclusive,8428
+moto,BMW,R 1200,GS HP2,4069
+moto,BMW,R 1200,GS Rallye,6334
+moto,BMW,R 1200,GS Triple Black,6363
+moto,BMW,R 1200,Nine T,6848
+moto,BMW,R 1200,R/ R Classic,5712
+moto,BMW,R 1200,RT,2649
+moto,BMW,R 1250,GS Adv.Premium Triple Black 719,9750
+moto,BMW,R 1250,GS Adventure Premium,8718
+moto,BMW,R 1250,GS Adventure Premium 40 Anos,9511
+moto,BMW,R 1250,GS Adventure Premium Exclusive,8719
+moto,BMW,R 1250,GS Adventure Premium HP,8720
+moto,BMW,R 1250,GS Adventure Premium Rallye,9512
+moto,BMW,R 1250,GS Adventure Premium Triple Black,9513
+moto,BMW,R 1250,GS Adventure Premium Trophy,10385
+moto,BMW,R 1250,GS Ed. Especial,9781
+moto,BMW,R 1250,GS Premium 40 Anos,9514
+moto,BMW,R 1250,GS Premium Exclusive,8721
+moto,BMW,R 1250,GS Premium HP,8722
+moto,BMW,R 1250,GS Premium Rallye,9515
+moto,BMW,R 1250,GS Premium Triple Black,9516
+moto,BMW,R 1250,GS Premium Triple Black 719,10087
+moto,BMW,R 1250,GS Premium Trophy,10425
+moto,BMW,R 1250,GS Sport,8723
+moto,BMW,R 1250,RT Premium,9217
+moto,BMW,R 1250,RT Premium Spezial,9218
+moto,BMW,R 1300,GS,11026
+moto,BMW,R 1300,GS 719,11027
+moto,BMW,R 1300,GS 719 ASA,11741
+moto,BMW,R 1300,GS Adventure 719,11442
+moto,BMW,R 1300,GS Adventure 719 ASA,11443
+moto,BMW,R 1300,GS Adventure Plus,11444
+moto,BMW,R 1300,GS Adventure Premium 719 ASA,12069
+moto,BMW,R 1300,GS Adventure Premium Triple Black,12070
+moto,BMW,R 1300,GS Adventure Premium Triple Black ASA,12071
+moto,BMW,R 1300,GS Adventure Premium Trophy,12146
+moto,BMW,R 1300,GS Adventure Triple Black,11445
+moto,BMW,R 1300,GS Adventure Triple Black ASA,11446
+moto,BMW,R 1300,GS Adventure Trophy,11447
+moto,BMW,R 1300,GS Plus,11028
+moto,BMW,R 1300,GS Premium,12147
+moto,BMW,R 1300,GS Premium 719 ASA,12072
+moto,BMW,R 1300,GS Premium ASA,12148
+moto,BMW,R 1300,GS Premium Triple Black,12073
+moto,BMW,R 1300,GS Premium Triple Black ASA,12074
+moto,BMW,R 1300,GS Premium Trophy,12075
+moto,BMW,R 1300,GS Sport,12076
+moto,BMW,R 1300,GS Triple Black,11029
+moto,BMW,R 1300,GS Trophy,11030
+moto,BMW,R 1300,RT 719,11742
+moto,BMW,R 1300,RT 719 ASA,11743
+moto,BMW,R 1300,RT Triple Black,11744
+moto,BMW,R 1300,RT Triple Black ASA,11745
+moto,BMW,R 18,100 Anos,10843
+moto,BMW,R 18,R 18,10185
+moto,BMW,S 1000,R,6874
+moto,BMW,S 1000,RR,5286
+moto,BMW,S 1000,RR HP4 Competition,11829
+moto,BMW,S 1000,RR HP4 Street,11830
+moto,BMW,S 1000,RR-M,9202
+moto,BMW,S 1000,RR-M Carbon,9519
+moto,BMW,S 1000,RR-M Package,11525
+moto,BMW,S 1000,XR,7411
 moto,Bajaj,CHAMPION,45 100cc,2617
 moto,Bajaj,CLASSIC,150cc,2618
 moto,Bajaj,DOMINAR,160,10380
@@ -9590,17 +9590,17 @@ moto,Bajaj,DOMINAR,NS160,11475
 moto,Bajaj,DOMINAR,NS200,11476
 moto,Bajaj,DOMINAR,NS400Z,11678
 moto,Bajaj,PULSAR,N150,11524
-moto,Bee,BEE,125cc Monaco,8153
-moto,Bee,BEE,200cc GT,8374
-moto,Bee,BEE,200cc Royale,8154
-moto,Bee,BEE,50cc,8155
+moto,Bee,BEE 125cc,Monaco,8153
+moto,Bee,BEE 200cc,GT,8374
+moto,Bee,BEE 200cc,Royale,8154
+moto,Bee,BEE 50cc,BEE 50cc,8155
 moto,Bee,Monaco,150cc,8327
-moto,Benelli,TNT,1130 Sport evo,5043
-moto,Benelli,TNT,899,5044
 moto,Benelli,TNT,Café 1130 Racer,5045
-moto,Benelli,TRE,1130 K,5046
-moto,Benelli,TRE,1130 K Amazonas,5047
-moto,Benelli,TRE,899 K,6652
+moto,Benelli,TNT 1130,Sport evo,5043
+moto,Benelli,TNT 899,TNT 899,5044
+moto,Benelli,TRE 1130,K,5046
+moto,Benelli,TRE 1130,K Amazonas,5047
+moto,Benelli,TRE 899,K,6652
 moto,Beta,MX-50,CROSS 50cc,2619
 moto,Beta,MX-50,ENDURO 50cc,2620
 moto,Bimota,DB4,904cc,2621
@@ -9613,8 +9613,8 @@ moto,Bimota,SBR8,SPECIAL 996cc,2623
 moto,Bimota,Tesi,3D 1100cc ( Alumínio),5285
 moto,Bimota,Tesi,3D 1100cc ( Carbono ),5091
 moto,Brandy,ELEGANT,50,2650
-moto,Brandy,FOSTI,125,2651
-moto,Brandy,PISTA,70,2652
+moto,Brandy,FOSTI 125,FOSTI 125,2651
+moto,Brandy,PISTA 70,PISTA 70,2652
 moto,Brandy,TURBO,PLUS,2653
 moto,Brandy,ZANELLA,NEW FIRE 50 FULL,2654
 moto,Brava,YB,150T-15 150cc,4359
@@ -9691,9 +9691,9 @@ moto,Buell,LIGHTNING,XB12SCG,4679
 moto,Buell,LIGHTNING,XB12SS,3839
 moto,Buell,LIGHTNING,XB12STT,4680
 moto,Buell,ULYSSES,XB12X,3840
-moto,Bueno,JBr,125e,4873
-moto,Bueno,JBr,150e,4874
-moto,Bueno,JBr,250e,4875
+moto,Bueno,JBr 125e,JBr 125e,4873
+moto,Bueno,JBr 150e,JBr 150e,4874
+moto,Bueno,JBr 250e,JBr 250e,4875
 moto,Bull,BM-S,180,9410
 moto,Bull,BM-T180,BM-T180,9411
 moto,Bull,Café,Racer B31,9412
@@ -9701,38 +9701,38 @@ moto,Bull,Ciclo,City Veloce 1000W (Elétrica),9413
 moto,Bull,Eko,City 1200W (Elétrica),9414
 moto,Bull,Eko,Hunter 2000W (Elétrica),9415
 moto,Bull,Eko,Sport 1200W (Elétrica),9416
-moto,Bull,GTR,250,9419
+moto,Bull,GTR 250,GTR 250,9419
 moto,Bull,KHRISMA,50,9420
 moto,Bull,KRC,F5-LX 50,9421
 moto,Bull,KRC,LIV-50,9422
 moto,Bull,MAXX,KRC50,9423
-moto,Bull,NOW,125,9424
+moto,Bull,NOW 125,NOW 125,9424
 moto,Bull,Spirit,SE 50,9425
 moto,Cagiva,CANYON,500,2658
 moto,Cagiva,ELEFANT,750,2659
 moto,Cagiva,ELEFANT,900,2660
 moto,Cagiva,GRAN,CANYON 900,2661
-moto,Cagiva,MITO,125,2662
+moto,Cagiva,MITO 125,MITO 125,2662
 moto,Cagiva,NAVIGATOR,1000,2663
 moto,Cagiva,PLANET,125,2664
 moto,Cagiva,ROADSTER,200cc,2665
 moto,Cagiva,V-RAPTOR,1000,2666
 moto,Cagiva,W-16,600cc,2667
 moto,Caloi,MOBILETE,50cc,2668
-moto,Caloi,MONDO,75cc,2669
+moto,Caloi,MONDO 75cc,MONDO 75cc,2669
 moto,Cfmoto,CL-,C 450,12045
 moto,Cfmoto,CL-,C BOBBER 450,12046
-moto,Cfmoto,IBEX,450,12050
-moto,Cfmoto,IBEX,700,12051
+moto,Cfmoto,IBEX 450,IBEX 450,12050
+moto,Cfmoto,IBEX 700,IBEX 700,12051
 moto,Daelim,ALTINO,100cc,2670
 moto,Daelim,MESSAGE,50cc,2671
-moto,Daelim,VC,125 ADVANCED,2672
-moto,Daelim,VF,125 D,2673
-moto,Daelim,VS,125 CUSTOM,2674
-moto,Daelim,VT,125 CUSTOM MAGMA,2675
-moto,Daelim,VX,125,2676
-moto,Dafra,ADXTG,150cc,11935
-moto,Dafra,ADXTG,300cc,12137
+moto,Daelim,VC 125,ADVANCED,2672
+moto,Daelim,VF 125,D,2673
+moto,Daelim,VS 125,CUSTOM,2674
+moto,Daelim,VT 125,CUSTOM MAGMA,2675
+moto,Daelim,VX 125,VX 125,2676
+moto,Dafra,ADXTG 150cc,ADXTG 150cc,11935
+moto,Dafra,ADXTG 300cc,ADXTG 300cc,12137
 moto,Dafra,APACHE,150cc,5200
 moto,Dafra,APACHE,RTR 200cc,8677
 moto,Dafra,CITYCLASS,200i,7126
@@ -9747,25 +9747,25 @@ moto,Dafra,HORIZON,250,6494
 moto,Dafra,JOYRIDE,300,11387
 moto,Dafra,KANSAS,150,4588
 moto,Dafra,KANSAS,250,4910
-moto,Dafra,LASER,150,4589
+moto,Dafra,LASER 150,LASER 150,4589
 moto,Dafra,MAXSYM,400 GT,11567
 moto,Dafra,MAXSYM,400i,6815
-moto,Dafra,NEXT,250cc,5984
-moto,Dafra,NEXT,300cc,8375
-moto,Dafra,NH,190,8973
-moto,Dafra,NH,300,10643
-moto,Dafra,NHX,190,11308
-moto,Dafra,RIVA,150cc,5753
+moto,Dafra,NEXT 250cc,NEXT 250cc,5984
+moto,Dafra,NEXT 300cc,NEXT 300cc,8375
+moto,Dafra,NH 190,NH 190,8973
+moto,Dafra,NH 300,NH 300,10643
+moto,Dafra,NHX 190,NHX 190,11308
 moto,Dafra,RIVA,Cargo 150cc,6364
+moto,Dafra,RIVA 150cc,RIVA 150cc,5753
 moto,Dafra,ROADWIN,250R,5754
-moto,Dafra,SMART,125cc,5119
-moto,Dafra,SPEED,150,4590
+moto,Dafra,SMART 125cc,SMART 125cc,5119
 moto,Dafra,SPEED,Cargo 150,9155
-moto,Dafra,SUPER,100,4591
-moto,Dafra,SUPER,50,5383
-moto,Dafra,ZIG,100,5120
+moto,Dafra,SPEED 150,SPEED 150,4590
+moto,Dafra,SUPER 100,SUPER 100,4591
+moto,Dafra,SUPER 50,SUPER 50,5383
 moto,Dafra,ZIG,100+,5587
-moto,Dafra,ZIG,50,5657
+moto,Dafra,ZIG 100,ZIG 100,5120
+moto,Dafra,ZIG 50,ZIG 50,5657
 moto,Dayang,DY100-31,DY100-31,4784
 moto,Dayang,DY110-20,DY110-20,4452
 moto,Dayang,DY125,SPRINT,6816
@@ -9784,7 +9784,7 @@ moto,Dayang,DY250,REV,6656
 moto,Dayang,DY250,THOR,6675
 moto,Dayang,DY50,JOB,6133
 moto,Dayang,DY50,WARRIOR,6134
-moto,Dayang,THOR,230,7239
+moto,Dayang,THOR 230,THOR 230,7239
 moto,Dayun,DY110-6,DY110-6,4537
 moto,Dayun,DY125-8,DY125-8,4538
 moto,Dayun,DY125T-10,DY125T-10,4539
@@ -9795,7 +9795,7 @@ moto,Dayun,DY150ZH,(triciclo carga),4543
 moto,Dayun,DY200ZH,(triciclo carga),5152
 moto,Dayun,DY250-2,DY250-2,4544
 moto,Derbi,ATLANTIS,49cc,2677
-moto,Derbi,GPR,50R 49cc,2678
+moto,Derbi,GPR 50R,49cc,2678
 moto,Derbi,PREDATOR,AR 49cc,2679
 moto,Derbi,PREDATOR,LC 49cc,2680
 moto,Derbi,RED,BULLET 49cc,2681
@@ -9885,7 +9885,7 @@ moto,Ducati,SCRAMBLER,ICON 800cc,7382
 moto,Ducati,SCRAMBLER,URBAN ENDURO 800cc,7572
 moto,Ducati,SPORTCLASSIC,PAULSMART 1000LE 992cc,4175
 moto,Ducati,SPORTCLASSIC,SPORT 1000 992cc,4176
-moto,Ducati,SS,900cc,2696
+moto,Ducati,SS 900cc,SS 900cc,2696
 moto,Ducati,ST-2,900/ 944cc,2697
 moto,Ducati,ST-4,900/ 996cc,2698
 moto,Ducati,STREETFIGHTER,1098cc,5161
@@ -9897,8 +9897,8 @@ moto,Ducati,XDIAVEL,DARK 1262,8305
 moto,Ducati,XDIAVEL,S 1262,7785
 moto,Ducati,XDIAVEL,V4 1158,12153
 moto,Emme,MIRAGE,50cc,2699
-moto,Emme,ONE,50cc,2700
 moto,Emme,ONE,RACING 50cc,2701
+moto,Emme,ONE 50cc,ONE 50cc,2700
 moto,Fever,FR110,BOX (Elétrica),11285
 moto,Fever,FR150,FRIGO (Elétrica),10976
 moto,Fever,FR250,BOX (Elétrica),10977
@@ -9929,52 +9929,52 @@ moto,Garinni,GR125ST,GR125ST,4738
 moto,Garinni,GR125T3,GR125T3,4549
 moto,Garinni,GR125U,GR125U,4550
 moto,Garinni,GR125Z,GR125Z,4551
-moto,Garinni,GR150P/,GR150PI,4552
+moto,Garinni,GR150P,GR150PI,4552
 moto,Garinni,GR150ST,GR150ST,4739
-moto,Garinni,GR150T3/,GR150TI,4553
+moto,Garinni,GR150T3,GR150TI,4553
 moto,Garinni,GR150U,GR150U,4554
 moto,Garinni,GR250T3,GR250T3,4787
-moto,Gas Gas,EC,125 ENDUCROSS,2702
-moto,Gas Gas,EC,200 ENDUCROSS,2703
-moto,Gas Gas,EC,250 ENDUCROSS,2704
-moto,Gas Gas,EC,300 ENDUCROSS,2705
-moto,Gas Gas,EC,400 FSE ENDUCROSS,2706
 moto,Gas Gas,EC,450/ FSE/ FSR ENDUCROSS,4151
-moto,Gas Gas,EC,50 ROOKIE ENDURO,2707
 moto,Gas Gas,EC,BOY 50,2708
-moto,Gas Gas,MC,250,2709
+moto,Gas Gas,EC 125,ENDUCROSS,2702
+moto,Gas Gas,EC 200,ENDUCROSS,2703
+moto,Gas Gas,EC 250,ENDUCROSS,2704
+moto,Gas Gas,EC 300,ENDUCROSS,2705
+moto,Gas Gas,EC 400,FSE ENDUCROSS,2706
+moto,Gas Gas,EC 50,ROOKIE ENDURO,2707
+moto,Gas Gas,MC 250,MC 250,2709
 moto,Gas Gas,PAMPERA,125cc,2710
 moto,Gas Gas,PAMPERA,250cc,2711
 moto,Gas Gas,TX,BOY 50,2712
-moto,Gas Gas,TXT,200 CONTACT,2713
-moto,Gas Gas,TXT,280 CONTACT,2714
-moto,Gas Gas,TXT,321 CONTACT,2715
-moto,Gas Gas,TXT,50 ROOKIE,2716
-moto,Green,EASY,110cc,4366
+moto,Gas Gas,TXT 200,CONTACT,2713
+moto,Gas Gas,TXT 280,CONTACT,2714
+moto,Gas Gas,TXT 321,CONTACT,2715
+moto,Gas Gas,TXT 50,ROOKIE,2716
+moto,Green,EASY 110cc,EASY 110cc,4366
 moto,Green,RUNNER,125cc,4367
 moto,Green,SAFARI,150cc,4368
-moto,Green,SPORT,150cc,4369
-moto,Haobao,HB,50Q,5588
+moto,Green,SPORT 150cc,SPORT 150cc,4369
+moto,Haobao,HB 50Q,HB 50Q,5588
 moto,Haobao,HB110-3,HB110-3,4454
 moto,Haobao,HB125-9,FEARFULSPEED,4455
 moto,Haobao,HB150,HB150,4756
 moto,Haobao,HB150-T,R5 FEARFULSPEED,4456
 moto,Haojue,BURGMAN,ADX 125,12062
 moto,Haojue,CHOPPER,ROAD 150,7929
-moto,Haojue,DK,150,8188
-moto,Haojue,DK,150 S,8799
-moto,Haojue,DK,160,10147
-moto,Haojue,DK,160 S,11434
-moto,Haojue,DL,160,11474
-moto,Haojue,DR,160,9071
-moto,Haojue,DR,160 S,11435
-moto,Haojue,LINDY,125,7930
+moto,Haojue,DK 150,DK 150,8188
+moto,Haojue,DK 150,S,8799
+moto,Haojue,DK 160,DK 160,10147
+moto,Haojue,DK 160,S,11434
+moto,Haojue,DL 160,DL 160,11474
+moto,Haojue,DR 160,DR 160,9071
+moto,Haojue,DR 160,S,11435
+moto,Haojue,LINDY 125,LINDY 125,7930
 moto,Haojue,MASTER,RIDE 150,9626
-moto,Haojue,NEX,110,7931
-moto,Haojue,NEX,115,8975
-moto,Haojue,NK,150,9780
-moto,Haojue,NK,160,12068
-moto,Haojue,VR,150,9029
+moto,Haojue,NEX 110,NEX 110,7931
+moto,Haojue,NEX 115,NEX 115,8975
+moto,Haojue,NK 150,NK 150,9780
+moto,Haojue,NK 160,NK 160,12068
+moto,Haojue,VR 150,VR 150,9029
 moto,Harley-Davidson,BLACKLINE,FXS,5758
 moto,Harley-Davidson,BREAKOUT,FXBR,11383
 moto,Harley-Davidson,CVO,BREAKOUT FXSBSE,6900
@@ -10079,272 +10079,272 @@ moto,Harley-Davidson,V-ROD,1130cc SPORT VRSCB,2747
 moto,Harley-Davidson,V-ROD,1130cc VRSCA/ 1250 VRSCAW,2748
 moto,Harley-Davidson,V-ROD,1250cc MUSCLE VRSCF,4938
 moto,Harley-Davidson,V-ROD,SCREAMING EAGLE,2749
-moto,Harley-Davidson,XL,1200,2750
-moto,Harley-Davidson,XL,1200 C-SPORTSTER CUSTOM,2751
-moto,Harley-Davidson,XL,1200 CUSTOM,2752
-moto,Harley-Davidson,XL,1200 CUSTOM LIMITED CA/CB,6820
-moto,Harley-Davidson,XL,1200 CX ROADSTER,7863
-moto,Harley-Davidson,XL,1200 SPORT,2753
-moto,Harley-Davidson,XL,1200N SPORTSTER NIGHTSTER,4912
-moto,Harley-Davidson,XL,1200NS SPORTSTER IRON,8556
-moto,Harley-Davidson,XL,1200X FORTY EIGHT 115th ANNIVERSARY,8168
-moto,Harley-Davidson,XL,1200X FORTY EIGHT SPORTSTER,6719
-moto,Harley-Davidson,XL,883 CUSTOM,2754
-moto,Harley-Davidson,XL,883 HUGGER,2755
-moto,Harley-Davidson,XL,883 R,2756
-moto,Harley-Davidson,XL,883 STD/ LOW,2757
-moto,Harley-Davidson,XL,883N IRON,5223
-moto,Harley-Davidson,XR,1200 SPORTSTER,4993
-moto,Harley-Davidson,XR,1200X SPORTSTER,5316
+moto,Harley-Davidson,XL 1200,C-SPORTSTER CUSTOM,2751
+moto,Harley-Davidson,XL 1200,CUSTOM,2752
+moto,Harley-Davidson,XL 1200,CUSTOM LIMITED CA/CB,6820
+moto,Harley-Davidson,XL 1200,CX ROADSTER,7863
+moto,Harley-Davidson,XL 1200,SPORT,2753
+moto,Harley-Davidson,XL 1200,XL 1200,2750
+moto,Harley-Davidson,XL 1200N,SPORTSTER NIGHTSTER,4912
+moto,Harley-Davidson,XL 1200NS,SPORTSTER IRON,8556
+moto,Harley-Davidson,XL 1200X,FORTY EIGHT 115th ANNIVERSARY,8168
+moto,Harley-Davidson,XL 1200X,FORTY EIGHT SPORTSTER,6719
+moto,Harley-Davidson,XL 883,CUSTOM,2754
+moto,Harley-Davidson,XL 883,HUGGER,2755
+moto,Harley-Davidson,XL 883,R,2756
+moto,Harley-Davidson,XL 883,STD/ LOW,2757
+moto,Harley-Davidson,XL 883N,IRON,5223
+moto,Harley-Davidson,XR 1200,SPORTSTER,4993
+moto,Harley-Davidson,XR 1200X,SPORTSTER,5316
 moto,Hartford,LEGION,125,2758
-moto,Hero,ANKUR,50,2759
-moto,Hero,PUCH,50,2760
-moto,Hero,PUCH,65,2761
+moto,Hero,ANKUR 50,ANKUR 50,2759
+moto,Hero,PUCH 50,PUCH 50,2760
+moto,Hero,PUCH 65,PUCH 65,2761
 moto,Hero,STREAM,50,2762
-moto,Hisun,Forge,400I 4WD,11809
-moto,Hisun,Forge,400I Camo 4WD,11810
-moto,Hisun,Forge,400I DLX 4WD,11811
-moto,Hisun,Forge,400I DLX Camo 4WD,11812
-moto,Hisun,Forge,400I Standard L 4WD,11813
+moto,Hisun,Forge 400I,4WD,11809
+moto,Hisun,Forge 400I,Camo 4WD,11810
+moto,Hisun,Forge 400I,DLX 4WD,11811
+moto,Hisun,Forge 400I,DLX Camo 4WD,11812
+moto,Hisun,Forge 400I,Standard L 4WD,11813
 moto,Hisun,Tactic,400i 4WD,11815
 moto,Hisun,Tactic,400i Camo 4WD,11816
 moto,Hisun,Tactic,550 4WD,11817
 moto,Hisun,Tactic,550 Camo 4WD,11818
 moto,Hisun,Tactic,750 4WD,11819
 moto,Hisun,Tactic,750 Camo 4WD,11820
-moto,Honda,ADV,150,9265
-moto,Honda,ADV,160,11305
+moto,Honda,ADV 150,ADV 150,9265
+moto,Honda,ADV 160,ADV 160,11305
 moto,Honda,AMERICA,CLASSIC 1600,2763
-moto,Honda,BIZ,110i,7467
-moto,Honda,BIZ,125 ES/ 125 ES FLEX,11239
-moto,Honda,BIZ,125 EX/ 125 EX FLEX,5515
-moto,Honda,BIZ,125 KS/ 125 KS FLEX,11201
 moto,Honda,BIZ,125+,3963
 moto,Honda,BIZ,125/125i Flex,7468
-moto,Honda,C,100 BIZ+,2765
-moto,Honda,C,100 BIZ-ES,2766
-moto,Honda,C,100 BIZ/ 100 BIZ KS,2764
-moto,Honda,C,100 DREAM,2767
-moto,Honda,CB,1000 HORNET,12178
-moto,Honda,CB,1000 HORNET SP,12138
-moto,Honda,CB,1000R Black Edition,9776
+moto,Honda,BIZ 110i,BIZ 110i,7467
+moto,Honda,BIZ 125,ES/ 125 ES FLEX,11239
+moto,Honda,BIZ 125,EX/ 125 EX FLEX,5515
+moto,Honda,BIZ 125,KS/ 125 KS FLEX,11201
+moto,Honda,C 100,BIZ+,2765
+moto,Honda,C 100,BIZ-ES,2766
+moto,Honda,C 100,BIZ/ 100 BIZ KS,2764
+moto,Honda,C 100,DREAM,2767
 moto,Honda,CB,1000R/ABS,5679
-moto,Honda,CB,250 TWISTER/FLEXONE,11087
-moto,Honda,CB,300F Twister Flex,10378
-moto,Honda,CB,300F Twister S,12139
 moto,Honda,CB,300R/ 300R FLEX,4939
-moto,Honda,CB,450 DX,2768
-moto,Honda,CB,500,2769
-moto,Honda,CB,500 HORNET,11550
-moto,Honda,CB,500F,6619
-moto,Honda,CB,500X,6821
-moto,Honda,CB,600F HORNET,2770
-moto,Honda,CB,650F,7058
-moto,Honda,CB,650R,9030
-moto,Honda,CB,650R E-Clutch,11596
-moto,Honda,CB,750 HORNET,11739
+moto,Honda,CB 1000,HORNET,12178
+moto,Honda,CB 1000,HORNET SP,12138
+moto,Honda,CB 1000R,Black Edition,9776
+moto,Honda,CB 250,TWISTER/FLEXONE,11087
+moto,Honda,CB 300F,Twister Flex,10378
+moto,Honda,CB 300F,Twister S,12139
+moto,Honda,CB 450,DX,2768
+moto,Honda,CB 500,CB 500,2769
+moto,Honda,CB 500,HORNET,11550
+moto,Honda,CB 500F,CB 500F,6619
+moto,Honda,CB 500X,CB 500X,6821
+moto,Honda,CB 600F,HORNET,2770
+moto,Honda,CB 650F,CB 650F,7058
+moto,Honda,CB 650R,CB 650R,9030
+moto,Honda,CB 650R,E-Clutch,11596
+moto,Honda,CB 750,HORNET,11739
 moto,Honda,CB1300,SUPER FOUR,4412
-moto,Honda,CBR,1000 F,2771
-moto,Honda,CBR,1000 RR Fireblade,2772
-moto,Honda,CBR,1000 RR Fireblade SP,8306
-moto,Honda,CBR,1000 RR-R Fireblade SP,9636
-moto,Honda,CBR,1000 RR-R Fireblade SP 30TH EDITION,10610
-moto,Honda,CBR,1100 XX SUPER BLACKBIRD,2773
-moto,Honda,CBR,250R,6041
-moto,Honda,CBR,450,2774
-moto,Honda,CBR,450 SR,2775
-moto,Honda,CBR,500R,6676
-moto,Honda,CBR,600 F,2776
-moto,Honda,CBR,600 RR,2777
-moto,Honda,CBR,650 R,9072
-moto,Honda,CBR,650F,7059
-moto,Honda,CBR,900 RR FIRE BLADE,2778
-moto,Honda,CBX,150 AERO,2779
-moto,Honda,CBX,200 STRADA,2780
-moto,Honda,CBX,250 TWISTER,2781
-moto,Honda,CBX,750 FOUR,2782
-moto,Honda,CBX,750 FOUR INDY,2783
-moto,Honda,CBX,750 R,2784
-moto,Honda,CG,125,2785
-moto,Honda,CG,125 CARGO ES,4913
-moto,Honda,CG,125 CARGO ESD,6875
-moto,Honda,CG,125 CARGO/ CARGO KS/125i CARGO,2786
-moto,Honda,CG,125 FAN / FAN KS / 125 i FAN,2787
-moto,Honda,CG,125 FAN ES,4842
-moto,Honda,CG,125 FAN ESD,6567
-moto,Honda,CG,125 TITAN,2788
-moto,Honda,CG,125 TITAN-ES,2789
-moto,Honda,CG,125 TITAN-KS,2790
-moto,Honda,CG,125 TITAN-KSE,2791
-moto,Honda,CG,125 TODAY,2792
-moto,Honda,CG,150 CARGO ESD FLEX,6876
-moto,Honda,CG,150 FAN ESDi/ 150 FAN ESDi FLEX,5432
-moto,Honda,CG,150 FAN ESi/ 150 FAN ESi FLEX,5095
-moto,Honda,CG,150 SPORT,2793
-moto,Honda,CG,150 START FLEXONE,7108
-moto,Honda,CG,150 TITAN-ES,2794
-moto,Honda,CG,150 TITAN-ES MIX,4914
-moto,Honda,CG,150 TITAN-ESD MIX/FLEX,4915
-moto,Honda,CG,150 TITAN-ESD/ TITAN SPECIAL EDITION,2795
-moto,Honda,CG,150 TITAN-EX MIX/FLEX,5051
-moto,Honda,CG,150 TITAN-KS MIX,4916
-moto,Honda,CG,150 TITAN-KS/ TITAN-JOB,2796
-moto,Honda,CG,160 CARGO Flex,10840
-moto,Honda,CG,160 FAN ESDi FLEXONE,7329
-moto,Honda,CG,160 FAN Flex,8071
-moto,Honda,CG,160 START,7525
-moto,Honda,CG,160 TITAN,11667
-moto,Honda,CG,160 TITAN 25TH ANNIVERSARY,8602
-moto,Honda,CG,160 TITAN 50 Anos,11863
-moto,Honda,CG,160 TITAN FLEXONE/Ed.Especial 40 Anos,7330
-moto,Honda,CG,160 TITAN S Flex,8976
+moto,Honda,CBR 1000,F,2771
+moto,Honda,CBR 1000,RR Fireblade,2772
+moto,Honda,CBR 1000,RR Fireblade SP,8306
+moto,Honda,CBR 1000,RR-R Fireblade SP,9636
+moto,Honda,CBR 1000,RR-R Fireblade SP 30TH EDITION,10610
+moto,Honda,CBR 1100,XX SUPER BLACKBIRD,2773
+moto,Honda,CBR 250R,CBR 250R,6041
+moto,Honda,CBR 450,CBR 450,2774
+moto,Honda,CBR 450,SR,2775
+moto,Honda,CBR 500R,CBR 500R,6676
+moto,Honda,CBR 600,F,2776
+moto,Honda,CBR 600,RR,2777
+moto,Honda,CBR 650,R,9072
+moto,Honda,CBR 650F,CBR 650F,7059
+moto,Honda,CBR 900,RR FIRE BLADE,2778
+moto,Honda,CBX 150,AERO,2779
+moto,Honda,CBX 200,STRADA,2780
+moto,Honda,CBX 250,TWISTER,2781
+moto,Honda,CBX 750,FOUR,2782
+moto,Honda,CBX 750,FOUR INDY,2783
+moto,Honda,CBX 750,R,2784
+moto,Honda,CG 125,CARGO ES,4913
+moto,Honda,CG 125,CARGO ESD,6875
+moto,Honda,CG 125,CARGO/ CARGO KS/125i CARGO,2786
+moto,Honda,CG 125,CG 125,2785
+moto,Honda,CG 125,FAN / FAN KS / 125 i FAN,2787
+moto,Honda,CG 125,FAN ES,4842
+moto,Honda,CG 125,FAN ESD,6567
+moto,Honda,CG 125,TITAN,2788
+moto,Honda,CG 125,TITAN-ES,2789
+moto,Honda,CG 125,TITAN-KS,2790
+moto,Honda,CG 125,TITAN-KSE,2791
+moto,Honda,CG 125,TODAY,2792
+moto,Honda,CG 150,CARGO ESD FLEX,6876
+moto,Honda,CG 150,FAN ESDi/ 150 FAN ESDi FLEX,5432
+moto,Honda,CG 150,FAN ESi/ 150 FAN ESi FLEX,5095
+moto,Honda,CG 150,SPORT,2793
+moto,Honda,CG 150,START FLEXONE,7108
+moto,Honda,CG 150,TITAN-ES,2794
+moto,Honda,CG 150,TITAN-ES MIX,4914
+moto,Honda,CG 150,TITAN-ESD MIX/FLEX,4915
+moto,Honda,CG 150,TITAN-ESD/ TITAN SPECIAL EDITION,2795
+moto,Honda,CG 150,TITAN-EX MIX/FLEX,5051
+moto,Honda,CG 150,TITAN-KS MIX,4916
+moto,Honda,CG 150,TITAN-KS/ TITAN-JOB,2796
+moto,Honda,CG 160,CARGO Flex,10840
+moto,Honda,CG 160,FAN ESDi FLEXONE,7329
+moto,Honda,CG 160,FAN Flex,8071
+moto,Honda,CG 160,START,7525
+moto,Honda,CG 160,TITAN,11667
+moto,Honda,CG 160,TITAN 25TH ANNIVERSARY,8602
+moto,Honda,CG 160,TITAN 50 Anos,11863
+moto,Honda,CG 160,TITAN FLEXONE/Ed.Especial 40 Anos,7330
+moto,Honda,CG 160,TITAN S Flex,8976
 moto,Honda,CH,125-R SPACY,2797
-moto,Honda,CR,125,2798
-moto,Honda,CR,250,2799
-moto,Honda,CR,80,2800
-moto,Honda,CRF,1000L AFRICA TWIN,7855
-moto,Honda,CRF,1000L AFRICA TWIN ADV. SPORTS TE,8800
-moto,Honda,CRF,1000L AFRICA TWIN ADVENTURE SPORTS,8801
-moto,Honda,CRF,1000L AFRICA TWIN TE,7856
-moto,Honda,CRF,1100L AFRICA TWIN,9508
-moto,Honda,CRF,1100L AFRICA TWIN ADV. SPORTS ES,9509
-moto,Honda,CRF,1100L AFRICA TWIN ADV. SPORTS ES DCT,11243
-moto,Honda,CRF,1100L AFRICA TWIN DCT,11244
-moto,Honda,CRF,110F,6859
-moto,Honda,CRF,150F,6195
-moto,Honda,CRF,230 F,4446
-moto,Honda,CRF,250 F,8540
-moto,Honda,CRF,250 R,10379
-moto,Honda,CRF,250 RX,11473
-moto,Honda,CRF,250 X,4917
-moto,Honda,CRF,250L,6455
-moto,Honda,CRF,300F,11657
-moto,Honda,CRF,450 R,9100
-moto,Honda,CRF,450 RX,9101
-moto,Honda,CRF,450 X,8705
-moto,Honda,CTX,700N,6877
+moto,Honda,CR 125,CR 125,2798
+moto,Honda,CR 250,CR 250,2799
+moto,Honda,CR 80,CR 80,2800
+moto,Honda,CRF 1000L,AFRICA TWIN,7855
+moto,Honda,CRF 1000L,AFRICA TWIN ADV. SPORTS TE,8800
+moto,Honda,CRF 1000L,AFRICA TWIN ADVENTURE SPORTS,8801
+moto,Honda,CRF 1000L,AFRICA TWIN TE,7856
+moto,Honda,CRF 1100L,AFRICA TWIN,9508
+moto,Honda,CRF 1100L,AFRICA TWIN ADV. SPORTS ES,9509
+moto,Honda,CRF 1100L,AFRICA TWIN ADV. SPORTS ES DCT,11243
+moto,Honda,CRF 1100L,AFRICA TWIN DCT,11244
+moto,Honda,CRF 110F,CRF 110F,6859
+moto,Honda,CRF 150F,CRF 150F,6195
+moto,Honda,CRF 230,F,4446
+moto,Honda,CRF 250,F,8540
+moto,Honda,CRF 250,R,10379
+moto,Honda,CRF 250,RX,11473
+moto,Honda,CRF 250,X,4917
+moto,Honda,CRF 250L,CRF 250L,6455
+moto,Honda,CRF 300F,CRF 300F,11657
+moto,Honda,CRF 450,R,9100
+moto,Honda,CRF 450,RX,9101
+moto,Honda,CRF 450,X,8705
+moto,Honda,CTX 700N,CTX 700N,6877
 moto,Honda,DOMINATOR,650,2801
-moto,Honda,ELITE,125,8557
-moto,Honda,Forza,350,10125
+moto,Honda,ELITE 125,ELITE 125,8557
+moto,Honda,Forza 350,Forza 350,10125
 moto,Honda,GOLD,WING 1500/ 1800,2802
 moto,Honda,GOLD,WING TOUR 1800,8649
-moto,Honda,LEAD,110,4994
-moto,Honda,MAGNA,750,2803
-moto,Honda,NC,700 X/ 700X ABS,6135
+moto,Honda,LEAD 110,LEAD 110,4994
+moto,Honda,MAGNA 750,MAGNA 750,2803
 moto,Honda,NC,750X/NC 750X ABS,7174
 moto,Honda,NC,750X/NC 750X ABS DCT,11246
-moto,Honda,NX,150,2804
-moto,Honda,NX,200,2805
-moto,Honda,NX,350 SAHARA,2806
-moto,Honda,NX,400i FALCON,6252
-moto,Honda,NX,500,11569
+moto,Honda,NC 700,X/ 700X ABS,6135
+moto,Honda,NX 150,NX 150,2804
+moto,Honda,NX 200,NX 200,2805
+moto,Honda,NX 350,SAHARA,2806
+moto,Honda,NX 400i,FALCON,6252
+moto,Honda,NX 500,NX 500,11569
 moto,Honda,NX-4,FALCON 400,2807
-moto,Honda,NXR,125 BROS ES,2808
-moto,Honda,NXR,125 BROS KS,2809
-moto,Honda,NXR,150 BROS ES,3843
-moto,Honda,NXR,150 BROS ES MIX/FLEX,5136
-moto,Honda,NXR,150 BROS ESD,2810
-moto,Honda,NXR,150 BROS ESD MIX/FLEX,5137
-moto,Honda,NXR,150 BROS KS,3844
-moto,Honda,NXR,150 BROS KS MIX/FLEX,5138
-moto,Honda,NXR,160 BROS,7438
-moto,Honda,NXR,160 BROS ESD FLEXONE,7109
-moto,Honda,NXR,160 BROS ESDD FLEXONE,7110
-moto,Honda,NXR,160 BROS FLEX,11203
-moto,Honda,PCX,150 SPORT,8169
+moto,Honda,NXR 125,BROS ES,2808
+moto,Honda,NXR 125,BROS KS,2809
+moto,Honda,NXR 150,BROS ES,3843
+moto,Honda,NXR 150,BROS ES MIX/FLEX,5136
+moto,Honda,NXR 150,BROS ESD,2810
+moto,Honda,NXR 150,BROS ESD MIX/FLEX,5137
+moto,Honda,NXR 150,BROS KS,3844
+moto,Honda,NXR 150,BROS KS MIX/FLEX,5138
+moto,Honda,NXR 160,BROS,7438
+moto,Honda,NXR 160,BROS ESD FLEXONE,7109
+moto,Honda,NXR 160,BROS ESDD FLEXONE,7110
+moto,Honda,NXR 160,BROS FLEX,11203
 moto,Honda,PCX,150/DLX,6473
-moto,Honda,PCX,160,10149
-moto,Honda,PCX,160 DLX,10150
-moto,Honda,POP,100 97cc,4264
-moto,Honda,POP,110i,7331
-moto,Honda,POP,110i ES,11090
+moto,Honda,PCX 150,SPORT,8169
+moto,Honda,PCX 160,DLX,10150
+moto,Honda,PCX 160,PCX 160,10149
+moto,Honda,POP 100,97cc,4264
+moto,Honda,POP 110i,ES,11090
+moto,Honda,POP 110i,POP 110i,7331
 moto,Honda,SAHARA,300 ABS FLEX,10954
 moto,Honda,SAHARA,300 ADVENTURE ABS FLEX,10955
 moto,Honda,SAHARA,300 RALLY ABS FLEX,10956
 moto,Honda,SH,150i/DLX,7932
-moto,Honda,SH,300i,7526
-moto,Honda,SH,300i Sport,8541
+moto,Honda,SH 300i,SH 300i,7526
+moto,Honda,SH 300i,Sport,8541
 moto,Honda,SHADOW,1100 AC,2811
 moto,Honda,SHADOW,1100 OURO,2812
 moto,Honda,SHADOW,AM 750,2813
 moto,Honda,SHADOW,VT 1100,2814
 moto,Honda,SUPER,HAWK 1000,2815
-moto,Honda,TRX,350 FOURTRAX FM QUADRICICLO,2816
-moto,Honda,TRX,350 FOURTRAX TM QUADRICICLO,2817
-moto,Honda,TRX,420 FOURTRAX FM 4x4 QUADRICICLO,4708
-moto,Honda,TRX,420 FOURTRAX TM 4x2 QUADRICICLO,4709
+moto,Honda,TRX 350,FOURTRAX FM QUADRICICLO,2816
+moto,Honda,TRX 350,FOURTRAX TM QUADRICICLO,2817
+moto,Honda,TRX 420,FOURTRAX FM 4x4 QUADRICICLO,4708
+moto,Honda,TRX 420,FOURTRAX TM 4x2 QUADRICICLO,4709
 moto,Honda,VALKYRIE,1500,2818
-moto,Honda,VFR,1200F,5562
-moto,Honda,VFR,1200X CROSSTOURER,6311
-moto,Honda,VT,600 C SHADOW,2819
-moto,Honda,VT,750 SHADOW,3918
+moto,Honda,VFR 1200F,VFR 1200F,5562
+moto,Honda,VFR 1200X,CROSSTOURER,6311
+moto,Honda,VT 600,C SHADOW,2819
+moto,Honda,VT 750,SHADOW,3918
 moto,Honda,VTX,1800R/ 1800S/ 1800C 1795cc,2820
 moto,Honda,X-ADV,745cc,8307
-moto,Honda,XL,1000V VARADERO,4447
-moto,Honda,XL,125 DUTY,2821
-moto,Honda,XL,125 S,2822
-moto,Honda,XL,700V TRANSALP,5546
-moto,Honda,XL,750 TRANSALP,11821
-moto,Honda,XLR,125,2823
-moto,Honda,XLR,125 ES,2824
-moto,Honda,XLX,250 R,2825
-moto,Honda,XLX,350 R,2826
-moto,Honda,XR,200 R,2827
-moto,Honda,XR,250 TORNADO,2828
-moto,Honda,XR,300L TORNADO FLEX,11157
-moto,Honda,XR,300L TORNADO Special Edition,11871
-moto,Honda,XR,650,2829
-moto,Honda,XRE,190 ADVENTURE FLEX,9031
+moto,Honda,XL 1000V,VARADERO,4447
+moto,Honda,XL 125,DUTY,2821
+moto,Honda,XL 125,S,2822
+moto,Honda,XL 700V,TRANSALP,5546
+moto,Honda,XL 750,TRANSALP,11821
+moto,Honda,XLR 125,ES,2824
+moto,Honda,XLR 125,XLR 125,2823
+moto,Honda,XLX 250,R,2825
+moto,Honda,XLX 350,R,2826
+moto,Honda,XR 200,R,2827
+moto,Honda,XR 250,TORNADO,2828
+moto,Honda,XR 300L,TORNADO FLEX,11157
+moto,Honda,XR 300L,TORNADO Special Edition,11871
+moto,Honda,XR 650,XR 650,2829
 moto,Honda,XRE,190/ Flex,7607
-moto,Honda,XRE,300 ADVENTURE FLEX,7912
-moto,Honda,XRE,300 RALLY FLEX,6720
 moto,Honda,XRE,300/ 300 ABS/ FLEX,4940
-moto,Husaberg,FE,400 400cc,2830
-moto,Husaberg,FE,501 500cc,2831
-moto,Husaberg,FE,550 E,4075
+moto,Honda,XRE 190,ADVENTURE FLEX,9031
+moto,Honda,XRE 300,ADVENTURE FLEX,7912
+moto,Honda,XRE 300,RALLY FLEX,6720
+moto,Husaberg,FE 400,400cc,2830
+moto,Husaberg,FE 501,500cc,2831
+moto,Husaberg,FE 550,E,4075
 moto,Husqvarna,701,ENDURO,8329
 moto,Husqvarna,701,SUPERMOTO,8330
-moto,Husqvarna,CR,125,2832
-moto,Husqvarna,CR,250,2833
-moto,Husqvarna,FC,250,12065
-moto,Husqvarna,FC,350,11557
-moto,Husqvarna,FC,450,12066
-moto,Husqvarna,FE,350,11558
-moto,Husqvarna,FE,350 Heritage,11559
-moto,Husqvarna,FE,450,11807
-moto,Husqvarna,FE,501 Heritage,11808
+moto,Husqvarna,CR 125,CR 125,2832
+moto,Husqvarna,CR 250,CR 250,2833
+moto,Husqvarna,FC 250,FC 250,12065
+moto,Husqvarna,FC 350,FC 350,11557
+moto,Husqvarna,FC 450,FC 450,12066
+moto,Husqvarna,FE 350,FE 350,11558
+moto,Husqvarna,FE 350,Heritage,11559
+moto,Husqvarna,FE 450,FE 450,11807
+moto,Husqvarna,FE 501,Heritage,11808
 moto,Husqvarna,HUSQY,BOY J,2834
 moto,Husqvarna,HUSQY,BOY R,2835
 moto,Husqvarna,HUSQY,BOY S,2836
 moto,Husqvarna,NORDEN,901,9842
 moto,Husqvarna,NORDEN,901 Expedition,11599
-moto,Husqvarna,SM,610,2837
-moto,Husqvarna,SMR,510,4419
+moto,Husqvarna,SM 610,SM 610,2837
+moto,Husqvarna,SMR 510,SMR 510,4419
 moto,Husqvarna,SVARTPILEN,401,8433
 moto,Husqvarna,SVARTPILEN,801,11814
-moto,Husqvarna,TC,125,12078
-moto,Husqvarna,TC,150,11899
-moto,Husqvarna,TC,50,11900
-moto,Husqvarna,TC,570,2838
-moto,Husqvarna,TC,65,11901
-moto,Husqvarna,TC,85,11578
-moto,Husqvarna,TE,150,11579
-moto,Husqvarna,TE,250 Heritage,11580
-moto,Husqvarna,TE,300,11063
-moto,Husqvarna,TE,300 Pro,11581
-moto,Husqvarna,TE,300i Edição Rockstar,9847
-moto,Husqvarna,TE,400,2839
-moto,Husqvarna,TE,410,2840
-moto,Husqvarna,TE,410 E,2841
-moto,Husqvarna,TE,450,2842
-moto,Husqvarna,TE,510,4420
-moto,Husqvarna,TE,570,2843
-moto,Husqvarna,TE,610,2844
-moto,Husqvarna,TE,610 E,2845
+moto,Husqvarna,TC 125,TC 125,12078
+moto,Husqvarna,TC 150,TC 150,11899
+moto,Husqvarna,TC 50,TC 50,11900
+moto,Husqvarna,TC 570,TC 570,2838
+moto,Husqvarna,TC 65,TC 65,11901
+moto,Husqvarna,TC 85,TC 85,11578
+moto,Husqvarna,TE 150,TE 150,11579
+moto,Husqvarna,TE 250,Heritage,11580
+moto,Husqvarna,TE 300,Pro,11581
+moto,Husqvarna,TE 300,TE 300,11063
+moto,Husqvarna,TE 300i,Edição Rockstar,9847
+moto,Husqvarna,TE 400,TE 400,2839
+moto,Husqvarna,TE 410,E,2841
+moto,Husqvarna,TE 410,TE 410,2840
+moto,Husqvarna,TE 450,TE 450,2842
+moto,Husqvarna,TE 510,TE 510,4420
+moto,Husqvarna,TE 570,TE 570,2843
+moto,Husqvarna,TE 610,E,2845
+moto,Husqvarna,TE 610,TE 610,2844
 moto,Husqvarna,VITPILEN,701,8434
-moto,Husqvarna,WR,250,2846
-moto,Husqvarna,WR,360,2847
-moto,Husqvarna,WRE,125,2848
+moto,Husqvarna,WR 250,WR 250,2846
+moto,Husqvarna,WR 360,WR 360,2847
+moto,Husqvarna,WRE 125,WRE 125,2848
 moto,Indian,CHIEF,CHIEF,8465
 moto,Indian,CHIEF,CLASSIC,7439
 moto,Indian,CHIEF,DARK HORSE,8170
@@ -10357,38 +10357,38 @@ moto,Indian,SCOUT,BOBBER,8172
 moto,Indian,SCOUT,SCOUT,7441
 moto,Iros,ACTION,100 ES,4941
 moto,Iros,ACTION,100 ESA,4942
-moto,Iros,Brave,150 QUADRICICLO,4943
-moto,Iros,Brave,450 QUADRICICLO,4944
-moto,Iros,Brave,70 QUADRICICLO,4945
+moto,Iros,Brave 150,QUADRICICLO,4943
+moto,Iros,Brave 450,QUADRICICLO,4944
+moto,Iros,Brave 70,QUADRICICLO,4945
 moto,Iros,MATRIX,150,4946
 moto,Iros,MOVING,125 ES,4947
 moto,Iros,MOVING,125 ESD,4948
-moto,Iros,ONE,125 ES,4949
-moto,Iros,ONE,125 ESD,4950
-moto,Iros,ONE,125 EX,4951
+moto,Iros,ONE 125,ES,4949
+moto,Iros,ONE 125,ESD,4950
+moto,Iros,ONE 125,EX,4951
 moto,Iros,VINTAGE,150,4952
 moto,Iros,WARRIOR,250 QUADRICICLO,4953
 moto,Iros,WARRIOR,400 4x4 QUADRICICLO,4954
 moto,Iros,WARRIOR,700 4x4 QUADRICICLO,4955
-moto,Jiapeng Volcano,JP,110,4510
-moto,Jiapeng Volcano,JP,150,4511
+moto,Jiapeng Volcano,JP 110,JP 110,4510
+moto,Jiapeng Volcano,JP 150,JP 150,4511
 moto,Johnnypag,BARHOG,300cc,5433
 moto,Johnnypag,PROSTREET,300cc,5434
 moto,Johnnypag,SPYDER,300cc,5435
 moto,Jonny,ATLANTIC,150cc,4710
 moto,Jonny,ATLANTIC,250cc,4711
-moto,Jonny,HYPE,110cc,4712
-moto,Jonny,HYPE,125cc,6136
-moto,Jonny,HYPE,50cc,5096
-moto,Jonny,JONNY,50 49cc,4713
-moto,Jonny,Meet,50cc,6603
-moto,Jonny,Naked,150cc,6137
-moto,Jonny,Orbit,150cc,4714
+moto,Jonny,HYPE 110cc,HYPE 110cc,4712
+moto,Jonny,HYPE 125cc,HYPE 125cc,6136
+moto,Jonny,HYPE 50cc,HYPE 50cc,5096
+moto,Jonny,JONNY 50,49cc,4713
+moto,Jonny,Meet 50cc,Meet 50cc,6603
+moto,Jonny,Naked 150cc,Naked 150cc,6137
+moto,Jonny,Orbit 150cc,Orbit 150cc,4714
 moto,Jonny,PEGASUS,150cc,4715
-moto,Jonny,QUICK,150cc,5563
-moto,Jonny,RACER,150cc,6138
-moto,Jonny,TEXAS,150cc,6139
-moto,Jonny,TR,150cc,4716
+moto,Jonny,QUICK 150cc,QUICK 150cc,5563
+moto,Jonny,RACER 150cc,RACER 150cc,6138
+moto,Jonny,TEXAS 150cc,TEXAS 150cc,6139
+moto,Jonny,TR 150cc,TR 150cc,4716
 moto,KTM,1190,RC8,5225
 moto,KTM,1190,RC8 R,5517
 moto,KTM,690,ENDURO /ENDURO R,5201
@@ -10402,20 +10402,20 @@ moto,KTM,ADVENTURE,950cc,2911
 moto,KTM,ADVENTURE,990cc,4208
 moto,KTM,ADVENTURE,R / DAKAR 990cc,5518
 moto,KTM,DUKE,200/ABS,7332
-moto,KTM,DUKE,390,7333
 moto,KTM,DUKE,640/ DUKE II 640,2912
-moto,KTM,DUKE,690,5351
-moto,KTM,EXC,125,2913
-moto,KTM,EXC,150,11555
-moto,KTM,EXC,200,2914
-moto,KTM,EXC,250,2915
-moto,KTM,EXC,300,2916
-moto,KTM,EXC,300 SIX DAYS,11892
-moto,KTM,EXC,380,2917
-moto,KTM,EXC,400,2918
-moto,KTM,EXC,450,3862
-moto,KTM,EXC,520,2919
-moto,KTM,EXC,525,4077
+moto,KTM,DUKE 390,DUKE 390,7333
+moto,KTM,DUKE 690,DUKE 690,5351
+moto,KTM,EXC 125,EXC 125,2913
+moto,KTM,EXC 150,EXC 150,11555
+moto,KTM,EXC 200,EXC 200,2914
+moto,KTM,EXC 250,EXC 250,2915
+moto,KTM,EXC 300,EXC 300,2916
+moto,KTM,EXC 300,SIX DAYS,11892
+moto,KTM,EXC 380,EXC 380,2917
+moto,KTM,EXC 400,EXC 400,2918
+moto,KTM,EXC 450,EXC 450,3862
+moto,KTM,EXC 520,EXC 520,2919
+moto,KTM,EXC 525,EXC 525,4077
 moto,KTM,EXC-F,250,7242
 moto,KTM,EXC-F,250 SIX DAYS,7334
 moto,KTM,EXC-F,300 SIX DAYS,7335
@@ -10424,7 +10424,7 @@ moto,KTM,EXC-F,350 SIX DAYS,8493
 moto,KTM,EXC-F,450,12063
 moto,KTM,EXC-F,500,12064
 moto,KTM,LC4,640 TRAIL,2920
-moto,KTM,SC,620,2921
+moto,KTM,SC 620,SC 620,2921
 moto,KTM,SUPER,ADVENTURE 1290,7609
 moto,KTM,SUPER,ADVENTURE 1290 R,8072
 moto,KTM,SUPER,ADVENTURE 1290 S,8117
@@ -10434,56 +10434,56 @@ moto,KTM,SUPERDUKE,990,4078
 moto,KTM,SUPERMOTO,690,4512
 moto,KTM,SUPERMOTO,990 R,5519
 moto,KTM,SUPERMOTO,990 T,5263
-moto,KTM,SX,125,2922
 moto,KTM,SX,250/ SX 250 F,2923
-moto,KTM,SX,300,11898
-moto,KTM,SX,350 / 350 F,5520
 moto,KTM,SX,450/ SX 450F,2924
-moto,KTM,SX,50,2925
-moto,KTM,SX,65,2926
-moto,KTM,SX,85,2927
+moto,KTM,SX 125,SX 125,2922
+moto,KTM,SX 300,SX 300,11898
+moto,KTM,SX 350,/ 350 F,5520
+moto,KTM,SX 50,SX 50,2925
+moto,KTM,SX 65,SX 65,2926
+moto,KTM,SX 85,SX 85,2927
 moto,KTM,SX-F,250 FACTORY EDITION,12152
 moto,KTM,SX-F,450 FACTORY EDITION,12077
 moto,KTM,SXC,520/ 540,2928
-moto,KTM,SXC,625,2929
+moto,KTM,SXC 625,SXC 625,2929
 moto,Kahena,125,K-TOP,4747
 moto,Kahena,125,TOP,4301
 moto,Kahena,250,DUAL,4837
 moto,Kahena,250,DUAL-T,5564
-moto,Kasinski,COMET,150,5224
-moto,Kasinski,COMET,250cc / COMET GT 250cc,3845
 moto,Kasinski,COMET,GT 650,5658
 moto,Kasinski,COMET,GT 650R V2power,4076
 moto,Kasinski,COMET,GT-R 250cc,4457
+moto,Kasinski,COMET 150,COMET 150,5224
+moto,Kasinski,COMET 250cc,/ COMET GT 250cc,3845
 moto,Kasinski,CRUISE,125,3846
 moto,Kasinski,CRUISE,II 125,3847
-moto,Kasinski,CRZ,150,5317
-moto,Kasinski,CRZ,150 SUPER MOTO,5318
+moto,Kasinski,CRZ 150,CRZ 150,5317
+moto,Kasinski,CRZ 150,SUPER MOTO,5318
 moto,Kasinski,ERO,PLUS 125cc,3848
 moto,Kasinski,FLASH,K 150cc,3919
 moto,Kasinski,FÚRIA,250cc,3849
-moto,Kasinski,GF,125 SPEED,3850
-moto,Kasinski,GV,250 MIRAGE,3851
-moto,Kasinski,MAGIK,125cc,3852
+moto,Kasinski,GF 125,SPEED,3850
+moto,Kasinski,GV 250,MIRAGE,3851
+moto,Kasinski,MAGIK 125cc,MAGIK 125cc,3852
 moto,Kasinski,MIDAS,FX 110cc,3853
 moto,Kasinski,MIRAGE,150,5162
 moto,Kasinski,MIRAGE,650 V2power,4094
 moto,Kasinski,MOTOKAR,FURGÃO/ PICK-UP 174cc (1 pessoa),3854
 moto,Kasinski,MOTOKAR,TAXI-KAR 174cc (4 pessoas),3855
-moto,Kasinski,PRIMA,150,5516
-moto,Kasinski,PRIMA,50,3856
 moto,Kasinski,PRIMA,ELECTRA 2000W (Elétrica),5384
 moto,Kasinski,PRIMA,RALLY 50cc,3857
-moto,Kasinski,RX,125,3858
-moto,Kasinski,SETA,125,4253
-moto,Kasinski,SETA,150,4559
-moto,Kasinski,SOFT,50cc,5494
+moto,Kasinski,PRIMA 150,PRIMA 150,5516
+moto,Kasinski,PRIMA 50,PRIMA 50,3856
+moto,Kasinski,RX 125,RX 125,3858
+moto,Kasinski,SETA 125,SETA 125,4253
+moto,Kasinski,SETA 150,SETA 150,4559
+moto,Kasinski,SOFT 50cc,SOFT 50cc,5494
 moto,Kasinski,SUPER,CAB 100cc,3859
 moto,Kasinski,SUPER,CAB 50cc,3860
-moto,Kasinski,TN,125,3861
-moto,Kasinski,WAY,125,4560
-moto,Kasinski,WIN,110,4152
+moto,Kasinski,TN 125,TN 125,3861
+moto,Kasinski,WAY 125,WAY 125,4560
 moto,Kasinski,WIN,ELECTRA 1000W (Elétrica),7221
+moto,Kasinski,WIN 110,WIN 110,4152
 moto,Kawasaki,AVAJET,100cc/ CLASSIC 100cc,2874
 moto,Kawasaki,CONCOURS14,1352cc,4632
 moto,Kawasaki,D-TRACKER,X 250cc,5153
@@ -10491,32 +10491,24 @@ moto,Kawasaki,ELIMINATOR,500,11114
 moto,Kawasaki,ELIMINATOR,500 SE,11115
 moto,Kawasaki,ER-5,500cc,2875
 moto,Kawasaki,ER-6N,650cc,5154
-moto,Kawasaki,KLX,110,4876
-moto,Kawasaki,KLX,110 MONSTER,4877
-moto,Kawasaki,KLX,110R,11828
-moto,Kawasaki,KLX,230,12145
-moto,Kawasaki,KLX,250,2876
-moto,Kawasaki,KLX,300R,11286
-moto,Kawasaki,KLX,450R,7296
-moto,Kawasaki,KLX,650,2877
-moto,Kawasaki,KX,112,11565
-moto,Kawasaki,KX,125,2878
-moto,Kawasaki,KX,250 X,9536
+moto,Kawasaki,KLX 110,KLX 110,4876
+moto,Kawasaki,KLX 110,MONSTER,4877
+moto,Kawasaki,KLX 110R,KLX 110R,11828
+moto,Kawasaki,KLX 230,KLX 230,12145
+moto,Kawasaki,KLX 250,KLX 250,2876
+moto,Kawasaki,KLX 300R,KLX 300R,11286
+moto,Kawasaki,KLX 450R,KLX 450R,7296
+moto,Kawasaki,KLX 650,KLX 650,2877
 moto,Kawasaki,KX,250/ 250 F,2879
-moto,Kawasaki,KX,450 F,4570
-moto,Kawasaki,KX,450 X,9312
-moto,Kawasaki,KX,65,4878
-moto,Kawasaki,KX,65 MONSTER,4879
-moto,Kawasaki,KZ,1000 TOURING,2880
+moto,Kawasaki,KX 112,KX 112,11565
+moto,Kawasaki,KX 125,KX 125,2878
+moto,Kawasaki,KX 250,X,9536
+moto,Kawasaki,KX 450,F,4570
+moto,Kawasaki,KX 450,X,9312
+moto,Kawasaki,KX 65,KX 65,4878
+moto,Kawasaki,KX 65,MONSTER,4879
+moto,Kawasaki,KZ 1000,TOURING,2880
 moto,Kawasaki,MAXI,II 100cc,2881
-moto,Kawasaki,NINJA,1000,5680
-moto,Kawasaki,NINJA,1000 TOURER,6860
-moto,Kawasaki,NINJA,250R,4880
-moto,Kawasaki,NINJA,300,6282
-moto,Kawasaki,NINJA,400,8490
-moto,Kawasaki,NINJA,500,11154
-moto,Kawasaki,NINJA,500 SE,11155
-moto,Kawasaki,NINJA,650R 649cc,5462
 moto,Kawasaki,NINJA,EX 500cc,2882
 moto,Kawasaki,NINJA,H2 998cc,7297
 moto,Kawasaki,NINJA,H2 SX SE 998cc,8977
@@ -10534,6 +10526,14 @@ moto,Kawasaki,NINJA,ZX-6R 636cc,2888
 moto,Kawasaki,NINJA,ZX-7 750cc,2889
 moto,Kawasaki,NINJA,ZX-9R 900cc,2890
 moto,Kawasaki,NINJA,ZZ-R 1100cc,2891
+moto,Kawasaki,NINJA 1000,NINJA 1000,5680
+moto,Kawasaki,NINJA 1000,TOURER,6860
+moto,Kawasaki,NINJA 250R,NINJA 250R,4880
+moto,Kawasaki,NINJA 300,NINJA 300,6282
+moto,Kawasaki,NINJA 400,NINJA 400,8490
+moto,Kawasaki,NINJA 500,NINJA 500,11154
+moto,Kawasaki,NINJA 500,SE,11155
+moto,Kawasaki,NINJA 650R,649cc,5462
 moto,Kawasaki,VOYAGER,1200cc,2892
 moto,Kawasaki,VULCAN,800 CLASSIC,2893
 moto,Kawasaki,VULCAN,900 CLASSIC LT,5436
@@ -10561,59 +10561,59 @@ moto,Kawasaki,Versys,City 650,6141
 moto,Kawasaki,Versys,TOURER 650,6142
 moto,Kawasaki,Versys-X,300,8114
 moto,Kawasaki,Versys-X,300 TOURER,8115
-moto,Kawasaki,Z,1000,2904
-moto,Kawasaki,Z,1000 H2,11393
-moto,Kawasaki,Z,1000 R Edition,8033
-moto,Kawasaki,Z,1100,11904
-moto,Kawasaki,Z,1100 SE,11905
-moto,Kawasaki,Z,300,7298
-moto,Kawasaki,Z,400,8802
-moto,Kawasaki,Z,400 SE,10387
-moto,Kawasaki,Z,500,11158
-moto,Kawasaki,Z,500 SE,11159
-moto,Kawasaki,Z,650,7961
-moto,Kawasaki,Z,650 RS,10429
-moto,Kawasaki,Z,650 SE ABS,9237
-moto,Kawasaki,Z,750,4458
-moto,Kawasaki,Z,900,8116
-moto,Kawasaki,Z,900 50TH Anniversary,9953
-moto,Kawasaki,Z,900 R Edition,10151
-moto,Kawasaki,Z,900 RS,10430
-moto,Kawasaki,Z,900 RS CAFÉ,8492
-moto,Kawasaki,Z,900 RS R Edition,10189
-moto,Kawasaki,Z,900 RS SE,12155
-moto,Kawasaki,Z,900 SE,11906
+moto,Kawasaki,Z 1000,H2,11393
+moto,Kawasaki,Z 1000,R Edition,8033
+moto,Kawasaki,Z 1000,Z 1000,2904
+moto,Kawasaki,Z 1100,SE,11905
+moto,Kawasaki,Z 1100,Z 1100,11904
+moto,Kawasaki,Z 300,Z 300,7298
+moto,Kawasaki,Z 400,SE,10387
+moto,Kawasaki,Z 400,Z 400,8802
+moto,Kawasaki,Z 500,SE,11159
+moto,Kawasaki,Z 500,Z 500,11158
+moto,Kawasaki,Z 650,RS,10429
+moto,Kawasaki,Z 650,SE ABS,9237
+moto,Kawasaki,Z 650,Z 650,7961
+moto,Kawasaki,Z 750,Z 750,4458
+moto,Kawasaki,Z 900,50TH Anniversary,9953
+moto,Kawasaki,Z 900,R Edition,10151
+moto,Kawasaki,Z 900,RS,10430
+moto,Kawasaki,Z 900,RS CAFÉ,8492
+moto,Kawasaki,Z 900,RS R Edition,10189
+moto,Kawasaki,Z 900,RS SE,12155
+moto,Kawasaki,Z 900,SE,11906
+moto,Kawasaki,Z 900,Z 900,8116
 moto,Kawasaki,Z-800,Z-800,6365
-moto,Kawasaki,ZX-14/ZX,14R 1352cc,4177
-moto,Kawasaki,ZZR,1200,2905
+moto,Kawasaki,ZX-14,ZX 14R 1352cc,4177
+moto,Kawasaki,ZZR 1200,ZZR 1200,2905
 moto,Kymco,AGILITY,16+ 200i ABS,8706
-moto,Kymco,AK,550i ABS,9220
-moto,Kymco,AK,550i PREMIUM,11284
-moto,Kymco,DJW,50 50cc,7933
+moto,Kymco,AK 550i,ABS,9220
+moto,Kymco,AK 550i,PREMIUM,11284
+moto,Kymco,DJW 50,50cc,7933
 moto,Kymco,DOWNTOWN,300i,7934
 moto,Kymco,DOWNTOWN,350i,11307
 moto,Kymco,M´BOY,90cc,7935
 moto,Kymco,PEOPLE,50,7936
 moto,Kymco,PEOPLE,GT 300i,7937
-moto,Kymco,ZING,150,7938
-moto,L'aquila,AKROS,50,2930
-moto,L'aquila,AKROS,90,2931
-moto,L'aquila,ERGON,50,2932
-moto,L'aquila,NIX,50,2933
-moto,L'aquila,PALIO,50,2934
+moto,Kymco,ZING 150,ZING 150,7938
+moto,L'aquila,AKROS 50,AKROS 50,2930
+moto,L'aquila,AKROS 90,AKROS 90,2931
+moto,L'aquila,ERGON 50,ERGON 50,2932
+moto,L'aquila,NIX 50,NIX 50,2933
+moto,L'aquila,PALIO 50,PALIO 50,2934
 moto,Landum,MOTO,TRUCK LD 150 ZH,5014
 moto,Lavrale,QUATTOR,30.0 190cc,2935
 moto,Lerivo,Formigão,Furgão 200cc,4459
 moto,Lerivo,Formigão,Pick-Up 200cc,4460
 moto,Leva,EG1,5000W,11658
 moto,Leva,ES1,5000W,11659
-moto,Lifan,CARGO,200 ZH (triciclo carga),5565
+moto,Lifan,CARGO 200,ZH (triciclo carga),5565
 moto,Lon-V,DELUXE,152cc,5226
 moto,Lon-V,E,RETRÔ 2000 Watts (Elétrica),5264
-moto,Lon-V,LY,125T -5 RETRÔ,5265
 moto,Lon-V,LY,150T-5 RETRÔ,4653
 moto,Lon-V,LY,150T-6A CLASSIC,4654
 moto,Lon-V,LY,150T-7A RACER LIMITED EDITION,4655
+moto,Lon-V,LY 125T,-5 RETRÔ,5265
 moto,MV Agusta,BRUTALE,1078RR,5052
 moto,MV Agusta,BRUTALE,1090R,5714
 moto,MV Agusta,BRUTALE,1090RR,5715
@@ -10646,7 +10646,7 @@ moto,Moto Guzzi,CALIFORNIA,EV 1064cc,2937
 moto,Moto Guzzi,CALIFORNIA,Especial,2936
 moto,Moto Guzzi,CALIFORNIA,Jackal 1064cc,2938
 moto,Moto Guzzi,CALIFORNIA,Stone 1064cc,2939
-moto,Moto Guzzi,QUOTA,1100 ES,2940
+moto,Moto Guzzi,QUOTA 1100,ES,2940
 moto,Moto Guzzi,V11,SPORT/ LE MANS 1064cc,2941
 moto,Motocar,MCA-200,MCA-200,7245
 moto,Motocar,MCA-250,MCA-250,8073
@@ -10660,7 +10660,7 @@ moto,Motomorini,SEIEMMEZZO,STREET 650,11574
 moto,Motomorini,X-CAPE,ALLOY 650,11584
 moto,Motomorini,X-CAPE,SPOKE 650,11585
 moto,Motomorini,X-CAPE,SPOKE GOLD EDITION 650,11586
-moto,Motorino,Bacio,125cc,6822
+moto,Motorino,Bacio 125cc,Bacio 125cc,6822
 moto,Motorino,Bellavita,150cc,6823
 moto,Motorino,Cappuccino,50cc,7994
 moto,Motorino,Cappuccino,Absoluta 150cc,10935
@@ -10671,54 +10671,54 @@ moto,Motorino,Cappuccino150cc,Cappuccino150cc,6824
 moto,Motorino,Custom,150cc,6825
 moto,Motorino,Custom,S 150cc,6826
 moto,Motorino,Lambreta,V200 Special,8436
-moto,Motorino,Star,150cc,6827
-moto,Motorino,Star,200cc,6828
 moto,Motorino,Star,Automatic 125cc,6829
+moto,Motorino,Star 150cc,Star 150cc,6827
+moto,Motorino,Star 200cc,Star 200cc,6828
 moto,Motorino,Velocette,150cc,6830
 moto,Motorino,Velvet,150cc/LT,6831
 moto,Motorino,Velvet,50cc,8119
 moto,Motorino,Velvet,LT 125cc,8382
 moto,Motorino,Vitesse,150cc,7248
-moto,Motorino,Volti,3000w,6832
+moto,Motorino,Volti 3000w,Volti 3000w,6832
 moto,Mrx,230R,230R,5015
 moto,Mvk,BIG,FORCE 250 QUADRICICLO,5385
 moto,Mvk,BLACK,STAR 150,4324
-moto,Mvk,BRX,140,5386
-moto,Mvk,DUAL,200,4413
+moto,Mvk,BRX 140,BRX 140,5386
+moto,Mvk,DUAL 200,DUAL 200,4413
 moto,Mvk,FENIX,GOLD 240,4818
-moto,Mvk,FOX,110,4325
-moto,Mvk,GO,100,3920
+moto,Mvk,FOX 110,FOX 110,4325
+moto,Mvk,GO 100,GO 100,3920
 moto,Mvk,HALLEY,/ FENIX 200,4326
 moto,Mvk,HALLEY,150,3921
 moto,Mvk,JURASIC,300,5387
 moto,Mvk,MA,100-3B,2945
 moto,Mvk,MA,125-GY,2947
-moto,Mvk,MA/,BLACK STAR 125-7,2946
-moto,Mvk,MA/,FOXX 100-3,2944
-moto,Mvk,SIMBA,50 QUADRICICLO,5388
-moto,Mvk,SPORT,150 QUADRICICLO,5389
+moto,Mvk,MA,BLACK STAR 125-7,2946
+moto,Mvk,MA,FOXX 100-3,2944
+moto,Mvk,SIMBA 50,QUADRICICLO,5388
+moto,Mvk,SPORT 150,QUADRICICLO,5389
 moto,Mvk,SPYDER,270 / 320,4819
 moto,Mvk,STREET,150/STREET LIMITED,4327
 moto,Mvk,SUPER,X 125 R,4414
-moto,Mvk,XRT,110,4415
+moto,Mvk,XRT 110,XRT 110,4415
 moto,Niu,NQI,GTS 3000W (Elétrica),10423
 moto,Niu,NQI,Sport 1500W (Elétrica),10424
 moto,Niu,UQI,GT 1200W (Elétrica),10428
-moto,Orca,AX,100,2948
 moto,Orca,AX,100-A,2949
-moto,Orca,JC,125,2950
+moto,Orca,AX 100,AX 100,2948
 moto,Orca,JC,125-2,2951
 moto,Orca,JC,125-8,2952
-moto,Orca,QM,50,2953
+moto,Orca,JC 125,JC 125,2950
+moto,Orca,QM 50,QM 50,2953
 moto,Pegassi,BR,III 150CC,5155
-moto,Peugeot,BUXY,50,2954
+moto,Peugeot,BUXY 50,BUXY 50,2954
 moto,Peugeot,ELYSEO,125,2955
 moto,Peugeot,SCOOT,ELEC,9952
 moto,Peugeot,SPEEDAKE,50,2957
 moto,Peugeot,SPEEDFIGHT,100,2958
 moto,Peugeot,SPEEDFIGHT,50,2959
 moto,Peugeot,SPEEDFIGHT,50-LC,2960
-moto,Peugeot,SQUAB,50,2961
+moto,Peugeot,SQUAB 50,SQUAB 50,2961
 moto,Peugeot,TREKKER,100,2962
 moto,Peugeot,VIVACITY,50,2963
 moto,Peugeot,ZENITH,50,2964
@@ -10740,7 +10740,6 @@ moto,Piaggio,MP3,500 493cc,5016
 moto,Piaggio,MP3,530 HPE,11568
 moto,Piaggio,NRG,MC3 DD 49.4cc,2967
 moto,Piaggio,RUNNER,50,2968
-moto,Piaggio,VESPA,946 EMPORIO ARMANI 150,7864
 moto,Piaggio,VESPA,CLASSIC ELEGANTE 150,8308
 moto,Piaggio,VESPA,CLASSIC SXL 150,8309
 moto,Piaggio,VESPA,CLASSIC VXL 150,8173
@@ -10761,7 +10760,8 @@ moto,Piaggio,VESPA,PX 150 ORIGINALE,2969
 moto,Piaggio,VESPA,PX 200,2970
 moto,Piaggio,VESPA,SPRINT 150 S IGET ABS,7871
 moto,Piaggio,VESPA,ZX PRIME 125,9033
-moto,Piaggio,ZIP,50,2971
+moto,Piaggio,VESPA 946,EMPORIO ARMANI 150,7864
+moto,Piaggio,ZIP 50,ZIP 50,2971
 moto,Polaris,General,1000 CREW 4x4 (UTV),8650
 moto,Polaris,General,XP 1000 DELUXE (UTV),9778
 moto,Polaris,General,XP 4 1000 PREMIUM (UTV),10744
@@ -10829,6 +10829,7 @@ moto,Royal Enfield,Classic,650 Mid,11937
 moto,Royal Enfield,Classic,650 Top,11938
 moto,Royal Enfield,Classic,Battle Green 500 EFI,7944
 moto,Royal Enfield,Classic,Chrome 500 EFI,7945
+moto,Royal Enfield,Classic,Classic 500 Chrome,11673
 moto,Royal Enfield,Classic,Desert Storm 500 EFI,7946
 moto,Royal Enfield,Classic,Gun Metal Grey 500 EFI,8223
 moto,Royal Enfield,Classic,Pegasus 500 EFI,8494
@@ -10836,7 +10837,6 @@ moto,Royal Enfield,Classic,Redditch 500 EFI,8189
 moto,Royal Enfield,Classic,Squadron Blue 500 EFI,7947
 moto,Royal Enfield,Classic,Stealth Black 500 EFI,8224
 moto,Royal Enfield,Classic,Tribute Black 500 EFI,9507
-moto,Royal Enfield,Classic/Classic,500 Chrome,11673
 moto,Royal Enfield,Continental,535 EFI,7948
 moto,Royal Enfield,Continental,GT 120 Year Edition 650,11674
 moto,Royal Enfield,Continental,GT 650,11675
@@ -10869,15 +10869,15 @@ moto,Royal Enfield,Meteor,350 Aurora,11690
 moto,Royal Enfield,Meteor,350 Fireball,11691
 moto,Royal Enfield,Meteor,350 Stellar,11692
 moto,Royal Enfield,Meteor,350 Supernova,11693
-moto,Royal Enfield,Scram,411 EFI,10688
+moto,Royal Enfield,Scram 411,EFI,10688
 moto,Royal Enfield,Shotgun,650 Base,11694
 moto,Royal Enfield,Shotgun,650 Mid,11695
 moto,Royal Enfield,Shotgun,650 Top,11696
 moto,Royal Enfield,Super,Meteor 650 Astral,11697
 moto,Royal Enfield,Super,Meteor 650 Celestial,11698
 moto,Royal Enfield,Super,Meteor 650 Interstellar,11699
-moto,Sanyang,ENJOY,50,2972
-moto,Sanyang,HUSKY,150,2973
+moto,Sanyang,ENJOY 50,ENJOY 50,2972
+moto,Sanyang,HUSKY 150,HUSKY 150,2973
 moto,Sanyang,PASSING,110,2974
 moto,Sbm,150,S - NEW JEF,11823
 moto,Sbm,250,S,11824
@@ -10889,15 +10889,15 @@ moto,Sbm,600,600,11860
 moto,Sbm,600,T,11889
 moto,Sbm,600,V,11826
 moto,Sbm,DENVER,250,12047
-moto,Sbm,FLASH,250,12048
-moto,Sbm,IRON,250,12052
-moto,Sbm,STORM,200 EFI,12055
+moto,Sbm,FLASH 250,FLASH 250,12048
+moto,Sbm,IRON 250,IRON 250,12052
+moto,Sbm,STORM 200,EFI,12055
 moto,Sbm,TITANIUM,250,12056
 moto,Shineray,50-Q,RAY,10145
-moto,Shineray,BOLT,250,7299
-moto,Shineray,FREE,150 EFI,11089
-moto,Shineray,IRON,250 EFI,11386
-moto,Shineray,JEF,170,12053
+moto,Shineray,BOLT 250,BOLT 250,7299
+moto,Shineray,FREE 150,EFI,11089
+moto,Shineray,IRON 250,EFI,11386
+moto,Shineray,JEF 170,JEF 170,12053
 moto,Shineray,PT-02,2000W (Elétrica),10233
 moto,Shineray,PT-02,S 2000W (Elétrica),10234
 moto,Shineray,PT-03,2000W (Elétrica),9671
@@ -10908,25 +10908,18 @@ moto,Shineray,RETRO,EX 50,7721
 moto,Shineray,SE-1,2000W (Elétrica),10386
 moto,Shineray,SE-2,2300W (Elétrica),9684
 moto,Shineray,SHE-S,3000W (Elétrica),11003
-moto,Shineray,SHI,170,11980
-moto,Shineray,SHI,175,10188
-moto,Shineray,SHI,175 S EFI,11156
-moto,Shineray,SHI,250,11477
-moto,Shineray,SUN,150,6861
+moto,Shineray,SHI 170,SHI 170,11980
+moto,Shineray,SHI 175,S EFI,11156
+moto,Shineray,SHI 175,SHI 175,10188
+moto,Shineray,SHI 250,SHI 250,11477
+moto,Shineray,SUN 150,SUN 150,6861
 moto,Shineray,SUPER,SMART 50,7722
 moto,Shineray,TITANIUM,250 EFI,11331
-moto,Shineray,URBAN,150 EFI,11064
 moto,Shineray,URBAN,LITE 150,11939
+moto,Shineray,URBAN 150,EFI,11064
 moto,Shineray,WORKER,125,9640
 moto,Shineray,WORKER,150,10855
-moto,Shineray,XY,110V WAVE,4370
-moto,Shineray,XY,125 JET,6703
-moto,Shineray,XY,125 JET SS,10898
-moto,Shineray,XY,125 JET SS EFI,10899
-moto,Shineray,XY,125 NEW WAVE,6078
-moto,Shineray,XY,125 RIO EFI,11005
 moto,Shineray,XY,125-14 ESD,4371
-moto,Shineray,XY,150 ZH,4372
 moto,Shineray,XY,150-5 Fire/Maxi Fire,6862
 moto,Shineray,XY,150-5 MAX,5521
 moto,Shineray,XY,150-5 SPEED,4373
@@ -10934,13 +10927,10 @@ moto,Shineray,XY,150-8 JEF,9073
 moto,Shineray,XY,150-8 JEF S,11209
 moto,Shineray,XY,150-8 JEF S EFI,11664
 moto,Shineray,XY,150-GY/EXPLORER,4807
-moto,Shineray,XY,200 STORM EFI,11210
 moto,Shineray,XY,200-5 A RACING,5601
 moto,Shineray,XY,200-5 ROAD WIND NAKED,5602
 moto,Shineray,XY,200-5 SPEED/ XY 200-5,4374
 moto,Shineray,XY,200-III,4375
-moto,Shineray,XY,250 DENVER,11332
-moto,Shineray,XY,250 FLASH EFI,11333
 moto,Shineray,XY,250-5,4461
 moto,Shineray,XY,250-6B DISCOVER,6729
 moto,Shineray,XY,50-Q,4376
@@ -10950,38 +10940,48 @@ moto,Shineray,XY,50-Q PHOENIX,5547
 moto,Shineray,XY,50-Q PHOENIX S,11252
 moto,Shineray,XY,50-Q PHOENIX S EFI,11253
 moto,Shineray,XY,50-Q2 RETRO/JET/BIKE,6367
-moto,Shineray,XY,50Q VMV,6366
 moto,Shineray,XY,50Q-2 VENICE,7061
+moto,Shineray,XY 110V,WAVE,4370
+moto,Shineray,XY 125,JET,6703
+moto,Shineray,XY 125,JET SS,10898
+moto,Shineray,XY 125,JET SS EFI,10899
+moto,Shineray,XY 125,NEW WAVE,6078
+moto,Shineray,XY 125,RIO EFI,11005
+moto,Shineray,XY 150,ZH,4372
+moto,Shineray,XY 200,STORM EFI,11210
+moto,Shineray,XY 250,DENVER,11332
+moto,Shineray,XY 250,FLASH EFI,11333
+moto,Shineray,XY 50Q,VMV,6366
 moto,Siamoto,SCROSS,50cc,2975
-moto,Sundown,AKROS,50cc,2976
-moto,Sundown,AKROS,90cc,2977
-moto,Sundown,ERGON,50cc,2978
-moto,Sundown,FIFTY,50cc,2979
+moto,Sundown,AKROS 50cc,AKROS 50cc,2976
+moto,Sundown,AKROS 90cc,AKROS 90cc,2977
+moto,Sundown,ERGON 50cc,ERGON 50cc,2978
+moto,Sundown,FIFTY 50cc,FIFTY 50cc,2979
 moto,Sundown,FUTURE,125,2980
 moto,Sundown,HUNTER,100 95cc,4525
 moto,Sundown,HUNTER,125 SE,2981
 moto,Sundown,HUNTER,90 86cc,4095
-moto,Sundown,MAX,125 SE,2982
-moto,Sundown,MAX,125 SED,2983
-moto,Sundown,PALIO,50cc,2984
+moto,Sundown,MAX 125,SE,2982
+moto,Sundown,MAX 125,SED,2983
+moto,Sundown,PALIO 50cc,PALIO 50cc,2984
 moto,Sundown,PGO,SPEED 50cc,2985
 moto,Sundown,PGO,SPEED 90cc,2986
-moto,Sundown,STX,125cc,5097
-moto,Sundown,STX,200cc,4266
 moto,Sundown,STX,MOTARD 125cc,5098
 moto,Sundown,STX,MOTARD 200cc,4267
+moto,Sundown,STX 125cc,STX 125cc,5097
+moto,Sundown,STX 200cc,STX 200cc,4266
 moto,Sundown,SUPER,FIFTY 50cc,2987
 moto,Sundown,VBLADE,250cc,4079
-moto,Sundown,WEB,97cc,2988
 moto,Sundown,WEB,EVO 97cc,4096
-moto,Super Soco,CUX,2788W (Elétrica),10790
+moto,Sundown,WEB 97cc,WEB 97cc,2988
+moto,Super Soco,CUX 2788W,(Elétrica),10790
 moto,Super Soco,Change,Urban 1200W (ELÉTRICA),9884
-moto,Super Soco,TC,3000W (Elétrica),10794
 moto,Super Soco,TC,Max 5000W (Elétrica),10795
-moto,Super Soco,TSX,3000W (Elétrica),10796
-moto,Suzuki,ADDRESS/AE,50,2989
-moto,Suzuki,ADDRESS/AG,100,2990
-moto,Suzuki,AN,125 BURGMAN,2991
+moto,Super Soco,TC 3000W,(Elétrica),10794
+moto,Super Soco,TSX 3000W,(Elétrica),10796
+moto,Suzuki,ADDRESS,AE 50,2989
+moto,Suzuki,ADDRESS,AG 100,2990
+moto,Suzuki,AN 125,BURGMAN,2991
 moto,Suzuki,BANDIT,1200S,3808
 moto,Suzuki,BANDIT,1250S,4670
 moto,Suzuki,BANDIT,600S/ 650S,3809
@@ -10998,40 +10998,40 @@ moto,Suzuki,BOULEVARD,M800R,5716
 moto,Suzuki,BURGMAN,400,2995
 moto,Suzuki,BURGMAN,650 EXECUTIVE/ 650,4581
 moto,Suzuki,BURGMAN,i 125cc,5522
-moto,Suzuki,DL,1000 V-STROM,2996
-moto,Suzuki,DL,1000 V-STROM ADVENTURE,9268
-moto,Suzuki,DL,1000 XT V-STROM,8261
-moto,Suzuki,DL,1050 V-STROM,10975
-moto,Suzuki,DL,1050 XT V-STROM,9637
-moto,Suzuki,DL,650 V-STROM,4858
-moto,Suzuki,DL,650 V-STROM ADVENTURE,9270
-moto,Suzuki,DL,650 XT V-STROM,10612
-moto,Suzuki,DL,800 DE V-STROM,11551
-moto,Suzuki,DL,800 V-STROM,11552
-moto,Suzuki,DR,350,2997
-moto,Suzuki,DR,350 SE,2998
-moto,Suzuki,DR,650 RE,2999
-moto,Suzuki,DR,650 RSE,3000
-moto,Suzuki,DR,800 S,3001
+moto,Suzuki,DL 1000,V-STROM,2996
+moto,Suzuki,DL 1000,V-STROM ADVENTURE,9268
+moto,Suzuki,DL 1000,XT V-STROM,8261
+moto,Suzuki,DL 1050,V-STROM,10975
+moto,Suzuki,DL 1050,XT V-STROM,9637
+moto,Suzuki,DL 650,V-STROM,4858
+moto,Suzuki,DL 650,V-STROM ADVENTURE,9270
+moto,Suzuki,DL 650,XT V-STROM,10612
+moto,Suzuki,DL 800,DE V-STROM,11551
+moto,Suzuki,DL 800,V-STROM,11552
+moto,Suzuki,DR 350,DR 350,2997
+moto,Suzuki,DR 350,SE,2998
+moto,Suzuki,DR 650,RE,2999
+moto,Suzuki,DR 650,RSE,3000
+moto,Suzuki,DR 800,S,3001
 moto,Suzuki,DR-Z400E,DR-Z400E,3002
-moto,Suzuki,EN,125 YES,3003
-moto,Suzuki,EN,125 YES CARGO,6196
-moto,Suzuki,EN,125 YES SE,5477
+moto,Suzuki,EN 125,YES,3003
+moto,Suzuki,EN 125,YES CARGO,6196
+moto,Suzuki,EN 125,YES SE,5477
 moto,Suzuki,FREEWIND,XF 650,3004
 moto,Suzuki,GLADIUS,650,6550
-moto,Suzuki,GS,120,6551
 moto,Suzuki,GS,500-E,3005
-moto,Suzuki,GSR,125,6219
-moto,Suzuki,GSR,125S,6220
-moto,Suzuki,GSR,150i,5633
-moto,Suzuki,GSR,750,6552
-moto,Suzuki,GSX,1100 F,3006
-moto,Suzuki,GSX,1250 F,6553
-moto,Suzuki,GSX,1300 B-KING,4592
+moto,Suzuki,GS 120,GS 120,6551
+moto,Suzuki,GSR 125,GSR 125,6219
+moto,Suzuki,GSR 125S,GSR 125S,6220
+moto,Suzuki,GSR 150i,GSR 150i,5633
+moto,Suzuki,GSR 750,GSR 750,6552
 moto,Suzuki,GSX,1300-R HAYABUSA,3007
 moto,Suzuki,GSX,1300-R HAYABUSA Ed. Especial 25 Anos,11152
-moto,Suzuki,GSX,650F,4808
-moto,Suzuki,GSX,750 F,3008
+moto,Suzuki,GSX 1100,F,3006
+moto,Suzuki,GSX 1250,F,6553
+moto,Suzuki,GSX 1300,B-KING,4592
+moto,Suzuki,GSX 650F,GSX 650F,4808
+moto,Suzuki,GSX 750,F,3008
 moto,Suzuki,GSX-8R,GSX-8R,11385
 moto,Suzuki,GSX-8S,GSX-8S,11153
 moto,Suzuki,GSX-R,1000,3009
@@ -11051,22 +11051,22 @@ moto,Suzuki,INTRUDER,LC 1500,3015
 moto,Suzuki,INTRUDER,VS 1400-GLP,3016
 moto,Suzuki,INTRUDER,VS 800-GLP/ 800-GL,3017
 moto,Suzuki,KATANA,125,3018
-moto,Suzuki,LT,50 Quadriciclo,3020
-moto,Suzuki,LT,80 Quadriciclo,3021
 moto,Suzuki,LT,F160 Quadriciclo,3022
+moto,Suzuki,LT 50,Quadriciclo,3020
+moto,Suzuki,LT 80,Quadriciclo,3021
 moto,Suzuki,Lets,II 50cc,3019
 moto,Suzuki,MARAUDER,800,3023
-moto,Suzuki,RF,600 R,3024
-moto,Suzuki,RF,900 R,3025
-moto,Suzuki,RM,125,3026
-moto,Suzuki,RM,250,3027
-moto,Suzuki,RM,80,3028
-moto,Suzuki,RMX,250,3029
+moto,Suzuki,RF 600,R,3024
+moto,Suzuki,RF 900,R,3025
+moto,Suzuki,RM 125,RM 125,3026
+moto,Suzuki,RM 250,RM 250,3027
+moto,Suzuki,RM 80,RM 80,3028
+moto,Suzuki,RMX 250,RMX 250,3029
 moto,Suzuki,SAVAGE,LS 650,3030
 moto,Suzuki,SV650,SV650,7880
-moto,Suzuki,TL,1000 S,3031
-moto,Suzuki,VX,800cc,3032
-moto,Swm,SHI,400 SC,12054
+moto,Suzuki,TL 1000,S,3031
+moto,Suzuki,VX 800cc,VX 800cc,3032
+moto,Swm,SHI 400,SC,12054
 moto,Targos,TRIMOTO,125cc Picape,5440
 moto,Targos,TRIMOTO,125cc Picape Baú,5441
 moto,Tiger,Trciclo,TC Cargo Chassi,6336
@@ -11074,28 +11074,28 @@ moto,Tiger,Triciclo,TB Cargo Bau,6337
 moto,Tiger,Triciclo,TC Cargo Carroceria,6312
 moto,Tiger,Triciclo,TC Cargo Plataforma,6313
 moto,Traxx,CJ,50-F,3863
-moto,Traxx,DUNNA,600cc,6368
-moto,Traxx,JH,125 G/ BEST,3864
-moto,Traxx,JH,125 L/ FLY,3865
+moto,Traxx,DUNNA 600cc,DUNNA 600cc,6368
 moto,Traxx,JH,125-35A JOTO / JH 135-35A JOTO,4657
-moto,Traxx,JH,150 FLY,7300
 moto,Traxx,JH,150-7 TSS 150,7337
-moto,Traxx,JH,250 FLY,7111
 moto,Traxx,JH,250-8 TSS 250,7249
 moto,Traxx,JH,250E-5 SHARK,4881
-moto,Traxx,JH,50,3866
-moto,Traxx,JH,70,3867
-moto,Traxx,JH,70 III,3868
+moto,Traxx,JH 125,G/ BEST,3864
+moto,Traxx,JH 125,L/ FLY,3865
+moto,Traxx,JH 150,FLY,7300
+moto,Traxx,JH 250,FLY,7111
+moto,Traxx,JH 50,JH 50,3866
+moto,Traxx,JH 70,III,3868
+moto,Traxx,JH 70,JH 70,3867
 moto,Traxx,JL,110-11 PRINCE,4179
 moto,Traxx,JL,110-3/ 110-8/ SKY,3869
 moto,Traxx,JL,125-9 SKY,5548
-moto,Traxx,JL,135 FLY,6197
-moto,Traxx,JL,50 Q-2/ STAR,3870
-moto,Traxx,JL,50 Q8/MOBY 50,6503
-moto,Traxx,JS,250 ATV-5 MONTEZ 250,7412
-moto,Traxx,SKY,50,6978
-moto,Traxx,SKY,50 PLUS,7386
-moto,Traxx,WORK,125,5266
+moto,Traxx,JL 135,FLY,6197
+moto,Traxx,JL 50,Q-2/ STAR,3870
+moto,Traxx,JL 50,Q8/MOBY 50,6503
+moto,Traxx,JS 250,ATV-5 MONTEZ 250,7412
+moto,Traxx,SKY 50,PLUS,7386
+moto,Traxx,SKY 50,SKY 50,6978
+moto,Traxx,WORK 125,WORK 125,5266
 moto,Triumph,ADVENTURER,900,3033
 moto,Triumph,BONNEVILLE,750cc/ 790cc / 865cc,3034
 moto,Triumph,BONNEVILLE,BOBBER 1200cc,7995
@@ -11138,12 +11138,12 @@ moto,Triumph,SCRAMBLER,400 XC,11832
 moto,Triumph,SCRAMBLER,900 ICON EDITION,11833
 moto,Triumph,SCRAMBLER,900cc,4131
 moto,Triumph,SCRAMBLER,900cc STEALTH EDITION,11249
-moto,Triumph,SPEED,400,11004
 moto,Triumph,SPEED,TRIPLE 1050R,7647
 moto,Triumph,SPEED,TRIPLE 1050i,3942
 moto,Triumph,SPEED,TRIPLE 900,3043
 moto,Triumph,SPEED,TRIPLE 955i,3044
 moto,Triumph,SPEED,TRIPLE T-509 900cc,3045
+moto,Triumph,SPEED 400,SPEED 400,11004
 moto,Triumph,SPRINT,900,3046
 moto,Triumph,SPRINT,RS 955,3047
 moto,Triumph,SPRINT,ST 1050i,3048
@@ -11169,44 +11169,44 @@ moto,Triumph,THUNDERBIRD,1700 COMMANDER,6879
 moto,Triumph,THUNDERBIRD,1700 STORM,6283
 moto,Triumph,THUNDERBIRD,900,3050
 moto,Triumph,THUNDERBIRD,900 SPORT,3051
-moto,Triumph,TIGER,1050,4741
-moto,Triumph,TIGER,1050 SPORT,6979
-moto,Triumph,TIGER,1200 ALPINE Edition,9238
-moto,Triumph,TIGER,1200 DESERT Edition,9239
-moto,Triumph,TIGER,1200 EXPLORER,6284
-moto,Triumph,TIGER,1200 EXPLORER XCA,7749
-moto,Triumph,TIGER,1200 EXPLORER XCX,7679
-moto,Triumph,TIGER,1200 EXPLORER XR,7680
-moto,Triumph,TIGER,1200 GT EXPLORER,9848
-moto,Triumph,TIGER,1200 GT PRO,11031
-moto,Triumph,TIGER,1200 RALLY BLACK Edition,11032
-moto,Triumph,TIGER,1200 RALLY EXPLORER,9849
-moto,Triumph,TIGER,1200 RALLY PRO,9850
-moto,Triumph,TIGER,1200 XC EXPLORER,6657
-moto,Triumph,TIGER,1200 XCA,8332
-moto,Triumph,TIGER,1200 XCX,8333
-moto,Triumph,TIGER,1200 XR,8334
-moto,Triumph,TIGER,660 SPORT,9800
-moto,Triumph,TIGER,750,3052
-moto,Triumph,TIGER,800,6658
-moto,Triumph,TIGER,800 SPORT,11448
-moto,Triumph,TIGER,800 XC,6285
-moto,Triumph,TIGER,800 XCA,7413
-moto,Triumph,TIGER,800 XCX,7175
-moto,Triumph,TIGER,800 XR,7368
-moto,Triumph,TIGER,800 XRT,8437
-moto,Triumph,TIGER,800 XRX,7176
-moto,Triumph,TIGER,800 XRXL,7469
-moto,Triumph,TIGER,900,3053
-moto,Triumph,TIGER,900 ALPINE Edition,11902
-moto,Triumph,TIGER,900 DESERT Edition,11903
-moto,Triumph,TIGER,900 GT,9156
-moto,Triumph,TIGER,900 GT ARAGON Edition,10853
-moto,Triumph,TIGER,900 GT PRO,9124
-moto,Triumph,TIGER,900 RALLY,9157
-moto,Triumph,TIGER,900 RALLY ARAGON Edition,10854
-moto,Triumph,TIGER,900 RALLY PRO,9125
-moto,Triumph,TIGER,955i,3054
+moto,Triumph,TIGER 1050,SPORT,6979
+moto,Triumph,TIGER 1050,TIGER 1050,4741
+moto,Triumph,TIGER 1200,ALPINE Edition,9238
+moto,Triumph,TIGER 1200,DESERT Edition,9239
+moto,Triumph,TIGER 1200,EXPLORER,6284
+moto,Triumph,TIGER 1200,EXPLORER XCA,7749
+moto,Triumph,TIGER 1200,EXPLORER XCX,7679
+moto,Triumph,TIGER 1200,EXPLORER XR,7680
+moto,Triumph,TIGER 1200,GT EXPLORER,9848
+moto,Triumph,TIGER 1200,GT PRO,11031
+moto,Triumph,TIGER 1200,RALLY BLACK Edition,11032
+moto,Triumph,TIGER 1200,RALLY EXPLORER,9849
+moto,Triumph,TIGER 1200,RALLY PRO,9850
+moto,Triumph,TIGER 1200,XC EXPLORER,6657
+moto,Triumph,TIGER 1200,XCA,8332
+moto,Triumph,TIGER 1200,XCX,8333
+moto,Triumph,TIGER 1200,XR,8334
+moto,Triumph,TIGER 660,SPORT,9800
+moto,Triumph,TIGER 750,TIGER 750,3052
+moto,Triumph,TIGER 800,SPORT,11448
+moto,Triumph,TIGER 800,TIGER 800,6658
+moto,Triumph,TIGER 800,XC,6285
+moto,Triumph,TIGER 800,XCA,7413
+moto,Triumph,TIGER 800,XCX,7175
+moto,Triumph,TIGER 800,XR,7368
+moto,Triumph,TIGER 800,XRT,8437
+moto,Triumph,TIGER 800,XRX,7176
+moto,Triumph,TIGER 800,XRXL,7469
+moto,Triumph,TIGER 900,ALPINE Edition,11902
+moto,Triumph,TIGER 900,DESERT Edition,11903
+moto,Triumph,TIGER 900,GT,9156
+moto,Triumph,TIGER 900,GT ARAGON Edition,10853
+moto,Triumph,TIGER 900,GT PRO,9124
+moto,Triumph,TIGER 900,RALLY,9157
+moto,Triumph,TIGER 900,RALLY ARAGON Edition,10854
+moto,Triumph,TIGER 900,RALLY PRO,9125
+moto,Triumph,TIGER 900,TIGER 900,3053
+moto,Triumph,TIGER 955i,TIGER 955i,3054
 moto,Triumph,TRACKER,400,12080
 moto,Triumph,TRIDENT,660,9639
 moto,Triumph,TRIDENT,660 TRIPLE TRIBUTE,11208
@@ -11216,35 +11216,35 @@ moto,Triumph,TRIDENT,900,3056
 moto,Triumph,TROPHY,1200,3057
 moto,Triumph,TROPHY,900,3058
 moto,Triumph,TROPHY,SE 1200,6659
-moto,Triumph,TT,600,3059
+moto,Triumph,TT 600,TT 600,3059
 moto,Ventane Motors,MILANO,3000W (Elétrica),10792
-moto,Ventane Motors,ROMA,3000W (Elétrica),10793
-moto,Ventane Motors,VTX,3000W (Elétrica),10797
-moto,Ventane Motors,WIND,2000W (Elétrica),10798
+moto,Ventane Motors,ROMA 3000W,(Elétrica),10793
+moto,Ventane Motors,VTX 3000W,(Elétrica),10797
+moto,Ventane Motors,WIND 2000W,(Elétrica),10798
 moto,Vento,REBELLIAN,250,5603
 moto,Vento,TRITON,Li 150,5604
 moto,Vento,VTHUNDER,250,5605
 moto,Vespa,946,Edição Dragon 150,11544
-moto,Vespa,GTS,300,11560
 moto,Vespa,GTS,Super 300,11561
 moto,Vespa,GTS,Super Sport 300,11562
 moto,Vespa,GTS,Super Tech 300,11563
-moto,Vespa,GTV,300,11564
+moto,Vespa,GTS 300,GTS 300,11560
+moto,Vespa,GTV 300,GTV 300,11564
 moto,Vespa,Primavera,150,11570
 moto,Vespa,Primavera,Edição Mickey Mouse 150,11571
 moto,Vespa,Primavera,Sport 150,11572
-moto,Vespa,SXL,150,11577
+moto,Vespa,SXL 150,SXL 150,11577
 moto,Vespa,Sprint,150,11575
 moto,Vespa,Sprint,S 150,11576
-moto,Vespa,VXL,150,11582
 moto,Vespa,VXL,Dual 150,11583
-moto,Voge,DS,525X,12140
-moto,Voge,DS,900X,12141
+moto,Vespa,VXL 150,VXL 150,11582
+moto,Voge,DS 525X,DS 525X,12140
+moto,Voge,DS 900X,DS 900X,12141
 moto,Voge,SR3,SR3,12150
 moto,Voge,SR4,MAX,12151
 moto,Voltz,EV01,1800W (Elétrica),9799
 moto,Voltz,EV1,Sport 3000W (elétrica),9510
-moto,Voltz,EVS,3000W (elétrica),9418
+moto,Voltz,EVS 3000W,(elétrica),9418
 moto,Watts,W-Trail,12000W (Elétrica),11361
 moto,Watts,W125,3000W (Elétrica),10647
 moto,Watts,W160S,10000W (Elétrica),10940
@@ -11255,21 +11255,21 @@ moto,Wuyang,MIND,X50q,7442
 moto,Wuyang,WY,125-ESD,4377
 moto,Wuyang,WY,125-ESD PLUS,4820
 moto,Wuyang,WY,150-EX,4462
-moto,Wuyang,WY,200 ZH/CARGO 200,5495
 moto,Wuyang,WY,48Q-2 LIBERTY 50,7063
 moto,Wuyang,WY,48Q-2 PHOENIX + 50,7724
 moto,Wuyang,WY,48Q-2 PHOENIX S 50,7725
+moto,Wuyang,WY 200,ZH/CARGO 200,5495
 moto,Yamaha,750,VIRAGO,3060
 moto,Yamaha,AEROX,CONNECTED ABS,11862
-moto,Yamaha,AXIS,90,3061
+moto,Yamaha,AXIS 90,AXIS 90,3061
 moto,Yamaha,BW,S 50,9950
 moto,Yamaha,CRYPTON,100,3063
 moto,Yamaha,DT,180-Z TRAIL,3064
-moto,Yamaha,DT,200,3065
-moto,Yamaha,DT,200 R,3066
+moto,Yamaha,DT 200,DT 200,3065
+moto,Yamaha,DT 200,R,3066
 moto,Yamaha,FAZER,600/ FZ6 S,3067
-moto,Yamaha,FLUO,125 ABS,9777
-moto,Yamaha,FLUO,125 CONNECTED,11969
+moto,Yamaha,FLUO 125,ABS,9777
+moto,Yamaha,FLUO 125,CONNECTED,11969
 moto,Yamaha,FZ15,150 FAZER CONNECTED DEADPOOL,12142
 moto,Yamaha,FZ15,150 FAZER CONNECTED FLEX,11330
 moto,Yamaha,FZ15,150 FAZER FLEX,10084
@@ -11279,10 +11279,10 @@ moto,Yamaha,FZ25,250 FAZER FLEX,8143
 moto,Yamaha,FZ25,250 FAZER PANTERA NEGRA FLEX,9241
 moto,Yamaha,FZ25,FAZER THOR FLEX,9951
 moto,Yamaha,FZ6,N,4571
-moto,Yamaha,FZR,1000,3068
-moto,Yamaha,FZR,600,3069
-moto,Yamaha,JOG,50,3070
+moto,Yamaha,FZR 1000,FZR 1000,3068
+moto,Yamaha,FZR 600,FZR 600,3069
 moto,Yamaha,JOG,TEEN 50,3071
+moto,Yamaha,JOG 50,JOG 50,3070
 moto,Yamaha,MAJESTY,YP 250,3072
 moto,Yamaha,MT-01,1.670cc,4211
 moto,Yamaha,MT-03,321 ABS Homem de Ferro,9638
@@ -11290,7 +11290,7 @@ moto,Yamaha,MT-03,321/ABS,7527
 moto,Yamaha,MT-03,660cc,4593
 moto,Yamaha,MT-03,CONNECTED 321cc ABS,11440
 moto,Yamaha,MT-07,CONNECTED 689cc ABS,11441
-moto,Yamaha,MT-07/MT-07,ABS 689cc,7145
+moto,Yamaha,MT-07,MT-07 ABS 689cc,7145
 moto,Yamaha,MT-09,850cc/ABS,7064
 moto,Yamaha,MT-09,TRACER,7470
 moto,Yamaha,MT-09,TRACER 900 GT,8804
@@ -11298,105 +11298,102 @@ moto,Yamaha,NEO,AT 115cc,3073
 moto,Yamaha,NEO,AUTOMATIC 115cc,4378
 moto,Yamaha,NEO,AUTOMATIC 125cc,7786
 moto,Yamaha,NEOS,CONNECTED (Elétrica),11359
-moto,Yamaha,NMAX,160,7528
 moto,Yamaha,NMAX,Connected 160 ABS,10231
 moto,Yamaha,NMAX,Connected MANDALORIAN 160 ABS,10619
 moto,Yamaha,NMAX,Connected SE 160 ABS,10232
 moto,Yamaha,NMAX,HOMEM ARANHA 160 ABS,9670
 moto,Yamaha,NMAX,STAR WARS 160 ABS,9203
-moto,Yamaha,RD,135,3074
-moto,Yamaha,RD,350 LC/ R,3075
-moto,Yamaha,RDZ,125,3076
-moto,Yamaha,RDZ,135,3077
+moto,Yamaha,NMAX 160,NMAX 160,7528
+moto,Yamaha,RD 135,RD 135,3074
+moto,Yamaha,RD 350,LC/ R,3075
+moto,Yamaha,RDZ 125,RDZ 125,3076
+moto,Yamaha,RDZ 135,RDZ 135,3077
 moto,Yamaha,ROYAL,STAR 1300,3078
 moto,Yamaha,T115,CRYPTON ED,5163
 moto,Yamaha,T115,CRYPTON ED PENELOPE,6477
 moto,Yamaha,T115,CRYPTON K,5164
-moto,Yamaha,TDM,225,3079
-moto,Yamaha,TDM,850,3080
-moto,Yamaha,TDM,900,3081
-moto,Yamaha,TDR,180,3082
-moto,Yamaha,TMAX,530,6677
+moto,Yamaha,TDM 225,TDM 225,3079
+moto,Yamaha,TDM 850,TDM 850,3080
+moto,Yamaha,TDM 900,TDM 900,3081
+moto,Yamaha,TDR 180,TDR 180,3082
+moto,Yamaha,TMAX 530,TMAX 530,6677
 moto,Yamaha,TRACER,7,12182
-moto,Yamaha,TRX,850,3083
+moto,Yamaha,TRX 850,TRX 850,3083
 moto,Yamaha,TT-R,125 E,4483
 moto,Yamaha,TT-R,125 LE,4484
 moto,Yamaha,TT-R,125 LWE,7177
 moto,Yamaha,TT-R,230,4485
 moto,Yamaha,V-MAX,1200,3084
 moto,Yamaha,V-MAX,1700,6678
-moto,Yamaha,WR,200,3085
-moto,Yamaha,WR,250 F,11392
-moto,Yamaha,WR,426 F,3086
-moto,Yamaha,WR,450 F,9782
-moto,Yamaha,XJ,600,3087
+moto,Yamaha,WR 200,WR 200,3085
+moto,Yamaha,WR 250,F,11392
+moto,Yamaha,WR 426,F,3086
+moto,Yamaha,WR 450,F,9782
+moto,Yamaha,XJ 600,XJ 600,3087
 moto,Yamaha,XJ6,F,5165
 moto,Yamaha,XJ6,N SP,6764
 moto,Yamaha,XJ6,N/ABS,5166
-moto,Yamaha,XJR,1200,3088
-moto,Yamaha,XMAX,250 ABS,9034
-moto,Yamaha,XMAX,250 ABS Darth Vader,9851
-moto,Yamaha,XMAX,250 CONNECTED,11288
-moto,Yamaha,XMAX,300 CONNECTED,11587
-moto,Yamaha,XT,1200 Z S.TÉNÉRÉ 60th ANNIVERSARY,12057
-moto,Yamaha,XT,1200 Z SUPER TÉNÉRÉ/ DX,5523
-moto,Yamaha,XT,225,3091
-moto,Yamaha,XT,600 E,3092
-moto,Yamaha,XT,600 Z TENERE,3093
-moto,Yamaha,XT,660 R,3094
-moto,Yamaha,XT,660Z TÉNÉRÉ,5738
-moto,Yamaha,XTZ,125 E,3095
-moto,Yamaha,XTZ,125 K,3096
-moto,Yamaha,XTZ,125 XE,4486
-moto,Yamaha,XTZ,125 XK,4487
-moto,Yamaha,XTZ,150 CROSSER E/FLEX,6765
-moto,Yamaha,XTZ,150 CROSSER ED /FLEX,6766
-moto,Yamaha,XTZ,150 CROSSER S FLEX,8190
-moto,Yamaha,XTZ,150 CROSSER Z FLEX,8191
-moto,Yamaha,XTZ,150 CROSSER Z WOLVERINE,12154
-moto,Yamaha,XTZ,250 LANDER 249cc/LANDER BLUEFLEX/ABS,4195
-moto,Yamaha,XTZ,250 LANDER CAPITÃO AMÉRICA FLEX ABS,9242
-moto,Yamaha,XTZ,250 LANDER CONNECTED,11289
-moto,Yamaha,XTZ,250 TENERE/TENERE BLUEFLEX,5442
-moto,Yamaha,XTZ,250X,4658
-moto,Yamaha,XTZ,700 TÉNÉRÉ,11700
-moto,Yamaha,XTZ,750 S TENERE,3097
-moto,Yamaha,XV,1100 VIRAGO,3098
-moto,Yamaha,XV,250 VIRAGO,3099
-moto,Yamaha,XV,535 S VIRAGO,3100
-moto,Yamaha,XVS,1100 DRAG STAR,3089
-moto,Yamaha,XVS,650 DRAG STAR,3090
-moto,Yamaha,XVS,950 MIDNIGHT STAR,4956
-moto,Yamaha,YBR,125 E,3101
-moto,Yamaha,YBR,125 ED,3102
-moto,Yamaha,YBR,125 FACTOR E,4742
-moto,Yamaha,YBR,125 FACTOR ED/FACTOR EDITION,4743
-moto,Yamaha,YBR,125 FACTOR K/ FACTOR K1,4744
-moto,Yamaha,YBR,125 FACTOR PRO E,6568
-moto,Yamaha,YBR,125 FACTOR PRO K,6569
-moto,Yamaha,YBR,125 K,3103
-moto,Yamaha,YBR,125i FACTOR ED/FLEX,7648
-moto,Yamaha,YBR,150 FACTOR DX FLEX,11334
-moto,Yamaha,YBR,150 FACTOR E/FLEX,7387
-moto,Yamaha,YBR,150 FACTOR ED/FLEX,7388
-moto,Yamaha,YBR,150 FACTOR FLEX,11335
-moto,Yamaha,YFM,250 BRUIN 230cc,4080
-moto,Yamaha,YFM,350 GRIZZLY 350cc,4196
-moto,Yamaha,YFM,660R 660cc,4081
-moto,Yamaha,YFM,700R 686cc,4582
-moto,Yamaha,YFM,80 79cc,4082
-moto,Yamaha,YFS,200 BLASTER 195cc,4083
+moto,Yamaha,XJR 1200,XJR 1200,3088
+moto,Yamaha,XMAX 250,ABS,9034
+moto,Yamaha,XMAX 250,ABS Darth Vader,9851
+moto,Yamaha,XMAX 250,CONNECTED,11288
+moto,Yamaha,XMAX 300,CONNECTED,11587
+moto,Yamaha,XT 1200,Z S.TÉNÉRÉ 60th ANNIVERSARY,12057
+moto,Yamaha,XT 1200,Z SUPER TÉNÉRÉ/ DX,5523
+moto,Yamaha,XT 225,XT 225,3091
+moto,Yamaha,XT 600,E,3092
+moto,Yamaha,XT 600,Z TENERE,3093
+moto,Yamaha,XT 660,R,3094
+moto,Yamaha,XT 660Z,TÉNÉRÉ,5738
+moto,Yamaha,XTZ 125,E,3095
+moto,Yamaha,XTZ 125,K,3096
+moto,Yamaha,XTZ 125,XE,4486
+moto,Yamaha,XTZ 125,XK,4487
+moto,Yamaha,XTZ 150,CROSSER E/FLEX,6765
+moto,Yamaha,XTZ 150,CROSSER ED /FLEX,6766
+moto,Yamaha,XTZ 150,CROSSER S FLEX,8190
+moto,Yamaha,XTZ 150,CROSSER Z FLEX,8191
+moto,Yamaha,XTZ 150,CROSSER Z WOLVERINE,12154
+moto,Yamaha,XTZ 250,LANDER 249cc/LANDER BLUEFLEX/ABS,4195
+moto,Yamaha,XTZ 250,LANDER CAPITÃO AMÉRICA FLEX ABS,9242
+moto,Yamaha,XTZ 250,LANDER CONNECTED,11289
+moto,Yamaha,XTZ 250,TENERE/TENERE BLUEFLEX,5442
+moto,Yamaha,XTZ 250X,XTZ 250X,4658
+moto,Yamaha,XTZ 700,TÉNÉRÉ,11700
+moto,Yamaha,XTZ 750,S TENERE,3097
+moto,Yamaha,XV 1100,VIRAGO,3098
+moto,Yamaha,XV 250,VIRAGO,3099
+moto,Yamaha,XV 535,S VIRAGO,3100
+moto,Yamaha,XVS 1100,DRAG STAR,3089
+moto,Yamaha,XVS 650,DRAG STAR,3090
+moto,Yamaha,XVS 950,MIDNIGHT STAR,4956
+moto,Yamaha,YBR 125,E,3101
+moto,Yamaha,YBR 125,ED,3102
+moto,Yamaha,YBR 125,FACTOR E,4742
+moto,Yamaha,YBR 125,FACTOR ED/FACTOR EDITION,4743
+moto,Yamaha,YBR 125,FACTOR K/ FACTOR K1,4744
+moto,Yamaha,YBR 125,FACTOR PRO E,6568
+moto,Yamaha,YBR 125,FACTOR PRO K,6569
+moto,Yamaha,YBR 125,K,3103
+moto,Yamaha,YBR 125i,FACTOR ED/FLEX,7648
+moto,Yamaha,YBR 150,FACTOR DX FLEX,11334
+moto,Yamaha,YBR 150,FACTOR E/FLEX,7387
+moto,Yamaha,YBR 150,FACTOR ED/FLEX,7388
+moto,Yamaha,YBR 150,FACTOR FLEX,11335
+moto,Yamaha,YFM 250,BRUIN 230cc,4080
+moto,Yamaha,YFM 350,GRIZZLY 350cc,4196
+moto,Yamaha,YFM 660R,660cc,4081
+moto,Yamaha,YFM 700R,686cc,4582
+moto,Yamaha,YFM 80,79cc,4082
+moto,Yamaha,YFS 200,BLASTER 195cc,4083
 moto,Yamaha,YFZ,450/ YZ 450 F 449cc,4583
-moto,Yamaha,YS,150 FAZER ED/FLEX,6605
-moto,Yamaha,YS,150 FAZER SED/ FLEX,6606
-moto,Yamaha,YS,250 FAZER/ FAZER L. EDITION /BLUEFLEX,3871
-moto,Yamaha,YZ,125,3104
-moto,Yamaha,YZ,250,3105
-moto,Yamaha,YZ,250 F 250cc,8805
-moto,Yamaha,YZ,85 LW 85cc,8806
-moto,Yamaha,YZF,1000 THUNDERACE,3106
-moto,Yamaha,YZF,600 THUNDERCAT,3107
-moto,Yamaha,YZF,750,3108
+moto,Yamaha,YS 150,FAZER ED/FLEX,6605
+moto,Yamaha,YS 150,FAZER SED/ FLEX,6606
+moto,Yamaha,YS 250,FAZER/ FAZER L. EDITION /BLUEFLEX,3871
+moto,Yamaha,YZ 125,YZ 125,3104
+moto,Yamaha,YZ 250,F 250cc,8805
+moto,Yamaha,YZ 250,YZ 250,3105
+moto,Yamaha,YZ 85,LW 85cc,8806
 moto,Yamaha,YZF,R-1 1000,3109
 moto,Yamaha,YZF,R-15 155 ABS,10943
 moto,Yamaha,YZF,R-15 155 ABS 70th ANNIVERSARY,12058
@@ -11406,18 +11403,21 @@ moto,Yamaha,YZF,R-3 CONNECTED 321 ABS,12059
 moto,Yamaha,YZF,R-3 CONNECTED 321 ABS 70th ANNIVERSARY,12060
 moto,Yamaha,YZF,R-3 World GP 60th ANNIVERSARY ED.,12061
 moto,Yamaha,YZF,R-6 600,3943
-moto,Yamaha,ZR,125 CONNECTED,11984
-moto,Zontes,E,350,11052
-moto,Zontes,G,368,12067
-moto,Zontes,GK,350,11053
-moto,Zontes,R,310,10644
-moto,Zontes,R,350,11055
-moto,Zontes,S,350,11207
-moto,Zontes,T,310,10645
-moto,Zontes,T,350,11061
-moto,Zontes,T,350 X,11062
-moto,Zontes,V,310,10646
-moto,Zontes,V,350,11065
+moto,Yamaha,YZF 1000,THUNDERACE,3106
+moto,Yamaha,YZF 600,THUNDERCAT,3107
+moto,Yamaha,YZF 750,YZF 750,3108
+moto,Yamaha,ZR 125,CONNECTED,11984
+moto,Zontes,E 350,E 350,11052
+moto,Zontes,G 368,G 368,12067
+moto,Zontes,GK 350,GK 350,11053
+moto,Zontes,R 310,R 310,10644
+moto,Zontes,R 350,R 350,11055
+moto,Zontes,S 350,S 350,11207
+moto,Zontes,T 310,T 310,10645
+moto,Zontes,T 350,T 350,11061
+moto,Zontes,T 350,X,11062
+moto,Zontes,V 310,V 310,10646
+moto,Zontes,V 350,V 350,11065
 moto,byCristo,Triciclo,Star I / Sport,2655
 moto,byCristo,Triciclo,Star II / Top,2656
 moto,byCristo,Triciclo,Star II Top / Super Top/Flex,10131

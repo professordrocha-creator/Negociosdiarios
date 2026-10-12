@@ -210,7 +210,7 @@
       "cidade_ibge": 5106232, "bairro": "",
       "detalhes": {"marca": "Honda", "modelo": "CG 160 Fan", "ano": 2023, "km": 9000, "cambio": "manual", "combustivel": "flex"},
       "destaque": false, "fotos": 6, "estilo_foto": "f2", "publicado_ha_horas": 26,
-      "fipe": ["Honda", "CG", "160 FAN Flex"], "cor": "vermelho", "opcionais": ["freio_abs", "unico_dono"], "descricao": "CG 160 Fan flex, baixa quilometragem, documentação em dia.", "num_fotos": 3
+      "fipe": ["Honda", "CG 160", "FAN Flex"], "cor": "vermelho", "opcionais": ["freio_abs", "unico_dono"], "descricao": "CG 160 Fan flex, baixa quilometragem, documentação em dia.", "num_fotos": 3
     },
     {
       "loja": "chapada-motos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Moto",

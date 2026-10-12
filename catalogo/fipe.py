@@ -77,7 +77,9 @@ def linhas_do_catalogo(
             )
             nome_marca = nome_da_marca(marca["Label"])
             for item in resposta.get("Modelos", []):
-                modelo, versao = separar_modelo_e_versao(limpar_rotulo(item["Label"]))
+                modelo, versao = separar_modelo_e_versao(
+                    limpar_rotulo(item["Label"]), marca=nome_marca, moto=codigo_tipo == 2
+                )
                 if codigo_tipo == 1:
                     tipo = tipo_do_carro(nome_marca, modelo)
                 elif codigo_tipo == 2:

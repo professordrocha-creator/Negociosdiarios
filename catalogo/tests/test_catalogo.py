@@ -72,18 +72,138 @@ def test_nome_da_marca(rotulo, esperado):
     assert nome_da_marca(rotulo) == esperado
 
 
-@pytest.mark.parametrize(
-    ("rotulo", "esperado"),
-    [
-        ("Hilux CD SRV 4x4 2.8 TDI Diesel Aut.", ("Hilux", "CD SRV 4x4 2.8 TDI Diesel Aut.")),
-        ("Grand Siena ATTRACTIVE 1.4 Flex", ("Grand Siena", "ATTRACTIVE 1.4 Flex")),
-        ("Range Rover Evoque 2.0", ("Range Rover", "Evoque 2.0")),
-        ("Uno", ("Uno", "Uno")),
-    ],
-)
-def test_separar_modelo_e_versao(rotulo, esperado):
-    """A FIPE junta modelo e versão: o modelo é a 1ª palavra (ou as 2 primeiras, quando preciso)."""
-    assert separar_modelo_e_versao(rotulo) == esperado
+# Nome da FIPE (marca, tipo) → (modelo, versão). Os nomes vêm do fipe.csv de outubro/2026.
+NOMES = [
+    ("Toyota", "carro", "Hilux CD SRV 4x4 2.8 TDI Diesel Aut.", ("Hilux", "CD SRV 4x4 2.8 TDI Diesel Aut.")),
+    ("Fiat", "carro", "Grand Siena ATTRACTIVE 1.4 Flex", ("Grand Siena", "ATTRACTIVE 1.4 Flex")),
+    ("Jeep", "carro", "Grand Cherokee Limited 3.6", ("Grand Cherokee", "Limited 3.6")),
+    ("Toyota", "carro", "Land Cruiser Prado VX 3.0", ("Land Cruiser", "Prado VX 3.0")),
+    ("Hyundai", "carro", "Santa Fe GLS 3.5 V6 4x4 Aut.", ("Santa Fe", "GLS 3.5 V6 4x4 Aut.")),
+    ("Hyundai", "carro", "Santa Fe/GLS 2.7 V6 4x4 Aut.", ("Santa Fe", "GLS 2.7 V6 4x4 Aut.")),
+    ("Hyundai", "carro", "Grand Santa Fe 3.3 V6 4x4 Aut.", ("Grand Santa Fe", "3.3 V6 4x4 Aut.")),
+    (
+        "Land Rover",
+        "carro",
+        "Range Rover Autobio 4.4 V8 TB 530cv Aut.",
+        ("Range Rover", "Autobio 4.4 V8 TB 530cv Aut."),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R. Autobio. 3.0 I6 TB Die. (Híb.)",
+        ("Range Rover", "Autobio. 3.0 I6 TB Die. (Híb.)"),
+    ),
+    ("Land Rover", "carro", "Range.R. Vogue 4.4", ("Range Rover", "Vogue 4.4")),
+    ("Land Rover", "carro", "New Range/Range Rover Vogue 3.9 V8", ("Range Rover", "Vogue 3.9 V8")),
+    (
+        "Land Rover",
+        "carro",
+        "Range R.EVOQUE Autob. 2.0 P250 Flex Aut",
+        ("Range Rover Evoque", "Autob. 2.0 P250 Flex Aut"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R.EVOQ. HSE Dyn. Convers 2.0 Aut.",
+        ("Range Rover Evoque", "HSE Dyn. Convers 2.0 Aut."),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R.EVO DYNAMIC. BLACK 2.0 Aut. 5p",
+        ("Range Rover Evoque", "DYNAMIC. BLACK 2.0 Aut. 5p"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R.Sport First.Ed.3.0 I6 Die.(Hib.)",
+        ("Range Rover Sport", "First.Ed.3.0 I6 Die.(Hib.)"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R.Sp.HSE Dyn.Bl. 3.0 I6 Die.(Híb.)",
+        ("Range Rover Sport", "HSE Dyn.Bl. 3.0 I6 Die.(Híb.)"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range.R. SP.HSE Dyn.BL. 2.0 Si4(Hibrido)",
+        ("Range Rover Sport", "HSE Dyn.BL. 2.0 Si4(Hibrido)"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Range R. VELAR HSE 2.0 4x4 TB 250cv Aut.",
+        ("Range Rover Velar", "HSE 2.0 4x4 TB 250cv Aut."),
+    ),
+    ("Land Rover", "carro", "Defe. 110 SE 2.0 P300", ("Defender", "110 SE 2.0 P300")),
+    (
+        "Land Rover",
+        "carro",
+        "Disc. Sp. S 2.0 4x4 Dies. Aut. (Híb.)",
+        ("Discovery Sport", "S 2.0 4x4 Dies. Aut. (Híb.)"),
+    ),
+    (
+        "Land Rover",
+        "carro",
+        "Discovery Sport HSE 2.0 4x4 Diesel Aut.",
+        ("Discovery Sport", "HSE 2.0 4x4 Diesel Aut."),
+    ),
+    ("Land Rover", "carro", "Discov. SE 3.0 V6", ("Discovery", "SE 3.0 V6")),
+    ("Land Rover", "carro", "Discovery3 TDV6 S 2.7 4x4", ("Discovery", "3 TDV6 S 2.7 4x4")),
+    ("Land Rover", "carro", "Freelander2 HSE 2.0", ("Freelander", "2 HSE 2.0")),
+    (
+        "Mercedes-Benz",
+        "carro",
+        "C-180 1.6 Turbo 16V/Flex 16V Aut.",
+        ("Classe C", "C 180 1.6 Turbo 16V/Flex 16V Aut."),
+    ),
+    ("Mercedes-Benz", "carro", "A-200 Style 1.3 TB Aut.", ("Classe A", "A 200 Style 1.3 TB Aut.")),
+    ("Mercedes-Benz", "carro", "E-350 Avantgarde 3.5 V6", ("Classe E", "E 350 Avantgarde 3.5 V6")),
+    ("Mercedes-Benz", "carro", "S-500L 5.0 V8", ("Classe S", "S 500L 5.0 V8")),
+    ("Mercedes-Benz", "carro", "Classe A 160 Classic Semi-Aut.", ("Classe A", "160 Classic Semi-Aut.")),
+    ("Mercedes-Benz", "carro", "GLA-200 Advance 1.6 TB Aut.", ("GLA", "GLA 200 Advance 1.6 TB Aut.")),
+    ("Mercedes-Benz", "carro", "CLA-250 Sport 2.0 TB", ("CLA", "CLA 250 Sport 2.0 TB")),
+    ("Mercedes-Benz", "carro", "Sprin. 415 CDI Furgão", ("Sprinter", "415 CDI Furgão")),
+    ("Citroën", "carro", "C4 CACTUS Feel 1.6 Flex Aut.", ("C4 Cactus", "Feel 1.6 Flex Aut.")),
+    ("Citroën", "carro", "C4 LOUNGE Tendance 1.6 THP", ("C4 Lounge", "Tendance 1.6 THP")),
+    ("Citroën", "carro", "C4 GLX 2.0 Flex 16V 5p Aut.", ("C4", "GLX 2.0 Flex 16V 5p Aut.")),
+    ("Citroën", "carro", "Grand C4 Picasso 2.0", ("Grand C4", "Picasso 2.0")),
+    ("Audi", "carro", "E-TRON Sportb. Performance", ("e-tron Sportback", "Performance")),
+    ("Audi", "carro", "E-TRON GT quattro", ("e-tron GT", "quattro")),
+    ("Toyota", "carro", "Band.Picape 3.7 Diesel", ("Bandeirante", "Picape 3.7 Diesel")),
+    ("Volvo", "carro", "XC 60 T-5 2.0 AWD", ("XC60", "T-5 2.0 AWD")),
+    ("Fiat", "carro", "Strada/ Adventure 1.8", ("Strada", "Adventure 1.8")),
+    ("Fiat", "carro", "Uno", ("Uno", "Uno")),
+    ("Volkswagen", "carro", "Gol 1.0 Flex 12V 5p", ("Gol", "1.0 Flex 12V 5p")),  # 1.0 não vira modelo
+    ("Honda", "moto", "CG 160 FAN Flex", ("CG 160", "FAN Flex")),
+    ("Honda", "moto", "CB 300F Twister Flex", ("CB 300F", "Twister Flex")),
+    ("BMW", "moto", "R 1250 GS Adventure", ("R 1250", "GS Adventure")),
+    ("Yamaha", "moto", "FZ25 250 FAZER FLEX", ("FZ25", "250 FAZER FLEX")),  # sigla com número: fica
+]
+
+
+@pytest.mark.parametrize(("marca", "tipo", "rotulo", "esperado"), NOMES)
+def test_separar_modelo_e_versao(marca, tipo, rotulo, esperado):
+    """Nomes compostos, abreviações e códigos de motor da FIPE viram o modelo comercial."""
+    assert separar_modelo_e_versao(rotulo, marca=marca, moto=tipo == "moto") == esperado
+
+
+@pytest.mark.parametrize(("marca", "tipo", "rotulo", "esperado"), NOMES)
+def test_reprocessar_e_idempotente(marca, tipo, rotulo, esperado):
+    """Reprocessar o CSV já reprocessado não muda nada (o nome é refeito de modelo + versão)."""
+    from catalogo.services import reprocessar_linha
+
+    modelo, versao = esperado
+    linha = {
+        "tipo": "moto" if tipo == "moto" else "carro",
+        "marca": marca,
+        "modelo": modelo,
+        "versao": versao,
+        "codigo_fipe": "1",
+    }
+    assert (reprocessar_linha(linha)["modelo"], reprocessar_linha(linha)["versao"]) == esperado
 
 
 @pytest.mark.parametrize(
@@ -238,3 +358,125 @@ def test_admin_nao_cria_nem_apaga_e_esconde_versao(client, entrar_no_admin, cata
     assert client.get(reverse("admin:catalogo_versao_add")).status_code == 403
     assert client.get(reverse("admin:catalogo_versao_delete", args=[versao.pk])).status_code == 403
     assert client.get(reverse("admin:catalogo_versao_changelist")).status_code == 200
+
+
+# --- Recarga com as regras novas (versões reconhecidas pelo código FIPE) ---------------------
+
+ANTIGO = [  # como o fipe.csv era gerado antes das exceções de nome
+    {
+        "tipo": "carro",
+        "marca": "Mercedes-Benz",
+        "modelo": "C-180",
+        "versao": "1.6 Turbo Aut.",
+        "codigo_fipe": "100",
+    },
+    {
+        "tipo": "carro",
+        "marca": "Mercedes-Benz",
+        "modelo": "C-200",
+        "versao": "1.5 TB Aut.",
+        "codigo_fipe": "101",
+    },
+    {
+        "tipo": "carro",
+        "marca": "Land Rover",
+        "modelo": "Range R.EVOQUE",
+        "versao": "HSE 2.0",
+        "codigo_fipe": "200",
+    },
+    {"tipo": "moto", "marca": "Honda", "modelo": "CG", "versao": "160 FAN Flex", "codigo_fipe": "300"},
+]
+NOVO = [  # o mesmo, reprocessado
+    {
+        "tipo": "carro",
+        "marca": "Mercedes-Benz",
+        "modelo": "Classe C",
+        "versao": "C 180 1.6 Turbo Aut.",
+        "codigo_fipe": "100",
+    },
+    {
+        "tipo": "carro",
+        "marca": "Mercedes-Benz",
+        "modelo": "Classe C",
+        "versao": "C 200 1.5 TB Aut.",
+        "codigo_fipe": "101",
+    },
+    {
+        "tipo": "carro",
+        "marca": "Land Rover",
+        "modelo": "Range Rover Evoque",
+        "versao": "HSE 2.0",
+        "codigo_fipe": "200",
+    },
+    {"tipo": "moto", "marca": "Honda", "modelo": "CG 160", "versao": "FAN Flex", "codigo_fipe": "300"},
+]
+
+
+@pytest.mark.django_db
+def test_reprocessar_o_csv_antigo_da_o_novo():
+    """`reprocessar_linha` transforma as linhas antigas nas novas."""
+    from catalogo.services import reprocessar_linha
+
+    assert [reprocessar_linha(linha) for linha in ANTIGO] == NOVO
+
+
+@pytest.mark.django_db
+def test_recarga_move_versoes_sem_perder_anuncio_nem_o_escondido(tmp_path, loja, tangara):
+    """Recarregar com as regras novas: a versão é o MESMO registro (anúncio continua ligado), muda de
+    modelo, e a que o admin escondeu continua escondida. O modelo antigo, vazio, some dos selects."""
+    from anuncios import services as anuncios
+
+    carregar_catalogo(gravar_csv(tmp_path / "antigo.csv", ANTIGO))
+    c180 = Versao.objects.get(codigo_fipe="100")
+    Versao.objects.filter(codigo_fipe="101").update(ativo=False)  # escondida pelo admin
+    anuncio = anuncios.criar_anuncio_veiculo(
+        loja(),
+        {"titulo": "", "descricao": "", "preco": 1, "cidade": tangara},
+        {
+            "versao": c180,
+            "ano_fabricacao": 2020,
+            "ano_modelo": 2020,
+            "quilometragem": 1,
+            "combustivel": "flex",
+            "cambio": "automatico",
+            "cor": "preto",
+            "portas": 4,
+            "final_placa": "",
+            "opcionais": [],
+        },
+    )
+
+    resultado = carregar_catalogo(gravar_csv(tmp_path / "novo.csv", NOVO))
+
+    assert resultado.versoes_novas == 0 and resultado.versoes_movidas == 4
+    c180.refresh_from_db()
+    assert (c180.modelo.nome, c180.nome, c180.ativo) == ("Classe C", "C 180 1.6 Turbo Aut.", True)
+    assert anuncio.veiculo.versao_id == c180.pk
+    assert not Versao.objects.get(codigo_fipe="101").ativo  # o admin escondeu: continua escondida
+    mercedes = Marca.objects.get(slug="mercedes-benz")
+    assert [m.nome for m in modelos_da_marca(mercedes.pk, "carro")] == ["Classe C"]  # C-180/C-200 vazios
+    honda = Marca.objects.get(slug="honda")
+    assert [m.nome for m in modelos_da_marca(honda.pk, "moto")] == ["CG 160"]
+
+
+@pytest.mark.django_db
+def test_versao_que_saiu_do_arquivo_fica_escondida(tmp_path):
+    """Sumiu da FIPE: escondida (ativo=False), nunca apagada."""
+    carregar_catalogo(gravar_csv(tmp_path / "antigo.csv", NOVO))
+
+    resultado = carregar_catalogo(gravar_csv(tmp_path / "menor.csv", NOVO[:3]))
+
+    assert resultado.escondidas == 1
+    assert not Versao.objects.get(codigo_fipe="300").ativo
+    assert Versao.objects.count() == 4
+
+
+def test_csv_do_repositorio_ja_usa_os_nomes_novos():
+    """O fipe.csv do repositório foi reprocessado: nada de "C-180", "Range R." ou "XC" sozinho."""
+    with ARQUIVO_FIPE.open(encoding="utf-8", newline="") as arquivo:
+        modelos = {(linha["marca"], linha["modelo"]) for linha in csv.DictReader(arquivo)}
+
+    assert ("Mercedes-Benz", "Classe C") in modelos and ("Mercedes-Benz", "C-180") not in modelos
+    assert ("Land Rover", "Range Rover Evoque") in modelos and ("Land Rover", "Range R.") not in modelos
+    assert ("Volvo", "XC60") in modelos and ("Volvo", "XC") not in modelos
+    assert ("Honda", "CG 160") in modelos
