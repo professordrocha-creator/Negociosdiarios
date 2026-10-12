@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.gis.geos import Point
 from django.core import signing
 from django.db import transaction
 from django.db.models import Q, QuerySet
@@ -22,6 +23,7 @@ from django.utils.text import slugify
 
 from anunciantes.models import Anunciante, SolicitacaoCidade
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
+from anuncios.localizacao import METROS_POR_GRAU, deslocamento
 from core import imagens
 from core.models import Cidade
 from core.services import (
@@ -196,6 +198,7 @@ def criar_anunciantes_demo(lojas: list[dict], senha: str) -> int:
             "horario": "Seg a sex 8h–18h · Sáb 8h–12h",
             "endereco_publico": "Av. Brasil, 1.000 · Centro",
             "mostrar_no_mapa": True,
+            "ponto": ponto_demo(anunciante.slug, cidade),
         }
         for campo, valor in demo.items():
             if not getattr(anunciante, campo):
@@ -499,6 +502,28 @@ def processar_imagem_loja(anunciante: Anunciante, tipo: str) -> bool:
     anunciante._change_reason = f"{tipo.capitalize()} da loja processado."
     anunciante.save(update_fields=[f"{tipo}_original", *regra["saidas"], "atualizado_em"])
     return True
+
+
+def ponto_demo(slug: str, cidade: Cidade) -> Point | None:
+    """Ponto fictício de loja demo: perto da sede da cidade (até ~1,5 km), fixo por loja."""
+    if not cidade.ponto:
+        return None
+    norte, leste = deslocamento(f"demo-loja-{slug}")
+    return Point(
+        round(cidade.ponto.x + leste * 10 / METROS_POR_GRAU, 6),
+        round(cidade.ponto.y + norte * 10 / METROS_POR_GRAU, 6),
+        srid=4326,
+    )
+
+
+def localizacao_da_loja(anunciante: Anunciante) -> dict | None:
+    """Ponto da loja para o mapa da página pública (mesmo formato de anuncios.services.localizacao_publica).
+
+    Só com "mostrar endereço e mapa" ligado: corretor autônomo pode ter marcado o endereço de casa.
+    """
+    if not anunciante.mostrar_no_mapa or anunciante.ponto is None:
+        return None
+    return {"tipo": "exata", "lat": anunciante.ponto.y, "lng": anunciante.ponto.x}
 
 
 def lojas_visiveis() -> QuerySet[Anunciante]:

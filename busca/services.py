@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from urllib.parse import urlencode
 
+from django.conf import settings
+from django.contrib.gis.geos import Polygon
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import Count, F, Q, QuerySet
 from django.urls import reverse
@@ -129,6 +131,8 @@ def buscar(categoria: str, cidade: Cidade | None, filtros: dict) -> QuerySet[Anu
         anuncios = anuncios.filter(preco__gte=filtros["preco_min"])
     if "preco_max" in filtros:
         anuncios = anuncios.filter(preco__lte=filtros["preco_max"])
+    if "area" in filtros:
+        anuncios = _filtrar_area(anuncios, categoria, filtros["area"])
     if categoria == "imoveis":
         anuncios = _filtros_imovel(anuncios, filtros)
     else:
@@ -178,6 +182,110 @@ def _filtros_veiculo(anuncios: QuerySet[Anuncio], filtros: dict) -> QuerySet[Anu
     return anuncios
 
 
+# --- Mapa (Sprint 5) --------------------------------------------------------------------------
+
+
+def _retangulo(area: str) -> Polygon:
+    """ "oeste,sul,leste,norte" (já validado pelo formulário) → polígono WGS 84."""
+    oeste, sul, leste, norte = (float(v) for v in area.split(","))
+    return Polygon.from_bbox((oeste, sul, leste, norte))
+
+
+def _filtrar_area(anuncios: QuerySet[Anuncio], categoria: str, area: str) -> QuerySet[Anuncio]:
+    """ "Buscar nesta área": imóvel pelo PONTO PÚBLICO (nunca o real: perguntar "está neste retângulo?"
+    repetidas vezes não pode revelar onde fica o imóvel); veículo pelo ponto da loja que mostra o mapa."""
+    retangulo = _retangulo(area)
+    if categoria == "imoveis":
+        return anuncios.filter(imovel__ponto_publico__within=retangulo)
+    return anuncios.filter(anunciante__mostrar_no_mapa=True, anunciante__ponto__within=retangulo)
+
+
+def preco_curto(valor, aluguel: bool = False) -> str:
+    """Rótulo do marcador: "R$ 950", "420 mil", "189,9 mil", "1,2 mi"; aluguel com "/mês"."""
+    numero = float(valor)
+    if numero >= 1_000_000:
+        texto = f"{numero / 1_000_000:.1f}".rstrip("0").rstrip(".").replace(".", ",") + " mi"
+    elif numero >= 1000:
+        texto = f"{numero / 1000:.1f}".rstrip("0").rstrip(".").replace(".", ",") + " mil"
+    else:
+        texto = f"R$ {numero:.0f}"
+    return texto + ("/mês" if aluguel else "")
+
+
+def limite_de_pontos() -> int:
+    """Máximo de pontos que o mapa recebe de uma vez (settings.MAPA_LIMITE_PONTOS, padrão 500)."""
+    return getattr(settings, "MAPA_LIMITE_PONTOS", 500)
+
+
+def dados_do_mapa(categoria: str, cidade: Cidade | None, filtros: dict) -> dict:
+    """O mínimo para o mapa (desempenho e privacidade), com os mesmos filtros da lista.
+
+    Imóvel: um ponto por anúncio com o PONTO PÚBLICO (exata = o ponto; aproximada = deslocado; só o
+    bairro = fica de fora e entra em `sem_localizacao`). Veículo: um ponto por LOJA que permitiu o
+    mapa, com quantos veículos dela atendem aos filtros. No máximo `limite_de_pontos()` (os mais novos).
+    """
+    anuncios = buscar(categoria, cidade, filtros).order_by()
+    limite = limite_de_pontos()
+    if categoria == "imoveis":
+        com_ponto = anuncios.filter(imovel__ponto_publico__isnull=False)
+        total = com_ponto.count()
+        linhas = com_ponto.order_by("-publicado_em").values_list(
+            "codigo", "titulo", "preco", "imovel__modalidade", "imovel__ponto_publico"
+        )[:limite]
+        pontos = [
+            {
+                "id": codigo,
+                "titulo": titulo[:60],
+                "preco": preco_curto(preco, modalidade == "aluguel"),
+                "lat": ponto.y,
+                "lng": ponto.x,
+            }
+            for codigo, titulo, preco, modalidade, ponto in linhas
+        ]
+        return {
+            "tipo": "anuncios",
+            "pontos": pontos,
+            "total": total,
+            "sem_localizacao": anuncios.count() - total,
+            "cortado": total > limite,
+        }
+    com_ponto = anuncios.filter(anunciante__mostrar_no_mapa=True, anunciante__ponto__isnull=False)
+    lojas = (
+        com_ponto.values("anunciante__slug", "anunciante__nome_publico", "anunciante__ponto")
+        .annotate(quantos=Count("pk"))
+        .order_by("-quantos", "anunciante__nome_publico")
+    )
+    total_lojas = lojas.count()
+    pontos = [
+        {
+            "id": linha["anunciante__slug"],
+            "titulo": linha["anunciante__nome_publico"][:60],
+            "preco": f"{linha['quantos']} veículo{'s' if linha['quantos'] != 1 else ''}",
+            "lat": linha["anunciante__ponto"].y,
+            "lng": linha["anunciante__ponto"].x,
+        }
+        for linha in lojas[:limite]
+    ]
+    return {
+        "tipo": "lojas",
+        "pontos": pontos,
+        "total": total_lojas,
+        "sem_localizacao": anuncios.count() - com_ponto.count(),
+        "cortado": total_lojas > limite,
+    }
+
+
+def url_do_mapa(categoria: str, cidade: Cidade | None, filtros: dict) -> str:
+    """Endereço do JSON do mapa com os mesmos filtros da lista (sem ordem nem página)."""
+    parametros = querystring(filtros, sem=SO_APRESENTACAO)
+    base = (
+        reverse(f"busca:{categoria}_mapa")
+        if cidade is None
+        else reverse(f"busca:{categoria}_cidade_mapa", args=[cidade.uf_id.lower(), cidade.slug])
+    )
+    return base + (f"?{parametros}" if parametros else "")
+
+
 # --- URLs, SEO e chips ------------------------------------------------------------------------
 
 
@@ -205,7 +313,7 @@ def url_canonica(categoria: str, cidade: Cidade | None, filtros: dict) -> str:
 
 def indexavel(filtros: dict) -> bool:
     """Indexar só combinações simples: sem texto e no máximo 2 filtros de conteúdo."""
-    if "q" in filtros:
+    if "q" in filtros or "area" in filtros:  # texto e área do mapa: páginas de uso, não de busca no Google
         return False
     conteudo = [v for k, v in filtros.items() if k not in SO_APRESENTACAO]
     total = sum(len(v) if isinstance(v, list) else 1 for v in conteudo)
@@ -296,6 +404,7 @@ def _rotulo_chip(nome: str, valor, rotulos: dict) -> str:
         "ano_max": lambda: f"Até {valor}",
         "km_max": lambda: f"Até {km(valor)}",
         "q": lambda: f"“{valor}”",
+        "area": lambda: "Área do mapa",
     }
     if nome in formatos:
         return formatos[nome]()

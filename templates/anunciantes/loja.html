@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load nd %}
+{% load nd static %}
 {# Vitrine pública da loja (convertida de prototipo/loja.html). Só lojas visíveis chegam aqui (o resto é 404). #}
 {# WhatsApp: o link passa por /loja/<slug>/whatsapp/ e o número não fica em texto no HTML (ARQUITETURA §5). #}
 
@@ -12,6 +12,7 @@
   <meta property="og:type" content="profile">
   <meta property="og:url" content="{{ url_canonica }}">
   {{ schema|json_ld }}
+  {% if localizacao %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}
 {% endblock %}
 
 {% block conteudo %}
@@ -52,6 +53,9 @@
         {% if anunciante.site %}<div>{% icone "loja" %} <a href="{{ anunciante.site }}" rel="nofollow noopener" target="_blank">{{ anunciante.site|cut:"https://"|cut:"http://" }}</a></div>{% endif %}
         <div class="text-suave">{% icone "verificado" %} {{ anunciante.get_documento_tipo_display }} conferido pela equipe do {{ site.nome }}.</div>
       </div>
+      {% if localizacao %}
+      <div class="nd-caixa p-2"><div id="mapa-anuncio" class="nd-mapa nd-mapa-loja" role="region" aria-label="Mapa: onde fica a loja"></div></div>
+      {% endif %}
       <div class="nd-caixa small"><div class="d-flex justify-content-between"><span>Anúncios ativos</span><b class="tabular">{{ anuncios|length }}</b></div></div>
     </aside>
 
@@ -67,4 +71,10 @@
     </div>
   </div>
 </main>
+{% if localizacao %}{{ localizacao|json_script:"localizacao-anuncio" }}{% endif %}
 {% endblock %}
+
+{% block scripts %}{% if localizacao %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'js/mapa-anuncio.js' %}" defer></script>
+{% endif %}{% endblock %}

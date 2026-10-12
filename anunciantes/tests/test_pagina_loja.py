@@ -393,3 +393,50 @@ def test_home_mostra_lojas_do_banco_com_logo(client, loja):
 
     assert "Lojas verificadas" in html and f'href="{reverse("anunciantes:loja", args=[loja.slug])}"' in html
     assert f'src="{loja.logo_mini.url}"' in html
+
+
+# --- Ponto da loja no mapa (Sprint 5) --------------------------------------------------------
+
+
+def test_marcar_e_tirar_o_ponto_da_loja(client, loja):
+    """O mapa do painel grava latitude/longitude no ponto da loja; "Tirar o ponto" apaga."""
+    resposta = salvar_pagina(client, loja, latitude="-14.3201", longitude="-57.2902")
+    assert resposta.status_code == 302
+    loja.refresh_from_db()
+    assert (loja.ponto.y, loja.ponto.x) == (-14.3201, -57.2902)
+    html = client.get(reverse("anunciantes:painel_loja")).content.decode()
+    assert 'id="mapa"' in html and 'value="-14.3201"' in html
+
+    salvar_pagina(client, loja, latitude="", longitude="")
+    loja.refresh_from_db()
+    assert loja.ponto is None
+
+
+@pytest.mark.parametrize(
+    ("latitude", "longitude", "erro"),
+    [("-14.32", "", "de novo no mapa"), ("-10.0", "-57.29", "longe de Tangará da Serra")],
+)
+def test_ponto_da_loja_invalido(client, loja, latitude, longitude, erro):
+    """Só uma coordenada, ou longe da cidade da loja: recusa e não grava."""
+    resposta = salvar_pagina(client, loja, latitude=latitude, longitude=longitude)
+    assert resposta.status_code == 200 and erro in resposta.content.decode()
+    loja.refresh_from_db()
+    assert loja.ponto is None
+
+
+def test_mapa_na_pagina_da_loja_so_com_permissao(client, loja):
+    """Corretor autônomo pode ter marcado a própria casa: mapa só com "mostrar endereço e mapa"."""
+    from django.contrib.gis.geos import Point
+
+    loja.ponto = Point(-57.2902, -14.3201, srid=4326)
+    loja.save()
+    url = reverse("anunciantes:loja", args=[loja.slug])
+    html = client.get(url).content.decode()
+    assert "mapa-anuncio" not in html and "-14.3201" not in html
+
+    loja.mostrar_no_mapa = True
+    loja.save()
+    html = client.get(url).content.decode()
+    assert 'id="mapa-anuncio"' in html and "mapa-anuncio.js" in html
+    dados = json.loads(re.search(r'id="localizacao-anuncio" type="application/json">(.*?)</script>', html)[1])
+    assert dados == {"tipo": "exata", "lat": -14.3201, "lng": -57.2902}

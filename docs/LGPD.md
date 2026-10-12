@@ -22,7 +22,7 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
   guardado **só no cache** até o fim do dia (o sal expira em 2 dias, então o hash não pode ser refeito);
   no banco ficam só totais por anúncio e dia (`EstatisticaDiaria`). Robôs, prévias de link e o próprio
   dono não contam. O mesmo vale para os cliques no WhatsApp.
-- Localização do imóvel: o ponto exato e o endereço nunca vão para a página pública no modo aproximado
+- Localização do imóvel: o ponto exato e o endereço nunca vão para a página pública no modo aproximado (nem para o JSON do mapa da busca: ele usa o ponto já deslocado, `DetalheImovel.ponto_publico`, que também é o único usado pelo filtro "Buscar nesta área", para que perguntas repetidas por retângulos não revelem o ponto real)
   (o círculo de ~300 m tem o centro deslocado de forma fixa por anúncio); "só o bairro" não mostra mapa.
 - Analytics sem cookies (Umami ou Plausible self-hosted).
 
@@ -49,6 +49,7 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 | Pedidos de troca de plano: planos, periodicidade, situação, motivo da decisão, quem decidiu e quando (`planos.PedidoTrocaPlano`) | Anunciante | Atender e provar o pedido | Execução de contrato (V) | Enquanto a conta existir + 5 anos; entra na exportação "Meus dados" |
 | Telefone/WhatsApp público (`Anunciante.whatsapp`, E.164) | Anunciante | Contato com clientes | Contrato (V) | Enquanto ativo |
 | Endereço exato e ponto no mapa do imóvel (`DetalheImovel.endereco`, `ponto`; nunca exibidos: o público vê aproximado, exato ou só o bairro, conforme `exibir_localizacao`, padrão aproximado) | Proprietário (terceiro) / anunciante | Conferência pela equipe e localização no mapa | Legítimo interesse (IX) do anunciante | Até o anúncio sair + 90 dias; entra na exportação "Meus dados" do anunciante e na anonimização (Sprint 7) |
+| Ponto da loja no mapa (`Anunciante.ponto`; pode ser a casa de um corretor autônomo) | Anunciante | Mostrar a loja no mapa da busca de veículos e na página da loja | Consentimento do anunciante (I): só é exibido com "mostrar endereço e mapa" ligado, e ele pode tirar o ponto a qualquer hora | Enquanto a loja existir; entra na exportação "Meus dados" e na anonimização (Sprint 7) |
 | Fotos de anúncios (`anuncios.Foto`: WebP sem EXIF/GPS; o envio original é apagado após o processamento; foto excluída pelo anunciante é apagada na hora) | Terceiros eventualmente visíveis | Divulgação | Legítimo interesse (IX) | Até o anúncio sair + 90 dias |
 | Anúncio: textos, preço, situação, motivo da moderação, quem moderou e histórico (`anuncios.Anuncio`) | Anunciante | Publicar o anúncio e provar as decisões de moderação | Contrato (V) / legítimo interesse (IX) | Enquanto a conta existir + 5 anos (excluído = lógico); entra na exportação "Meus dados" |
 | Faturas e pagamentos | Anunciante | Cobrança e obrigações fiscais | Obrigação legal (II) | 5 anos |

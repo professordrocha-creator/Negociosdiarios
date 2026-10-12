@@ -228,8 +228,13 @@ class DetalheImovel(models.Model):
         choices=ExibirLocalizacao.choices,
         default=ExibirLocalizacao.APROXIMADA,
     )
+    # O que o público pode ver (anuncios/localizacao.py): o ponto (exata), o ponto deslocado (aproximada)
+    # ou nada (só o bairro). Calculado ao gravar; o mapa e o filtro por área da busca só usam este.
+    ponto_publico = models.PointField("ponto público", srid=4326, null=True, blank=True, editable=False)
 
-    history = HistoricalRecords(verbose_name="histórico da ficha do imóvel")
+    history = HistoricalRecords(
+        verbose_name="histórico da ficha do imóvel", excluded_fields=["ponto_publico"]
+    )
 
     class Meta:
         verbose_name = "ficha do imóvel"
@@ -243,6 +248,15 @@ class DetalheImovel(models.Model):
     def __str__(self) -> str:
         """Ex.: 'Casa para venda'."""
         return f"{self.get_tipo_display()} para {self.get_modalidade_display().lower()}"
+
+    def save(self, *args, **kwargs) -> None:
+        """Recalcula o ponto público a cada gravação (o ponto ou a escolha podem ter mudado)."""
+        from anuncios.localizacao import ponto_publico
+
+        self.ponto_publico = ponto_publico(self.anuncio.codigo, self.ponto, self.exibir_localizacao)
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = {*kwargs["update_fields"], "ponto_publico"}
+        super().save(*args, **kwargs)
 
     @property
     def aluguel(self) -> bool:

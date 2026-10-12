@@ -4,8 +4,8 @@ import uuid
 from pathlib import PurePath
 
 from django.conf import settings
+from django.contrib.gis.db import models
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
@@ -116,6 +116,9 @@ class Anunciante(MarcaDemo):
     mostrar_no_mapa = models.BooleanField(
         "mostrar endereço e mapa", default=False, help_text="Desmarcado, o endereço não aparece na página."
     )
+    # Ponto da loja no mapa (Sprint 5): marcado no painel; aparece no mapa da busca de veículos e na
+    # página da loja só com "mostrar endereço e mapa" (corretor autônomo pode ter o endereço de casa).
+    ponto = models.PointField("ponto da loja no mapa", srid=4326, null=True, blank=True)
     horario = models.CharField(
         "horário de atendimento", max_length=120, blank=True, help_text="Ex.: Seg a sex 8h–18h · Sáb 8h–12h."
     )

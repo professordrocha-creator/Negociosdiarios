@@ -269,6 +269,9 @@ MOSTRAR_DEMO = validar_mostrar_demo(env.bool("MOSTRAR_DEMO", default=False), DEB
 # Senha de todos os usuários criados pelo criar_dados_demo (sem padrão: nada de senha conhecida).
 DEMO_SENHA = env("DEMO_SENHA", default="")
 
+# Mapa da busca (Sprint 5): máximo de pontos por resposta do JSON (desempenho do servidor e do navegador).
+MAPA_LIMITE_PONTOS = env.int("MAPA_LIMITE_PONTOS", default=500)
+
 # --- Admin: endereço secreto, código de navegador novo e bloqueio --------------------------
 # (docs/SEGURANCA.md, docs/RUNBOOK.md)
 # Sem valor padrão: um padrão no código seria um endereço conhecido. /admin/ não existe (404).

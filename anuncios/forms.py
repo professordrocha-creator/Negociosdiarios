@@ -12,15 +12,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MaxValueValidator, MinLengthValidator
 from django.utils import timezone
 
+from anuncios.localizacao import longe_da_cidade
 from anuncios.models import DetalheImovel, DetalheVeiculo
 from catalogo import services as catalogo
 from catalogo.models import Marca, Modelo, TipoVeiculo, Versao
 from core import imagens
 from core.models import Bairro, Cidade
 from core.services import configuracao
-
-# Raio aceito entre o ponto marcado e o centro da cidade (graus; ~0,6° ≈ 65 km): pega clique errado.
-DISTANCIA_MAXIMA_GRAUS = 0.6
 
 
 def ler_valor(texto: str) -> Decimal | None:
@@ -379,12 +377,8 @@ class LocalizacaoForm(forms.Form):
         lat, lng = dados.get("latitude"), dados.get("longitude")
         if (lat is None) != (lng is None):
             self.add_error(None, "Marque o ponto de novo no mapa.")
-        elif lat is not None and cidade and cidade.ponto:
-            if (
-                abs(lat - cidade.ponto.y) > DISTANCIA_MAXIMA_GRAUS
-                or abs(lng - cidade.ponto.x) > DISTANCIA_MAXIMA_GRAUS
-            ):
-                self.add_error(None, f"O ponto marcado está longe de {cidade.nome}. Confira o mapa.")
+        elif lat is not None and longe_da_cidade(lat, lng, cidade):
+            self.add_error(None, f"O ponto marcado está longe de {cidade.nome}. Confira o mapa.")
         exibir = dados.get("exibir_localizacao")
         if exibir == DetalheImovel.ExibirLocalizacao.SO_BAIRRO and not bairro:
             self.add_error("bairro", 'Para mostrar "só o bairro", escolha o bairro.')

@@ -307,6 +307,7 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-preco-grande { font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 34px; color: var(--nd-petroleo); }
 .nd-contato { position: sticky; top: 90px; }
 .nd-mapa-anuncio { height: 300px; }
+.nd-mapa-loja { height: 220px; border: 0; }
 
 /* ---------- Painel › Anúncio de veículo (Sprint 4) ---------- */
 .nd-opcionais { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; }
@@ -324,3 +325,33 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid var(--nd-borda); border-radius: 999px; background: var(--nd-papel); color: var(--nd-texto); text-decoration: none; }
 .nd-chip:hover { border-color: var(--nd-petroleo); }
 #resultados.htmx-swapping, #resultados.htmx-request, .htmx-request #resultados { opacity: .6; transition: opacity .2s; }
+
+/* ---------- Busca › Mapa (Sprint 5; prototipo/busca.html) ---------- */
+.nd-visao { margin-bottom: 4px; }
+.nd-busca-mapa { display: none; }
+#v-mapa:checked ~ .row .nd-busca-lista { display: none; }
+#v-mapa:checked ~ .row .nd-busca-mapa { display: block; }
+.nd-mapa-busca-caixa { position: relative; }
+.nd-mapa-busca { height: 70vh; min-height: 360px; }
+.nd-mapa-busca.carregando { opacity: .7; transition: opacity .2s; }
+.nd-mapa-buscar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; box-shadow: 0 4px 14px rgba(8, 50, 59, .25); }
+@media (min-width: 1200px) {
+  .nd-visao, .btn-check[name="visao"] { display: none; }
+  .nd-busca-mapa, #v-mapa:checked ~ .row .nd-busca-mapa { display: block; }
+  #v-mapa:checked ~ .row .nd-busca-lista { display: block; }
+  .nd-mapa-busca-caixa { position: sticky; top: 90px; }
+  .nd-mapa-busca { height: calc(100vh - 140px); }
+}
+.nd-pino { background: none; border: 0; width: auto !important; height: auto !important; }
+.nd-pino span { position: absolute; transform: translate(-50%, calc(-100% - 6px)); white-space: nowrap; background: var(--nd-petroleo); color: #fff; font-weight: 700; font-size: 12px; padding: 3px 8px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+.nd-pino span::after { content: ""; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom: 0; border-top-color: var(--nd-petroleo); }
+.leaflet-marker-icon.nd-pino:hover span, .leaflet-marker-icon.nd-pino:focus span { background: var(--nd-ipe); color: #2b2100; }
+.leaflet-marker-icon.nd-pino:hover span::after, .leaflet-marker-icon.nd-pino:focus span::after { border-top-color: var(--nd-ipe); }
+.nd-grupo { background: none; border: 0; }
+.nd-grupo span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--nd-ipe); color: #2b2100; font-weight: 800; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .3); }
+.nd-popup .leaflet-popup-content { margin: 10px; }
+.nd-cartao-mapa { display: block; color: var(--nd-texto); text-decoration: none; }
+.nd-cartao-mapa img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; height: auto; }
+.nd-cartao-mapa img.nd-cartao-logo { width: 56px; height: 56px; aspect-ratio: 1; }
+.nd-cartao-mapa .preco { font-weight: 800; color: var(--nd-petroleo); }
+.nd-cartao-mapa .titulo { font-weight: 600; line-height: 1.25; }

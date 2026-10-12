@@ -2,10 +2,12 @@
 {% load nd static %}
 {# Painel › Página da loja (convertido de prototipo/painel-loja.html). Sempre a loja de quem está logado. #}
 {# Prévia ao vivo: static/js/painel-loja.js (arquivo próprio, sem script inline, por causa da futura CSP). #}
+{# Ponto da loja (Sprint 5): static/js/mapa-ponto.js; só aparece no site com "mostrar endereço e mapa". #}
 
 {% block titulo %}Página da loja · {{ anunciante.nome_publico }}{% endblock %}
 {% block descricao %}Edite a página pública da sua loja.{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endblock %}
 {% block ajuda %}{% endblock %}
 
 {% block conteudo %}
@@ -60,6 +62,16 @@
             <div class="col-12 px-0">{% include "anunciantes/_campo.html" with campo=form.endereco_publico %}</div>
             <div class="col-12 form-check form-switch ms-2">{{ form.mostrar_no_mapa }} <label class="form-check-label" for="{{ form.mostrar_no_mapa.id_for_label }}">{{ form.mostrar_no_mapa.label }}</label>
               <div class="form-text">{{ form.mostrar_no_mapa.help_text }}</div></div>
+            <div class="col-12 px-0">
+              <span class="form-label d-block">Ponto da loja no mapa</span>
+              <div id="mapa" class="nd-mapa" data-titulo="Loja"
+                   {% if anunciante.cidade.ponto %}data-lat="{{ anunciante.cidade.ponto.y|stringformat:'.5f' }}" data-lng="{{ anunciante.cidade.ponto.x|stringformat:'.5f' }}"{% endif %}
+                   role="application" aria-label="Mapa: toque para marcar a loja"></div>
+              <div class="form-text" id="mapa-situacao">Toque no mapa para marcar a loja; arraste o marcador para ajustar. Com "mostrar endereço e mapa", a loja aparece no mapa da busca de veículos e na sua página.</div>
+              <noscript><div class="text-danger small">O mapa precisa de JavaScript.</div></noscript>
+              <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="limpar-ponto">Tirar o ponto</button>
+              {{ form.latitude }}{{ form.longitude }}
+            </div>
             <div class="col-md-6 ps-md-0">{% include "anunciantes/_campo.html" with campo=form.instagram %}</div>
             <div class="col-md-6 pe-md-0">{% include "anunciantes/_campo.html" with campo=form.site %}</div>
           </div>
@@ -91,4 +103,8 @@
 </main>
 {% endblock %}
 
-{% block scripts %}<script src="{% static 'js/painel-loja.js' %}" defer></script>{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/painel-loja.js' %}" defer></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'js/mapa-ponto.js' %}" defer></script>
+{% endblock %}

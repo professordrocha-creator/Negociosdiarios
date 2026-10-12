@@ -9,7 +9,8 @@ plano do app `planos` para publicar e reage aos sinais de atraso e pagamento.
   preço, cidade, bairro, situação, `pausado_por`, moderação, publicado_em, expira_em, destaque_ate,
   `demo`, histórico). Proxy `AnuncioEmModeracao` = fila de moderação no admin.
 - `DetalheImovel` (1:1): tipo, modalidade, quartos, banheiros, vagas, áreas, IPTU, endereço e ponto
-  **privados**, `exibir_localizacao` (padrão aproximada).
+  **privados**, `exibir_localizacao` (padrão aproximada) e `ponto_publico` (Sprint 5: o que o público
+  vê, recalculado no save por `localizacao.py`; mapa da busca e filtro de área usam só ele).
 - `DetalheVeiculo` (1:1, Sprint 4): versão do `catalogo` (FIPE), anos, km, combustível, câmbio, cor,
   portas, final da placa (1 dígito, opcional) e opcionais. `Anuncio.detalhe` devolve a ficha da categoria.
 - `Foto`: ordem (a primeira é a capa), WebP 1600 e 400 e JPEG 1200×630 de compartilhamento; o envio original
@@ -25,7 +26,8 @@ plano do app `planos` para publicar e reage aos sinais de atraso e pagamento.
 - Planos: `pausar_por_atraso`, `reativar_apos_pagamento` (ligados em `receptores.py`), `pausar_por_downgrade`.
 - Fotos: `vagas_de_foto`, `adicionar_fotos`, `processar_foto`, `reordenar_fotos`, `mover_foto`, `excluir_foto`.
 - Vitrine pública: `anuncios_visiveis` (publicado, loja visível, cidade liberada), `visivel`, `url_publica`,
-  `localizacao_publica` (exata, círculo aproximado com centro deslocado, ou nada), `mensagem_whatsapp`,
+  `localizacao_publica` (exata, círculo aproximado com centro deslocado, ou nada; a regra do ponto
+  fica em `localizacao.py`, que também tem `longe_da_cidade`), `mensagem_whatsapp`,
   `link_whatsapp`, `para_vitrine` (card), `mais_da_loja`, `parecidos`.
 - Demo: `apagar_anuncios_demo`; `demo.py` cria os imóveis do demo.json no banco com fotos desenhadas pelo Pillow.
 

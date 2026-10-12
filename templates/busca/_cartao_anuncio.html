@@ -1,0 +1,9 @@
+{% load nd %}
+{# Card do marcador de imóvel no mapa da busca (carregado ao clicar). Sem style="" (CSP). #}
+<a class="nd-cartao-mapa" href="{{ anuncio.url }}">
+  {% if anuncio.capa %}<img src="{{ anuncio.capa }}" alt="" width="400" height="300">{% endif %}
+  <span class="d-block preco tabular">{{ anuncio.preco|moeda }}{% if anuncio.aluguel %}/mês{% endif %}</span>
+  <span class="d-block titulo">{{ anuncio.titulo }}</span>
+  <span class="d-block small text-suave">{{ anuncio.resumo }}</span>
+  <span class="d-block small">Ver anúncio ›</span>
+</a>

@@ -38,6 +38,11 @@ todos os pedidos dela; `recusar_solicitacao` exige motivo e manda e-mail. `aprov
 do TELAS, sem EXIF, apaga o original e as versões antigas), `lojas_visiveis()`, `loja_para_vitrine()`,
 `lojas_verificadas()` (home), `listar_lojas(tipo, cidade)`, `gerar_imagens_demo()`.
 
+**Ponto da loja (Sprint 5):** `Anunciante.ponto`, marcado no mapa do painel (`static/js/mapa-ponto.js`; `PaginaLojaForm`
+confere se está perto da cidade com `anuncios.localizacao.longe_da_cidade`). Público só com `mostrar_no_mapa`:
+`localizacao_da_loja()` (mapa da página da loja) e o mapa da busca de veículos (`busca.services.dados_do_mapa`).
+Lojas demo ganham um ponto fictício perto da sede da cidade (`ponto_demo`).
+
 **Telas:** `/painel/loja/`, `/loja/<slug>/` (+ `/whatsapp/`), `/lojas/`, `/cadastro/`, `/cadastro/obrigado/`, `/cadastro/confirmar/<token>/` (e `.../reenviar/`), `/painel/` (`views.painel`, protegido por `anunciante_ativo`: o anunciante vem sempre
 de `request.user.anunciante`, nunca da URL). Login do cliente em `/entrar/` (app `contas`).
 

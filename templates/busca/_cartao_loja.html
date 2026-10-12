@@ -1,0 +1,7 @@
+{# Card do marcador de loja no mapa de veículos (só lojas que permitiram mostrar o endereço). #}
+<a class="nd-cartao-mapa" href="{% url 'anunciantes:loja' loja.slug %}">
+  {% if loja.logo_mini %}<img class="nd-cartao-logo" src="{{ loja.logo_mini.url }}" alt="" width="96" height="96">{% endif %}
+  <span class="d-block titulo">{{ loja.nome_publico }}</span>
+  {% if loja.endereco_publico %}<span class="d-block small text-suave">{{ loja.endereco_publico }}</span>{% endif %}
+  <span class="d-block small">{{ veiculos }} veículo{{ veiculos|pluralize }} no ar · Ver loja ›</span>
+</a>

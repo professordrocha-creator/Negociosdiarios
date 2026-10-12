@@ -56,13 +56,33 @@ def atualizar(anuncio) -> None:
 
 
 def reindexar_todos() -> int:
-    """Recalcula o índice de todos os anúncios (comando `reindexar_busca`). Devolve quantos."""
+    """Recalcula o índice de todos os anúncios (comando `reindexar_busca`). Devolve quantos.
+
+    Lê só as colunas que o índice usa (`only`): a migration 0009 chama esta função, e num banco novo
+    ela roda antes das migrations que criam colunas depois (ex.: `DetalheImovel.ponto_publico`, 0010).
+    """
     from anuncios.models import Anuncio
 
     total = 0
-    consulta = Anuncio.objects.select_related(
-        "cidade", "bairro", "imovel", "veiculo__versao__modelo__marca"
-    ).iterator(chunk_size=500)
+    consulta = (
+        Anuncio.objects.select_related("cidade", "bairro", "imovel", "veiculo__versao__modelo__marca")
+        .only(
+            "titulo",
+            "descricao",
+            "categoria",
+            "cidade__nome",
+            "bairro__nome",
+            "imovel__tipo",
+            "imovel__modalidade",
+            "veiculo__cor",
+            "veiculo__combustivel",
+            "veiculo__versao__nome",
+            "veiculo__versao__modelo__nome",
+            "veiculo__versao__modelo__tipo",
+            "veiculo__versao__modelo__marca__nome",
+        )
+        .iterator(chunk_size=500)
+    )
     for anuncio in consulta:
         atualizar(anuncio)
         total += 1

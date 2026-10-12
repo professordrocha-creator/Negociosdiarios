@@ -27,12 +27,14 @@ from anunciantes.services import (
     cidades_com_lojas,
     confirmar_email,
     listar_lojas,
+    localizacao_da_loja,
     loja_para_vitrine,
     lojas_visiveis,
     motivo_sem_painel,
     reenviar_confirmacao,
 )
 from anunciantes.tasks import processar_imagem_loja as processar_imagem_loja_tarefa
+from anuncios.services import ponto
 from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 
 
@@ -183,6 +185,7 @@ def painel_loja(request: HttpRequest) -> HttpResponse:
     form = PaginaLojaForm(request.POST or None, request.FILES or None, instance=anunciante)
     if request.method == "POST" and form.is_valid():
         anunciante = form.save(commit=False)
+        anunciante.ponto = ponto(form.cleaned_data["latitude"], form.cleaned_data["longitude"])
         anunciante._change_reason = "Página da loja editada pelo anunciante."
         anunciante.save()
         for tipo in ("logo", "capa"):
@@ -245,6 +248,7 @@ def loja(request: HttpRequest, slug: str) -> HttpResponse:
             "url_canonica": url,
             "imagem_og": imagem,
             "schema": schema,
+            "localizacao": localizacao_da_loja(anunciante),
             "mostrar_demo": settings.MOSTRAR_DEMO and anunciante.demo,
         },
     )

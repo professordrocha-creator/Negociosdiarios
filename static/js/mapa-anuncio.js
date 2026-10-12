@@ -1,4 +1,4 @@
-/* Mapa da página do anúncio (templates/anuncios/publico.html). Leaflet servido pelo site, tiles do OSM.
+/* Mapa da página do anúncio (templates/anuncios/publico.html) e da loja (anunciantes/loja.html, ponto exato da loja). Leaflet servido pelo site, tiles do OSM.
    O servidor só manda o que pode ser mostrado: o ponto (localização exata) ou o centro já deslocado
    de um círculo de ~300 m (aproximada). O ponto exato nunca chega ao navegador no modo aproximado.
    Arquivo próprio: a CSP não libera script inline. */

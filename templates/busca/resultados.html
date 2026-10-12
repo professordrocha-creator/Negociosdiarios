@@ -1,16 +1,20 @@
 {% extends "base.html" %}
-{% load nd %}
+{% load nd static %}
 {# Busca de imóveis ou veículos (convertida de prototipo/busca.html). Filtros num formulário GET: funciona sem JS. #}
 {# Com HTMX: mudar um filtro pede a mesma página e troca só #resultados (+ bairro/modelo, que dependem de outros #}
 {# filtros, por hx-select-oob); a URL limpa vem no cabeçalho HX-Push-Url. No celular, filtros num painel (offcanvas). #}
-{# O mapa ao lado (prototipo) chega na Sprint 5; o anúncio patrocinado, na Sprint 7. #}
+{# Mapa (Sprint 5): fora de #resultados, para não piscar a cada filtro; mapa-busca.js lê o JSON do mapa #}
+{# (#resultados[data-mapa-url]) e recarrega os pontos depois de cada troca do HTMX. Celular/tablet: Lista | Mapa #}
+{# (só CSS); computador (xl): mapa ao lado da lista. O anúncio patrocinado chega na Sprint 7. #}
 
 {% block titulo %}{{ titulo }}{% endblock %}
 {% block descricao %}{{ descricao }}{% endblock %}
 {% block robots %}{% if not indexavel %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
 {% block og_titulo %}{{ titulo }}{% endblock %}
 {% block og_descricao %}{{ descricao }}{% endblock %}
-{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}">{% endblock %}
+{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}">
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/leaflet-markercluster/MarkerCluster.css' %}">{% endblock %}
 
 {% block conteudo %}
 <main class="container mt-4">
@@ -37,14 +41,22 @@
             {% if categoria == "imoveis" %}{% include "busca/_filtros_imovel.html" %}{% else %}{% include "busca/_filtros_veiculo.html" %}{% endif %}
             <div><span class="form-label d-block">Preço (R$)</span>
               <div class="d-flex gap-2">{{ form.preco_min }}{{ form.preco_max }}</div></div>
+            <input type="hidden" name="area" id="f-area" value="{{ area }}">
             <button class="btn btn-nd" type="submit" data-bs-dismiss="offcanvas" data-bs-target="#filtros">Aplicar filtros</button>
           </form>
         </div>
       </div>
     </aside>
 
-    <div class="col-lg-9">
-      <div id="resultados" aria-live="polite">
+    <div class="col-lg-9 nd-busca">
+      {# Lista | Mapa (abaixo do xl). Só CSS: o rádio marcado mostra uma coluna e esconde a outra. #}
+      <input type="radio" class="btn-check" name="visao" id="v-lista" autocomplete="off" checked>
+      <label class="btn btn-outline-secondary btn-sm nd-visao" for="v-lista">{% icone "lista" %} Lista</label>
+      <input type="radio" class="btn-check" name="visao" id="v-mapa" autocomplete="off">
+      <label class="btn btn-outline-secondary btn-sm nd-visao" for="v-mapa">{% icone "pin" %} Mapa</label>
+      <div class="row g-3 mt-0">
+      <div class="col-xl-7 nd-busca-lista">
+      <div id="resultados" aria-live="polite" data-mapa-url="{{ url_mapa }}" data-area="{{ area }}">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
           <h1 class="h3 m-0 me-auto">{{ titulo }} <span class="text-suave fs-6 fw-normal tabular">{{ pagina.paginator.count }} resultado{{ pagina.paginator.count|pluralize }}</span></h1>
           <button class="btn btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filtros" aria-controls="filtros" type="button">{% icone "busca" %} Filtros</button>
@@ -63,7 +75,7 @@
         {% endif %}
 
         {% if anuncios %}
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+          <div class="row row-cols-1 row-cols-sm-2 g-3">
             {% for anuncio in anuncios %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
           </div>
           {% if pagina.has_other_pages %}
@@ -90,7 +102,27 @@
           </div>
         {% endif %}
       </div>
+      </div>
+      <div class="col-xl-5 nd-busca-mapa">
+        <div class="nd-mapa-busca-caixa">
+          <div id="mapa-busca" class="nd-mapa nd-mapa-busca" data-tipo="{{ categoria }}"
+               {% if cidade %}data-lat="{{ cidade.ponto.y|stringformat:'.5f' }}" data-lng="{{ cidade.ponto.x|stringformat:'.5f' }}" data-zoom="13"{% endif %}
+               data-cartao-anuncio="{% url 'busca:cartao_anuncio' 'CODIGO' %}" data-cartao-loja="{% url 'busca:cartao_loja' 'slug' %}"
+               role="region" aria-label="{% if categoria == 'imoveis' %}Mapa dos imóveis encontrados{% else %}Mapa das lojas com os veículos encontrados{% endif %}"></div>
+          <button type="button" id="mapa-buscar-area" class="btn btn-ipe btn-sm nd-mapa-buscar d-none">{% icone "busca" %} Buscar nesta área</button>
+          <p id="mapa-aviso" class="small text-suave mt-2 mb-0" aria-live="polite"></p>
+          {% if categoria == "veiculos" %}<p class="small text-suave mb-0">No mapa: as lojas que mostram o endereço, com quantos veículos de cada uma atendem aos filtros.</p>{% endif %}
+          <noscript><p class="small text-danger mb-0">O mapa precisa de JavaScript. A lista continua funcionando.</p></noscript>
+        </div>
+      </div>
+      </div>
     </div>
   </div>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'vendor/leaflet-markercluster/leaflet.markercluster.js' %}" defer></script>
+<script src="{% static 'js/mapa-busca.js' %}" defer></script>
 {% endblock %}

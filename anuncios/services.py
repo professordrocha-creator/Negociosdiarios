@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from anunciantes.models import Anunciante
+from anuncios.localizacao import RAIO_APROXIMADO_M
 from anuncios.models import Anuncio, DetalheImovel, DetalheVeiculo, Foto
 from core import imagens
 from core.models import Configuracao
@@ -581,11 +582,6 @@ def apagar_anuncios_demo() -> int:
 
 # --- Vitrine pública (Parte B) --------------------------------------------------------------
 
-# Raio do círculo da localização aproximada (docs/LGPD.md §4) e quanto o centro é deslocado.
-RAIO_APROXIMADO_M = 300
-DESLOCAMENTO_MAXIMO_M = 150
-METROS_POR_GRAU = 111_320
-
 
 def anuncios_visiveis() -> QuerySet[Anuncio]:
     """O que o público vê: publicados, de loja visível (ativa, área atendida; demo só com MOSTRAR_DEMO)
@@ -622,50 +618,21 @@ def url_publica(anuncio: Anuncio) -> str:
     return reverse("anuncios:publico", kwargs={"codigo": anuncio.codigo, "slug": anuncio.slug})
 
 
-def _deslocamento(codigo: str) -> tuple[float, float]:
-    """Deslocamento fixo por anúncio (em metros, até 150): o círculo não fica centrado no imóvel.
-
-    Fixo (derivado do código com a SECRET_KEY) para que recarregar a página não revele o ponto
-    pela média de vários círculos.
-    """
-    import math
-
-    from django.utils.crypto import salted_hmac
-
-    resumo = salted_hmac("anuncios.localizacao_aproximada", codigo).digest()
-    angulo = int.from_bytes(resumo[:4], "big") / 2**32 * 2 * math.pi
-    distancia = (0.4 + 0.6 * int.from_bytes(resumo[4:8], "big") / 2**32) * DESLOCAMENTO_MAXIMO_M
-    return distancia * math.cos(angulo), distancia * math.sin(angulo)
-
-
 def localizacao_publica(anuncio: Anuncio) -> dict | None:
-    """O que vai para o mapa público, conforme `exibir_localizacao` (docs/LGPD.md §4).
+    """O que vai para o mapa da página do anúncio, conforme `exibir_localizacao` (docs/LGPD.md §4).
 
-    - exata: o ponto marcado;
-    - aproximada: um círculo de ~300 m com o centro deslocado (o ponto exato nunca vai para o HTML);
-    - só o bairro (ou sem ponto): None — a página mostra só o nome do bairro.
+    Usa o `ponto_publico` (anuncios/localizacao.py): exata → marcador no ponto; aproximada → círculo
+    de ~300 m em volta do ponto já deslocado (o ponto real nunca vai para o HTML); só o bairro → None.
     """
-    import math
-
     if anuncio.e_veiculo:
         return None  # veículo não tem mapa (a página mostra o endereço da loja, se ela permitir)
     imovel = getattr(anuncio, "imovel", None)
-    if imovel is None or imovel.ponto is None:
+    if imovel is None or imovel.ponto_publico is None:
         return None
-    lat, lng = imovel.ponto.y, imovel.ponto.x
+    publico = imovel.ponto_publico
     if imovel.exibir_localizacao == DetalheImovel.ExibirLocalizacao.EXATA:
-        return {"tipo": "exata", "lat": round(lat, 6), "lng": round(lng, 6)}
-    if imovel.exibir_localizacao == DetalheImovel.ExibirLocalizacao.APROXIMADA:
-        norte, leste = _deslocamento(anuncio.codigo)
-        lat_c = lat + norte / METROS_POR_GRAU
-        lng_c = lng + leste / (METROS_POR_GRAU * math.cos(math.radians(lat)))
-        return {
-            "tipo": "aproximada",
-            "lat": round(lat_c, 4),
-            "lng": round(lng_c, 4),
-            "raio": RAIO_APROXIMADO_M,
-        }
-    return None
+        return {"tipo": "exata", "lat": publico.y, "lng": publico.x}
+    return {"tipo": "aproximada", "lat": publico.y, "lng": publico.x, "raio": RAIO_APROXIMADO_M}
 
 
 def mensagem_whatsapp(anuncio: Anuncio) -> str:

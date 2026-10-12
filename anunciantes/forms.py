@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 
 from anunciantes.models import Anunciante
 from anunciantes.validators import normalizar_cnpj, normalizar_creci, normalizar_whatsapp
+from anuncios.localizacao import longe_da_cidade
 from contas.services import normalizar_email
 from core import imagens
 from core.models import Cidade
@@ -177,6 +178,10 @@ class PaginaLojaForm(forms.ModelForm):
         required=False,
         widget=forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg,image/webp"}),
     )
+    # Ponto da loja (Sprint 5): marcado no mapa do painel (static/js/mapa-ponto.js); vira
+    # Anunciante.ponto na view. Só aparece no site com "mostrar endereço e mapa".
+    latitude = forms.FloatField(required=False, widget=forms.HiddenInput, min_value=-90, max_value=90)
+    longitude = forms.FloatField(required=False, widget=forms.HiddenInput, min_value=-180, max_value=180)
 
     class Meta:
         model = Anunciante
@@ -211,6 +216,8 @@ class PaginaLojaForm(forms.ModelForm):
             "slug"
         ].help_text = "Só letras minúsculas, números e hífen. Mudar quebra links já compartilhados."
         self.fields["cor"].widget = forms.RadioSelect(choices=self.fields["cor"].choices)
+        if self.instance.ponto and not self.is_bound:
+            self.initial["latitude"], self.initial["longitude"] = self.instance.ponto.y, self.instance.ponto.x
         for nome, campo in self.fields.items():
             if nome == "mostrar_no_mapa":
                 campo.widget.attrs["class"] = "form-check-input"
@@ -238,6 +245,18 @@ class PaginaLojaForm(forms.ModelForm):
     def clean_whatsapp(self) -> str:
         """WhatsApp em E.164."""
         return normalizar_whatsapp(self.cleaned_data["whatsapp"])
+
+    def clean(self) -> dict:
+        """Ponto da loja: latitude e longitude juntas e perto da cidade da loja."""
+        dados = super().clean()
+        lat, lng = dados.get("latitude"), dados.get("longitude")
+        if (lat is None) != (lng is None):
+            self.add_error(None, "Marque o ponto da loja de novo no mapa.")
+        elif lat is not None and longe_da_cidade(lat, lng, self.instance.cidade):
+            self.add_error(
+                None, f"O ponto marcado está longe de {self.instance.cidade.nome}. Confira o mapa."
+            )
+        return dados
 
     def clean_instagram(self) -> str:
         """Só o usuário, sem @ nem endereço."""

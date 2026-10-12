@@ -103,7 +103,10 @@ Sprint 2 (página da loja), editados pelo anunciante em `/painel/loja/` com pré
 `endereco_publico` + `mostrar_no_mapa`, `horario`, `instagram`, `site`, `logo` (WebP 400) + `logo_mini` (96),
 `capa` (WebP 1600, 4:1) + `capa_media` (800). O envio fica em `logo_original`/`capa_original` até o Celery
 gerar os WebP (`anunciantes.tasks.processar_imagem_loja`); depois o original é apagado.
-Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
+Sprint 5: `ponto` (PointField WGS 84, opcional), marcado no mapa do painel (perto da cidade da loja). Só é
+público com `mostrar_no_mapa`: mapa da busca de veículos e mapa da página da loja (corretor autônomo pode
+ter marcado a própria casa).
+Planejado: `telefone`.
 - `status`: + inadimplente (Sprint 6) e encerrado (Sprint 7)
 
 ### Plano, Assinatura e PedidoTrocaPlano — app `planos` (Sprint 2, parte B)
@@ -137,6 +140,10 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 - `area_total`, `area_construida` (m², Decimal), `iptu` (anual, opcional), `endereco` (**privado**),
   `ponto` (PointField WGS 84, **privado**: o público vê conforme a opção abaixo), histórico
 - `exibir_localizacao`: exata | aproximada | so_bairro (padrão: **aproximada**)
+- `ponto_publico` (Sprint 5; PointField, não editável, fora do histórico, índice GiST): o ponto que o
+  público pode ver, recalculado no `save()` por `anuncios/localizacao.py` (exata = o ponto; aproximada =
+  o ponto deslocado, 4 casas; só o bairro ou sem ponto = vazio). O mapa da busca e o filtro de área
+  usam só ele. Migration `0011` calculou o dos anúncios que já existiam.
 
 ### Foto
 - `anuncio`, `ordem` (a menor é a capa), `original` (envio; apagado depois do processamento),
@@ -200,10 +207,12 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
 6. **Visibilidade pública** (`anuncios.services.anuncios_visiveis`): publicado, de loja visível (ativa, área
    atendida; demo só com MOSTRAR_DEMO) e em cidade liberada de estado liberado. Vale para a página do
    anúncio, a home, a vitrine da loja, "Mais desta loja", os parecidos e o sitemap.
-7. **Localização pública** (`localizacao_publica`): exata → o ponto; aproximada → círculo de 300 m com o
-   centro deslocado até 150 m de forma fixa por anúncio (HMAC do código com a SECRET_KEY: recarregar não
-   revela o ponto pela média); só o bairro → sem mapa. O ponto exato e o endereço nunca vão para o HTML
-   no modo aproximado.
+7. **Localização pública** (`anuncios/localizacao.py`, a única regra; `localizacao_publica` para a página):
+   exata → o ponto; aproximada → círculo de 300 m com o centro deslocado de 60 a 150 m de forma fixa por
+   anúncio (HMAC do código com a SECRET_KEY: recarregar não revela o ponto pela média); só o bairro → sem
+   mapa. O deslocado fica gravado em `DetalheImovel.ponto_publico`. O ponto exato e o endereço nunca vão
+   para o HTML nem para o JSON do mapa no modo aproximado, e o filtro "Buscar nesta área" também olha só o
+   ponto público (perguntar "está neste retângulo?" várias vezes não revela o ponto real).
 
 ## 6. Busca
 
@@ -229,8 +238,24 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
 - SEO: title/description por cidade e tipo ("Casas à venda em Tangará da Serra – MT"), canonical sem
   `ordem`/`pagina`, `noindex, follow` com texto ou mais de 2 filtros de conteúdo; páginas de cidade,
   cidade + negócio + tipo (imóvel) e cidade + tipo (veículo) com anúncio entram no sitemap.
-- Mapa: endpoint JSON com anúncios dentro do retângulo visível (`bbox`) usando
-  PostGIS. Busca por raio na V2.
+- **Mapa (Sprint 5)**: na página da busca, `Lista | Mapa` no celular/tablet (só CSS) e mapa ao lado da lista
+  no computador (≥ 1200 px), Leaflet + Leaflet.markercluster servidos pelo site (`static/vendor/`), tiles
+  do OpenStreetMap, sem script inline (`static/js/mapa-busca.js`).
+  - JSON: `/imoveis/mapa.json`, `/imoveis/<uf>/<cidade>/mapa.json` (e o mesmo para veículos), com os mesmos
+    filtros da lista (`busca.services.dados_do_mapa`; `url_do_mapa` tira `ordem`/`pagina`). Por ponto só
+    `id`, `titulo` (60), `preco` (curto: "420 mil", "1,6 mil/mês"), `lat`, `lng`; mais `total`,
+    `sem_localizacao` e `cortado`. No máximo `MAPA_LIMITE_PONTOS` (settings/env, padrão 500), os mais
+    novos. Cache público de 60 s e `X-Robots-Tag: noindex`.
+  - Imóvel: um ponto por anúncio, do `ponto_publico` (só o bairro fica fora e entra em
+    `sem_localizacao`: "X anúncios sem localização no mapa"). Veículo: um ponto por **loja** com
+    `mostrar_no_mapa` e `ponto`, com quantos veículos dela atendem aos filtros.
+  - Ao clicar no marcador, o card vem do servidor (`/mapa/cartao/anuncio/<codigo>/`,
+    `/mapa/cartao/loja/<slug>/`; só anúncio/loja visível, HTML escapado): foto, preço, título e link.
+  - "Buscar nesta área": aparece ao mover o mapa; grava `area=oeste,sul,leste,norte` (5 casas) no campo
+    oculto do formulário e envia pelo HTMX, mantendo os outros filtros. Filtro com PostGIS
+    (`ponto_publico__within` / `anunciante__ponto__within` de `Polygon.from_bbox`); vira chip "Área do
+    mapa" e a página fica `noindex`. Área inválida é descartada.
+  - Busca por raio na V2.
 
 ## 7. Vitrine do anunciante (estilo "loja" do Mercado Livre / revendas do Usado Fácil)
 

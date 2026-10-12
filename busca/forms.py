@@ -32,12 +32,30 @@ class VariasEscolhas(forms.MultipleChoiceField):
         return vistos
 
 
+class CampoArea(forms.CharField):
+    """Retângulo do mapa ("Buscar nesta área"): "oeste,sul,leste,norte" em graus, 5 casas (~1 m)."""
+
+    def clean(self, value) -> str:
+        """Vazio ou um retângulo válido (coordenadas no lugar e com tamanho); senão, inválido."""
+        value = super().clean(value)
+        if not value:
+            return ""
+        try:
+            oeste, sul, leste, norte = (float(v) for v in value.split(","))
+        except ValueError as erro:
+            raise forms.ValidationError("Área do mapa inválida.") from erro
+        if not (-180 <= oeste < leste <= 180 and -90 <= sul < norte <= 90):
+            raise forms.ValidationError("Área do mapa inválida.")
+        return ",".join(f"{v:.5f}" for v in (oeste, sul, leste, norte))
+
+
 class FiltrosBase(forms.Form):
-    """Campos comuns: texto, preço, ordem, página. Tudo opcional."""
+    """Campos comuns: texto, preço, área do mapa, ordem, página. Tudo opcional."""
 
     q = forms.CharField(label="Buscar", required=False, max_length=100)
     preco_min = CampoValor(label="Preço mínimo", required=False, max_digits=12, decimal_places=2, min_value=0)
     preco_max = CampoValor(label="Preço máximo", required=False, max_digits=12, decimal_places=2, min_value=0)
+    area = CampoArea(required=False, max_length=80, widget=forms.HiddenInput)
     ordem = forms.ChoiceField(label="Ordenar", choices=ORDENS, required=False)
     pagina = forms.IntegerField(required=False, min_value=1, widget=forms.HiddenInput)
 
@@ -94,6 +112,7 @@ class FiltrosImovel(FiltrosBase):
         "vagas",
         "area_min",
         "area_max",
+        "area",
         "ordem",
         "pagina",
     ]
@@ -128,6 +147,7 @@ class FiltrosVeiculo(FiltrosBase):
         "km_max",
         "cambio",
         "combustivel",
+        "area",
         "ordem",
         "pagina",
     ]
