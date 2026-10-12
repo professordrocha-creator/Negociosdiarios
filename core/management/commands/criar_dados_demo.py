@@ -43,6 +43,7 @@ class Command(BaseCommand):
             f"em atraso, com os anúncios pausados: {', '.join(em_atraso) or 'nenhuma'}."
         )
         self.stdout.write(
-            f"Os {len(dados['anuncios'])} anúncios fictícios aparecem na home (MOSTRAR_DEMO=True) e no "
-            "painel de cada loja; viram registros no banco na Sprint 3."
+            f"{resumo.anuncios} imóveis demo no banco, com fotos de exemplo e estatísticas "
+            "(veículos: Sprint 4). Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
+            "e no painel do Paulo Mendes."
         )

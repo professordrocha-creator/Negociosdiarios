@@ -27,7 +27,6 @@ from core.models import Cidade
 from core.services import (
     AnuncioVitrine,
     LojaVitrine,
-    anuncios_demo_da_loja,
     configuracao,
     enviar_email_modelo,
 )
@@ -120,13 +119,12 @@ def suspender(anunciante: Anunciante, por: Usuario | None, motivo: str) -> Anunc
 
 
 def anuncios_da_loja(anunciante: Anunciante) -> list[AnuncioVitrine]:
-    """Anúncios do anunciante para o painel.
+    """Anúncios da vitrine pública /loja/<slug>/: só os visíveis ao público, mais novos primeiro."""
+    from anuncios.services import anuncios_visiveis, para_vitrine  # anuncios depende deste app
 
-    Por enquanto só lojas de demonstração têm anúncios (do demo.json, pelo slug da
-    loja). A checagem `demo` impede que uma loja real com o mesmo endereço veja
-    anúncios fictícios. Na Sprint 3 passa a ler do banco, sempre filtrando pelo dono.
-    """
-    return anuncios_demo_da_loja(anunciante.slug) if anunciante.demo else []
+    return [
+        para_vitrine(a) for a in anuncios_visiveis().filter(anunciante=anunciante).order_by("-publicado_em")
+    ]
 
 
 # --- Dados de demonstração (chamados pelo core.services.criar/apagar_dados_demo) ---------
@@ -516,8 +514,10 @@ def lojas_visiveis() -> QuerySet[Anunciante]:
 
 
 def total_anuncios(anunciante: Anunciante) -> int:
-    """Anúncios no ar da loja (hoje só lojas demo têm, no demo.json; Sprint 3: banco)."""
-    return len(anuncios_da_loja(anunciante))
+    """Anúncios da loja visíveis ao público agora."""
+    from anuncios.services import anuncios_visiveis
+
+    return anuncios_visiveis().filter(anunciante=anunciante).count()
 
 
 def loja_para_vitrine(anunciante: Anunciante) -> LojaVitrine:

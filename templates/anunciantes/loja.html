@@ -6,11 +6,11 @@
 {% block titulo %}{{ anunciante.nome_publico }} · {{ anunciante.get_tipo_display }} em {{ anunciante.cidade.nome }}{% endblock %}
 {% block descricao %}{{ descricao }}{% endblock %}
 {% block og_titulo %}{{ anunciante.nome_publico }} · {{ anuncios|length }} anúncio{{ anuncios|length|pluralize }} no {{ site.nome }}{% endblock %}
+{% block og_imagem %}{% if imagem_og %}<meta property="og:image" content="{{ imagem_og }}">{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head_extra %}
   <link rel="canonical" href="{{ url_canonica }}">
   <meta property="og:type" content="profile">
   <meta property="og:url" content="{{ url_canonica }}">
-  {% if imagem_og %}<meta property="og:image" content="{{ imagem_og }}">{% endif %}
   {{ schema|json_ld }}
 {% endblock %}
 

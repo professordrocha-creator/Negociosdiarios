@@ -18,6 +18,12 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 - Visitante **não se cadastra** → quase nenhum dado de visitante.
 - Contato vai direto pelo WhatsApp → não armazenamos mensagens/leads.
 - Estatísticas contam visualizações com hash diário do IP (sal rotativo), sem guardar IP.
+  Implementado na Sprint 3B (`estatisticas.services`): hash SHA-256 de sal aleatório do dia + IP + navegador,
+  guardado **só no cache** até o fim do dia (o sal expira em 2 dias, então o hash não pode ser refeito);
+  no banco ficam só totais por anúncio e dia (`EstatisticaDiaria`). Robôs, prévias de link e o próprio
+  dono não contam. O mesmo vale para os cliques no WhatsApp.
+- Localização do imóvel: o ponto exato e o endereço nunca vão para a página pública no modo aproximado
+  (o círculo de ~300 m tem o centro deslocado de forma fixa por anúncio); "só o bairro" não mostra mapa.
 - Analytics sem cookies (Umami ou Plausible self-hosted).
 
 ## 3. Mapeamento de dados (inventário)
@@ -47,6 +53,7 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 | Anúncio: textos, preço, situação, motivo da moderação, quem moderou e histórico (`anuncios.Anuncio`) | Anunciante | Publicar o anúncio e provar as decisões de moderação | Contrato (V) / legítimo interesse (IX) | Enquanto a conta existir + 5 anos (excluído = lógico); entra na exportação "Meus dados" |
 | Faturas e pagamentos | Anunciante | Cobrança e obrigações fiscais | Obrigação legal (II) | 5 anos |
 | Registros de acesso (IP, data/hora) | Todos | Segurança; Marco Civil art. 15 | Obrigação legal (II) | 6 meses |
+| Estatísticas de anúncio: totais diários de visualizações e cliques no WhatsApp (`estatisticas.EstatisticaDiaria`; **sem IP nem identificador**). Para não contar a mesma pessoa duas vezes no dia, um hash de IP + navegador + sal aleatório do dia fica só no cache até o fim do dia | Visitante (só o hash temporário) | Mostrar ao anunciante o desempenho dos anúncios | Legítimo interesse (IX) | Hash: até o fim do dia (sal: 2 dias). Totais: enquanto o anúncio existir (não são dado pessoal) |
 | Denúncias (e-mail opcional do denunciante) | Visitante | Moderação | Legítimo interesse (IX) | 1 ano |
 | Cookies não essenciais | Visitante | Publicidade/medição de terceiros | Consentimento (I) | Até revogar |
 

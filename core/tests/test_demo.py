@@ -19,7 +19,6 @@ from contas.models import Usuario
 from core.models import Cidade, Estado
 from core.services import (
     ARQUIVO_MUNICIPIOS,
-    _resumo,
     apagar_dados_demo,
     criar_dados_demo,
     destaques,
@@ -100,7 +99,7 @@ def test_mostrar_demo_e_proibido_sem_debug():
     assert validar_mostrar_demo(False, debug=False) is False
 
 
-# --- Vitrine da home (destaques, recém-anunciados, lojas) --------------------------------
+# --- Vitrine da home (destaques, recém-anunciados, lojas): do banco desde a Sprint 3B ------
 
 
 @pytest.fixture
@@ -126,50 +125,66 @@ def demo_ligada(settings, cidades_demo):
 
 @pytest.fixture
 def lojas_demo(demo_ligada, settings):
-    """Demo completa no banco (as lojas da vitrine vêm do banco desde a Sprint 2)."""
+    """Demo completa no banco: lojas, planos e os imóveis do demo.json como anúncios publicados."""
     settings.DEBUG = True
     criar_dados_demo(SENHA_DEMO)
 
 
-def test_sem_mostrar_demo_nao_ha_vitrine(cidades_demo):
-    """Com MOSTRAR_DEMO desligado as três listas ficam vazias (a home mostra "em breve")."""
+def test_sem_mostrar_demo_nao_ha_vitrine(cidades_demo, settings):
+    """Com MOSTRAR_DEMO desligado, nada demo aparece: as três listas ficam vazias."""
+    settings.DEBUG = True
+    criar_dados_demo(SENHA_DEMO)
+
     assert destaques() == recem_anunciados() == lojas_verificadas() == []
 
 
-def test_destaques_sao_so_os_marcados_mais_novos_primeiro(demo_ligada):
-    """4 destaques no demo.json, do mais novo ao mais antigo."""
-    titulos = [a.titulo for a in destaques()]
+def test_destaques_sao_so_os_marcados_mais_novos_primeiro(lojas_demo):
+    """Destaques do banco (destaque_ate no futuro), do mais novo ao mais antigo, com link e foto."""
+    lista = destaques()
 
-    assert titulos == [
-        "Ford Ranger XLT 3.2 4x4 Diesel",
-        "Toyota Hilux SRV 2.8 4x4 Diesel",
+    assert [a.titulo for a in lista] == [
         "Casa 3 quartos com área gourmet",
         "Chácara 2 ha com represa e pomar",
     ]
+    assert all(a.url.startswith("/anuncio/ND-IM-") and a.capa.endswith(".webp") for a in lista)
 
 
-def test_recem_anunciados_no_maximo_2_por_loja(demo_ligada):
-    """A Garagem Rota 358 tem 3 anúncios, mas só os 2 mais novos entram (rodízio justo)."""
+def test_recem_anunciados_no_maximo_2_por_loja(lojas_demo):
+    """O Paulo tem 4 imóveis, mas só os 2 mais novos entram (rodízio justo entre lojas)."""
     lista = recem_anunciados()
 
-    assert len(lista) == 8
+    assert [a.titulo for a in lista] == ["Apartamento 2 quartos mobiliado", "Casa 3 quartos com área gourmet"]
     assert [a.publicado_em for a in lista] == sorted((a.publicado_em for a in lista), reverse=True)
-    rota = [a.titulo for a in lista if a.loja_slug == "garagem-rota-358"]
-    assert rota == ["Volkswagen Gol 1.0 MPI", "Chevrolet Onix LT 1.0 Turbo"]
-    assert all(sum(1 for b in lista if b.loja_slug == a.loja_slug) <= 2 for a in lista)
+
+
+def test_vitrine_so_mostra_publicados_de_loja_ativa(lojas_demo):
+    """Pausado ou de loja suspensa sai da home na hora."""
+    from anunciantes.models import Anunciante
+    from anuncios.models import Anuncio
+
+    Anuncio.objects.filter(titulo="Apartamento 2 quartos mobiliado").update(situacao="pausado")
+    assert "Apartamento 2 quartos mobiliado" not in {
+        a.titulo for a in recem_anunciados(limite=50, por_loja=50)
+    }
+
+    Anunciante.objects.filter(slug="paulo-mendes-corretor").update(status="suspenso")
+    assert recem_anunciados() == [] and destaques() == []
 
 
 def test_lojas_verificadas_com_mais_anuncios_primeiro(lojas_demo):
-    """6 lojas ativas do banco (as pendentes não), por quantidade de anúncios e depois pelo nome."""
+    """6 lojas ativas (as pendentes não), por anúncios visíveis e depois pelo nome.
+
+    Só os imóveis estão no banco; os veículos do demo.json entram na Sprint 4.
+    """
     lojas = [(loja.nome, loja.total_anuncios) for loja in lojas_verificadas()]
 
     assert lojas == [
         ("Paulo Mendes Corretor", 4),
-        ("Garagem Rota 358", 3),
-        ("Chapada Motos", 2),
-        ("Bugres Auto Center", 1),
-        ("Parecis Veículos", 1),
-        ("Serra Caminhonetes", 1),
+        ("Bugres Auto Center", 0),
+        ("Chapada Motos", 0),
+        ("Garagem Rota 358", 0),
+        ("Parecis Veículos", 0),
+        ("Serra Caminhonetes", 0),
     ]
 
 
@@ -179,31 +194,8 @@ def test_cidade_desligada_some_da_vitrine(lojas_demo):
 
     titulos = {a.titulo for a in recem_anunciados(limite=50, por_loja=50)}
 
-    assert "Fiat Toro Volcano 2.0 Diesel 4x4" not in titulos
     assert "Terreno 12×30 em rua asfaltada" not in titulos
     assert "Bugres Auto Center" not in {loja.nome for loja in lojas_verificadas()}
-
-
-@pytest.mark.parametrize(
-    ("categoria", "detalhes", "esperado"),
-    [
-        (
-            "imovel",
-            {"quartos": 3, "banheiros": 2, "vagas": 2, "area_m2": 180},
-            "3 qts · 2 banh · 2 vagas · 180 m²",
-        ),
-        (
-            "imovel",
-            {"quartos": 2, "banheiros": 1, "vagas": 4, "area_m2": 20000},
-            "2 qts · 1 banh · 4 vagas · 2 ha",
-        ),
-        ("imovel", {"area_m2": 360}, "360 m²"),
-        ("veiculo", {"ano": 2019, "km": 98000, "cambio": "automático"}, "2019 · 98.000 km · automático"),
-    ],
-)
-def test_resumo_do_card(categoria, detalhes, esperado):
-    """A linha de ficha do card segue o padrão do protótipo."""
-    assert _resumo(categoria, detalhes) == esperado
 
 
 @pytest.mark.parametrize(
@@ -222,29 +214,30 @@ def test_filtro_moeda(valor, esperado):
     assert html == esperado
 
 
+@pytest.mark.parametrize(
+    ("valor", "esperado"),
+    [("180", "180 m²"), ("1200", "1.200 m²"), ("120.5", "120,5 m²"), ("20000", "2 ha"), ("25000", "2,5 ha")],
+)
+def test_filtro_area(valor, esperado):
+    """Área em m² no padrão brasileiro e, a partir de 1 hectare, em ha."""
+    assert Template("{% load nd %}{{ v|area }}").render(Context({"v": Decimal(valor)})) == esperado
+
+
 # --- Home com e sem demonstração ---------------------------------------------------------
 
 
 def test_home_com_demo_mostra_faixa_cards_e_lojas(client, lojas_demo):
-    """Faixa de aviso, cards com preço formatado, aluguel com /mês e vitrine de lojas."""
+    """Faixa de aviso, cards com foto, preço formatado, aluguel com /mês, link do anúncio e lojas."""
     resposta = client.get(reverse("core:inicio"))
     html = resposta.content.decode()
 
     assert "Dados de demonstração:" in html
-    assert "R$ 189.900" in html and "Toyota Hilux SRV 2.8 4x4 Diesel" in html
+    assert "R$ 420.000" in html and "Casa 3 quartos com área gourmet" in html
     assert "R$ 1.600" in html and "/mês" in html
+    assert 'class="titulo stretched-link" href="/anuncio/ND-IM-' in html
+    assert 'class="nd-foto-img"' in html
     assert "Lojas verificadas" in html and "Paulo Mendes Corretor" in html
     assert {"_card_anuncio.html", "_loja_mini.html"} <= {t.name for t in resposta.templates}
-
-
-def test_links_da_demo_ficam_em_breve(client, demo_ligada):
-    """Página de anúncio e de loja ainda não existem: links sem destino e com título "Em breve"."""
-    html = client.get(reverse("core:inicio")).content.decode()
-    cards = html.split('class="nd-card', 1)[1].split("Lojas verificadas", 1)[0]
-
-    assert 'title="Em breve"' in cards
-    assert 'class="titulo stretched-link" href=' not in cards
-    assert 'class="nd-loja-mini" href=' not in html
 
 
 def test_home_sem_demo_continua_em_breve(client, cidades_demo):
@@ -527,3 +520,64 @@ def test_apagar_dados_demo_remove_assinaturas_pedidos_e_historico(dev):
     assert not Assinatura.objects.exists() and not Assinatura.history.exists()
     assert not PedidoTrocaPlano.objects.exists()
     assert Plano.objects.count() == 3  # planos são dados reais, ficam
+
+
+# --- Anúncios demo no banco (Sprint 3, parte B) ---------------------------------------------
+
+
+def test_criar_dados_demo_leva_os_imoveis_para_o_banco(dev):
+    """4 imóveis publicados do Paulo, com 3 a 5 fotos processadas, e as 3 formas de localização."""
+    from anuncios.models import Anuncio, Foto
+
+    criar_dados_demo(SENHA_DEMO)
+
+    anuncios = Anuncio.objects.filter(demo=True)
+    assert anuncios.count() == 4
+    assert set(anuncios.values_list("situacao", flat=True)) == {"publicado"}
+    assert set(anuncios.values_list("anunciante__slug", flat=True)) == {"paulo-mendes-corretor"}
+    for anuncio in anuncios:
+        assert 3 <= anuncio.fotos.count() <= 5
+        assert all(
+            f.imagem and f.miniatura and f.compartilhamento and not f.original for f in anuncio.fotos.all()
+        )
+    exibir = sorted(anuncios.values_list("imovel__exibir_localizacao", flat=True))
+    assert exibir == ["aproximada", "aproximada", "exata", "so_bairro"]
+    assert Anuncio.objects.get(imovel__exibir_localizacao="exata").imovel.ponto is not None
+    assert Foto.objects.filter(anuncio__demo=True).count() == 17
+    assert anuncios.get(titulo="Casa 3 quartos com área gourmet").bairro.nome == "Jardim Europa"
+
+
+def test_criar_dados_demo_anuncios_idempotente(dev):
+    """Rodar de novo não duplica anúncios nem fotos."""
+    from anuncios.models import Anuncio, Foto
+
+    criar_dados_demo(SENHA_DEMO)
+    criar_dados_demo(SENHA_DEMO)
+
+    assert Anuncio.objects.filter(demo=True).count() == 4
+    assert Foto.objects.filter(anuncio__demo=True).count() == 17
+
+
+def test_demo_tem_estatisticas_para_o_painel(dev):
+    """Cada imóvel demo tem números dos últimos 30 dias (o painel do Paulo não fica zerado)."""
+    from estatisticas.models import EstatisticaDiaria
+
+    criar_dados_demo(SENHA_DEMO)
+
+    assert EstatisticaDiaria.objects.filter(demo=True, visualizacoes__gt=0).exists()
+
+
+def test_apagar_dados_demo_remove_anuncios_fotos_e_estatisticas(dev):
+    """Anúncios, fotos (com os arquivos), estatísticas e histórico demo somem."""
+    from anuncios.models import Anuncio, Foto
+    from estatisticas.models import EstatisticaDiaria
+
+    criar_dados_demo(SENHA_DEMO)
+    foto = Foto.objects.filter(anuncio__demo=True).first()
+    arquivo, storage = foto.imagem.name, foto.imagem.storage
+
+    apagar_dados_demo()
+
+    assert not Anuncio.objects.exists() and not Anuncio.history.exists()
+    assert not Foto.objects.exists() and not EstatisticaDiaria.objects.exists()
+    assert not storage.exists(arquivo)

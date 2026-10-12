@@ -139,8 +139,14 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 
 ### Foto
 - `anuncio`, `ordem` (a menor é a capa), `original` (envio; apagado depois do processamento),
-  `imagem` (WebP 1600), `miniatura` (WebP 400), `criado_em`. Foto excluída pelo anunciante é apagada
-  de verdade (arquivo e registro).
+  `imagem` (WebP 1600), `miniatura` (WebP 400), `compartilhamento` (JPEG 1200×630 para o Open Graph:
+  WhatsApp e Facebook não mostram WebP de forma confiável na prévia), `criado_em`. Foto excluída pelo
+  anunciante é apagada de verdade (arquivo e registro).
+
+### EstatisticaDiaria — app `estatisticas` (Sprint 3, parte B)
+- `anuncio` (CASCADE), `dia` (fuso do site), `visualizacoes`, `cliques_whatsapp`, `demo`; único por anúncio
+  e dia. Só totais: a contagem "1 por visitante por dia" usa um hash com sal aleatório do dia guardado
+  apenas no cache (`estatisticas.services.registrar`); robôs, prévias de link e o dono não contam.
 
 ### DetalheVeiculo
 - `marca`, `modelo`, `versao` (FK para catálogo FIPE), `ano_fabricacao`, `ano_modelo`
@@ -172,9 +178,17 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
    devolve para a análise.
 4b. **Publicar/reativar/renovar expirado** passam por `planos.services.reservar_vaga` (trava da
    assinatura): `anuncios.services.enviar_para_publicacao`, `reativar`, `renovar`.
-5. **Contato por WhatsApp:** botão aponta para `/contato/<id>/whatsapp/`, que
-   registra o clique (estatística para o anunciante) e redireciona para `wa.me`.
-   O número não fica em texto no HTML (dificulta robôs que coletam telefones).
+5. **Contato por WhatsApp:** botão aponta para `/anuncio/<codigo>/whatsapp/` (Sprint 3B), que
+   registra o clique (estatística para o anunciante) e redireciona para `wa.me` com a mensagem pronta
+   citando o código. O número não fica em texto no HTML (dificulta robôs que coletam telefones);
+   o robots.txt bloqueia esses redirecionamentos.
+6. **Visibilidade pública** (`anuncios.services.anuncios_visiveis`): publicado, de loja visível (ativa, área
+   atendida; demo só com MOSTRAR_DEMO) e em cidade liberada de estado liberado. Vale para a página do
+   anúncio, a home, a vitrine da loja, "Mais desta loja", os parecidos e o sitemap.
+7. **Localização pública** (`localizacao_publica`): exata → o ponto; aproximada → círculo de 300 m com o
+   centro deslocado até 150 m de forma fixa por anúncio (HMAC do código com a SECRET_KEY: recarregar não
+   revela o ponto pela média); só o bairro → sem mapa. O ponto exato e o endereço nunca vão para o HTML
+   no modo aproximado.
 
 ## 6. Busca
 
@@ -251,11 +265,16 @@ Regras:
 Todo modelo com dados criados pelo `criar_dados_demo` herda `core.models.MarcaDemo`
 (campo `demo`, indexado, não editável); `apagar_dados_demo` remove tudo com `demo=True`.
 `Cidade.liberada_pela_demo` marca as cidades que a demonstração ligou, para desfazer só
-essas. Fonte única dos dados fictícios: `core/dados/demo.json`.
+essas. Fonte única dos dados fictícios: `core/dados/demo.json`. Desde a Sprint 3B os imóveis do
+demo.json viram anúncios publicados no banco (`anuncios.demo`), com 3 a 5 fotos desenhadas pelo Pillow
+(mesmo processamento das reais), pontos em Tangará (um exato, dois aproximados, um só bairro) e
+estatísticas fictícias de 30 dias. Os veículos entram no banco na Sprint 4.
 
 ### Home: o que aparece
-1. Destaques (pagos, rótulo "Patrocinado"). 2. **Recém-anunciados** de todas as lojas,
-   mais novos primeiro, **máx. 2 por loja** (rodízio justo). 3. Vitrine de lojas verificadas.
+1. Destaques (`destaque_ate` no futuro). 2. **Recém-anunciados** de todas as lojas,
+   mais novos primeiro, **máx. 2 por loja** (rodízio justo). 3. Vitrine de lojas verificadas (por anúncios
+   visíveis). Desde a Sprint 3B as três leem do banco (`core.services.destaques`/`recem_anunciados` e
+   `anunciantes.services.lojas_verificadas`, só o corpo mudou), sempre só com anúncios visíveis.
 
 ## 10. Importação de anúncios
 

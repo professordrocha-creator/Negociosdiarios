@@ -238,6 +238,10 @@ class Foto(models.Model):
     original = models.FileField(upload_to=caminho_foto_original, blank=True, editable=False)
     imagem = models.FileField("foto (1600 px)", upload_to=caminho_foto, blank=True, editable=False)
     miniatura = models.FileField("miniatura (400 px)", upload_to=caminho_foto, blank=True, editable=False)
+    # JPEG 1200×630 para a prévia de compartilhamento (WhatsApp/Facebook não exibem WebP com segurança).
+    compartilhamento = models.FileField(
+        "compartilhamento (JPEG 1200×630)", upload_to=caminho_foto, blank=True, editable=False
+    )
     criado_em = models.DateTimeField("enviada em", default=timezone.now, editable=False)
 
     class Meta:

@@ -1,9 +1,9 @@
 {% load nd %}
 {# Card de anúncio (convertido de prototipo/_gerar.py, função card). Recebe "anuncio". #}
-{# Hoje: AnuncioVitrine (core.services, dados do demo.json). Sprint 3: anúncio do banco, mesmos campos. #}
-{# Sem página do anúncio ainda (url vazia): o link fica sem destino, com título "Em breve". #}
+{# AnuncioVitrine (core.services), montado do banco por anuncios.services.para_vitrine. #}
+{# Com foto: a miniatura da capa (WebP 400); sem foto: o desenho de exemplo. Sem url: link "Em breve". #}
 <article class="nd-card position-relative">
-  <div class="nd-foto {{ anuncio.estilo_foto }}">{% icone anuncio.icone "ico marca-foto" %}
+  <div class="nd-foto {{ anuncio.estilo_foto }}">{% if anuncio.capa %}<img class="nd-foto-img" src="{{ anuncio.capa }}" alt="" width="400" height="300" loading="lazy">{% else %}{% icone anuncio.icone "ico marca-foto" %}{% endif %}
     <div class="selos">{% if anuncio.destaque %}<span class="selo selo-destaque">Destaque</span>{% endif %}{% if anuncio.aluguel %}<span class="selo selo-aluguel">Aluguel</span>{% endif %}</div>
     <span class="qtd">{{ anuncio.fotos }} foto{{ anuncio.fotos|pluralize }}</span>
   </div>

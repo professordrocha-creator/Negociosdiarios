@@ -11,6 +11,7 @@ from pathlib import Path
 
 import environ
 from celery.schedules import crontab
+from csp.constants import NONE, SELF
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -115,6 +116,7 @@ INSTALLED_APPS = [
     "anunciantes",
     "planos",
     "anuncios",
+    "estatisticas",
 ]
 
 MIDDLEWARE = [
@@ -126,6 +128,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",  # grava quem fez cada mudança no histórico
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware",  # Content-Security-Policy (CONTENT_SECURITY_POLICY abaixo)
     "axes.middleware.AxesMiddleware",  # o último: devolve a página de bloqueio
 ]
 
@@ -305,6 +308,26 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Cloudflare R2 ou outro S3 compatível). Decisão em docs/adr/0002-armazenamento-midia.md.
 ARMAZENAMENTO = env("ARMAZENAMENTO", default="local")
 STORAGES, MEDIA_URL, MEDIA_ROOT = armazenamento_de_midia(ARMAZENAMENTO, env, BASE_DIR)
+
+# --- Content-Security-Policy (django-csp; docs/SEGURANCA.md) -------------------------------
+# Só os nossos arquivos: nenhum script ou estilo inline (nem atributo style=""), nenhum CDN.
+# Exceções: tiles do OpenStreetMap (mapa), data: (ícones SVG do Bootstrap no CSS), blob: (prévia
+# local da imagem escolhida no painel) e, em produção, o domínio da mídia (R2) se for outro.
+_ORIGEM_MIDIA = "/".join(MEDIA_URL.split("/")[:3]) if MEDIA_URL.startswith("http") else None
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "script-src": [SELF],
+        "style-src": [SELF],
+        "img-src": [SELF, "data:", "blob:", "https://tile.openstreetmap.org", *filter(None, [_ORIGEM_MIDIA])],
+        "font-src": [SELF],
+        "connect-src": [SELF],
+        "object-src": [NONE],
+        "base-uri": [SELF],
+        "form-action": [SELF],
+        "frame-ancestors": [NONE],
+    },
+}
 
 # --- Cache ---------------------------------------------------------------------
 # No Redis (e não na memória de cada processo): os limites por IP precisam valer para

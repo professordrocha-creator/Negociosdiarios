@@ -30,7 +30,8 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 |---|---|---|
 | Início | `/` | Busca rápida, destaques, vitrine de lojas, publicidade |
 | Busca | `/imoveis/mt/tangara-da-serra/` | Filtros, lista, mapa, anúncio nativo |
-| Anúncio | `/anuncio/<codigo>-<slug>/` | Fotos, ficha, mapa aproximado, WhatsApp, denúncia |
+| Anúncio | `/anuncio/<codigo>-<slug>/` | Galeria (deslizar no celular com encaixe; setas, contador e miniaturas no `galeria.js`), ficha, descrição, preço/IPTU, mapa conforme `exibir_localizacao` (exata: marcador; aproximada: círculo de ~300 m com centro deslocado; só o bairro: só o nome, sem mapa), WhatsApp por `/anuncio/<codigo>/whatsapp/` (conta o clique; mensagem pronta com o código; número fora do HTML), loja com selo CRECI/CNPJ, dica de segurança, "Mais desta loja", "Denunciar" (página em breve) e visualizações. SEO: title com preço e cidade, description, canonical, Open Graph com JPEG 1200×630 da capa, schema.org `Offer`; no sitemap. Slug antigo ou só o código: 301 para a URL atual. O dono vê a própria página em qualquer situação (pré-visualização, noindex, sem contar visita) |
+| Anúncio fora do ar | (mesma URL) | Pausado, expirado, excluído ou de loja suspensa: "Este anúncio não está mais disponível" com parecidos (mesma cidade e tipo), noindex, status 404 (410 se excluído). Nunca publicado ou demo com MOSTRAR_DEMO desligado: 404 comum |
 | Loja | `/loja/<slug>/` | Vitrine da empresa: capa, logo ou monograma, selo verificado, sobre, horário, endereço (se a loja permitir), WhatsApp (sem número no HTML) e anúncios. SEO: title, description, canonical, Open Graph, schema.org; 404 se não estiver ativa |
 | Lojas | `/lojas/` | Lojas verificadas, filtro por tipo e cidade, 24 por página |
 | Sitemap e robots | `/sitemap.xml`, `/robots.txt` | Páginas públicas e lojas ativas; robots esconde painel e login |
@@ -49,12 +50,13 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 ## 3. Painel do anunciante (`/painel/`)
 Só anunciante `ativo` (equipe, pendente e suspenso recebem 403 com explicação). Hoje:
 dados da loja, card do plano com dados reais (`templates/planos/_resumo_plano.html`: plano, uso X de Y,
-valor, vencimento, situação; aviso de "em atraso: anúncios pausados" e de "sem plano") e meus anúncios
-(demo.json até a Sprint 3); itens do menu ainda sem tela aparecem como "em breve".
+valor, vencimento, situação; aviso de "em atraso: anúncios pausados" e de "sem plano"), visualizações e
+cliques no WhatsApp dos últimos 30 dias, meus anúncios (do banco) e dados da loja; itens do menu ainda sem
+tela aparecem como "em breve".
 
 | Tela | Para que serve |
 |---|---|
-| Meus anúncios (no `/painel/`) | Lista do banco (capa, código, situação, "Expira em X dias"), ações por POST: Editar/Continuar, Pausar, Reativar, Renovar, Excluir (confirmação; exclusão lógica). Aviso de plano no limite com link de upgrade. Visualizações/cliques: Parte B |
+| Meus anúncios (no `/painel/`) | Lista do banco (capa, código, situação, "Expira em X dias"), ações por POST: Editar/Continuar, Pausar, Reativar, Renovar, Excluir (confirmação; exclusão lógica). Aviso de plano no limite com link de upgrade. Título leva à página pública (ou à pré-visualização). Colunas de visualizações e cliques no WhatsApp (total desde a publicação; visitante único por dia, sem robôs nem o dono) |
 | Novo/editar anúncio (`/painel/anuncios/novo/`, `/painel/anuncios/<codigo>/editar/`) | 4 etapas, cada uma com "Sobre esta tela": **Dados** (título, tipo, venda/aluguel, preço e áreas no formato brasileiro, quartos, IPTU, descrição); **Localização** (`…/editar/localizacao/`: cidade liberada, bairro, endereço privado, ponto no mapa Leaflet, o que o público vê); **Fotos** (`…/editar/fotos/`: várias de uma vez, arrastar ou setas, excluir); **Revisão** (`…/editar/revisao/`: pendências, Salvar como rascunho / Enviar para publicação; no limite o envio é bloqueado com oferta de upgrade). Em análise não é editável |
 | Importar anúncios | Envio de XML/planilha, prévia com erros, confirmação |
 | Estatísticas | Visualizações e cliques no WhatsApp por anúncio e por período |

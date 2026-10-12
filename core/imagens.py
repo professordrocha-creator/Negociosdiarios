@@ -193,3 +193,18 @@ def webp(imagem: Image.Image, largura: int, nome: str) -> ContentFile:
     saida = io.BytesIO()
     imagem.save(saida, format="WEBP", quality=82, method=4)
     return ContentFile(saida.getvalue(), name=f"{nome}.webp")
+
+
+def jpeg_compartilhamento(
+    imagem: Image.Image, nome: str, largura: int = 1200, altura: int = 630
+) -> ContentFile:
+    """JPEG da prévia de link (Open Graph): recorte central na proporção 1200×630, sem metadados.
+
+    JPEG porque WhatsApp e Facebook não mostram WebP de forma confiável na prévia.
+    """
+    recortada = recortar_proporcao(imagem.convert("RGB"), largura / altura)
+    if recortada.width > largura:
+        recortada = recortada.resize((largura, altura), Image.LANCZOS)
+    saida = io.BytesIO()
+    recortada.save(saida, format="JPEG", quality=82, optimize=True, progressive=True)
+    return ContentFile(saida.getvalue(), name=f"{nome}.jpg")

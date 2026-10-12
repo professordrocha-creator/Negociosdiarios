@@ -17,6 +17,10 @@
       {% include "_ajuda.html" %}
 
       {% include "planos/_resumo_plano.html" %}
+      <div class="row row-cols-1 row-cols-sm-2 g-3">
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Visualizações · 30 dias</div><div class="valor">{{ estatisticas_30_dias.visualizacoes }}</div><div class="small text-suave">Visitantes únicos por dia, sem contar você nem robôs</div></div></div>
+        <div class="col"><div class="nd-kpi"><div class="rotulo">Cliques no WhatsApp · 30 dias</div><div class="valor">{{ estatisticas_30_dias.cliques_whatsapp }}</div><div class="small text-suave">Quantas vezes tocaram em "Chamar no WhatsApp"</div></div></div>
+      </div>
 
       {# Meus anúncios (do banco; ações sempre por POST) #}
       <section class="nd-caixa p-0">
@@ -30,12 +34,12 @@
         {% endif %}
         {% if anuncios %}
         <div class="table-responsive"><table class="table nd-tabela mb-0">
-          <thead class="small text-suave"><tr><th></th><th>Anúncio</th><th>Situação</th><th class="text-end">Preço</th><th class="text-end">Visualiz.</th><th class="text-end">WhatsApp</th><th></th></tr></thead>
+          <thead class="small text-suave"><tr><th></th><th>Anúncio</th><th>Situação</th><th class="text-end">Preço</th><th class="text-end" title="Total desde a publicação">Visualiz.</th><th class="text-end" title="Total desde a publicação">WhatsApp</th><th></th></tr></thead>
           <tbody>
             {% for anuncio in anuncios %}
             <tr>
               <td>{% with capa=anuncio.capa %}{% if capa %}<img class="mini-img" src="{{ capa.miniatura.url }}" alt="" width="400" height="300">{% else %}<div class="nd-foto f1 mini">{% icone "casa" "ico marca-foto" %}</div>{% endif %}{% endwith %}</td>
-              <td><b class="d-block">{{ anuncio.titulo }}</b><span class="small text-suave">{{ anuncio.codigo }} · {{ anuncio.local }}</span></td>
+              <td><a class="fw-bold d-block text-reset" href="{{ anuncio.url }}">{{ anuncio.titulo }}</a><span class="small text-suave">{{ anuncio.codigo }} · {{ anuncio.local }}</span></td>
               <td>
                 {% if anuncio.situacao == "publicado" %}
                   {% if anuncio.renovavel %}<span class="status st-expira">Expira em {{ anuncio.dias_para_expirar }} dia{{ anuncio.dias_para_expirar|pluralize }}</span>{% else %}<span class="status st-publicado">Publicado</span>{% endif %}
@@ -45,8 +49,8 @@
                 {% else %}<span class="status st-pausado" title="{{ anuncio.get_pausado_por_display }}">Pausado{% if anuncio.pausado_por == "atraso" %} (pagamento){% endif %}</span>{% endif %}
               </td>
               <td class="tabular text-end">{{ anuncio.preco|moeda }}{% if anuncio.imovel.aluguel %}/mês{% endif %}</td>
-              <td class="tabular text-end text-suave">—</td>
-              <td class="tabular text-end text-suave">—</td>
+              <td class="tabular text-end">{{ anuncio.totais.visualizacoes }}</td>
+              <td class="tabular text-end">{{ anuncio.totais.cliques_whatsapp }}</td>
               <td class="text-end">
                 <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
                   {% if anuncio.situacao != "em_moderacao" %}<a class="btn btn-sm btn-outline-secondary" href="{% if anuncio.situacao == 'rascunho' %}{% url 'anuncios:revisao' anuncio.codigo %}{% else %}{% url 'anuncios:editar' anuncio.codigo %}{% endif %}">{% if anuncio.situacao == "rascunho" %}Continuar{% else %}Editar{% endif %}</a>{% endif %}

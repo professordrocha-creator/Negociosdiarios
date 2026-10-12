@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Anúncio que já esteve no ar e saiu (pausado, expirado, excluído ou loja suspensa): nunca um 404 seco. #}
+{# Status 404 (ou 410 se excluído) + noindex; mostra anúncios parecidos (mesma cidade e tipo). #}
+
+{% block titulo %}Anúncio não disponível{% endblock %}
+{% block descricao %}Este anúncio não está mais disponível. Veja outros imóveis em {{ anuncio.cidade.nome }}.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="nd-caixa nd-em-breve mx-auto text-center">
+    <span class="nd-valor-ico mx-auto mb-3">{% icone "casa" %}</span>
+    <h1 class="h3">Este anúncio não está mais disponível</h1>
+    <p class="text-suave mb-0">O anúncio {{ anuncio.codigo }} saiu do ar. Pode ter sido vendido, alugado ou pausado pelo anunciante.</p>
+    <p class="mt-3 mb-0"><a class="btn btn-nd" href="{% url 'core:inicio' %}">Ver outros anúncios</a></p>
+  </div>
+
+  {% if parecidos %}
+  <section class="mt-5">
+    <div class="nd-secao-titulo"><h2>Parecidos em {{ anuncio.cidade.nome }}</h2></div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+      {% for anuncio in parecidos %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}

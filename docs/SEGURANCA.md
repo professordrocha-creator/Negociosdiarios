@@ -47,7 +47,15 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 
 ### Cabeçalhos e navegador
 - [ ] `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS` (começar com 1 dia, subir para 1 ano)
-- [ ] CSP com `django-csp` (liberar só tiles do OpenStreetMap e o domínio do Mercado Pago)
+- [x] CSP com `django-csp` 4.0 (Sprint 3B; `CONTENT_SECURITY_POLICY` no settings, `csp.middleware.CSPMiddleware`):
+  `default-src`/`script-src`/`style-src`/`font-src`/`connect-src` só `'self'`, **sem `'unsafe-inline'`**;
+  `img-src 'self' data: blob: https://tile.openstreetmap.org` (+ o domínio da mídia em produção, se for outro);
+  `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`.
+  Regra para templates: nenhum `<script>` inline (dados vão por `json_script`/JSON-LD), nenhum `style=""`/`<style>`
+  e nenhum `onclick=`: tudo em `static/`. O teste `core/tests/test_csp.py` varre as páginas públicas, do painel
+  e do admin. Leaflet e Bootstrap são servidos do próprio site (sem CDN). Pendente: liberar o domínio do Mercado
+  Pago na Sprint 6. Exceções conhecidas: as páginas de erro do Django em DEBUG e um `style` no histórico do
+  django-simple-history (só perdem o estilo; nada de script).
 - [ ] `X_FRAME_OPTIONS = "DENY"`, `SECURE_CONTENT_TYPE_NOSNIFF`, `Referrer-Policy: strict-origin-when-cross-origin`
 
 ### Abuso

@@ -101,3 +101,71 @@ def criar_anunciante(tangara):
         )
 
     return _criar
+
+
+# --- Anúncios (Sprint 3): loja com plano, imóvel e anúncio publicado ------------------------
+
+
+@pytest.fixture
+def loja(criar_anunciante, tangara):
+    """Fábrica: anunciante ativo com assinatura ativa (padrão: Básico, 10 anúncios)."""
+    from planos.models import Periodicidade, Plano
+    from planos.services import criar_assinatura
+
+    def _criar(
+        email: str = "loja@exemplo.com", nome: str = "Loja Alfa", slug_plano: str = "basico", limite=None
+    ):
+        anunciante = criar_anunciante(email, nome)
+        plano = Plano.objects.get(slug=slug_plano)
+        if limite is not None:
+            plano.limite_anuncios = limite
+            plano.save()
+        criar_assinatura(anunciante, plano, Periodicidade.MENSAL)
+        return anunciante
+
+    return _criar
+
+
+@pytest.fixture
+def imovel(tangara):
+    """Fábrica: anúncio de imóvel em rascunho; `completo=True` já tem descrição, ponto e foto."""
+    from decimal import Decimal
+
+    from anuncios import services
+    from anuncios.tests.conftest import foto_pronta
+
+    def _criar(anunciante, titulo: str = "Casa 3 quartos com área gourmet", completo: bool = True, **ficha):
+        dados = {
+            "titulo": titulo,
+            "descricao": "Casa ampla, perto do centro." if completo else "",
+            "preco": Decimal("420000"),
+        }
+        ficha = {"tipo": "casa", "modalidade": "venda", "quartos": 3, "area_total": Decimal("180"), **ficha}
+        anuncio = services.criar_anuncio_imovel(anunciante, dados, ficha)
+        if completo:
+            anuncio.imovel.ponto = Point(-57.49, -14.62, srid=4326)
+            anuncio.imovel.save()
+            foto_pronta(anuncio)
+        return anuncio
+
+    return _criar
+
+
+@pytest.fixture
+def publicado(imovel):
+    """Fábrica: anúncio já publicado (moderação desligada só para montar o cenário)."""
+    from anuncios import services
+    from core.services import configuracao
+
+    def _criar(anunciante, titulo: str = "Casa 3 quartos com área gourmet"):
+        config = configuracao()
+        regra, config.moderacao = config.moderacao, "nenhum"
+        config.save()
+        anuncio = imovel(anunciante, titulo)
+        services.enviar_para_publicacao(anuncio)
+        config.moderacao = regra
+        config.save()
+        anuncio.refresh_from_db()
+        return anuncio
+
+    return _criar

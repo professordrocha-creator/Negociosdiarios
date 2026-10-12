@@ -86,6 +86,7 @@
       "responsavel": "Beatriz Alves (demo)"
     }
   ],
+  "_anuncios": "Os imóveis viram anúncios no banco (Sprint 3, parte B), com num_fotos fotos de exemplo geradas pelo Pillow, ponto e exibir_localizacao (exata, aproximada ou so_bairro); os veículos entram na Sprint 4.",
   "_assinaturas": "Cada loja ativa ganha um plano (alternando Básico, Profissional e Premium; mensal e anual). As de assinaturas_em_atraso vencem há mais que a carência e ficam com os anúncios pausados.",
   "assinaturas_em_atraso": ["bugres-auto-center"],
   "lojas_pendentes": [
@@ -123,7 +124,8 @@
     {"nome": "Região de Tangará", "slug": "regiao-de-tangara", "cidades": [5107958, 5101704, 5102637, 5106232]}
   ],
   "bairros": {
-    "5107958": ["Centro", "Jardim Europa", "Vila Alta", "Jardim Tarumã", "Estrada da Serra"]
+    "5107958": ["Centro", "Jardim Europa", "Vila Alta", "Jardim Tarumã", "Estrada da Serra"],
+    "5101704": ["Jardim Primavera", "Centro"]
   },
   "anuncios": [
     {
@@ -131,28 +133,36 @@
       "titulo": "Casa 3 quartos com área gourmet", "preco": "420000.00",
       "cidade_ibge": 5107958, "bairro": "Jardim Europa",
       "detalhes": {"quartos": 3, "banheiros": 2, "vagas": 2, "area_m2": 180},
-      "destaque": true, "fotos": 12, "estilo_foto": "f1", "publicado_ha_horas": 30
+      "destaque": true, "fotos": 12, "estilo_foto": "f1", "publicado_ha_horas": 30,
+      "descricao": "Casa térrea em rua asfaltada, a duas quadras da avenida principal. Três quartos (uma suíte), sala integrada à cozinha, área gourmet com churrasqueira e quintal gramado.\nAceita financiamento. Documentação em dia.",
+      "ponto": [-14.6168, -57.4862], "exibir_localizacao": "aproximada", "num_fotos": 5, "iptu": "1180.00", "area_construida": 120
     },
     {
       "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "aluguel", "tipo": "Apartamento",
       "titulo": "Apartamento 2 quartos mobiliado", "preco": "1600.00",
       "cidade_ibge": 5107958, "bairro": "Centro",
       "detalhes": {"quartos": 2, "banheiros": 1, "vagas": 1, "area_m2": 64},
-      "destaque": false, "fotos": 8, "estilo_foto": "f2", "publicado_ha_horas": 3
+      "destaque": false, "fotos": 8, "estilo_foto": "f2", "publicado_ha_horas": 3,
+      "descricao": "Apartamento mobiliado no Centro, perto de bancos e do comércio. Dois quartos, cozinha planejada e uma vaga coberta.\nCondomínio incluso no aluguel.",
+      "ponto": [-14.6230, -57.4957], "exibir_localizacao": "exata", "num_fotos": 4
     },
     {
       "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Chácara",
       "titulo": "Chácara 2 ha com represa e pomar", "preco": "380000.00",
       "cidade_ibge": 5107958, "bairro": "Estrada da Serra",
       "detalhes": {"quartos": 2, "banheiros": 1, "vagas": 4, "area_m2": 20000},
-      "destaque": true, "fotos": 15, "estilo_foto": "f3", "publicado_ha_horas": 52
+      "destaque": true, "fotos": 15, "estilo_foto": "f3", "publicado_ha_horas": 52,
+      "descricao": "Chácara de 2 hectares a 8 km da cidade, com represa, pomar formado, casa de dois quartos e curral.\nÁgua de poço artesiano e energia trifásica.",
+      "ponto": [-14.5795, -57.5401], "exibir_localizacao": "aproximada", "num_fotos": 5
     },
     {
       "loja": "paulo-mendes-corretor", "categoria": "imovel", "finalidade": "venda", "tipo": "Terreno",
       "titulo": "Terreno 12×30 em rua asfaltada", "preco": "95000.00",
       "cidade_ibge": 5101704, "bairro": "Jardim Primavera",
       "detalhes": {"area_m2": 360},
-      "destaque": false, "fotos": 4, "estilo_foto": "f4", "publicado_ha_horas": 75
+      "destaque": false, "fotos": 4, "estilo_foto": "f4", "publicado_ha_horas": 75,
+      "descricao": "Terreno plano de 12×30 m em rua asfaltada, com água e energia na frente. Escriturado.",
+      "exibir_localizacao": "so_bairro", "num_fotos": 3
     },
     {
       "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",

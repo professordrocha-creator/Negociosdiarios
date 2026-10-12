@@ -464,7 +464,7 @@ def adicionar_fotos(anuncio: Anuncio, arquivos: list) -> list[Foto]:
 
 
 def processar_foto(foto: Foto) -> bool:
-    """Gera os WebP 1600 e 400 a partir do envio (sem EXIF, na posição certa) e apaga o envio.
+    """Gera os WebP 1600 e 400 e o JPEG de compartilhamento (sem EXIF, na posição certa); apaga o envio.
 
     Roda no Celery. Se a imagem não abrir, a foto é descartada (o log não leva dados pessoais).
     """
@@ -480,6 +480,9 @@ def processar_foto(foto: Foto) -> bool:
         return False
     for campo, largura in SAIDAS_FOTO.items():
         getattr(foto, campo).save(f"{campo}.webp", imagens.webp(limpa, largura, campo), save=False)
+    foto.compartilhamento.save(
+        "compartilhamento.jpg", imagens.jpeg_compartilhamento(limpa, "compartilhamento"), save=False
+    )
     foto.original.delete(save=False)  # o original nunca é servido (docs/SEGURANCA.md)
     foto.save()
     return True
@@ -515,7 +518,7 @@ def excluir_foto(anuncio: Anuncio, foto_id: int) -> None:
     foto = anuncio.fotos.filter(pk=foto_id).first()
     if foto is None:
         raise ValueError("Foto não encontrada neste anúncio.")
-    for campo in ("original", "imagem", "miniatura"):
+    for campo in ("original", "imagem", "miniatura", "compartilhamento"):
         arquivo = getattr(foto, campo)
         if arquivo:
             arquivo.delete(save=False)
@@ -535,7 +538,7 @@ def apagar_anuncios_demo() -> int:
     with transaction.atomic():
         anuncios = Anuncio.objects.filter(anunciante__demo=True) | Anuncio.objects.filter(demo=True)
         for foto in Foto.objects.filter(anuncio__in=anuncios):
-            for campo in ("original", "imagem", "miniatura"):
+            for campo in ("original", "imagem", "miniatura", "compartilhamento"):
                 arquivo = getattr(foto, campo)
                 if arquivo:
                     arquivo.delete(save=False)
@@ -544,3 +547,149 @@ def apagar_anuncios_demo() -> int:
         Anuncio.history.filter(id__in=ids).delete()
         DetalheImovel.history.filter(anuncio_id__in=ids).delete()
     return len(ids)
+
+
+# --- Vitrine pública (Parte B) --------------------------------------------------------------
+
+# Raio do círculo da localização aproximada (docs/LGPD.md §4) e quanto o centro é deslocado.
+RAIO_APROXIMADO_M = 300
+DESLOCAMENTO_MAXIMO_M = 150
+METROS_POR_GRAU = 111_320
+
+
+def anuncios_visiveis() -> QuerySet[Anuncio]:
+    """O que o público vê: publicados, de loja visível (ativa, área atendida; demo só com MOSTRAR_DEMO)
+    e em cidade liberada de estado liberado."""
+    from anunciantes.services import lojas_visiveis
+
+    return (
+        Anuncio.objects.filter(
+            situacao=Situacao.PUBLICADO,
+            anunciante__in=lojas_visiveis(),
+            cidade__liberada=True,
+            cidade__uf__liberado=True,
+        )
+        .select_related("anunciante", "anunciante__cidade", "cidade", "cidade__uf", "bairro", "imovel")
+        .prefetch_related(Prefetch("fotos", queryset=Foto.objects.order_by("ordem", "pk")))
+    )
+
+
+def visivel(anuncio: Anuncio) -> bool:
+    """O anúncio aparece para o público agora?"""
+    return anuncios_visiveis().filter(pk=anuncio.pk).exists()
+
+
+def url_publica(anuncio: Anuncio) -> str:
+    """Caminho canônico: /anuncio/<codigo>-<slug>/ (slug atual; o antigo redireciona para este)."""
+    return reverse("anuncios:publico", kwargs={"codigo": anuncio.codigo, "slug": anuncio.slug})
+
+
+def _deslocamento(codigo: str) -> tuple[float, float]:
+    """Deslocamento fixo por anúncio (em metros, até 150): o círculo não fica centrado no imóvel.
+
+    Fixo (derivado do código com a SECRET_KEY) para que recarregar a página não revele o ponto
+    pela média de vários círculos.
+    """
+    import math
+
+    from django.utils.crypto import salted_hmac
+
+    resumo = salted_hmac("anuncios.localizacao_aproximada", codigo).digest()
+    angulo = int.from_bytes(resumo[:4], "big") / 2**32 * 2 * math.pi
+    distancia = (0.4 + 0.6 * int.from_bytes(resumo[4:8], "big") / 2**32) * DESLOCAMENTO_MAXIMO_M
+    return distancia * math.cos(angulo), distancia * math.sin(angulo)
+
+
+def localizacao_publica(anuncio: Anuncio) -> dict | None:
+    """O que vai para o mapa público, conforme `exibir_localizacao` (docs/LGPD.md §4).
+
+    - exata: o ponto marcado;
+    - aproximada: um círculo de ~300 m com o centro deslocado (o ponto exato nunca vai para o HTML);
+    - só o bairro (ou sem ponto): None — a página mostra só o nome do bairro.
+    """
+    import math
+
+    imovel = getattr(anuncio, "imovel", None)
+    if imovel is None or imovel.ponto is None:
+        return None
+    lat, lng = imovel.ponto.y, imovel.ponto.x
+    if imovel.exibir_localizacao == DetalheImovel.ExibirLocalizacao.EXATA:
+        return {"tipo": "exata", "lat": round(lat, 6), "lng": round(lng, 6)}
+    if imovel.exibir_localizacao == DetalheImovel.ExibirLocalizacao.APROXIMADA:
+        norte, leste = _deslocamento(anuncio.codigo)
+        lat_c = lat + norte / METROS_POR_GRAU
+        lng_c = lng + leste / (METROS_POR_GRAU * math.cos(math.radians(lat)))
+        return {
+            "tipo": "aproximada",
+            "lat": round(lat_c, 4),
+            "lng": round(lng_c, 4),
+            "raio": RAIO_APROXIMADO_M,
+        }
+    return None
+
+
+def mensagem_whatsapp(anuncio: Anuncio) -> str:
+    """Mensagem pronta do botão: cita o código para o anunciante saber de qual anúncio se trata."""
+    return (
+        f"Olá! Vi no {configuracao().nome} o anúncio {anuncio.codigo} ({anuncio.titulo}) "
+        "e quero mais informações."
+    )
+
+
+def link_whatsapp(anuncio: Anuncio) -> str:
+    """wa.me com o número da loja e a mensagem pronta (só montado no redirecionamento, nunca no HTML)."""
+    from urllib.parse import quote
+
+    numero = anuncio.anunciante.whatsapp.lstrip("+")
+    return f"https://wa.me/{numero}?text={quote(mensagem_whatsapp(anuncio))}"
+
+
+def para_vitrine(anuncio: Anuncio):
+    """Converte para o AnuncioVitrine do card (os mesmos campos que o demo.json usava na 4c)."""
+    from core.services import AnuncioVitrine
+
+    imovel = anuncio.imovel
+    fotos = [foto for foto in anuncio.fotos.all() if foto.imagem]
+    return AnuncioVitrine(
+        titulo=anuncio.titulo,
+        categoria=anuncio.categoria,
+        finalidade=imovel.modalidade,
+        tipo=imovel.get_tipo_display(),
+        preco=anuncio.preco,
+        cidade=anuncio.cidade.nome,
+        bairro=anuncio.bairro.nome if anuncio.bairro else "",
+        resumo=imovel.resumo,
+        loja_nome=anuncio.anunciante.nome_publico,
+        loja_slug=anuncio.anunciante.slug,
+        destaque=bool(anuncio.destaque_ate and anuncio.destaque_ate > timezone.now()),
+        fotos=len(fotos),
+        estilo_foto="f1",
+        publicado_em=anuncio.publicado_em,
+        url=url_publica(anuncio),
+        capa=fotos[0].miniatura.url if fotos else "",
+    )
+
+
+def mais_da_loja(anuncio: Anuncio, limite: int = 4) -> list[Anuncio]:
+    """Outros anúncios visíveis da mesma loja, mais novos primeiro."""
+    return list(
+        anuncios_visiveis()
+        .filter(anunciante_id=anuncio.anunciante_id)
+        .exclude(pk=anuncio.pk)
+        .order_by("-publicado_em")[:limite]
+    )
+
+
+def parecidos(anuncio: Anuncio, limite: int = 4) -> list[Anuncio]:
+    """Anúncios visíveis da mesma cidade e do mesmo tipo de imóvel; completa com a mesma cidade."""
+    base = (
+        anuncios_visiveis()
+        .filter(cidade_id=anuncio.cidade_id)
+        .exclude(pk=anuncio.pk)
+        .order_by("-publicado_em")
+    )
+    imovel = getattr(anuncio, "imovel", None)
+    mesmos = list(base.filter(imovel__tipo=imovel.tipo)[:limite]) if imovel else []
+    if len(mesmos) < limite:
+        mesmos += list(base.exclude(pk__in=[a.pk for a in mesmos])[: limite - len(mesmos)])
+    return mesmos

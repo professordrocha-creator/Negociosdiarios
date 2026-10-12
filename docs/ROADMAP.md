@@ -45,6 +45,16 @@ VPS Ubuntu 24.04 endurecida (`docs/SEGURANCA.md` §3), R2 e SMTP reais, axes len
 real atrás do Nginx, `check --deploy` sem avisos, backup **restaurado em teste** e
 "olá mundo" no ar com HTTPS.
 
+### Guia de Negócios (registrado em 2026-10-12) — depois da validação local da V1
+Etapa nova, a fazer depois que a V1 estiver validada localmente. Os detalhes serão definidos
+quando chegarmos nela; por enquanto, o combinado:
+- **Aba gratuita** no site em que o visitante escolhe a **cidade** e o **tipo de serviço** e vê as empresas.
+- **Plano Gratuito**: dá a página da empresa, com **0 anúncios**.
+- **Categorias de serviço** (cadastradas no admin).
+- **Dados exibidos: só** contato, local ou área de atendimento, horário, logo e uma frase curta.
+- **Cadastro assistido pelo admin**: a equipe cadastra a empresa e o **responsável dá o aceite
+  eletrônico** antes de a página ser publicada (LGPD: registrar finalidade e base legal em `docs/LGPD.md`).
+
 ## V2 — Monetizar e crescer
 Assinatura no cartão + renovação, destaques, estatísticas para o anunciante,
 favoritos, busca por raio, novos verticais (máquinas agrícolas, gado, empregos).

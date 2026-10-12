@@ -1,4 +1,5 @@
-"""sitemap.xml do site: páginas públicas fixas e a vitrine de cada loja visível (ARQUITETURA §7).
+"""sitemap.xml do site: páginas públicas fixas, a vitrine de cada loja visível (ARQUITETURA §7) e
+os anúncios publicados (só os visíveis ao público).
 
 Rascunhos legais e páginas "em breve" ficam de fora (elas também pedem noindex).
 O domínio vem da própria requisição (sem o app django.contrib.sites).
@@ -9,6 +10,8 @@ from django.urls import reverse
 
 from anunciantes.models import Anunciante
 from anunciantes.services import lojas_visiveis
+from anuncios.models import Anuncio
+from anuncios.services import anuncios_visiveis, url_publica
 
 
 class PaginasSitemap(Sitemap):
@@ -55,4 +58,24 @@ class LojasSitemap(Sitemap):
         return item.atualizado_em
 
 
-SITEMAPS = {"paginas": PaginasSitemap, "lojas": LojasSitemap}
+class AnunciosSitemap(Sitemap):
+    """Uma entrada por anúncio visível (publicado, loja ativa, cidade liberada)."""
+
+    changefreq = "daily"
+    priority = 0.9
+    limit = 5000
+
+    def items(self):
+        """Anúncios visíveis, em ordem estável."""
+        return anuncios_visiveis().order_by("pk")
+
+    def location(self, item: Anuncio) -> str:
+        """/anuncio/<codigo>-<slug>/."""
+        return url_publica(item)
+
+    def lastmod(self, item: Anuncio):
+        """Última alteração do anúncio."""
+        return item.atualizado_em
+
+
+SITEMAPS = {"paginas": PaginasSitemap, "lojas": LojasSitemap, "anuncios": AnunciosSitemap}

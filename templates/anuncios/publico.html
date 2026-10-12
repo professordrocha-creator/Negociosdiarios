@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Página pública do anúncio (convertida de prototipo/anuncio.html). Só anúncio visível chega aqui (ou o dono, em prévia). #}
+{# Mapa conforme exibir_localizacao: o ponto exato só aparece se o anunciante escolheu "exata". #}
+{# WhatsApp por /anuncio/<codigo>/whatsapp/ (conta o clique; o número não fica no HTML). Sem script/estilo inline (CSP). #}
+
+{% block titulo %}{{ anuncio.titulo }} · {{ anuncio.preco|moeda }}{% if imovel.aluguel %}/mês{% endif %} · {{ anuncio.cidade.nome }}{% endblock %}
+{% block descricao %}{{ descricao_seo }}{% endblock %}
+{% block robots %}{% if previa %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
+{% block og_titulo %}{{ anuncio.titulo }} · {{ anuncio.preco|moeda }}{% if imovel.aluguel %}/mês{% endif %}{% endblock %}
+{% block og_descricao %}{{ descricao_seo }}{% endblock %}
+{% block og_imagem %}{% if imagem_og %}
+  <meta property="og:image" content="{{ imagem_og }}">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ anuncio.titulo }}">
+  <meta name="twitter:card" content="summary_large_image">
+{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ url_canonica }}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ url_canonica }}">
+  <meta property="og:locale" content="pt_BR">
+  {% if localizacao %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}
+  {% if not previa %}{{ schema|json_ld }}{% endif %}
+{% endblock %}
+
+{% block conteudo %}
+{% if anuncio.demo %}<div class="nd-faixa-demo" role="note">{% icone "alerta" %} <b>Dados de demonstração:</b> este anúncio e a loja são fictícios.</div>{% endif %}
+<main class="container mt-4">
+  {% if previa %}
+    <div class="alert alert-warning" role="status">{% icone "alerta" %} <b>Pré-visualização:</b> só você vê esta página. Situação: {{ anuncio.get_situacao_display|lower }}. <a href="{% url 'anunciantes:painel' %}">Voltar ao painel</a></div>
+  {% endif %}
+  <nav aria-label="Trilha" class="small mb-2"><a href="{% url 'core:inicio' %}">Início</a> › Imóveis › {{ anuncio.cidade.nome }}{% if anuncio.bairro %} › {{ anuncio.bairro.nome }}{% endif %}</nav>
+  <div class="row g-4">
+    <div class="col-lg-8 d-grid gap-3">
+      {# Galeria: rolagem com encaixe (deslizar no celular, sem JS); galeria.js liga setas, contador e miniaturas. #}
+      {% if fotos %}
+      <section class="nd-galeria" aria-label="Fotos do anúncio" data-galeria>
+        <div class="nd-galeria-trilho" tabindex="0">
+          {% for foto in fotos %}
+          <figure class="nd-galeria-foto" id="foto-{{ forloop.counter }}">
+            <img src="{{ foto.imagem.url }}" alt="Foto {{ forloop.counter }} de {{ fotos|length }}: {{ anuncio.titulo }}" width="1600" height="1200"{% if not forloop.first %} loading="lazy"{% endif %}>
+          </figure>
+          {% endfor %}
+        </div>
+        <div class="selos">{% if anuncio.destaque_ate %}<span class="selo selo-destaque">Destaque</span>{% endif %}{% if imovel.aluguel %}<span class="selo selo-aluguel">Aluguel</span>{% endif %}</div>
+        <span class="qtd" data-contador aria-live="polite">1 / {{ fotos|length }} foto{{ fotos|length|pluralize }}</span>
+        {% if fotos|length > 1 %}
+        <button type="button" class="nd-galeria-seta anterior" data-anterior aria-label="Foto anterior">‹</button>
+        <button type="button" class="nd-galeria-seta proxima" data-proxima aria-label="Próxima foto">›</button>
+        {% endif %}
+      </section>
+      {% if fotos|length > 1 %}
+      <div class="nd-miniaturas" aria-label="Miniaturas">
+        {% for foto in fotos %}<a href="#foto-{{ forloop.counter }}" data-ir="{{ forloop.counter0 }}" aria-label="Ver foto {{ forloop.counter }}"><img src="{{ foto.miniatura.url }}" alt="" width="400" height="300" loading="lazy"></a>{% endfor %}
+      </div>
+      {% endif %}
+      {% else %}
+        <div class="nd-foto f1 rounded-3">{% icone "casa" "ico marca-foto" %}</div>
+      {% endif %}
+
+      <div class="nd-caixa">
+        <h1 class="h3 mb-1">{{ anuncio.titulo }}</h1>
+        <p class="text-suave mb-0">{% icone "pin" %} {% if anuncio.bairro %}{{ anuncio.bairro.nome }}, {% endif %}{{ anuncio.cidade.nome }} · {{ anuncio.cidade.uf_id }}</p>
+        <dl class="nd-ficha mt-3 mb-0">
+          <div><dt>Tipo</dt><dd>{{ imovel.get_tipo_display }}</dd></div>
+          <div><dt>Negócio</dt><dd>{{ imovel.get_modalidade_display }}</dd></div>
+          <div><dt>Área total</dt><dd>{{ imovel.area_total|area }}</dd></div>
+          {% if imovel.area_construida %}<div><dt>Área construída</dt><dd>{{ imovel.area_construida|area }}</dd></div>{% endif %}
+          {% if imovel.quartos %}<div><dt>Quartos</dt><dd>{{ imovel.quartos }}</dd></div>{% endif %}
+          {% if imovel.banheiros %}<div><dt>Banheiros</dt><dd>{{ imovel.banheiros }}</dd></div>{% endif %}
+          {% if imovel.vagas %}<div><dt>Vagas</dt><dd>{{ imovel.vagas }}</dd></div>{% endif %}
+          <div><dt>Código</dt><dd>{{ anuncio.codigo }}</dd></div>
+        </dl>
+      </div>
+
+      {% if anuncio.descricao %}<div class="nd-caixa"><h2 class="h5">Descrição</h2><p class="nd-texto-livre mb-0">{{ anuncio.descricao }}</p></div>{% endif %}
+
+      <div class="nd-caixa">
+        <h2 class="h5">Localização</h2>
+        {% if localizacao %}
+          <div id="mapa-anuncio" class="nd-mapa nd-mapa-anuncio" role="img" aria-label="{% if localizacao.tipo == 'exata' %}Mapa com a localização do imóvel{% else %}Mapa com a região aproximada do imóvel{% endif %}"></div>
+          <p class="small text-suave mt-2 mb-0">{% if localizacao.tipo == "exata" %}Localização informada pelo anunciante.{% else %}Localização aproximada (círculo de cerca de 300 m). O endereço exato é passado pelo anunciante.{% endif %}</p>
+          {{ localizacao|json_script:"localizacao-anuncio" }}
+        {% else %}
+          <p class="mb-0">{% icone "pin" %} {% if anuncio.bairro %}Bairro <b>{{ anuncio.bairro.nome }}</b>, {% endif %}{{ anuncio.cidade.nome }} · {{ anuncio.cidade.uf_id }}. O endereço é passado pelo anunciante.</p>
+        {% endif %}
+      </div>
+
+      <p class="small text-suave mb-0">{% icone "olho" %} {{ visualizacoes }} visualizaç{{ visualizacoes|pluralize:"ão,ões" }}{% if anuncio.publicado_em %} · publicado em {{ anuncio.publicado_em|date:"d/m/Y" }}{% endif %} · <a href="{% url 'core:denunciar' %}?anuncio={{ anuncio.codigo }}" rel="nofollow">Denunciar este anúncio</a></p>
+    </div>
+
+    <aside class="col-lg-4">
+      <div class="nd-contato d-grid gap-3">
+        <div class="nd-caixa d-grid gap-3">
+          <div>
+            <div class="text-suave small">{% if imovel.aluguel %}Aluguel por mês{% else %}Valor de venda{% endif %}</div>
+            <div class="nd-preco-grande tabular">{{ anuncio.preco|moeda }}</div>
+            {% if imovel.iptu %}<div class="small text-suave tabular">IPTU {{ imovel.iptu|moeda }}/ano</div>{% endif %}
+          </div>
+          {% if previa %}<span class="btn btn-zap btn-lg disabled" aria-disabled="true">{% icone "zap" %} Chamar no WhatsApp</span>
+          {% else %}<a class="btn btn-zap btn-lg" href="{% url 'anuncios:whatsapp' anuncio.codigo %}" rel="nofollow noopener" target="_blank">{% icone "zap" %} Chamar no WhatsApp</a>{% endif %}
+          <p class="small text-suave mb-0">Mensagem pronta: “{{ mensagem_whatsapp }}”</p>
+        </div>
+        <a class="nd-caixa d-flex gap-3 align-items-center text-decoration-none text-reset" href="{% url 'anunciantes:loja' loja.slug %}">
+          {% if loja.logo_mini %}<img class="nd-monograma nd-monograma-img" src="{{ loja.logo_mini.url }}" width="48" height="48" alt="">
+          {% else %}<span class="nd-monograma nd-cor-{{ loja.cor }}" aria-hidden="true">{{ loja.iniciais }}</span>{% endif %}
+          <span class="me-auto"><b class="d-block">{{ loja.nome_publico }}</b><span class="selo selo-verificado mt-1">{% icone "verificado" %} {% if loja.documento_tipo == "creci" %}CRECI{% else %}CNPJ{% endif %} verificado</span></span>
+          <span class="small">Ver loja ›</span>
+        </a>
+        <div class="nd-banner"><b>Dica de segurança</b>Visite o imóvel antes de pagar qualquer valor. Desconfie de sinal por Pix.</div>
+      </div>
+    </aside>
+  </div>
+
+  {% if mais_da_loja %}
+  <section class="mt-5">
+    <div class="nd-secao-titulo"><h2>Mais desta loja</h2><a href="{% url 'anunciantes:loja' loja.slug %}">Ver loja</a></div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+      {% for anuncio in mais_da_loja %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% if fotos|length > 1 %}<script src="{% static 'js/galeria.js' %}" defer></script>{% endif %}
+{% if localizacao %}<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script><script src="{% static 'js/mapa-anuncio.js' %}" defer></script>{% endif %}
+{% endblock %}

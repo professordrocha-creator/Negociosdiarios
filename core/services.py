@@ -5,7 +5,7 @@ import json
 import logging
 from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -285,7 +285,7 @@ class LojaVitrine:
 
 @dataclass(frozen=True)
 class AnuncioVitrine:
-    """Anúncio como aparece num card. Hoje vem do demo.json; na Sprint 3, do banco."""
+    """Anúncio como aparece num card (montado do banco por `anuncios.services.para_vitrine`)."""
 
     titulo: str
     categoria: str  # "imovel" ou "veiculo"
@@ -302,6 +302,7 @@ class AnuncioVitrine:
     estilo_foto: str
     publicado_em: datetime
     url: str | None = None  # None = página do anúncio ainda não existe ("em breve")
+    capa: str = ""  # miniatura da primeira foto (vazia: o card mostra o desenho de exemplo)
 
     @property
     def local(self) -> str:
@@ -325,117 +326,30 @@ def ler_demo(arquivo: Path = ARQUIVO_DEMO) -> dict:
         return json.load(fp)
 
 
-def _resumo(categoria: str, detalhes: dict) -> str:
-    """Linha de ficha do card. Ex.: "3 qts · 2 banh · 2 vagas · 180 m²" ou "2019 · 98.000 km · automático"."""
-    if categoria == "veiculo":
-        km = f"{detalhes['km']:,}".replace(",", ".")
-        return f"{detalhes['ano']} · {km} km · {detalhes['cambio']}"
-    partes = []
-    for chave, sufixo in (("quartos", "qts"), ("banheiros", "banh"), ("vagas", "vagas")):
-        if detalhes.get(chave):
-            partes.append(f"{detalhes[chave]} {sufixo}")
-    area = detalhes.get("area_m2")
-    if area:
-        partes.append(f"{area / 10000:g} ha".replace(".", ",") if area >= 10000 else f"{area} m²")
-    return " · ".join(partes)
-
-
-def _anuncio_demo(
-    a: dict, cidades: dict[int, str], lojas: dict[str, dict], agora: datetime
-) -> AnuncioVitrine:
-    """Monta um AnuncioVitrine a partir de um anúncio do demo.json."""
-    return AnuncioVitrine(
-        titulo=a["titulo"],
-        categoria=a["categoria"],
-        finalidade=a["finalidade"],
-        tipo=a["tipo"],
-        preco=Decimal(a["preco"]),
-        cidade=cidades[a["cidade_ibge"]],
-        bairro=a["bairro"],
-        resumo=_resumo(a["categoria"], a["detalhes"]),
-        loja_nome=lojas[a["loja"]]["nome"],
-        loja_slug=a["loja"],
-        destaque=a["destaque"],
-        fotos=a["fotos"],
-        estilo_foto=a["estilo_foto"],
-        publicado_em=agora - timedelta(hours=a["publicado_ha_horas"]),
-    )
-
-
-def anuncios_demo_da_loja(slug: str) -> list[AnuncioVitrine]:
-    """Anúncios do demo.json de UMA loja, mais novos primeiro, para o painel do dono.
-
-    Diferente da home, não filtra por cidade liberada: o dono vê tudo o que é dele.
-    Na Sprint 3 o painel passa a ler os anúncios do banco.
-    """
-    dados = ler_demo()
-    dela = [a for a in dados["anuncios"] if a["loja"] == slug]
-    cidades = dict(
-        Cidade.objects.filter(codigo_ibge__in={a["cidade_ibge"] for a in dela}).values_list(
-            "codigo_ibge", "nome"
-        )
-    )
-    lojas = {loja["slug"]: loja for loja in dados["lojas"]}
-    agora = timezone.now()
-    anuncios = [_anuncio_demo(a, cidades, lojas, agora) for a in dela if a["cidade_ibge"] in cidades]
-    return sorted(anuncios, key=lambda a: a.publicado_em, reverse=True)
-
-
-def _vitrine_demo() -> tuple[list[AnuncioVitrine], list[LojaVitrine]]:
-    """Anúncios e lojas do demo.json que podem aparecer: só com MOSTRAR_DEMO e só em cidades liberadas.
-
-    Respeitar as cidades liberadas deixa a demonstração fiel ao site de verdade: cidade
-    desligada no admin some da home, com ou sem dados fictícios.
-    """
-    if not settings.MOSTRAR_DEMO:
-        return [], []
-    dados = ler_demo()
-    codigos = {a["cidade_ibge"] for a in dados["anuncios"]} | {loja["cidade_ibge"] for loja in dados["lojas"]}
-    cidades = {
-        c.codigo_ibge: c.nome
-        for c in Cidade.objects.filter(codigo_ibge__in=codigos, liberada=True, uf__liberado=True)
-    }
-    lojas = {loja["slug"]: loja for loja in dados["lojas"]}
-    agora = timezone.now()
-    anuncios = [
-        _anuncio_demo(a, cidades, lojas, agora) for a in dados["anuncios"] if a["cidade_ibge"] in cidades
-    ]
-    contagem = Counter(a.loja_slug for a in anuncios)
-    vitrine_lojas = [
-        LojaVitrine(
-            slug=loja["slug"],
-            nome=loja["nome"],
-            tipo=loja["tipo"],
-            sigla=loja["sigla"],
-            cor=loja["cor"],
-            cidade=cidades[loja["cidade_ibge"]],
-            total_anuncios=contagem[loja["slug"]],
-        )
-        for loja in dados["lojas"]
-        if loja["cidade_ibge"] in cidades
-    ]
-    return anuncios, vitrine_lojas
-
-
 def destaques(limite: int = LIMITE_DESTAQUES) -> list[AnuncioVitrine]:
-    """Anúncios em destaque (pagos, selo "Patrocinado"), mais novos primeiro."""
-    anuncios, _ = _vitrine_demo()
-    escolhidos = sorted((a for a in anuncios if a.destaque), key=lambda a: a.publicado_em, reverse=True)
-    return escolhidos[:limite]
+    """Anúncios em destaque (pagos, selo "Destaque"), mais novos primeiro. Só os visíveis ao público."""
+    from anuncios.services import anuncios_visiveis, para_vitrine  # o core é a base: import local
+
+    escolhidos = anuncios_visiveis().filter(destaque_ate__gt=timezone.now()).order_by("-publicado_em")
+    return [para_vitrine(anuncio) for anuncio in escolhidos[:limite]]
 
 
 def recem_anunciados(
     limite: int = LIMITE_RECEM_ANUNCIADOS, por_loja: int = MAX_POR_LOJA_RECEM
 ) -> list[AnuncioVitrine]:
-    """Anúncios de todas as lojas, mais novos primeiro, no máximo `por_loja` de cada (ARQUITETURA §9)."""
-    anuncios, _ = _vitrine_demo()
-    usados: Counter[str] = Counter()
+    """Anúncios de todas as lojas, mais novos primeiro, no máximo `por_loja` de cada (ARQUITETURA §9).
+
+    Só os visíveis ao público. Olha no máximo os 200 mais novos (a home não precisa de mais).
+    """
+    from anuncios.services import anuncios_visiveis, para_vitrine
+
+    usados: Counter[int] = Counter()
     resultado = []
-    for anuncio in sorted(anuncios, key=lambda a: a.publicado_em, reverse=True):
-        if usados[anuncio.loja_slug] >= por_loja:
+    for anuncio in anuncios_visiveis().order_by("-publicado_em")[:200]:
+        if usados[anuncio.anunciante_id] >= por_loja:
             continue
-        usados[anuncio.loja_slug] += 1
-        resultado.append(anuncio)
+        usados[anuncio.anunciante_id] += 1
+        resultado.append(para_vitrine(anuncio))
         if len(resultado) == limite:
             break
     return resultado
@@ -448,6 +362,7 @@ class ResumoDemo:
     usuarios: int
     cidades: int
     anunciantes: int = 0
+    anuncios: int = 0
 
 
 def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
@@ -457,7 +372,7 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
     demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
     essas), as 6 lojas como anunciantes ativos com login próprio e uma assinatura
     para cada loja ativa (planos diferentes; as de `assinaturas_em_atraso` já em atraso).
-    Os anúncios entram no banco na Sprint 3; até lá a home e o painel os leem do mesmo demo.json.
+    Os imóveis viram anúncios publicados no banco (`anuncios.demo`), com fotos de exemplo.
     Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
     uma conta real (nunca sobrescreve conta de verdade).
     """
@@ -505,7 +420,12 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from planos.services import criar_assinaturas_demo
 
         criar_assinaturas_demo(dados.get("assinaturas_em_atraso", []))
-    return ResumoDemo(usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas)
+        from anuncios.demo import criar_anuncios_demo
+
+        anuncios = criar_anuncios_demo(dados["anuncios"])
+    return ResumoDemo(
+        usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas, anuncios=anuncios
+    )
 
 
 def apagar_dados_demo() -> ResumoDemo:

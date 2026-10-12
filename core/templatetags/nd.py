@@ -54,6 +54,24 @@ def cnpj(digitos: str | None) -> str:
     return f"{d[:2]}.{d[2:5]}.{d[5:8]}/{d[8:12]}-{d[12:]}"
 
 
+@register.filter
+def area(valor: Decimal | int | str | None) -> str:
+    """Área em m² no padrão brasileiro; a partir de 10.000 m², em hectares.
+
+    180 → "180 m²"; 1200 → "1.200 m²"; 120.5 → "120,5 m²"; 20000 → "2 ha"; 25000 → "2,5 ha".
+    """
+    if valor is None or valor == "":
+        return ""
+    numero = Decimal(str(valor))
+    if numero >= 10000:
+        return f"{numero / 10000:.2f}".rstrip("0").rstrip(".").replace(".", ",") + " ha"
+    inteiro, fracao = divmod(numero, 1)
+    texto = f"{int(inteiro):,}".replace(",", ".")
+    if fracao:
+        texto += "," + f"{fracao:.2f}"[2:].rstrip("0")
+    return f"{texto} m²"
+
+
 @register.simple_tag
 def icone(nome: str, classe: str = "ico") -> str:
     """Ícone do sprite SVG (`templates/_icones.html`), ex.: `{% icone "casa" %}`.

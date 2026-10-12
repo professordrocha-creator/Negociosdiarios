@@ -20,8 +20,9 @@
   {# Compartilhamento (WhatsApp, Facebook): título, descrição e imagem 1200×630 da identidade. #}
   <meta property="og:site_name" content="{{ site.nome }}">
   <meta property="og:title" content="{% block og_titulo %}{{ site.nome }}{% endblock %}">
-  <meta property="og:description" content="{{ site.slogan }}">
-  {% if site.imagem_compartilhamento %}<meta property="og:image" content="{{ site.imagem_compartilhamento }}">{% endif %}
+  <meta property="og:description" content="{% block og_descricao %}{{ site.slogan }}{% endblock %}">
+  {# Uma só og:image por página (o WhatsApp usa a primeira): páginas com foto própria trocam o bloco. #}
+  {% block og_imagem %}{% if site.imagem_compartilhamento %}<meta property="og:image" content="{{ site.imagem_compartilhamento }}">{% endif %}{% endblock %}
 
   {# Fontes locais (static/fonts/, @font-face no nd.css): Bricolage Grotesque nos títulos, Figtree no texto. #}
   {# Preload para o navegador baixá-las junto com o CSS, sem esperar o CSS ser lido. #}
