@@ -29,7 +29,7 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Tela | URL | Para que serve |
 |---|---|---|
 | Início | `/` | Busca rápida, destaques, vitrine de lojas, publicidade |
-| Busca | `/imoveis/mt/tangara-da-serra/` | Filtros, lista, mapa, anúncio nativo |
+| Busca | `/imoveis/`, `/veiculos/`, `/imoveis/mt/tangara-da-serra/`, `/veiculos/mt/tangara-da-serra/` | Convertida de prototipo/busca.html (Sprint 4B). Filtros num formulário GET (funciona sem JS); com HTMX a lista se atualiza sozinha e a URL limpa vai para a barra de endereço. No celular, os filtros ficam num painel (offcanvas) aberto pelo botão "Filtros". Busca por texto com ou sem acento. Cidade no caminho; imóvel: negócio, tipo, bairro (com cidade), preço, quartos, vagas, área; veículo: tipo, marca → modelo (só com anúncio), ano, preço, km, câmbio, combustível. Ordenar (recentes, menor e maior preço), 24 por página, chips dos filtros ativos com ✕ e "Limpar tudo", lista vazia com sugestão de ampliar. "Sobre esta tela". Mapa ao lado: Sprint 5; anúncio patrocinado: Sprint 7 |
 | Anúncio | `/anuncio/<codigo>-<slug>/` | Veículo (`ND-VE-…`, Sprint 4A): ficha do catálogo (marca, modelo, versão, ano, km, câmbio, combustível, cor, portas, final da placa), opcionais, sem mapa ("Onde ver": endereço da loja só se ela permitir), schema.org `Car`/`Motorcycle` com vendedor `AutoDealer`. Imóvel: galeria (deslizar no celular com encaixe; setas, contador e miniaturas no `galeria.js`), ficha, descrição, preço/IPTU, mapa conforme `exibir_localizacao` (exata: marcador; aproximada: círculo de ~300 m com centro deslocado; só o bairro: só o nome, sem mapa), WhatsApp por `/anuncio/<codigo>/whatsapp/` (conta o clique; mensagem pronta com o código; número fora do HTML), loja com selo CRECI/CNPJ, dica de segurança, "Mais desta loja", "Denunciar" (página em breve) e visualizações. SEO: title com preço e cidade, description, canonical, Open Graph com JPEG 1200×630 da capa, schema.org `Offer`; no sitemap. Slug antigo ou só o código: 301 para a URL atual. O dono vê a própria página em qualquer situação (pré-visualização, noindex, sem contar visita) |
 | Anúncio fora do ar | (mesma URL) | Pausado, expirado, excluído ou de loja suspensa: "Este anúncio não está mais disponível" com parecidos (mesma cidade e tipo), noindex, status 404 (410 se excluído). Nunca publicado ou demo com MOSTRAR_DEMO desligado: 404 comum |
 | Loja | `/loja/<slug>/` | Vitrine da empresa: capa, logo ou monograma, selo verificado, sobre, horário, endereço (se a loja permitir), WhatsApp (sem número no HTML) e anúncios. SEO: title, description, canonical, Open Graph, schema.org; 404 se não estiver ativa |
@@ -45,7 +45,7 @@ Valores ficam no modelo `Configuracao` (admin). Os números abaixo são o **padr
 | Cadastro | `/cadastro/` | Conta + loja + aceite dos Termos e da Privacidade; nasce pendente. Mostra todas as cidades do estado liberado (atendidas primeiro; as outras marcadas "ainda não atendida", que geram solicitação) |
 | Cadastro recebido | `/cadastro/obrigado/` | Próximos passos (confirmar e-mail, análise, aprovação) |
 | Confirmar e-mail | `/cadastro/confirmar/<token>/` | Link do e-mail (48 h, uso único); vencido: pede outro |
-| Em breve | `/imoveis/`, `/veiculos/`, `/lojas/`, `/denunciar/` | Páginas ainda em construção (nunca 404) |
+| Em breve | `/denunciar/` | Páginas ainda em construção (nunca 404) |
 
 ## 3. Painel do anunciante (`/painel/`)
 Só anunciante `ativo` (equipe, pendente e suspenso recebem 403 com explicação). Hoje:

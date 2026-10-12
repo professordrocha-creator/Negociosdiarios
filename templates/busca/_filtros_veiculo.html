@@ -1,0 +1,21 @@
+{# Filtros de veículo. O modelo depende da marca: fica em #campo-modelo (trocado pelo HTMX por hx-select-oob). #}
+<fieldset><legend class="form-label">Tipo</legend>
+  {% for valor, rotulo in form.fields.tipo.choices %}
+  <div class="form-check"><input class="form-check-input" type="checkbox" name="tipo" value="{{ valor }}" id="f-tipo-{{ valor }}"{% if valor in filtros.tipo %} checked{% endif %}><label class="form-check-label" for="f-tipo-{{ valor }}">{{ rotulo }}</label></div>
+  {% endfor %}
+</fieldset>
+<div><label class="form-label" for="f-marca">Marca</label>
+  <select id="f-marca" name="marca" class="form-select">{% for valor, rotulo in form.fields.marca.choices %}<option value="{{ valor }}"{% if filtros.marca|default:"" == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></div>
+<div id="campo-modelo"><label class="form-label" for="f-modelo">Modelo</label>
+  <select id="f-modelo" name="modelo" class="form-select"{% if not filtros.marca %} disabled{% endif %}>{% for valor, rotulo in form.fields.modelo.choices %}<option value="{{ valor }}"{% if filtros.modelo|default:"" == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select>
+  {% if not filtros.marca %}<div class="form-text">Escolha a marca primeiro.</div>{% endif %}</div>
+<div><span class="form-label d-block">Ano do modelo</span>
+  <div class="d-flex gap-2"><input class="form-control" name="ano_min" inputmode="numeric" placeholder="De" aria-label="Ano a partir de" value="{{ form.ano_min.value|default_if_none:'' }}"><input class="form-control" name="ano_max" inputmode="numeric" placeholder="Até" aria-label="Ano até" value="{{ form.ano_max.value|default_if_none:'' }}"></div></div>
+<div><label class="form-label" for="f-km">Quilometragem até</label>
+  <input id="f-km" class="form-control" name="km_max" inputmode="numeric" placeholder="Ex.: 100.000" value="{{ form.km_max.value|default_if_none:'' }}"></div>
+<fieldset><legend class="form-label">Câmbio</legend>
+  {% for valor, rotulo in form.fields.cambio.choices %}<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="cambio" value="{{ valor }}" id="f-cambio-{{ valor }}"{% if valor in filtros.cambio %} checked{% endif %}><label class="form-check-label" for="f-cambio-{{ valor }}">{{ rotulo }}</label></div>{% endfor %}
+</fieldset>
+<fieldset><legend class="form-label">Combustível</legend>
+  {% for valor, rotulo in form.fields.combustivel.choices %}<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="combustivel" value="{{ valor }}" id="f-comb-{{ valor }}"{% if valor in filtros.combustivel %} checked{% endif %}><label class="form-check-label" for="f-comb-{{ valor }}">{{ rotulo }}</label></div>{% endfor %}
+</fieldset>

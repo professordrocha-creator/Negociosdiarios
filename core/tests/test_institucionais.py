@@ -257,7 +257,7 @@ def test_em_breve_e_amigavel(client, rota):
 
 def test_menu_marca_a_pagina_atual(client):
     """No menu, a página atual ganha a classe "ativo" e aria-current."""
-    html = html_de(client, "veiculos")
+    html = client.get(reverse("busca:veiculos")).content.decode()
 
     assert re.search(r'class="px-1 py-2 ativo" href="/veiculos/" aria-current="page"', html)
 

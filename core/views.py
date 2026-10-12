@@ -8,6 +8,9 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
 from anunciantes.services import lojas_verificadas
+from anuncios.models import DetalheImovel
+from busca.services import opcoes as opcoes_busca
+from catalogo.models import TipoVeiculo
 from core.models import ValorEmpresa
 from core.services import (
     PAGINAS_EM_BREVE,
@@ -25,7 +28,7 @@ from planos.services import planos_a_venda
 
 @require_GET
 def inicio(request: HttpRequest) -> HttpResponse:
-    """Home: busca (visual, ainda sem buscar), destaques, recém-anunciados, lojas e cidades atendidas.
+    """Home: busca (formulários para /imoveis/ e /veiculos/), destaques, recém-anunciados, lojas e cidades.
 
     Os anúncios e as lojas vêm de core.services (hoje do demo.json com MOSTRAR_DEMO; da
     Sprint 3 em diante, do banco, sem mudar esta view). Sem dados, a página mostra "em breve".
@@ -42,6 +45,10 @@ def inicio(request: HttpRequest) -> HttpResponse:
             "recem_anunciados": recem_anunciados(),
             "lojas_verificadas": lojas_verificadas(),
             "mostrar_demo": settings.MOSTRAR_DEMO,
+            # Busca da home (formulários GET para /imoveis/ e /veiculos/).
+            "tipos_imovel": DetalheImovel.Tipo.choices,
+            "tipos_veiculo": TipoVeiculo.choices,
+            "marcas_veiculo": opcoes_busca("veiculos", None)["marca"],
         },
     )
 

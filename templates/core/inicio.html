@@ -25,48 +25,47 @@
       </ul>
       <div class="tab-content">
         {# Aba Imóveis #}
-        <form class="tab-pane fade show active" id="b-imovel" role="tabpanel">
+        <form class="tab-pane fade show active" id="b-imovel" role="tabpanel" method="get" action="{% url 'busca:imoveis' %}">
           <div class="row g-2 align-items-end">
             <div class="col-6 col-md-2"><label class="form-label" for="h-mod">Quero</label>
-              <select id="h-mod" class="form-select"><option>Comprar</option><option>Alugar</option></select></div>
+              <select id="h-mod" name="modalidade" class="form-select"><option value="venda">Comprar</option><option value="aluguel">Alugar</option></select></div>
             <div class="col-6 col-md-3"><label class="form-label" for="h-tipo">Tipo</label>
-              <select id="h-tipo" class="form-select"><option>Todos</option><option>Casa</option><option>Apartamento</option><option>Kitnet</option><option>Terreno</option><option>Chácara</option><option>Sítio</option><option>Fazenda</option><option>Sala comercial</option></select></div>
+              <select id="h-tipo" name="tipo" class="form-select"><option value="">Todos</option>{% for valor, rotulo in tipos_imovel %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}</select></div>
             <div class="col-12 col-md-3"><label class="form-label" for="h-cid">Cidade</label>
               {% include "core/_select_cidades.html" with id_campo="h-cid" %}</div>
             <div class="col-12 col-md-2"><label class="form-label" for="h-max">Até (R$)</label>
-              <input id="h-max" class="form-control" inputmode="numeric" placeholder="500.000"></div>
-            <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd" type="button" disabled>{% icone "busca" %} Buscar</button></div>
+              <input id="h-max" name="preco_max" class="form-control" inputmode="numeric" placeholder="500.000"></div>
+            <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd" type="submit">{% icone "busca" %} Buscar</button></div>
           </div>
         </form>
         {# Aba Veículos #}
-        <form class="tab-pane fade" id="b-veiculo" role="tabpanel">
+        <form class="tab-pane fade" id="b-veiculo" role="tabpanel" method="get" action="{% url 'busca:veiculos' %}">
           <div class="row g-2 align-items-end">
             <div class="col-6 col-md-2"><label class="form-label" for="h-vt">Tipo</label>
-              <select id="h-vt" class="form-select"><option>Carros</option><option>Caminhonetes</option><option>Motos</option><option>Caminhões</option></select></div>
+              <select id="h-vt" name="tipo" class="form-select"><option value="">Todos</option>{% for valor, rotulo in tipos_veiculo %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}</select></div>
             <div class="col-6 col-md-3"><label class="form-label" for="h-marca">Marca</label>
-              <select id="h-marca" class="form-select"><option>Todas</option></select></div>
+              <select id="h-marca" name="marca" class="form-select"><option value="">Todas</option>{% for valor, rotulo in marcas_veiculo %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}</select></div>
             <div class="col-12 col-md-3"><label class="form-label" for="h-vcid">Cidade</label>
               {% include "core/_select_cidades.html" with id_campo="h-vcid" %}</div>
             <div class="col-12 col-md-2"><label class="form-label" for="h-ano">Ano a partir de</label>
-              <input id="h-ano" class="form-control" inputmode="numeric" placeholder="2018"></div>
-            <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd" type="button" disabled>{% icone "busca" %} Buscar</button></div>
+              <input id="h-ano" name="ano_min" class="form-control" inputmode="numeric" placeholder="2018"></div>
+            <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd" type="submit">{% icone "busca" %} Buscar</button></div>
           </div>
         </form>
       </div>
-      <p class="small text-suave mt-2 mb-0">A busca começa a funcionar em breve, junto com os primeiros anúncios.</p>
     </div>
 
-    {# Atalhos por categoria (viram links para a busca na Sprint 4). A classe nd-atalho é obrigatória: #}
+    {# Atalhos por categoria: links para a busca (Sprint 4). A classe nd-atalho é obrigatória: #}
     {# sem href e sem classe, o Bootstrap (a:not([href]):not([class])) faria o texto herdar o branco do topo. #}
     <nav class="nd-atalhos" aria-label="Atalhos">
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "casa" %} Casas</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "casa" %} Apartamentos</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "area" %} Terrenos</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "pin" %} Chácaras e sítios</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "loja" %} Salas comerciais</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Caminhonetes</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Carros</a>
-      <a class="nd-atalho" aria-disabled="true" title="Em breve">{% icone "carro" %} Motos</a>
+      <a class="nd-atalho" href="{% url 'busca:imoveis' %}?tipo=casa">{% icone "casa" %} Casas</a>
+      <a class="nd-atalho" href="{% url 'busca:imoveis' %}?tipo=apartamento">{% icone "casa" %} Apartamentos</a>
+      <a class="nd-atalho" href="{% url 'busca:imoveis' %}?tipo=terreno">{% icone "area" %} Terrenos</a>
+      <a class="nd-atalho" href="{% url 'busca:imoveis' %}?tipo=chacara&amp;tipo=sitio">{% icone "pin" %} Chácaras e sítios</a>
+      <a class="nd-atalho" href="{% url 'busca:imoveis' %}?tipo=sala_comercial">{% icone "loja" %} Salas comerciais</a>
+      <a class="nd-atalho" href="{% url 'busca:veiculos' %}?tipo=caminhonete">{% icone "carro" %} Caminhonetes</a>
+      <a class="nd-atalho" href="{% url 'busca:veiculos' %}?tipo=carro">{% icone "carro" %} Carros</a>
+      <a class="nd-atalho" href="{% url 'busca:veiculos' %}?tipo=moto">{% icone "carro" %} Motos</a>
     </nav>
   </div>
 </section>

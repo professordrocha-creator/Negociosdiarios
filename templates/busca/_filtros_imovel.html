@@ -1,0 +1,25 @@
+{# Filtros de imóvel. O bairro depende da cidade: fica em #campo-bairro (trocado pelo HTMX por hx-select-oob). #}
+<fieldset><legend class="form-label">Negócio</legend>
+  <div class="btn-group w-100" role="group">
+    {% for valor, rotulo in form.fields.modalidade.choices %}
+    <input type="radio" class="btn-check" name="modalidade" id="f-mod-{{ forloop.counter }}" value="{{ valor }}"{% if filtros.modalidade|default:"" == valor %} checked{% endif %}>
+    <label class="btn btn-outline-secondary" for="f-mod-{{ forloop.counter }}">{{ rotulo }}</label>
+    {% endfor %}
+  </div>
+</fieldset>
+<fieldset><legend class="form-label">Tipo</legend>
+  {% for valor, rotulo in form.fields.tipo.choices %}
+  <div class="form-check"><input class="form-check-input" type="checkbox" name="tipo" value="{{ valor }}" id="f-tipo-{{ valor }}"{% if valor in filtros.tipo %} checked{% endif %}><label class="form-check-label" for="f-tipo-{{ valor }}">{{ rotulo }}</label></div>
+  {% endfor %}
+</fieldset>
+<div id="campo-bairro">{% if cidade %}<label class="form-label" for="f-bairro">Bairro</label>
+  <select id="f-bairro" name="bairro" class="form-select">{% for valor, rotulo in form.fields.bairro.choices %}<option value="{{ valor }}"{% if filtros.bairro|default:"" == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select>
+  {% else %}<span class="small text-suave">Escolha a cidade para filtrar por bairro.</span>{% endif %}</div>
+<fieldset><legend class="form-label">Quartos</legend>
+  <div class="btn-group w-100" role="group">{% for valor, rotulo in form.fields.quartos.choices %}<input type="radio" class="btn-check" name="quartos" id="f-q{{ forloop.counter }}" value="{{ valor }}"{% if filtros.quartos|default:"" == valor %} checked{% endif %}><label class="btn btn-outline-secondary" for="f-q{{ forloop.counter }}">{{ rotulo }}</label>{% endfor %}</div>
+</fieldset>
+<fieldset><legend class="form-label">Vagas de garagem</legend>
+  <div class="btn-group w-100" role="group">{% for valor, rotulo in form.fields.vagas.choices %}<input type="radio" class="btn-check" name="vagas" id="f-v{{ forloop.counter }}" value="{{ valor }}"{% if filtros.vagas|default:"" == valor %} checked{% endif %}><label class="btn btn-outline-secondary" for="f-v{{ forloop.counter }}">{{ rotulo }}</label>{% endfor %}</div>
+</fieldset>
+<div><span class="form-label d-block">Área (m²)</span>
+  <div class="d-flex gap-2"><input class="form-control" name="area_min" inputmode="numeric" placeholder="Mín." aria-label="Área mínima" value="{{ form.area_min.value|default_if_none:'' }}"><input class="form-control" name="area_max" inputmode="numeric" placeholder="Máx." aria-label="Área máxima" value="{{ form.area_max.value|default_if_none:'' }}"></div></div>

@@ -10,6 +10,10 @@
 - O nome do projeto é fixo (`name: negocios-diarios` no `docker-compose.yml`), então o
   volume é o mesmo mesmo que a pasta mude de nome.
 - Se o banco for recriado de propósito: `migrate`, `carregar_municipios`, `carregar_catalogo` (veículos da FIPE), `createsuperuser`
+- A migration `anuncios/0007` cria as extensões `unaccent` e `pg_trgm` e a configuração de busca `pt_unaccent`:
+  em produção, o usuário do banco precisa poder criar extensões (ou um admin roda antes
+  `CREATE EXTENSION unaccent; CREATE EXTENSION pg_trgm;`). Mudou a regra do índice? `reindexar_busca`.
+- Testes em paralelo: `docker compose exec web pytest -n auto` (pytest-xdist; o CI usa o mesmo)
   e liberar as cidades no admin.
 
 ## Cadastro de anunciante (fluxo e problemas comuns)

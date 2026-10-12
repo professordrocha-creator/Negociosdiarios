@@ -11,6 +11,8 @@ from pathlib import PurePath
 
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
@@ -101,14 +103,25 @@ class Anuncio(MarcaDemo):
     removido_em = models.DateTimeField("excluído em", null=True, blank=True, editable=False)
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
+    # Índices da busca (Sprint 4B), recalculados a cada gravação (anuncios.receptores): vetor de texto
+    # (config pt_unaccent: português sem acento) e o texto sem acento para trigram (erros de digitação).
+    busca = SearchVectorField(null=True, editable=False)
+    texto_busca = models.TextField(blank=True, editable=False)
 
-    history = HistoricalRecords(verbose_name="histórico do anúncio")
+    history = HistoricalRecords(verbose_name="histórico do anúncio", excluded_fields=["busca", "texto_busca"])
 
     class Meta:
         verbose_name = "anúncio"
         verbose_name_plural = "anúncios"
         ordering = ["-criado_em"]
-        indexes = [models.Index(fields=["anunciante", "situacao"], name="anuncio_loja_situacao")]
+        indexes = [
+            models.Index(fields=["anunciante", "situacao"], name="anuncio_loja_situacao"),
+            # Busca: situação + categoria + cidade + mais recentes (o filtro e a ordem mais comuns).
+            models.Index(fields=["situacao", "categoria", "cidade", "-publicado_em"], name="anuncio_vitrine"),
+            models.Index(fields=["preco"], name="anuncio_preco"),
+            GinIndex(fields=["busca"], name="anuncio_busca_gin"),
+            GinIndex(fields=["texto_busca"], name="anuncio_texto_trgm", opclasses=["gin_trgm_ops"]),
+        ]
 
     def __str__(self) -> str:
         """Ex.: 'ND-IM-00012 · Casa 3 quartos'."""
@@ -221,6 +234,11 @@ class DetalheImovel(models.Model):
     class Meta:
         verbose_name = "ficha do imóvel"
         verbose_name_plural = "fichas de imóvel"
+        indexes = [
+            models.Index(fields=["tipo", "modalidade"], name="imovel_tipo_modalidade"),
+            models.Index(fields=["quartos"], name="imovel_quartos"),
+            models.Index(fields=["area_total"], name="imovel_area"),
+        ]
 
     def __str__(self) -> str:
         """Ex.: 'Casa para venda'."""
@@ -345,6 +363,10 @@ class DetalheVeiculo(models.Model):
     class Meta:
         verbose_name = "ficha do veículo"
         verbose_name_plural = "fichas de veículo"
+        indexes = [
+            models.Index(fields=["ano_modelo"], name="veiculo_ano"),
+            models.Index(fields=["quilometragem"], name="veiculo_km"),
+        ]
 
     def __str__(self) -> str:
         """Ex.: 'Toyota Hilux CD SRV 2019/2020'."""

@@ -17,6 +17,7 @@ urlpatterns = [
     path("", include("anunciantes.urls")),  # /painel/, /loja/, /lojas/, /cadastro/
     path("", include("planos.urls")),  # /painel/plano/
     path("", include("anuncios.urls")),  # /painel/anuncios/
+    path("", include("busca.urls")),  # /imoveis/, /veiculos/ (e por cidade)
     path("", include("core.urls")),
 ]
 

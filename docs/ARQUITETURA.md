@@ -118,7 +118,7 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
 
-### Anuncio — app `anuncios` (Sprint 3, parte A)
+### Anuncio — app `anuncios` (Sprint 3, parte A; índices de busca na 4B)
 - `anunciante` (PROTECT), `categoria` (imovel | veiculo), `codigo` público único (`ND-IM-00001`, gerado do id
   na primeira gravação, nunca muda), `titulo` (limites na `Configuracao`), `slug`, `descricao`, `preco` (Decimal)
 - `cidade` (FK, só liberada), `bairro` (FK, opcional), `situacao`: rascunho | em_moderacao | publicado |
@@ -129,6 +129,7 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
   60 dias; Renovar), `destaque_ate` (V2), `demo`, `criado_em`, `atualizado_em`, histórico
 - Proxy `AnuncioEmModeracao`: a "Fila de moderação" do admin
 - Contam no plano: publicado + em_moderacao
+- Busca (Sprint 4B): `busca` (SearchVectorField) e `texto_busca` (trigram), fora do histórico; ver §6
 
 ### DetalheImovel (1:1 com Anuncio, chave = o anúncio)
 - `tipo` (casa, apartamento, kitnet, terreno, chácara, sítio, fazenda, sala comercial, barracão)
@@ -208,6 +209,26 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
 
 - V1: PostgreSQL `SearchVector` + extensões `unaccent` e `pg_trgm`
   ("apartamento" acha "Apartamento", "sinop" acha "Sinop"). Sem Elasticsearch.
+- **Implementado na Sprint 4B (app `busca`)**: `/imoveis/`, `/veiculos/` e por cidade
+  (`/imoveis/<uf>/<cidade>/`, UF minúscula, só cidade liberada; o resto é 404). Filtros na query string
+  (imóvel: `modalidade`, `tipo` (vários), `bairro`, `preco_min`/`preco_max`, `quartos`, `vagas`,
+  `area_min`/`area_max`; veículo: `tipo`, `marca`, `modelo` (slugs do catálogo), `ano_min`/`ano_max`,
+  preço, `km_max`, `cambio`, `combustivel`), `q`, `ordem` (recentes | menor_preco | maior_preco; com texto
+  e sem ordem, por relevância) e `pagina` (24 por página). Valor inválido é descartado; sem JavaScript, a
+  URL "suja" do formulário (campos vazios, `?cidade=mt/...`) redireciona (302) para a limpa; com HTMX, a
+  view responde direto e manda a limpa em `HX-Push-Url`.
+- Índice de texto: `Anuncio.busca` (SearchVectorField, configuração `pt_unaccent` = português com radicais e
+  sem acento; título peso A, o resto peso B: descrição, cidade, bairro, tipo, negócio, marca, modelo,
+  versão, cor, combustível) e `Anuncio.texto_busca` (texto curto sem acento, índice GIN `gin_trgm_ops`
+  para erro de digitação). Recalculados a cada gravação do anúncio ou da ficha (`anuncios.receptores` →
+  `anuncios/indice.py`); `reindexar_busca` refaz tudo. Consulta: `websearch` no vetor OU
+  `trigram_word_similar` no texto.
+- Índices dos filtros: `anuncio_vitrine` (situação, categoria, cidade, -publicado_em), `anuncio_preco`,
+  `imovel_tipo_modalidade`, `imovel_quartos`, `imovel_area`, `veiculo_ano`, `veiculo_km`, mais os GIN.
+  Teste de desempenho com 2.000 anúncios gerados no próprio teste (`busca/tests/test_desempenho.py`).
+- SEO: title/description por cidade e tipo ("Casas à venda em Tangará da Serra – MT"), canonical sem
+  `ordem`/`pagina`, `noindex, follow` com texto ou mais de 2 filtros de conteúdo; páginas de cidade,
+  cidade + negócio + tipo (imóvel) e cidade + tipo (veículo) com anúncio entram no sitemap.
 - Mapa: endpoint JSON com anúncios dentro do retângulo visível (`bbox`) usando
   PostGIS. Busca por raio na V2.
 

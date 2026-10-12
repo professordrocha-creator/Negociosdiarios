@@ -69,5 +69,5 @@ jobs:
       - name: Migrations em dia
         run: uv run python manage.py makemigrations --check --dry-run
 
-      - name: Testes
-        run: uv run pytest -q
+      - name: Testes (em paralelo, pytest-xdist)
+        run: uv run pytest -q -n auto

@@ -320,3 +320,7 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-logo-compacto { gap: 8px; font-size: 18px; white-space: nowrap; }
 .nd-logo-compacto img { height: 32px; width: auto; }
 .nd-logo-rodape { height: 48px; width: auto; max-width: 100%; }
+/* ---------- Busca (/imoveis/, /veiculos/; prototipo/busca.html) ---------- */
+.nd-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid var(--nd-borda); border-radius: 999px; background: var(--nd-papel); color: var(--nd-texto); text-decoration: none; }
+.nd-chip:hover { border-color: var(--nd-petroleo); }
+#resultados.htmx-swapping, #resultados.htmx-request, .htmx-request #resultados { opacity: .6; transition: opacity .2s; }

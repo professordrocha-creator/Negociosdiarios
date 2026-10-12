@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.gis",  # GeoDjango: campos geográficos (PostGIS)
+    "django.contrib.postgres",  # busca: SearchVector, unaccent e pg_trgm (lookups de semelhança)
     "django.contrib.sitemaps",  # /sitemap.xml (config/sitemaps.py)
     "django_otp",  # base dos códigos de verificação do admin
     "django_otp.plugins.otp_email",  # código de 6 dígitos por e-mail (navegador novo, em produção)
@@ -117,6 +118,7 @@ INSTALLED_APPS = [
     "planos",
     "catalogo",
     "anuncios",
+    "busca",
     "estatisticas",
 ]
 

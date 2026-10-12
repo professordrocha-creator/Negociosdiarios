@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Busca de imóveis ou veículos (convertida de prototipo/busca.html). Filtros num formulário GET: funciona sem JS. #}
+{# Com HTMX: mudar um filtro pede a mesma página e troca só #resultados (+ bairro/modelo, que dependem de outros #}
+{# filtros, por hx-select-oob); a URL limpa vem no cabeçalho HX-Push-Url. No celular, filtros num painel (offcanvas). #}
+{# O mapa ao lado (prototipo) chega na Sprint 5; o anúncio patrocinado, na Sprint 7. #}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block descricao %}{{ descricao }}{% endblock %}
+{% block robots %}{% if not indexavel %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block og_titulo %}{{ titulo }}{% endblock %}
+{% block og_descricao %}{{ descricao }}{% endblock %}
+{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}">{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <nav aria-label="Trilha" class="small mb-2"><a href="{% url 'core:inicio' %}">Início</a> › {% if categoria == "imoveis" %}Imóveis{% else %}Veículos{% endif %}{% if cidade %} › {{ cidade.nome }}{% endif %}</nav>
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="filtros" aria-labelledby="filtros-titulo">
+        <div class="offcanvas-header"><h2 class="h5 m-0" id="filtros-titulo">Filtros</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtros" aria-label="Fechar"></button></div>
+        <div class="offcanvas-body">
+          <form id="filtros-form" class="nd-caixa w-100 d-grid gap-3" method="get" action="{{ url_limpar }}"
+                hx-get="{{ url_limpar }}" hx-trigger="change delay:300ms, submit" hx-target="#resultados" hx-select="#resultados"
+                hx-swap="outerHTML" hx-select-oob="{% if categoria == 'imoveis' %}#campo-bairro{% else %}#campo-modelo{% endif %}">
+            <div><label class="form-label" for="f-q">Buscar</label>
+              <input id="f-q" class="form-control" type="search" name="q" value="{{ form.q.value|default_if_none:'' }}" maxlength="100" placeholder="{% if categoria == 'imoveis' %}Ex.: apartamento centro{% else %}Ex.: hilux diesel{% endif %}"></div>
+            <div><label class="form-label" for="f-cidade">Cidade</label>
+              <select id="f-cidade" name="cidade" class="form-select">
+                <option value="">Todas as cidades</option>
+                {% for grupo in estados_atendidos %}
+                  {% if mostrar_estado %}<optgroup label="{{ grupo.estado.nome }}">{% endif %}
+                  {% for c in grupo.cidades %}{% with valor=c.uf_id|lower|add:"/"|add:c.slug %}<option value="{{ valor }}"{% if valor == valor_cidade %} selected{% endif %}>{{ c.nome }}</option>{% endwith %}{% endfor %}
+                  {% if mostrar_estado %}</optgroup>{% endif %}
+                {% endfor %}
+              </select></div>
+            {% if categoria == "imoveis" %}{% include "busca/_filtros_imovel.html" %}{% else %}{% include "busca/_filtros_veiculo.html" %}{% endif %}
+            <div><span class="form-label d-block">Preço (R$)</span>
+              <div class="d-flex gap-2">{{ form.preco_min }}{{ form.preco_max }}</div></div>
+            <button class="btn btn-nd" type="submit" data-bs-dismiss="offcanvas" data-bs-target="#filtros">Aplicar filtros</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <div class="col-lg-9">
+      <div id="resultados" aria-live="polite">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <h1 class="h3 m-0 me-auto">{{ titulo }} <span class="text-suave fs-6 fw-normal tabular">{{ pagina.paginator.count }} resultado{{ pagina.paginator.count|pluralize }}</span></h1>
+          <button class="btn btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filtros" aria-controls="filtros" type="button">{% icone "busca" %} Filtros</button>
+          <label class="visually-hidden" for="f-ordem">Ordenar</label>
+          <select id="f-ordem" name="ordem" form="filtros-form" class="form-select w-auto"
+                  hx-get="{{ url_limpar }}" hx-trigger="change" hx-include="#filtros-form" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML">
+            {% for valor, rotulo in form.fields.ordem.choices %}<option value="{{ valor }}"{% if filtros.ordem|default:"recentes" == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
+          </select>
+        </div>
+
+        {% if chips %}
+        <div class="d-flex flex-wrap gap-2 mb-3 small align-items-center" aria-label="Filtros ativos">
+          {% for chip in chips %}<a class="nd-chip" href="{{ chip.url_sem }}" aria-label="Tirar o filtro {{ chip.rotulo }}">{{ chip.rotulo }} <span aria-hidden="true">✕</span></a>{% endfor %}
+          <a href="{% if categoria == 'imoveis' %}{% url 'busca:imoveis' %}{% else %}{% url 'busca:veiculos' %}{% endif %}" class="ms-1">Limpar tudo</a>
+        </div>
+        {% endif %}
+
+        {% if anuncios %}
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+            {% for anuncio in anuncios %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
+          </div>
+          {% if pagina.has_other_pages %}
+          <nav class="mt-4" aria-label="Páginas">
+            <ul class="pagination justify-content-center flex-wrap">
+              {% if pagina.has_previous %}<li class="page-item"><a class="page-link" href="{{ url_pagina }}{% if '?' in url_pagina %}&amp;{% else %}?{% endif %}pagina={{ pagina.previous_page_number }}" rel="prev">Anterior</a></li>{% endif %}
+              {% for numero in pagina.paginator.page_range %}
+                {% if numero == pagina.number %}<li class="page-item active" aria-current="page"><span class="page-link">{{ numero }}</span></li>
+                {% elif numero == 1 or numero == pagina.paginator.num_pages or numero >= pagina.number|add:-2 and numero <= pagina.number|add:2 %}<li class="page-item"><a class="page-link" href="{{ url_pagina }}{% if '?' in url_pagina %}&amp;{% else %}?{% endif %}pagina={{ numero }}">{{ numero }}</a></li>{% endif %}
+              {% endfor %}
+              {% if pagina.has_next %}<li class="page-item"><a class="page-link" href="{{ url_pagina }}{% if '?' in url_pagina %}&amp;{% else %}?{% endif %}pagina={{ pagina.next_page_number }}" rel="next">Próxima</a></li>{% endif %}
+            </ul>
+          </nav>
+          {% endif %}
+        {% else %}
+          <div class="nd-caixa text-center py-5">
+            <span class="nd-valor-ico mx-auto mb-3">{% icone "busca" %}</span>
+            <h2 class="h5">Nenhum anúncio encontrado com esses filtros</h2>
+            <p class="text-suave mb-3">Tente ampliar a busca: tire um filtro, aumente a faixa de preço{% if cidade %} ou procure em todas as cidades{% endif %}.</p>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+              {% if chips %}<a class="btn btn-nd" href="{{ url_limpar }}">Ver todos{% if cidade %} em {{ cidade.nome }}{% endif %}</a>{% endif %}
+              {% if cidade %}<a class="btn btn-outline-secondary" href="{{ url_todas_cidades }}">Buscar em todas as cidades</a>{% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

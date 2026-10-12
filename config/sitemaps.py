@@ -12,6 +12,7 @@ from anunciantes.models import Anunciante
 from anunciantes.services import lojas_visiveis
 from anuncios.models import Anuncio
 from anuncios.services import anuncios_visiveis, url_publica
+from busca.services import paginas_do_sitemap
 
 
 class PaginasSitemap(Sitemap):
@@ -78,4 +79,24 @@ class AnunciosSitemap(Sitemap):
         return item.atualizado_em
 
 
-SITEMAPS = {"paginas": PaginasSitemap, "lojas": LojasSitemap, "anuncios": AnunciosSitemap}
+class BuscaSitemap(Sitemap):
+    """Páginas de busca com anúncio: todas as cidades, cada cidade e cidade + tipo (+ negócio no imóvel)."""
+
+    changefreq = "daily"
+    priority = 0.7
+
+    def items(self) -> list[str]:
+        """Caminhos já prontos (busca.services.paginas_do_sitemap)."""
+        return paginas_do_sitemap()
+
+    def location(self, item: str) -> str:
+        """O próprio caminho."""
+        return item
+
+
+SITEMAPS = {
+    "paginas": PaginasSitemap,
+    "lojas": LojasSitemap,
+    "anuncios": AnunciosSitemap,
+    "busca": BuscaSitemap,
+}

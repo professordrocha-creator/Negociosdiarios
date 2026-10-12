@@ -491,18 +491,6 @@ def formatos_publicidade() -> list[FormatoPublicidade]:
 # Páginas que existem no menu e no rodapé mas ainda não foram construídas: mostram
 # "Em breve" (nunca 404). A chave é o nome da rota em core/urls.py.
 PAGINAS_EM_BREVE = {
-    "imoveis": {
-        "titulo": "Imóveis",
-        "descricao": "Casas, apartamentos, terrenos, chácaras e salas comerciais de corretores verificados.",
-        "quando": "A busca de imóveis com filtros e mapa chega em breve.",
-        "icone": "casa",
-    },
-    "veiculos": {
-        "titulo": "Veículos",
-        "descricao": "Carros, caminhonetes e motos de revendas verificadas da região.",
-        "quando": "A busca de veículos com filtros chega em breve.",
-        "icone": "carro",
-    },
     "denunciar": {
         "titulo": "Denunciar anúncio",
         "descricao": "Viu um anúncio suspeito, enganoso ou que expõe seus dados? Avise a equipe.",
