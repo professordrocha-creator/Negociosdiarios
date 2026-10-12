@@ -362,3 +362,12 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-ja-paguei summary::-webkit-details-marker { display: none; }
 .nd-foto-pequena { font-size: 11px; font-weight: 700; background: #fff3cd; color: #664d03; border-radius: 999px; padding: 1px 8px; display: inline-flex; align-items: center; gap: 3px; }
 .nd-preparando { opacity: .7; pointer-events: none; }
+.nd-fatura-publica { max-width: 760px; }
+
+/* ---------- Publicidade (Sprint 7A; docs/PUBLICIDADE.md): rótulo sempre visível ---------- */
+.nd-pub { position: relative; }
+.nd-pub-rotulo { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--nd-texto-suave); margin-bottom: 4px; }
+.nd-pub-banner { text-align: center; }
+.nd-pub-banner img { max-width: 100%; height: auto; border-radius: 6px; }
+.nd-pub-card img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; flex: none; }
+.nd-pub-nativo { border-left: 4px solid var(--nd-ipe); margin-bottom: 12px; }

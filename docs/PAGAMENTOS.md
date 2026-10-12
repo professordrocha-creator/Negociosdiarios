@@ -17,6 +17,12 @@
 | 5. Atraso | Fatura sem pagamento vira **vencida** no dia seguinte ao vencimento. Passada a carência (`Configuracao.carencia_dias`, padrão 5), a assinatura fica **em atraso** e os anúncios são **pausados** (nunca apagados). Comprovante aguardando confirmação segura a pausa até a equipe decidir. |
 | 6. Régua | E-mails automáticos: fatura disponível, 3 dias antes, no dia, 1 e 3 dias depois; mais "pagamento confirmado" e "comprovante recusado". **Textos editáveis** no admin (Cobrança › E-mails de cobrança), com variáveis `{loja}`, `{valor}`, `{vencimento}`, `{competencia}`, `{codigo}`, `{link}`, `{motivo}`, `{site}`. |
 
+Ajustes (Sprint 7, passo 0): a renovação conta sempre do **vencimento original** (pagar atrasado não muda
+o dia de cobrança); o **primeiro plano aprovado** gera na hora a fatura do primeiro ciclo (vence no início,
+com a mesma carência); e, se a rotina não rodar num dia, o lembrete devido sai no dia seguinte (só o mais
+recente). Faturas de **campanha de publicidade** (Sprint 7A) usam o mesmo fluxo; o patrocinador, sem login,
+paga pelo link `/fatura/<token>/` (ver docs/PUBLICIDADE.md).
+
 Situações da fatura: `aberta` → (`aguardando_confirmacao`) → `paga`; ou `vencida`; ou `cancelada` (ação do
 admin, com motivo). Nada se apaga. O "Registrar pagamento manual" da assinatura baixa a fatura em aberto
 (ou cria a do ciclo e baixa), para pagamentos combinados fora do site.

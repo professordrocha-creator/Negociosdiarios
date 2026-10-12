@@ -1,6 +1,6 @@
 {% autoescape off %}Comprovante de pagamento para conferir no {{ site_nome }}.
 
-Loja: {{ fatura.assinatura.anunciante.nome_publico }}
+Cliente: {{ fatura.cliente_nome }}
 Fatura: {{ fatura.codigo }} ({{ fatura.descricao }})
 Valor: R$ {{ fatura.valor }}
 Vencimento: {{ fatura.vencimento|date:"d/m/Y" }}

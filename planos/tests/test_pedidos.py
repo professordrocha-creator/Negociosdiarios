@@ -86,7 +86,7 @@ def test_aprovar_troca_mantem_vencimento_e_avisa(assinante, plano, financeiro):
         "anual",
         vencimento,
     )
-    assert assinatura.history.first().history_user == financeiro
+    assert assinatura.history.order_by("-history_id").first().history_user == financeiro
     pedido.refresh_from_db()
     assert pedido.status == PedidoTrocaPlano.Status.APROVADO and pedido.decidido_por == financeiro
     assert mail.outbox[0].to == ["loja@exemplo.com"] and "aprovado" in mail.outbox[0].body

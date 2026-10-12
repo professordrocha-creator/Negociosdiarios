@@ -1,5 +1,6 @@
 """Admin do app pagamentos: faturas (painel de cobrança, confirmar/recusar/cancelar) e textos dos e-mails."""
 
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.core.exceptions import PermissionDenied
@@ -29,7 +30,7 @@ class FaturaAdmin(SimpleHistoryAdmin):
 
     list_display = (
         "codigo",
-        "loja",
+        "cliente",
         "descricao",
         "valor",
         "vencimento",
@@ -43,8 +44,10 @@ class FaturaAdmin(SimpleHistoryAdmin):
         "codigo",
         "assinatura__anunciante__nome_publico",
         "assinatura__anunciante__usuario__email",
+        "campanha__nome",
+        "campanha__patrocinador__nome",
     )
-    list_select_related = ("assinatura__anunciante",)
+    list_select_related = ("assinatura__anunciante", "campanha__patrocinador")
     date_hierarchy = "vencimento"
     change_list_template = "admin/pagamentos/fatura/change_list.html"
     fieldsets = (
@@ -54,6 +57,8 @@ class FaturaAdmin(SimpleHistoryAdmin):
                 "fields": (
                     "codigo",
                     "assinatura",
+                    "campanha",
+                    "link_de_pagamento",
                     "descricao",
                     "competencia",
                     "periodo_fim",
@@ -103,10 +108,18 @@ class FaturaAdmin(SimpleHistoryAdmin):
         """Registro financeiro: nunca se apaga (cancele, com motivo)."""
         return False
 
-    @admin.display(description="loja", ordering="assinatura__anunciante__nome_publico")
-    def loja(self, fatura: Fatura) -> str:
-        """Nome da loja."""
-        return fatura.assinatura.anunciante.nome_publico
+    @admin.display(description="cliente")
+    def cliente(self, fatura: Fatura) -> str:
+        """A loja (assinatura) ou o patrocinador (campanha de publicidade)."""
+        return fatura.cliente_nome
+
+    @admin.display(description="link de pagamento")
+    def link_de_pagamento(self, fatura: Fatura) -> str:
+        """Endereço completo onde o cliente paga (para mandar pelo WhatsApp a quem pedir)."""
+        if not fatura.pk:
+            return "—"
+        url = settings.SITE_URL + fatura.link_pagamento
+        return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', url, url)
 
     @admin.display(description="comprovante", boolean=True)
     def tem_comprovante(self, fatura: Fatura) -> bool:

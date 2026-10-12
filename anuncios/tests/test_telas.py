@@ -327,7 +327,9 @@ def test_fila_aprova_e_recusa(client, moderador, loja, imovel):
     recusar.refresh_from_db()
     assert aprovar.situacao == Situacao.PUBLICADO and aprovar.moderado_por == moderador
     assert recusar.situacao == Situacao.RASCUNHO and recusar.motivo_moderacao == "Foto escura."
-    assert recusar.history.first().history_user == moderador  # histórico gravado mesmo pela fila (proxy)
+    assert (
+        recusar.history.order_by("-history_id").first().history_user == moderador
+    )  # histórico gravado mesmo pela fila (proxy)
     assert {m.to[0] for m in mail.outbox} == {"loja@exemplo.com", "b@exemplo.com"}
 
 

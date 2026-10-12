@@ -32,6 +32,10 @@ pela equipe, régua de e-mails e o atraso ligado à fatura vencida. Sem gateway 
 **Armazenamento (`armazenamento.py`):** `STORAGES["privado"]` (pasta `privado/` em dev; bucket
 `S3_BUCKET_PRIVADO` sem domínio público em produção). O arquivo só sai pelas views com permissão.
 
+**Publicidade (Sprint 7A):** `Fatura` também pode ser de uma `campanha` (`gerar_fatura_campanha`); o
+patrocinador paga pela página pública `/fatura/<token>/` (`fatura_publica`, `fatura_publica_ja_paguei`).
+Confirmar a fatura de campanha não mexe em assinatura.
+
 **Telas:** `/painel/faturas/` (abertas com Pix, aguardando confirmação e histórico),
 `/painel/faturas/<codigo>/ja-paguei/` (POST) e `/painel/faturas/<codigo>/comprovante/`.
 **Admin:** Cobrança › Faturas (filtros, "Painel de cobrança", ações Confirmar pagamento / Recusar

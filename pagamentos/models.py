@@ -27,7 +27,10 @@ def caminho_comprovante(instancia, nome_arquivo: str) -> str:
 
 
 class Fatura(MarcaDemo):
-    """Cobrança de um ciclo da assinatura (mensal ou anual).
+    """Cobrança de um ciclo da assinatura (mensal ou anual) ou de uma campanha de publicidade (Sprint 7A).
+
+    Sempre de uma das duas: `assinatura` (loja, paga pelo painel) ou `campanha` (patrocinador sem login,
+    paga pela página pública com `token`).
 
     Gerada pela rotina diária X dias antes do vencimento da assinatura
     (`Configuracao.fatura_antecedencia_dias`). Situações:
@@ -57,8 +60,23 @@ class Fatura(MarcaDemo):
     EM_ABERTO = (Situacao.ABERTA, Situacao.VENCIDA, Situacao.AGUARDANDO)  # ainda não paga nem cancelada
 
     assinatura = models.ForeignKey(
-        Assinatura, on_delete=models.PROTECT, related_name="faturas", verbose_name="assinatura"
+        Assinatura,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="faturas",
+        verbose_name="assinatura",
     )
+    campanha = models.ForeignKey(
+        "publicidade.Campanha",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="faturas",
+        verbose_name="campanha de publicidade",
+    )
+    # Endereço da página pública de pagamento (/fatura/<token>/): aleatório, não dá para adivinhar.
+    token = models.UUIDField("token do link de pagamento", default=uuid.uuid4, unique=True, editable=False)
     codigo = models.CharField("código", max_length=16, unique=True, null=True, blank=True, editable=False)
     competencia = models.DateField("competência", help_text="Início do período pago por esta fatura.")
     periodo_fim = models.DateField("fim do período")
@@ -115,12 +133,40 @@ class Fatura(MarcaDemo):
                 fields=["assinatura", "competencia"],
                 condition=~Q(situacao="cancelada"),
                 name="fatura_unica_por_competencia",
-            )
+            ),
+            models.CheckConstraint(
+                condition=Q(assinatura__isnull=False, campanha__isnull=True)
+                | Q(assinatura__isnull=True, campanha__isnull=False),
+                name="fatura_de_assinatura_ou_campanha",
+            ),
         ]
 
     def __str__(self) -> str:
         """Ex.: 'ND-FT-00012 · Loja X · R$ 99,90'."""
-        return f"{self.codigo or 'nova'} · {self.assinatura.anunciante} · R$ {self.valor}"
+        return f"{self.codigo or 'nova'} · {self.cliente_nome} · R$ {self.valor}"
+
+    @property
+    def cliente_nome(self) -> str:
+        """Quem paga: a loja ou o patrocinador."""
+        if self.assinatura_id:
+            return self.assinatura.anunciante.nome_publico
+        return self.campanha.patrocinador.nome
+
+    @property
+    def cliente_email(self) -> str:
+        """Para onde vão a fatura e os lembretes."""
+        if self.assinatura_id:
+            return self.assinatura.anunciante.usuario.email
+        return self.campanha.patrocinador.email
+
+    @property
+    def link_pagamento(self) -> str:
+        """Caminho onde o cliente paga: o painel (loja) ou a página pública com o token (patrocinador)."""
+        from django.urls import reverse
+
+        if self.assinatura_id:
+            return reverse("pagamentos:faturas")
+        return reverse("pagamentos:fatura_publica", args=[self.token])
 
     def save(self, *args, **kwargs) -> None:
         """Na primeira gravação, gera o código público a partir do id (ND-FT-00001)."""

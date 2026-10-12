@@ -47,6 +47,10 @@ class Command(BaseCommand):
             "aberta, uma aguardando confirmação (comprovante fictício) e a das lojas em atraso vencida."
         )
         self.stdout.write(
+            "Publicidade demo: 3 campanhas fictícias (banner na home e no anúncio, banner e nativo na busca, "
+            "card no rodapé da home), com 14 dias de números e faturas (uma paga, duas abertas)."
+        )
+        self.stdout.write(
             f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
             "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
             "e no painel de cada loja."

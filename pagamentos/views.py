@@ -1,4 +1,5 @@
-"""Views do app pagamentos: Painel › Faturas, "Já paguei" e o comprovante (sempre a loja logada)."""
+"""Views do app pagamentos: Painel › Faturas, "Já paguei" e o comprovante (sempre a loja logada) e a
+página pública de pagamento da fatura de publicidade (patrocinador sem login, link com token)."""
 
 from pathlib import PurePath
 
@@ -9,10 +10,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
 
 from anunciantes.views import anunciante_ativo
-from core.services import configuracao, textos_ajuda
+from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 from pagamentos.forms import ComprovanteForm
 from pagamentos.models import Fatura
-from pagamentos.services import dados_pix, enviar_comprovante, faturas_da_loja, faturas_em_aberto
+from pagamentos.services import (
+    dados_pix,
+    enviar_comprovante,
+    faturas_da_loja,
+    faturas_em_aberto,
+)
+from pagamentos.services import (
+    fatura_publica as buscar_fatura_publica,
+)
 from planos.services import assinatura_de
 
 TIPOS_COMPROVANTE = {
@@ -110,3 +119,55 @@ def ja_paguei(request: HttpRequest, codigo: str) -> HttpResponse:
 def comprovante(request: HttpRequest, codigo: str) -> HttpResponse:
     """O comprovante que a própria loja enviou."""
     return resposta_do_comprovante(_fatura_da_loja(request, codigo))
+
+
+# --- Fatura de publicidade: página pública com token (patrocinador não tem login) ------------------
+
+
+def _pagina_publica(request: HttpRequest, fatura: Fatura, form: ComprovanteForm, status: int = 200):
+    """Valor, vencimento, Pix (copia e cola + QR) e "Já paguei" da fatura do patrocinador."""
+    return render(
+        request,
+        "pagamentos/fatura_publica.html",
+        {
+            "tela": "fatura_publica",
+            "ajuda_itens": textos_ajuda("fatura_publica"),
+            "fatura": fatura,
+            "pix": dados_pix(fatura) if fatura.a_pagar else None,
+            "form": form,
+        },
+        status=status,
+    )
+
+
+@require_GET
+def fatura_publica(request: HttpRequest, token) -> HttpResponse:
+    """Fatura de campanha pelo link enviado por e-mail (token aleatório; fatura de loja não abre aqui)."""
+    fatura = buscar_fatura_publica(token)
+    if fatura is None:
+        raise Http404("Fatura não encontrada.")
+    return _pagina_publica(request, fatura, ComprovanteForm())
+
+
+@require_POST
+def fatura_publica_ja_paguei(request: HttpRequest, token) -> HttpResponse:
+    """ "Já paguei" do patrocinador: mesmo envio e conferência do painel, com limite por IP contra robô."""
+    fatura = buscar_fatura_publica(token)
+    if fatura is None:
+        raise Http404("Fatura não encontrada.")
+    form = ComprovanteForm(request.POST, request.FILES)
+    if limite_por_ip_excedido(request, "comprovante_publico", limite=10):
+        form.add_error(None, "Muitos envios seguidos. Aguarde um pouco e tente de novo.")
+        return _pagina_publica(request, fatura, form, status=429)
+    if form.is_valid():
+        try:
+            enviar_comprovante(fatura, form.cleaned_data["comprovante"], form.cleaned_data["recado"])
+        except ValidationError as erro:
+            form.add_error("comprovante", erro)
+        except ValueError as erro:
+            messages.warning(request, str(erro))
+            return redirect("pagamentos:fatura_publica", token)
+        else:
+            messages.success(request, "Comprovante enviado! A equipe confere e avisa por e-mail.")
+            return redirect("pagamentos:fatura_publica", token)
+    return _pagina_publica(request, fatura, form, status=400)

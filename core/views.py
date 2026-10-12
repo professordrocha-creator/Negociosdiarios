@@ -132,6 +132,8 @@ def robots(request: HttpRequest) -> HttpResponse:
         "Disallow: /cadastro/confirmar/",
         "Disallow: /loja/*/whatsapp/",
         "Disallow: /anuncio/*/whatsapp/",
+        "Disallow: /publicidade/",
+        "Disallow: /fatura/",
         f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
     ]
     return HttpResponse("\n".join(linhas) + "\n", content_type="text/plain; charset=utf-8")

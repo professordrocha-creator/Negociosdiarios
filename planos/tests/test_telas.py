@@ -172,7 +172,9 @@ def test_admin_edita_preco_e_limite_na_lista(client, daniel, plano):
 
     assert resposta.status_code == 302
     basico = plano("basico")
-    assert basico.limite_anuncios == 12 and basico.history.first().history_user == daniel
+    assert (
+        basico.limite_anuncios == 12 and basico.history.order_by("-history_id").first().history_user == daniel
+    )
 
 
 def test_admin_nao_apaga_plano(client, daniel, plano):
@@ -207,7 +209,7 @@ def test_admin_registrar_pagamento_pede_motivo_e_reativa(client, daniel, assinan
 
     assinatura.refresh_from_db()
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
-    assert assinatura.history.first().history_user == daniel
+    assert assinatura.history.order_by("-history_id").first().history_user == daniel
 
 
 def test_admin_aprova_e_recusa_pedidos(client, daniel, assinante, plano):

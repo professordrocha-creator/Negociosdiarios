@@ -100,7 +100,7 @@ def test_marca_vencidas_no_dia_seguinte(com_fatura):
     assert services.marcar_vencidas(HOJE() + timedelta(days=1)) == 1
     fatura.refresh_from_db()
     assert fatura.situacao == Fatura.Situacao.VENCIDA
-    assert "Vencida" in fatura.history.first().history_change_reason
+    assert "Vencida" in fatura.history.order_by("-history_id").first().history_change_reason
 
 
 # --- Régua de e-mails -------------------------------------------------------------------------
@@ -273,7 +273,7 @@ def test_confirmar_renova_uma_vez_e_avisa(com_fatura, equipe):
     assinatura = assinatura_de(fatura.assinatura.anunciante)
     assert (fatura.situacao, fatura.forma, fatura.confirmado_por) == ("paga", "pix", financeiro)
     assert assinatura.vencimento == proximo_vencimento(vencimento, Periodicidade.MENSAL)
-    assert assinatura.history.first().history_user == financeiro
+    assert assinatura.history.order_by("-history_id").first().history_user == financeiro
     assert "Confirmamos o pagamento" in mail.outbox[-1].body
     with pytest.raises(ValueError, match="paga"):
         services.confirmar_pagamento(fatura, financeiro)
@@ -307,9 +307,9 @@ def test_atraso_pela_fatura_pausa_e_confirmacao_reativa(loja, publicado):
     assinatura = assinatura_de(anunciante)
     assert anuncio.situacao == Anuncio.Situacao.PUBLICADO
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
-    assert assinatura.vencimento == proximo_vencimento(
-        HOJE(), Periodicidade.MENSAL
-    )  # pago em atraso: de hoje
+    # pago em atraso: o ciclo conta do vencimento original (o dia de cobrança da loja não muda)
+    original = HOJE() - timedelta(days=6)
+    assert assinatura.vencimento == proximo_vencimento(original, Periodicidade.MENSAL)
 
 
 def test_comprovante_aguardando_segura_a_pausa_ate_a_decisao(loja, publicado):
@@ -363,7 +363,7 @@ def test_troca_de_plano_atualiza_a_fatura_aberta(com_fatura):
 
     fatura.refresh_from_db()
     assert (fatura.valor, fatura.descricao) == (Decimal("149.90"), "Premium · mensal")
-    assert "Plano trocado" in fatura.history.first().history_change_reason
+    assert "Plano trocado" in fatura.history.order_by("-history_id").first().history_change_reason
 
 
 # --- Painel do admin e demonstração -----------------------------------------------------------
@@ -411,3 +411,50 @@ def test_faturas_demo(loja):
 
     services.apagar_faturas_demo()
     assert not Fatura.objects.exists() and not Fatura.history.exists()
+
+
+# --- Passo 0 da Sprint 7: vencimento original, primeira fatura e lembrete perdido -------------------
+
+
+def test_renovacao_conta_do_vencimento_original_mesmo_pagando_depois(com_fatura):
+    """Pagou 2 dias depois (dentro da carência): o próximo é vencimento + 1 mês, não hoje + 1 mês."""
+    fatura = com_fatura(dias=-2)
+    services.confirmar_pagamento(fatura, None)
+
+    assinatura = assinatura_de(fatura.assinatura.anunciante)
+    assert assinatura.vencimento == proximo_vencimento(fatura.vencimento, Periodicidade.MENSAL)
+
+
+def test_primeiro_plano_aprovado_gera_a_primeira_fatura(criar_anunciante):
+    """Loja sem plano pede o Básico; a aprovação cria a assinatura com o 1º ciclo vencendo hoje e a fatura."""
+    anunciante = criar_anunciante("nova@exemplo.com", "Loja Nova")
+    pedido = pedir_troca(anunciante, Plano.objects.get(slug="basico"), Periodicidade.MENSAL)
+    mail.outbox.clear()
+
+    assinatura = aprovar_pedido(pedido, None)
+
+    fatura = assinatura.faturas.get()
+    assert (fatura.competencia, fatura.vencimento, fatura.situacao) == (HOJE(), HOJE(), "aberta")
+    assert fatura.valor == Decimal("49.90") and assinatura.vencimento == HOJE()
+    assert any(fatura.codigo in email.subject for email in mail.outbox)  # "fatura disponível"
+    services.confirmar_pagamento(fatura, None)
+    assert assinatura_de(anunciante).vencimento == proximo_vencimento(HOJE(), Periodicidade.MENSAL)
+
+
+def test_beat_parado_o_lembrete_sai_no_dia_seguinte(com_fatura):
+    """Sem rotina no dia do vencimento: no dia seguinte sai só o lembrete mais recente (sem rajada); um dia
+    perdido depois disso também é recuperado."""
+    fatura = com_fatura(dias=0)
+    vencimento = fatura.vencimento
+    mail.outbox.clear()
+
+    dia = vencimento + timedelta(days=1)  # não rodou nem no lembrete de 3 dias nem no dia
+    services.marcar_vencidas(dia)
+    assert services.enviar_avisos(dia) == 1
+    assert "venceu ontem" in mail.outbox[-1].subject
+    fatura.refresh_from_db()
+    assert fatura.avisos_enviados == ["vencida_1_dia", "lembrete_3_dias", "vence_hoje"]
+
+    assert services.enviar_avisos(vencimento + timedelta(days=2)) == 0
+    assert services.enviar_avisos(vencimento + timedelta(days=5)) == 1  # o de 3 dias, recuperado
+    assert "há 3 dias" in mail.outbox[-1].subject

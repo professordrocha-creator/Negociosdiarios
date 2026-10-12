@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load nd static %}
+{% load nd static publicidade %}
 {# Busca de imóveis ou veículos (convertida de prototipo/busca.html). Filtros num formulário GET: funciona sem JS. #}
 {# Com HTMX: mudar um filtro pede a mesma página e troca só #resultados (+ bairro/modelo, que dependem de outros #}
 {# filtros, por hx-select-oob); a URL limpa vem no cabeçalho HX-Push-Url. No celular, filtros num painel (offcanvas). #}
@@ -18,6 +18,7 @@
 
 {% block conteudo %}
 <main class="container mt-4">
+  {% publicidade "busca_topo" cidade %}
   <nav aria-label="Trilha" class="small mb-2"><a href="{% url 'core:inicio' %}">Início</a> › {% if categoria == "imoveis" %}Imóveis{% else %}Veículos{% endif %}{% if cidade %} › {{ cidade.nome }}{% endif %}</nav>
   <div class="row g-4">
     <aside class="col-lg-3">
@@ -75,6 +76,7 @@
         {% endif %}
 
         {% if anuncios %}
+          {% publicidade "busca_nativo" cidade %}
           <div class="row row-cols-1 row-cols-sm-2 g-3">
             {% for anuncio in anuncios %}<div class="col">{% include "_card_anuncio.html" %}</div>{% endfor %}
           </div>

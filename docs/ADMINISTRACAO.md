@@ -24,8 +24,8 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 |---|---|---|
 | **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar · Planos: ver, criar, editar · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar · Faturas e e-mails de cobrança: como o Financeiro | Tudo dos modelos novos |
 | Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar | Denúncias (Sprint 7) |
-| Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos: ver, criar, editar (preços e limites) · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar (recebe o e-mail de pedido novo) · Anúncios: ver · **Faturas: ver, painel de cobrança, confirmar pagamento, recusar comprovante, cancelar, editar link do boleto/observação (recebe o e-mail de comprovante novo) · E-mails de cobrança: ver, editar** (Sprint 6) | Relatórios |
-| Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver | Patrocinadores e contratos (Sprint 7) |
+| Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos: ver, criar, editar (preços e limites) · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar (recebe o e-mail de pedido novo) · Anúncios: ver · **Faturas: ver, painel de cobrança, confirmar pagamento, recusar comprovante, cancelar, editar link do boleto/observação (recebe o e-mail de comprovante novo) · E-mails de cobrança: ver, editar** (Sprint 6) · Publicidade: patrocinadores e campanhas (ver) | Relatórios |
+| Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver · **Publicidade: patrocinadores, campanhas e peças (ver, criar, editar), painel e CSV, gerar fatura; recebe o aviso de campanha terminando** (Sprint 7A) | Relatório mensal ao patrocinador |
 
 Ninguém além do superusuário pode:
 - **apagar usuário ou anunciante** (exclusão é lógica: anunciante é suspenso, nunca apagado);
@@ -52,6 +52,10 @@ Ninguém além do superusuário pode:
   - faturas vencendo hoje / vencidas;
   - receita do mês (assinaturas + publicidade);
   - contratos de publicidade que vencem em 7 dias.
+- **Painel de publicidade (Sprint 7A):** Publicidade › Campanhas › "Painel de publicidade": campanhas no ar,
+  terminando em breve, impressões, cliques e CTR por campanha no período, com Exportar CSV. Vender: cadastre o
+  patrocinador, crie a campanha com as peças (situação "ativa" para ir ao ar no início) e use "Gerar fatura
+  (Pix)": o patrocinador recebe o link de pagamento; a confirmação é em Cobrança › Faturas.
 - **Painel de cobrança (Sprint 6):** Cobrança › Faturas › "Painel de cobrança": a receber no mês,
   recebido no mês, vencendo em 7 dias, vencidas e aguardando confirmação. Rotina do Financeiro:
   1. abrir "Aguardando confirmação", abrir cada comprovante e conferir no extrato (valor e identificador

@@ -166,17 +166,29 @@ def marcar_vencidas(hoje: date | None = None) -> int:
 def enviar_avisos(hoje: date | None = None) -> int:
     """Régua: lembrete 3 dias antes, no dia, 1 e 3 dias depois, só para faturas ainda a pagar.
 
-    Aguardando confirmação não recebe cobrança (o anunciante já disse que pagou). Cada lembrete sai uma
-    vez por fatura (`avisos_enviados`). Devolve quantos e-mails saíram.
+    Recupera dia perdido: se a rotina não rodou (beat parado), no dia seguinte sai o lembrete que ficou
+    devendo. Se vários ficaram para trás, sai só o mais recente (os anteriores são dados como tratados,
+    para o cliente não receber uma rajada de e-mails). Aguardando confirmação não recebe cobrança. Cada
+    lembrete sai uma vez por fatura (`avisos_enviados`). Devolve quantos e-mails saíram.
     """
     hoje = hoje or timezone.localdate()
+    antecedencia = -min(dias for _, dias in REGUA)
+    faturas = Fatura.objects.filter(
+        situacao__in=Fatura.A_PAGAR, vencimento__lte=hoje + timedelta(days=antecedencia)
+    ).select_related("assinatura__anunciante__usuario", "campanha__patrocinador")
     total = 0
-    for chave, dias in REGUA:
-        faturas = Fatura.objects.filter(
-            situacao__in=Fatura.A_PAGAR, vencimento=hoje - timedelta(days=dias)
-        ).exclude(avisos_enviados__contains=[chave.value])
-        for fatura in faturas.select_related("assinatura__anunciante__usuario"):
-            total += avisar_cliente(fatura, chave)
+    for fatura in faturas:
+        devidos = [
+            chave.value
+            for chave, dias in REGUA
+            if hoje >= fatura.vencimento + timedelta(days=dias) and chave.value not in fatura.avisos_enviados
+        ]
+        if not devidos:
+            continue
+        total += avisar_cliente(fatura, devidos[-1])
+        pulados = [chave for chave in devidos[:-1] if chave not in fatura.avisos_enviados]
+        if pulados:  # tratados sem e-mail: o mais recente já cobre
+            Fatura.objects.filter(pk=fatura.pk).update(avisos_enviados=[*fatura.avisos_enviados, *pulados])
     return total
 
 
@@ -209,12 +221,12 @@ def _data(valor: date | datetime) -> str:
 def valores_do_email(fatura: Fatura, motivo: str = "") -> dict[str, str]:
     """Variáveis dos e-mails de cobrança."""
     return {
-        "loja": fatura.assinatura.anunciante.nome_publico,
+        "loja": fatura.cliente_nome,
         "valor": moeda(fatura.valor),
         "vencimento": _data(fatura.vencimento),
         "competencia": f"{_data(fatura.competencia)} a {_data(fatura.periodo_fim)}",
         "codigo": fatura.codigo or "",
-        "link": settings.SITE_URL + reverse("pagamentos:faturas"),
+        "link": settings.SITE_URL + fatura.link_pagamento,
         "motivo": motivo,
         "site": configuracao().nome,
     }
@@ -226,7 +238,7 @@ def avisar_cliente(fatura: Fatura, chave: str, motivo: str = "") -> int:
     Texto desligado ou inexistente: não envia. Devolve 1 se enviou, 0 se não.
     """
     modelo = ModeloEmailCobranca.objects.filter(chave=chave, ativo=True).first()
-    email = fatura.assinatura.anunciante.usuario.email
+    email = fatura.cliente_email
     if modelo is None or not email:
         return 0
     valores = valores_do_email(fatura, motivo)
@@ -291,7 +303,7 @@ def enviar_comprovante(fatura: Fatura, arquivo: UploadedFile, recado: str = "") 
     """
     limpo = comprovante_limpo(arquivo)
     with transaction.atomic():
-        fatura = Fatura.objects.select_for_update().select_related("assinatura__anunciante").get(pk=fatura.pk)
+        fatura = Fatura.objects.select_for_update().get(pk=fatura.pk)
         if not fatura.a_pagar:
             raise ValueError("Esta fatura não está esperando pagamento.")
         if fatura.comprovante:
@@ -338,7 +350,7 @@ def confirmar_pagamento(
     hoje = hoje or timezone.localdate()
     observacao = observacao.strip()
     with transaction.atomic():
-        fatura = Fatura.objects.select_for_update().select_related("assinatura").get(pk=fatura.pk)
+        fatura = Fatura.objects.select_for_update().get(pk=fatura.pk)
         if fatura.situacao not in Fatura.EM_ABERTO:
             raise ValueError(f"{fatura.codigo}: já está {fatura.get_situacao_display().lower()}.")
         fatura.situacao = Fatura.Situacao.PAGA
@@ -350,10 +362,11 @@ def confirmar_pagamento(
         fatura._history_user = por
         fatura._change_reason = "Pagamento confirmado pela equipe."
         fatura.save()
-        assinatura = Assinatura.objects.select_for_update().get(pk=fatura.assinatura_id)
-        if fatura.competencia >= assinatura.vencimento:
-            motivo = f"{fatura.codigo}" + (f" ({observacao})" if observacao else "")
-            renovar_assinatura(assinatura, por, motivo, hoje)
+        if fatura.assinatura_id:  # fatura de campanha de publicidade não mexe em assinatura
+            assinatura = Assinatura.objects.select_for_update().get(pk=fatura.assinatura_id)
+            if fatura.competencia >= assinatura.vencimento:
+                motivo = f"{fatura.codigo}" + (f" ({observacao})" if observacao else "")
+                renovar_assinatura(assinatura, por, motivo, hoje)
     avisar_cliente(fatura, ModeloEmailCobranca.Chave.PAGAMENTO_CONFIRMADO)
     return fatura
 
@@ -406,6 +419,35 @@ def registrar_pagamento_manual(
     if fatura is None:
         raise ValueError(f"{assinatura}: a fatura do ciclo atual já está paga.")
     return confirmar_pagamento(fatura, por, Fatura.Forma.OUTRO, motivo.strip(), hoje)
+
+
+def gerar_fatura_campanha(campanha, hoje: date | None = None) -> Fatura:
+    """Fatura avulsa de uma campanha de publicidade (cobrança manual, Pix estático): o período da campanha,
+    o valor dela e vencimento no início (ou hoje, se já começou). Uma por campanha (cancelada não conta).
+    Manda "fatura disponível" ao patrocinador com o link da página pública de pagamento."""
+    hoje = hoje or timezone.localdate()
+    if campanha.faturas.exclude(situacao=Fatura.Situacao.CANCELADA).exists():
+        raise ValueError(f"{campanha}: já tem fatura (cancele a anterior para gerar outra).")
+    fatura = Fatura.objects.create(
+        campanha=campanha,
+        competencia=campanha.inicio,
+        periodo_fim=campanha.fim,
+        descricao=f"Publicidade · {campanha.nome}"[:120],
+        valor=campanha.valor,
+        vencimento=max(campanha.inicio, hoje),
+        demo=campanha.demo,
+    )
+    avisar_cliente(fatura, ModeloEmailCobranca.Chave.FATURA_DISPONIVEL)
+    return fatura
+
+
+def fatura_publica(token) -> Fatura | None:
+    """Fatura de campanha pelo token do link (a de loja só é paga pelo painel, com login)."""
+    return (
+        Fatura.objects.filter(token=token, campanha__isnull=False)
+        .select_related("campanha__patrocinador")
+        .first()
+    )
 
 
 def atualizar_fatura_aberta(assinatura: Assinatura) -> int:
@@ -567,7 +609,11 @@ def criar_faturas_demo(slugs_em_atraso: list[str] | tuple[str, ...] = ()) -> int
 
 def apagar_faturas_demo() -> int:
     """Apaga as faturas de demonstração (com os comprovantes e o histórico). Devolve quantas eram."""
-    faturas = Fatura.objects.filter(demo=True) | Fatura.objects.filter(assinatura__demo=True)
+    faturas = (
+        Fatura.objects.filter(demo=True)
+        | Fatura.objects.filter(assinatura__demo=True)
+        | Fatura.objects.filter(campanha__demo=True)
+    )
     quantas = 0
     for fatura in faturas.distinct():
         if fatura.comprovante:
@@ -576,5 +622,6 @@ def apagar_faturas_demo() -> int:
     with transaction.atomic():
         Fatura.objects.filter(demo=True).delete()
         Fatura.objects.filter(assinatura__demo=True).delete()
+        Fatura.objects.filter(campanha__demo=True).delete()
         Fatura.history.filter(demo=True).delete()
     return quantas

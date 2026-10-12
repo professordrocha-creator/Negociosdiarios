@@ -170,9 +170,18 @@ def proximo_vencimento(data: date, periodicidade: str) -> date:
 
 
 def criar_assinatura(
-    anunciante: Anunciante, plano: Plano, periodicidade: str, inicio: date | None = None
+    anunciante: Anunciante,
+    plano: Plano,
+    periodicidade: str,
+    inicio: date | None = None,
+    cobrar_primeiro_ciclo: bool = False,
 ) -> Assinatura:
-    """Assinatura nova (ou troca da existente) ativa, com vencimento no próximo período."""
+    """Assinatura nova (ou troca da existente) ativa.
+
+    Com `cobrar_primeiro_ciclo` (primeiro plano aprovado pela equipe): o primeiro período vence já no
+    início e a fatura dele é gerada na hora (e-mail "fatura disponível"); a carência vale como para as
+    outras faturas. Sem ele (dados de teste e demonstração): vencimento no próximo período.
+    """
     inicio = inicio or timezone.localdate()
     assinatura, _ = Assinatura.objects.update_or_create(
         anunciante=anunciante,
@@ -180,11 +189,15 @@ def criar_assinatura(
             "plano": plano,
             "periodicidade": periodicidade,
             "inicio": inicio,
-            "vencimento": proximo_vencimento(inicio, periodicidade),
+            "vencimento": inicio if cobrar_primeiro_ciclo else proximo_vencimento(inicio, periodicidade),
             "situacao": Assinatura.Situacao.ATIVA,
             "demo": anunciante.demo,  # loja demo: assinatura também some no apagar_dados_demo
         },
     )
+    if cobrar_primeiro_ciclo:
+        from pagamentos.services import gerar_fatura  # import local: o app pagamentos depende deste
+
+        gerar_fatura(assinatura, inicio)
     return assinatura
 
 
@@ -227,15 +240,16 @@ def renovar_assinatura(
     """Ciclo pago: chamado por `pagamentos.services.confirmar_pagamento` (fatura confirmada ou
     "Registrar pagamento manual"), nunca direto pela tela.
 
-    Empurra o vencimento um período (a partir de hoje, se estava em atraso ou já vencida) e, se estava
-    em atraso, volta a "ativa" e dispara `assinatura_regularizada` (o app de anúncios reativa).
+    Empurra o vencimento um período a partir do VENCIMENTO ORIGINAL, pague antes ou depois (o dia de
+    cobrança da loja não muda com atraso). Se o novo vencimento ainda ficar no passado (mais de um ciclo
+    sem pagar), a rotina diária gera a fatura seguinte, já vencida. Se estava em atraso, volta a "ativa" e
+    dispara `assinatura_regularizada` (o app de anúncios reativa).
     """
     if not motivo.strip():
         raise ValueError("Informe o motivo/comprovante do pagamento.")
     hoje = hoje or timezone.localdate()
     estava_em_atraso = assinatura.situacao == Assinatura.Situacao.EM_ATRASO
-    base = hoje if estava_em_atraso or assinatura.vencimento < hoje else assinatura.vencimento
-    assinatura.vencimento = proximo_vencimento(base, assinatura.periodicidade)
+    assinatura.vencimento = proximo_vencimento(assinatura.vencimento, assinatura.periodicidade)
     assinatura.situacao = Assinatura.Situacao.ATIVA
     assinatura._history_user = por
     assinatura._change_reason = f"Pagamento registrado: {motivo.strip()}"[:100]
@@ -342,7 +356,9 @@ def aprovar_pedido(pedido: PedidoTrocaPlano, por: Usuario | None) -> Assinatura:
             assinatura.save(update_fields=["plano", "periodicidade", "atualizado_em"])
             atualizar_fatura_aberta(assinatura)  # a fatura ainda aberta passa a cobrar o plano novo
         else:  # primeiro plano
-            assinatura = criar_assinatura(pedido.anunciante, pedido.plano_novo, pedido.periodicidade)
+            assinatura = criar_assinatura(
+                pedido.anunciante, pedido.plano_novo, pedido.periodicidade, cobrar_primeiro_ciclo=True
+            )
         pedido.status = PedidoTrocaPlano.Status.APROVADO
         pedido.decidido_por, pedido.decidido_em = por, timezone.now()
         pedido.save(update_fields=["status", "decidido_por", "decidido_em"])

@@ -31,7 +31,7 @@ parando no fim de cada etapa para teste no navegador.
 | 4 | Anúncio de veículo (catálogo FIPE) + busca com filtros |
 | 5 | Mapa Leaflet, WhatsApp com contagem de cliques, home com vitrine de lojas |
 | 6 | **Cobrança manual assistida** (decisão de 2026-10-12): faturas geradas X dias antes, Pix estático (copia e cola + QR Code, sem API), "Já paguei" com comprovante, confirmação no admin (painel de cobrança), régua de e-mails editáveis e pausa por fatura vencida. Integração com gateway: V2 |
-| 7 | Banners/patrocinadores, LGPD (meus dados, exclusão, cookies), termos |
+| 7 | **7A (feita):** publicidade vendida direto (patrocinadores, campanhas, banner/card/nativo, rodízio, métricas sem dado pessoal, painel/CSV, fatura Pix). **7B:** LGPD (meus dados, exclusão, cookies), termos, denúncias |
 | 8 | **Importador de anúncios**: XML padrão ZAP/VivaReal (imóveis) e planilha CSV/Excel (veículos e imóveis) |
 | 9 | Testes, `check --deploy`, backup testado, SEO (sitemap, OG), **apagar os dados demo** (`apagar_dados_demo`), carga das lojas fundadoras → **lançamento** |
 

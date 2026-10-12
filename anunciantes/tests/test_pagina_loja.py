@@ -108,7 +108,10 @@ def test_salvar_dados_publicos(client, loja):
         "lojaalfa",
     )
     assert loja.mostrar_no_mapa and loja.whatsapp == "+5565988887777"
-    assert loja.history.first().history_change_reason == "Página da loja editada pelo anunciante."
+    assert (
+        loja.history.order_by("-history_id").first().history_change_reason
+        == "Página da loja editada pelo anunciante."
+    )
 
 
 def test_creci_e_cnpj_nao_sao_editaveis(client, loja):

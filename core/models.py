@@ -296,6 +296,23 @@ class Configuracao(models.Model):
         "descrição do anúncio: máximo de caracteres", default=3000
     )
 
+    # Publicidade (Sprint 7A, docs/PUBLICIDADE.md): tamanhos das peças, peso e aviso de fim.
+    banner_largura_px = models.PositiveIntegerField("banner no computador: largura (px)", default=970)
+    banner_altura_px = models.PositiveIntegerField("banner no computador: altura (px)", default=90)
+    banner_celular_largura_px = models.PositiveIntegerField("banner no celular: largura (px)", default=320)
+    banner_celular_altura_px = models.PositiveIntegerField("banner no celular: altura (px)", default=100)
+    card_patrocinador_px = models.PositiveIntegerField(
+        "card patrocinador: lado do logo (px)", default=400, help_text="O logo do card é quadrado."
+    )
+    limite_banner_kb = models.PositiveIntegerField(
+        "limite de cada imagem de publicidade (KB)", default=1024, help_text="Vale para banner e card."
+    )
+    campanha_aviso_dias = models.PositiveSmallIntegerField(
+        "aviso de fim de campanha (dias antes)",
+        default=7,
+        help_text="A equipe recebe e-mail quando faltam estes dias para a campanha sair do ar.",
+    )
+
     # Regras do negócio: prazos e moderação (nunca fixos no código).
     class Moderacao(models.TextChoices):
         PRIMEIRO = "primeiro", "Só o primeiro anúncio de cada loja"

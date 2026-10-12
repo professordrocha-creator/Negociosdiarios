@@ -84,7 +84,7 @@ def test_ponto_publico_conforme_a_exibicao(alfa, publicado):
 def test_historico_nao_guarda_ponto_publico(alfa, publicado):
     """O ponto público é derivado: fica fora do histórico (não polui nem duplica o ponto)."""
     anuncio = com_localizacao(publicado(alfa), "aproximada")
-    historico = anuncio.imovel.history.first()
+    historico = anuncio.imovel.history.order_by("-history_id").first()
     assert not hasattr(historico, "ponto_publico")
 
 

@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load nd %}
+{# Painel de publicidade (Sprint 7A): campanhas no ar, a vencer, impressões, cliques e CTR por campanha no período, #}
+{# com exportação CSV. "Sobre esta tela" vem do TextoAjuda "admin_publicidade". #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{% url 'admin:publicidade_campanha_changelist' %}">Campanhas</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+{% if ajuda_itens %}
+<div class="module"><h2>Sobre esta tela</h2><ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul></div>
+{% endif %}
+
+<form method="get">
+  {{ form.de.label_tag }} {{ form.de }} {{ form.ate.label_tag }} {{ form.ate }}
+  <input type="submit" value="Ver período">
+  <a class="button" href="{{ url_csv }}">Exportar CSV</a>
+</form>
+
+<p>Período: {{ de|date:"d/m/Y" }} a {{ ate|date:"d/m/Y" }} · <b>{{ ativas }}</b> no ar hoje · <b>{{ a_vencer }}</b> terminando em até {{ aviso_dias }} dias · {{ impressoes }} impressões · {{ cliques }} cliques</p>
+
+<table>
+  <thead><tr>
+    <th scope="col">Campanha</th><th scope="col">Patrocinador</th><th scope="col">Período</th><th scope="col">Situação</th>
+    <th scope="col">Valor</th><th scope="col">Impressões</th><th scope="col">Cliques</th><th scope="col">CTR</th>
+  </tr></thead>
+  <tbody>
+    {% for linha in linhas %}
+    <tr>
+      <th scope="row"><a href="{% url 'admin:publicidade_campanha_change' linha.campanha.pk %}">{{ linha.campanha.nome }}</a></th>
+      <td>{{ linha.campanha.patrocinador.nome }}</td>
+      <td>{{ linha.campanha.inicio|date:"d/m/Y" }} a {{ linha.campanha.fim|date:"d/m/Y" }}</td>
+      <td>{{ linha.campanha.get_situacao_display }}{% if linha.no_ar %} · no ar{% endif %}{% if linha.a_vencer %} · <b>termina em breve</b>{% endif %}</td>
+      <td>{{ linha.campanha.valor|moeda }}</td>
+      <td>{{ linha.impressoes }}</td>
+      <td>{{ linha.cliques }}</td>
+      <td>{{ linha.taxa_de_cliques }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">Nenhuma campanha ativa, pausada ou encerrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="help">Impressões e cliques são somados por dia, sem IP e sem cookie; robôs não contam. O rodízio sorteia uma peça a cada página.</p>
+{% endblock %}

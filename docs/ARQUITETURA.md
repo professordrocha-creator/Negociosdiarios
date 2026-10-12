@@ -56,7 +56,7 @@ interna. Containers rodam com usuário não-root.
 | `catalogo` | Catálogo de veículos da Tabela FIPE: marca → modelo → versão, por tipo (carro, caminhonete, moto, caminhão) |
 | `planos` | Planos, assinatura do anunciante, regra de limite de anúncios |
 | `pagamentos` | Faturas, Pix estático, comprovantes, régua de cobrança (V1, Sprint 6); gateway Mercado Pago e webhooks na V2 |
-| `publicidade` | Banners, cards de patrocinador, anúncio nativo; contagem de impressões |
+| `publicidade` | Patrocinadores, campanhas, peças (banner, card, nativo), rodízio, clique contado, métricas por dia sem dado pessoal, painel/CSV (Sprint 7A) |
 | `moderacao` | Filas de aprovação, denúncias de anúncios, histórico de decisões |
 | `estatisticas` | Visualizações e cliques no WhatsApp por anúncio (sem dado pessoal) |
 | `importacao` | Importação em massa de anúncios (XML ZAP/VivaReal, planilha CSV/Excel) |
@@ -120,6 +120,21 @@ Planejado: `telefone`.
 - `Configuracao.carencia_dias` (padrão 5): dias depois do vencimento até a assinatura virar em_atraso.
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
+
+### Patrocinador, Campanha, Banner e MetricaDiaria — app `publicidade` (Sprint 7A; docs/PUBLICIDADE.md)
+- `Patrocinador`: `nome`, `cnpj` (opcional), `contato_nome`, `email`, `whatsapp`, `anunciante` (loja do site,
+  opcional; só compra com assinatura ativa), `observacao`, `demo`, histórico.
+- `Campanha`: `patrocinador` (PROTECT), `nome`, `posicoes` (ArrayField: home_topo, busca_topo, busca_nativo,
+  anuncio_topo, rodape_card), `cidades` (M2M, só liberadas; vazio = site todo), `inicio`, `fim`, `valor`
+  (Decimal), `situacao` (rascunho | ativa | pausada | encerrada | cancelada), `aviso_fim_enviado`, `demo`,
+  histórico.
+- `Banner` (a peça): `campanha` (PROTECT), `formato` (banner | card | nativo), `imagem`/`imagem_celular`
+  (WebP no tamanho da `Configuracao`) e os envios `*_original` (apagados no Celery), `texto_alternativo`,
+  `titulo`, `texto`, `link` (só http/https), `ativo`, `demo`.
+- `MetricaDiaria`: `banner`, `dia`, `impressoes`, `cliques` (única por peça e dia). Nenhum dado do visitante.
+- `Fatura` (pagamentos) passou a ser de uma `assinatura` **ou** de uma `campanha` (restrição no banco) e ganhou
+  `token` (UUID único) para a página pública `/fatura/<token>/`.
+- `Configuracao`: `banner_*_px`, `card_patrocinador_px`, `limite_banner_kb`, `campanha_aviso_dias`.
 
 ### Fatura e ModeloEmailCobranca — app `pagamentos` (Sprint 6; docs/PAGAMENTOS.md)
 - `Fatura`: `assinatura` (PROTECT), `codigo` (`ND-FT-00001`, do id), `competencia` (início do período) e
@@ -200,7 +215,10 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
    Comprovante aguardando confirmação não pausa (a equipe decide; recusado, volta a vencida). Pagamento
    confirmado (`pagamentos.services.confirmar_pagamento`: ação do admin ou "Registrar pagamento manual")
    → fatura paga, assinatura renovada uma vez (`planos.services.renovar_assinatura`) e, se estava em
-   atraso, volta a ativa e o sinal reativa os anúncios.
+   atraso, volta a ativa e o sinal reativa os anúncios. A renovação conta sempre do **vencimento original**
+   (o dia de cobrança da loja não muda com atraso). O **primeiro plano aprovado** já gera a fatura do
+   primeiro ciclo (vence no início, com a mesma carência). Lembrete que não saiu porque a rotina não rodou
+   sai no dia seguinte (só o mais recente, sem rajada).
 3. **Downgrade de plano:** `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: o
    anunciante escolhe quais manter (no máximo o novo limite, só dentre os dele); o excedente fica
    pausado. Tela `/painel/plano/escolher-anuncios/`: a escolha fica no `PedidoTrocaPlano.anuncios_manter`

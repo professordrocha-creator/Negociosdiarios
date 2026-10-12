@@ -54,7 +54,7 @@ def test_aprovar_pede_motivo_e_ativa(client, admin_logado, criar_anunciante):
     loja.refresh_from_db()
     assert loja.status == Anunciante.Status.ATIVO
     assert loja.motivo_status == "CNPJ conferido na Receita."
-    ultimo = loja.history.first()
+    ultimo = loja.history.order_by("-history_id").first()
     assert ultimo.history_user == admin_logado
     assert ultimo.history_change_reason == "CNPJ conferido na Receita."
 
@@ -89,7 +89,9 @@ def test_suspender_com_motivo(client, admin_logado, criar_anunciante):
     loja.refresh_from_db()
     assert loja.status == Anunciante.Status.SUSPENSO
     assert loja.motivo_status == "Anúncio enganoso denunciado."
-    assert loja.history.first().history_change_reason == "Anúncio enganoso denunciado."
+    assert (
+        loja.history.order_by("-history_id").first().history_change_reason == "Anúncio enganoso denunciado."
+    )
 
 
 def test_suspenso_perde_o_painel_na_hora(client, admin_logado, criar_anunciante):

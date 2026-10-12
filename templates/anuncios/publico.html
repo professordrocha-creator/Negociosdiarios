@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load nd static %}
+{% load nd static publicidade %}
 {# Página pública do anúncio (convertida de prototipo/anuncio.html). Só anúncio visível chega aqui (ou o dono, em prévia). #}
 {# Imóvel: mapa conforme exibir_localizacao (o ponto exato só se o anunciante escolheu "exata"). #}
 {# Veículo: ficha do catálogo FIPE, sem mapa; endereço da loja só se ela permitir (mostrar_no_mapa). #}
@@ -137,6 +137,8 @@
       </div>
     </aside>
   </div>
+
+  <div class="mt-4">{% publicidade "anuncio_topo" anuncio.cidade %}</div>
 
   {% if mais_da_loja %}
   <section class="mt-5">

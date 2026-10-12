@@ -209,6 +209,21 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "Publicidade",
+            {
+                "description": "Tamanhos e peso das peças (banner, card patrocinador) e o aviso de fim.",
+                "fields": (
+                    "banner_largura_px",
+                    "banner_altura_px",
+                    "banner_celular_largura_px",
+                    "banner_celular_altura_px",
+                    "card_patrocinador_px",
+                    "limite_banner_kb",
+                    "campanha_aviso_dias",
+                ),
+            },
+        ),
+        (
             "Regras do negócio",
             {
                 "description": "Prazos e moderação valem para todas as lojas a partir do próximo uso.",

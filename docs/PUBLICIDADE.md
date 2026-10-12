@@ -23,7 +23,7 @@ mostrar concorrentes e exige consentimento de cookies de rastreamento).
 
 ## Métricas (o que faz o cliente renovar)
 - Impressões e cliques por banner, contados **sem dado pessoal** (sem IP, sem cookie).
-- Clique passa por `/pub/<id>/clique/` → registra → redireciona.
+- Clique passa por `/publicidade/clique/<id>/` → registra → redireciona (só http/https).
 - Relatório mensal em PDF/página enviado por e-mail ao anunciante.
 
 ## Modelo de dados (app `publicidade`)
@@ -34,6 +34,35 @@ Patrocinador (nome, CNPJ, contato, anunciante_vinculado opcional)
               └─N MetricaDiaria (data, impressoes, cliques)
 ```
 Cobrança: fatura avulsa via Pix (mesma camada de `pagamentos`).
+
+## Implementado na Sprint 7A (app `publicidade`)
+- Modelos: `Patrocinador` (nome, CNPJ opcional, contato, e-mail, WhatsApp, loja do site opcional) →
+  `Campanha` (posições, cidades liberadas opcionais, início, fim, valor, situação rascunho | ativa | pausada |
+  encerrada | cancelada, histórico) → `Banner` (a peça: formato banner | card | nativo, imagem do computador e
+  do celular, texto alternativo, título, texto, link, ativo) → `MetricaDiaria` (peça, dia, impressões,
+  cliques). Nada se apaga.
+- Posições (no máximo 3 espaços por página): Home: banner no topo; Busca: banner no topo e anúncio nativo no
+  topo dos resultados (com a cidade da busca); Página do anúncio: banner (com a cidade do anúncio); Rodapé da
+  home: até 3 cards de patrocinador.
+- Tamanhos e peso na `Configuracao` (seção Publicidade): banner 970×90 e 320×100, card 400×400, 1 MB; a ajuda
+  dos campos de imagem no admin mostra os valores atuais. Imagem maior na mesma proporção (±10%) é recortada
+  pelo centro e reduzida; o Celery grava WebP sem EXIF e apaga o original.
+- Exibição: tag `{% publicidade "posicao" cidade %}`; rótulo "Publicidade" sempre visível; link pelo clique
+  com `rel="sponsored noopener"`; rodízio = sorteio a cada página (uma peça por campanha). Peça demo só com
+  `MOSTRAR_DEMO`. Campanha com cidades só aparece nelas; sem cidade, em todo o site.
+- Métricas somadas por dia, sem IP e sem cookie; robôs e trocas parciais do HTMX não contam.
+- Rotina diária (Celery beat, 5h): campanha ativa que passou do fim vira "encerrada"; a equipe (Comercial,
+  Administrador, superusuários) recebe e-mail `Configuracao.campanha_aviso_dias` (padrão 7) antes do fim,
+  uma vez por campanha (recupera dia perdido).
+- Regra 4: patrocinador ligado a uma loja do site só ativa campanha com assinatura ativa.
+- Cobrança: ação "Gerar fatura (Pix)" na lista de campanhas → `Fatura` da campanha (a mesma de `pagamentos`:
+  Pix estático, comprovante, confirmação em Cobrança › Faturas, régua de e-mails). O patrocinador não tem
+  login: recebe por e-mail o link `/fatura/<token>/` (token aleatório) com o QR Code, o copia e cola e o
+  "Já paguei". Pagar não liga a campanha sozinho: a equipe decide a situação.
+- Admin › Publicidade › Campanhas › "Painel de publicidade": campanhas no ar, terminando em breve,
+  impressões, cliques e CTR por campanha no período (padrão: 30 dias), exportação CSV (separador `;`,
+  células protegidas contra fórmula).
+- Ainda não: relatório mensal por e-mail ao patrocinador e a página "Anuncie sua marca" com números reais.
 
 ## Venda
 - Alvos: construtoras, loteadoras, material de construção, móveis, despachantes,

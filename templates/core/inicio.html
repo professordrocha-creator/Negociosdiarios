@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load nd %}
+{% load nd publicidade %}
 {# Home (prototipo/_gerar.py, HOME). Destaques, recém-anunciados e lojas vêm de core.services: #}
 {# hoje do demo.json (MOSTRAR_DEMO=True, só em dev); a partir da Sprint 3, do banco. Sem dados: "Em breve". #}
 
@@ -71,6 +71,7 @@
 </section>
 
 <main class="container mt-4 d-grid gap-5">
+  {% publicidade "home_topo" %}
   {# Destaques pagos (rótulo "Patrocinado"). #}
   <section>
     <div class="nd-secao-titulo"><h2>Destaques <span class="selo selo-destaque align-middle">Patrocinado</span></h2></div>
@@ -105,6 +106,7 @@
   {% endif %}
 
   {# Cidades atendidas: só cidades liberadas de estados liberados (core.services.cidades_atendidas). #}
+  {% publicidade "rodape_card" %}
   <section id="cidades">
     <div class="nd-secao-titulo"><h2>Cidades atendidas</h2></div>
     {% for grupo in estados_atendidos %}

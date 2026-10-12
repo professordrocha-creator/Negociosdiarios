@@ -35,6 +35,17 @@ COBRANCA = {
     "pagamentos.view_modeloemailcobranca",
     "pagamentos.change_modeloemailcobranca",
 }
+# Sprint 7A (publicidade/0002): Comercial e Administrador vendem e cadastram; Financeiro só consulta.
+PUBLICIDADE_VER = {"publicidade.view_patrocinador", "publicidade.view_campanha"}
+PUBLICIDADE_TUDO = PUBLICIDADE_VER | {
+    "publicidade.add_patrocinador",
+    "publicidade.change_patrocinador",
+    "publicidade.add_campanha",
+    "publicidade.change_campanha",
+    "publicidade.view_banner",
+    "publicidade.add_banner",
+    "publicidade.change_banner",
+}
 
 ESPERADO = {
     "Administrador": {
@@ -74,7 +85,8 @@ ESPERADO = {
     | PLANOS_TUDO
     | ANUNCIOS_MODERAR
     | CATALOGO_TUDO
-    | COBRANCA,
+    | COBRANCA
+    | PUBLICIDADE_TUDO,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -93,8 +105,15 @@ ESPERADO = {
     | PLANOS_TUDO
     | ANUNCIOS_VER
     | CATALOGO_VER
-    | COBRANCA,
-    "Comercial": SO_CIDADES | VER_ANUNCIANTE | GEOGRAFIA | PLANOS_VER | ANUNCIOS_VER | CATALOGO_VER,
+    | COBRANCA
+    | PUBLICIDADE_VER,
+    "Comercial": SO_CIDADES
+    | VER_ANUNCIANTE
+    | GEOGRAFIA
+    | PLANOS_VER
+    | ANUNCIOS_VER
+    | CATALOGO_VER
+    | PUBLICIDADE_TUDO,
 }
 
 

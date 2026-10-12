@@ -165,7 +165,7 @@ def test_downgrade_pausa_os_nao_escolhidos(assinante, plano):
     assert pausados == set(range(11, 16))
     assert pausados_recebidos == [set(range(11, 16))]
     assert assinatura.plano.slug == "basico"
-    assert "Downgrade" in assinatura.history.first().history_change_reason
+    assert "Downgrade" in assinatura.history.order_by("-history_id").first().history_change_reason
 
 
 def test_downgrade_recusa_escolher_mais_que_o_novo_limite(assinante, plano):
@@ -261,7 +261,7 @@ def test_depois_da_carencia_vira_em_atraso_avisa_e_dispara_sinal(assinante):
     assert recebidos == [loja.pk]
     assert mail.outbox[0].to == ["loja@exemplo.com"]
     assert "pausados" in mail.outbox[0].body.lower() and "nada foi apagado" in mail.outbox[0].body
-    assert "carência" in assinatura.history.first().history_change_reason
+    assert "carência" in assinatura.history.order_by("-history_id").first().history_change_reason
 
 
 def test_carencia_vem_da_configuracao(assinante):
@@ -323,13 +323,15 @@ def test_pagamento_em_dia_empurra_o_vencimento(assinante):
     assinatura.refresh_from_db()
     assert assinatura.vencimento == proximo_vencimento(vencimento, Periodicidade.MENSAL)
     assert (
-        assinatura.history.first().history_change_reason == f"Pagamento registrado: {fatura.codigo} (Pix 123)"
+        assinatura.history.order_by("-history_id").first().history_change_reason
+        == f"Pagamento registrado: {fatura.codigo} (Pix 123)"
     )
     assert (fatura.situacao, fatura.forma, fatura.competencia) == ("paga", "outro", vencimento)
 
 
 def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
-    """Pagou: volta a ativa, vencimento a partir de hoje e sinal para reativar os anúncios."""
+    """Pagou: volta a ativa, vencimento a partir do VENCIMENTO ORIGINAL (não do dia do pagamento) e sinal
+    para reativar os anúncios."""
     loja = assinante()
     vencer(loja, 20)
     processar_atrasos()
@@ -348,7 +350,8 @@ def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
     assinatura.refresh_from_db()
 
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
-    assert assinatura.vencimento == proximo_vencimento(timezone.localdate(), Periodicidade.MENSAL)
+    original = timezone.localdate() - timedelta(days=20)
+    assert assinatura.vencimento == proximo_vencimento(original, Periodicidade.MENSAL)
     assert recebidos == [assinatura.pk]
 
 

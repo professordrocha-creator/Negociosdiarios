@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Fatura de publicidade (Sprint 7A): página pública pelo link com token enviado ao patrocinador (sem login). #}
+{# Mesmo Pix estático e mesmo "Já paguei" do painel das lojas. noindex. #}
+
+{% block titulo %}Fatura {{ fatura.codigo }}{% endblock %}
+{% block descricao %}Pagamento da fatura de publicidade.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Fatura {{ fatura.codigo }}</h1>
+    {% include "_ajuda.html" %}
+    {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+    {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
+    <section class="nd-caixa d-grid gap-2">
+      <span class="small text-suave">{{ fatura.cliente_nome }} · {{ fatura.descricao }}</span>
+      <span class="small text-suave">Período: {{ fatura.competencia|date:"d/m/Y" }} a {{ fatura.periodo_fim|date:"d/m/Y" }}</span>
+      <div class="d-flex flex-wrap align-items-end gap-3">
+        <span class="nd-preco-grande tabular me-auto">{{ fatura.valor|moeda }}</span>
+        <span><span class="d-block small text-suave">Vencimento</span><b class="tabular">{{ fatura.vencimento|date:"d/m/Y" }}</b></span>
+      </div>
+      <span><span class="selo selo-verificado">{{ fatura.get_situacao_display }}</span></span>
+    </section>
+
+    {% if fatura.situacao == "paga" %}
+      <div class="alert alert-success mb-0" role="status">{% icone "verificado" %} Pagamento confirmado em {{ fatura.pago_em|date:"d/m/Y" }}. Obrigado!</div>
+    {% elif fatura.situacao == "aguardando_confirmacao" %}
+      <div class="alert alert-info mb-0" role="status">{% icone "relogio" %} Recebemos seu comprovante. A equipe confere e avisa por e-mail.</div>
+    {% elif fatura.situacao == "cancelada" %}
+      <div class="alert alert-secondary mb-0" role="status">Esta fatura foi cancelada.</div>
+    {% else %}
+      {% if fatura.motivo_recusa %}<div class="alert alert-warning py-2 mb-0" role="status"><b>Comprovante recusado:</b> {{ fatura.motivo_recusa }} Envie outro abaixo.</div>{% endif %}
+      <section class="nd-caixa d-grid gap-3">
+        {% if pix %}
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4 text-center"><img class="nd-qr-pix" src="{{ pix.qr_code }}" width="220" height="220" alt="QR Code Pix da fatura {{ fatura.codigo }}, valor {{ fatura.valor|moeda }}"></div>
+            <div class="col-md-8 d-grid gap-2">
+              <label class="form-label m-0" for="pix-copia">Pix copia e cola</label>
+              <textarea class="form-control font-monospace small" id="pix-copia" rows="3" readonly>{{ pix.copia_e_cola }}</textarea>
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-nd" data-copiar="pix-copia"><span>Copiar código Pix</span></button>
+                {% if fatura.link_boleto %}<a class="btn btn-outline-secondary" href="{{ fatura.link_boleto }}" target="_blank" rel="noopener nofollow">Abrir boleto</a>{% endif %}
+              </div>
+              <span class="small text-suave">O valor e o identificador <b>{{ fatura.identificador_pix }}</b> já vão preenchidos.</span>
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-info py-2 mb-0" role="status">O Pix ainda não está disponível aqui. <a href="{% url 'core:contato' %}">Fale com a gente</a> para pagar.</div>
+        {% endif %}
+        <details class="nd-ja-paguei" {% if form.errors %}open{% endif %}>
+          <summary class="btn btn-ipe">Já paguei: enviar comprovante</summary>
+          <form method="post" action="{% url 'pagamentos:fatura_publica_ja_paguei' fatura.token %}" enctype="multipart/form-data" class="d-grid gap-3 mt-3" novalidate>
+            {% csrf_token %}
+            {% include "anunciantes/_campo.html" with campo=form.comprovante %}
+            {% include "anunciantes/_campo.html" with campo=form.recado %}
+            <div><button type="submit" class="btn btn-nd">Enviar comprovante</button></div>
+          </form>
+        </details>
+      </section>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/copiar.js' %}" defer></script>{% endblock %}

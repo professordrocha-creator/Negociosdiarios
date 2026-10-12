@@ -424,6 +424,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from pagamentos.services import criar_faturas_demo
 
         criar_faturas_demo(dados.get("assinaturas_em_atraso", []))
+        from publicidade.services import criar_publicidade_demo
+
+        criar_publicidade_demo()
         from anuncios.demo import criar_anuncios_demo
 
         anuncios = criar_anuncios_demo(dados["anuncios"])
@@ -442,11 +445,13 @@ def apagar_dados_demo() -> ResumoDemo:
     from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
     from anuncios.services import apagar_anuncios_demo
     from planos.services import apagar_assinaturas_demo
+    from publicidade.services import apagar_publicidade_demo
 
     Usuario = get_user_model()
     with transaction.atomic():
         apagar_anuncios_demo()  # anúncios, fotos e histórico (Anuncio.anunciante é PROTECT)
         apagar_assinaturas_demo()  # antes dos anunciantes (e leva o histórico junto)
+        apagar_publicidade_demo()  # campanhas, peças e patrocinadores demo
         anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
         Bairro.objects.filter(demo=True).delete()
         Regiao.objects.filter(demo=True).delete()

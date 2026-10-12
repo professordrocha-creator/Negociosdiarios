@@ -47,7 +47,7 @@ def test_codigo_publico_vem_do_id_e_vai_para_o_historico(loja, imovel):
     anuncio = imovel(loja())
 
     assert anuncio.codigo == f"ND-IM-{anuncio.pk:05d}"
-    assert anuncio.history.last().codigo == anuncio.codigo
+    assert anuncio.history.order_by("history_id").first().codigo == anuncio.codigo
     assert anuncio.situacao == Situacao.RASCUNHO and anuncio.slug == "casa-3-quartos-com-area-gourmet"
 
 
@@ -297,7 +297,9 @@ def test_excluir_e_logico(loja, publicado):
 
     assert Anuncio.objects.filter(pk=anuncio.pk, situacao=Situacao.REMOVIDO).exists()
     assert not services.anuncios_do_dono(anunciante).exists()
-    assert anuncio.history.first().history_change_reason == "Excluído pelo anunciante."
+    assert (
+        anuncio.history.order_by("-history_id").first().history_change_reason == "Excluído pelo anunciante."
+    )
 
 
 def test_excluir_o_primeiro_nao_reabre_a_moderacao(loja, publicado, imovel):

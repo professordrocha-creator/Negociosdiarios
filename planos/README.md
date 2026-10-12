@@ -19,7 +19,8 @@ anúncio: recebe funções de quem chama ou dispara sinais (ARQUITETURA §5).
 - `reservar_vaga(anunciante, contar, publicar)`: a decisão que vale; trava a assinatura com
   `select_for_update` (sem corrida entre dois cliques). Levanta `SemAssinaturaAtiva` ou `LimiteDoPlano`.
 - `aplicar_downgrade(assinatura, plano_novo, anuncios, manter, pausar)`: pausa o que não foi escolhido.
-- `proximo_vencimento`, `criar_assinatura`, `renovar_assinatura` (chamada por
+- `proximo_vencimento`, `criar_assinatura` (com `cobrar_primeiro_ciclo`, usado no primeiro plano aprovado: vence no
+  início e já gera a fatura), `renovar_assinatura` (sempre a partir do vencimento original; chamada por
   `pagamentos.services.confirmar_pagamento`: empurra o vencimento; em atraso volta a ativa e dispara
   `assinatura_regularizada`).
 - `processar_atrasos()`: assinatura com **fatura** a pagar vencida há mais que `Configuracao.carencia_dias`

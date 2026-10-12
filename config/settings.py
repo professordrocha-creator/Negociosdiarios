@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     "anunciantes",
     "planos",
     "pagamentos",
+    "publicidade",
     "catalogo",
     "anuncios",
     "busca",
@@ -390,6 +391,8 @@ CELERY_BEAT_SCHEDULE = {
     # passou da carência com fatura vencida (anúncios pausados) e manda os lembretes de cobrança.
     "cobranca": {"task": "pagamentos.tasks.rotina_de_cobranca", "schedule": crontab(hour=6, minute=0)},
     "expiracao": {"task": "anuncios.tasks.expirar_anuncios", "schedule": crontab(hour=3, minute=0)},
+    # Todo dia às 5h: campanhas de publicidade que passaram do fim saem do ar; aviso à equipe antes do fim.
+    "publicidade": {"task": "publicidade.tasks.rotina_de_publicidade", "schedule": crontab(hour=5, minute=0)},
 }
 
 # --- E-mail --------------------------------------------------------------------

@@ -1,0 +1,42 @@
+{# Espaço de publicidade (Sprint 7A, docs/PUBLICIDADE.md). Rótulo "Publicidade" sempre visível; o link passa por #}
+{# /publicidade/clique/<id>/ (conta e redireciona) com rel="sponsored noopener". Sem nada inline (CSP). #}
+{% if pecas %}
+{% if formato == BANNER %}
+  {% with peca=pecas.0 %}
+  <aside class="nd-pub nd-pub-banner" aria-label="Publicidade">
+    <span class="nd-pub-rotulo">Publicidade</span>
+    <a href="{% url 'publicidade:clique' peca.pk %}" rel="sponsored noopener" target="_blank">
+      <picture>
+        <source media="(min-width: 768px)" srcset="{{ peca.imagem.url }}" width="{{ tamanho.largura }}" height="{{ tamanho.altura }}">
+        <img src="{{ peca.imagem_celular.url }}" alt="{{ peca.texto_alternativo }}" width="{{ tamanho_celular.largura }}" height="{{ tamanho_celular.altura }}" loading="lazy">
+      </picture>
+    </a>
+  </aside>
+  {% endwith %}
+{% elif formato == CARD %}
+  <aside class="nd-pub nd-pub-cards" aria-label="Publicidade">
+    <span class="nd-pub-rotulo">Publicidade · patrocinadores</span>
+    <div class="row row-cols-1 row-cols-sm-3 g-3">
+      {% for peca in pecas %}
+      <div class="col">
+        <a class="nd-pub-card nd-caixa d-flex gap-3 align-items-center h-100 text-reset text-decoration-none" href="{% url 'publicidade:clique' peca.pk %}" rel="sponsored noopener" target="_blank">
+          <img src="{{ peca.imagem.url }}" alt="{{ peca.texto_alternativo }}" width="64" height="64" loading="lazy">
+          <span><b class="d-block">{{ peca.titulo|default:peca.campanha.patrocinador.nome }}</b><span class="small text-suave">{{ peca.texto }}</span></span>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </aside>
+{% else %}
+  {% with peca=pecas.0 %}
+  <aside class="nd-pub nd-pub-nativo nd-caixa" aria-label="Publicidade">
+    <span class="nd-pub-rotulo">Publicidade</span>
+    <a class="d-block text-reset text-decoration-none" href="{% url 'publicidade:clique' peca.pk %}" rel="sponsored noopener" target="_blank">
+      <b class="d-block">{{ peca.titulo }}</b>
+      <span class="small">{{ peca.texto }}</span>
+      <span class="d-block small text-suave mt-1">{{ peca.campanha.patrocinador.nome }} ›</span>
+    </a>
+  </aside>
+  {% endwith %}
+{% endif %}
+{% endif %}
