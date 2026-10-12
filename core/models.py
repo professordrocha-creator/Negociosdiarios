@@ -175,7 +175,10 @@ class Configuracao(models.Model):
     linha_regiao = models.CharField(
         "linha da região",
         max_length=80,
-        help_text='Aparece sob o nome no topo. Ex.: "Imóveis e veículos de Mato Grosso".',
+        help_text=(
+            'Ex.: "Imóveis, veículos e serviços de MT". Aparece no topo do celular (com o símbolo), '
+            "no texto alternativo do logo e nos e-mails."
+        ),
     )
     slogan = models.CharField(
         "slogan", max_length=120, help_text="Até 120 caracteres. Usado na Sobre e no rodapé."
@@ -185,6 +188,16 @@ class Configuracao(models.Model):
     )
     cidade_sede = models.CharField("cidade-sede", max_length=80, help_text='Ex.: "Tangará da Serra, MT".')
 
+    logo_completo = models.FileField(
+        "logo completo",
+        upload_to=caminho_identidade,
+        blank=True,
+        help_text=(
+            "SVG ou PNG horizontal para fundo escuro, com o nome e o subtítulo (ideal 5:1). Usado no topo "
+            "(computador e tablet) e no rodapé. No celular o topo mostra o símbolo + o nome. "
+            "Vazio = logo padrão."
+        ),
+    )
     simbolo_claro = models.FileField(
         "símbolo para fundo claro",
         upload_to=caminho_identidade,

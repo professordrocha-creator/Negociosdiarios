@@ -5,3 +5,5 @@
 /* Anúncios: miniatura na lista e fotos grandes na fila de moderação (sem style inline: CSP). */
 .nd-adm-mini { width: 96px; height: 72px; object-fit: cover; border-radius: 4px; }
 .nd-adm-foto { max-width: 720px; width: 100%; display: block; margin: 0 0 12px; border-radius: 6px; }
+
+.nd-previa-logo { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px; background: #0e4a57; margin-right: 8px; vertical-align: middle; }

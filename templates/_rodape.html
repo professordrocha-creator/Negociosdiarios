@@ -1,11 +1,11 @@
-{# (sem load: o símbolo vem de site.simbolo_escuro, da identidade do site) #}
+{# (sem load: o logo vem de site.logo_completo, da identidade do site) #}
 {# Rodapé (prototipo/_gerar.py, RODAPE). Todo link tem destino: página pronta ou "Em breve" (nunca 404). #}
 <footer class="nd-rodape mt-5">
   <div class="container py-5">
     <div class="row g-4">
       {# Marca e proposta do site #}
       <div class="col-12 col-md-4">
-        <div class="nd-logo mb-2 text-white"><img src="{{ site.simbolo_escuro }}" width="38" height="38" alt=""><span>{{ site.nome }}</span></div>
+        <div class="nd-logo mb-3"><img class="nd-logo-rodape" src="{{ site.logo_completo }}" width="254" height="48" alt="{{ site.nome }} – {{ site.linha_regiao }}"></div>
         <p class="mb-0">{{ site.slogan }} Só anunciantes verificados: corretores com CRECI e revendas com CNPJ.</p>
       </div>
       {# Busca (Sprint 4); por enquanto, páginas "Em breve" #}

@@ -200,7 +200,7 @@ USE_TZ = True
 # o site lê do admin ("Identidade do site"). Mudar aqui depois não muda o site.
 SITE_NOME = "Negócios Diários"
 SITE_SLOGAN = "Os melhores negócios da sua região, todos os dias."
-SITE_LINHA_REGIAO = "Imóveis e veículos de Mato Grosso"
+SITE_LINHA_REGIAO = "Imóveis, veículos e serviços de MT"
 SITE_EMAIL_CONTATO = "contato@negociosdiarios.com.br"
 SITE_EMAIL_PRIVACIDADE = "privacidade@negociosdiarios.com.br"
 SITE_EMPRESA = "D'Rocha Soluções"

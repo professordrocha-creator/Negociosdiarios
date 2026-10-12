@@ -186,12 +186,14 @@ def test_simbolo_svg_gera_favicons_e_aparece_no_site(client, admin_logado, midia
     assert client.get("/favicon.ico")["Location"] == config.favicon_ico.url
 
 
-def test_simbolo_escuro_aparece_no_topo_e_rodape(client, admin_logado, midia):
-    """O símbolo para fundo escuro substitui o padrão no topo e no rodapé."""
+def test_simbolo_escuro_aparece_no_topo_do_celular(client, admin_logado, midia):
+    """O símbolo para fundo escuro substitui o padrão no topo do celular (o rodapé usa o logo completo)."""
     postar_config(admin_logado, simbolo_escuro=SimpleUploadedFile("escuro.png", png(), "image/png"))
 
     url = configuracao().simbolo_escuro.url
-    assert client.get(reverse("core:inicio")).content.decode().count(f'src="{url}"') == 2
+    html = client.get(reverse("core:inicio")).content.decode()
+    assert html.count(f'src="{url}"') == 1
+    assert f'src="{url}"' in html.split('class="nd-logo-compacto', 1)[1].split("</a>", 1)[0]
 
 
 @pytest.mark.parametrize(
@@ -259,12 +261,102 @@ def test_imagem_de_compartilhamento_sem_exif(client, admin_logado, midia):
 
 
 def test_sem_simbolo_usa_os_arquivos_padrao(client):
-    """Sem nada enviado, o site usa os símbolos e favicons de static/img/."""
+    """Sem nada enviado, o site usa o logo final de static/img/ (docs/marca/logo/LEIA-ME.md)."""
     html = client.get(reverse("core:inicio")).content.decode()
 
-    assert 'href="/static/img/simbolo.svg" type="image/svg+xml"' in html
-    assert 'src="/static/img/simbolo-ipe.svg"' in html
+    assert 'href="/static/img/favicon.svg" type="image/svg+xml"' in html
+    assert 'href="/static/img/apple-touch-icon.png"' in html
+    assert 'src="/static/img/simbolo-fundo-escuro.svg"' in html  # topo no celular
+    assert html.count('src="/static/img/logo-horizontal-fundo-escuro.svg"') == 2  # topo e rodapé
     assert client.get("/favicon.ico")["Location"] == "/static/img/favicon.ico"
+
+
+def test_arquivos_padrao_do_logo_existem():
+    """Os SVG do logo final e os ícones gerados deles estão em static/img/ (180 e 512 do símbolo quadrado)."""
+    from django.conf import settings
+    from PIL import Image
+
+    pasta = settings.BASE_DIR / "static" / "img"
+    for nome in (
+        "simbolo-quadrado.svg",
+        "simbolo-fundo-escuro.svg",
+        "favicon.svg",
+        "logo-horizontal-fundo-escuro.svg",
+    ):
+        assert (pasta / nome).read_text(encoding="utf-8").lstrip().startswith("<svg")
+    for nome, lado in (("favicon-32.png", 32), ("apple-touch-icon.png", 180), ("icone-512.png", 512)):
+        with Image.open(pasta / nome) as imagem:
+            assert imagem.size == (lado, lado)
+
+
+def test_topo_logo_completo_no_tablet_e_simbolo_mais_nome_no_celular(client):
+    """Do sm para cima, o logo horizontal (nome e subtítulo no alt); no celular, símbolo + nome."""
+    topo = (
+        client.get(reverse("core:inicio"))
+        .content.decode()
+        .split('<header class="nd-topo">', 1)[1]
+        .split("</header>", 1)[0]
+    )
+
+    assert 'class="nd-logo-completo d-none d-sm-block"' in topo
+    assert 'alt="Negócios Diários – Imóveis, veículos e serviços de MT"' in topo
+    assert 'class="nd-logo-compacto d-flex d-sm-none align-items-center"' in topo
+    assert "<span>Negócios Diários</span>" in topo
+
+
+def test_logo_completo_trocado_no_admin(client, admin_logado):
+    """Enviar outro logo completo (SVG seguro) troca o do topo e do rodapé."""
+    svg = SimpleUploadedFile(
+        "logo.svg",
+        b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 100">'
+        b'<rect width="500" height="100"/></svg>',
+        content_type="image/svg+xml",
+    )
+
+    resposta = postar_config(client, logo_completo=svg)
+
+    assert resposta.status_code == 302
+    config = configuracao()
+    assert config.logo_completo
+    html = client.get(reverse("core:inicio")).content.decode()
+    assert html.count(f'src="{config.logo_completo.url}"') == 2
+
+
+def test_logo_completo_com_script_e_recusado(client, admin_logado):
+    """O logo passa pela mesma checagem de segurança dos símbolos (SVG sem script)."""
+    svg = SimpleUploadedFile(
+        "logo.svg",
+        b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        content_type="image/svg+xml",
+    )
+
+    resposta = postar_config(client, logo_completo=svg)
+
+    assert resposta.status_code == 200 and "script" in resposta.content.decode()
+    assert not configuracao().logo_completo
+
+
+def test_linha_da_regiao_padrao_nova():
+    """A linha da região padrão é a da marca final."""
+    assert configuracao().linha_regiao == "Imóveis, veículos e serviços de MT"
+
+
+def test_migration_troca_so_a_linha_antiga(settings):
+    """A migration troca a linha padrão antiga pela nova, mas não mexe em texto editado no admin."""
+    import importlib
+
+    from django.apps import apps
+
+    migracao = importlib.import_module("core.migrations.0011_linha_regiao_nova")
+    config = configuracao()
+    config.linha_regiao = migracao.ANTIGA
+    config.save()
+    migracao.trocar(apps, None)
+    assert Configuracao.objects.get().linha_regiao == migracao.NOVA
+
+    Configuracao.objects.update(linha_regiao="Texto do admin")
+    migracao.trocar(apps, None)
+    assert Configuracao.objects.get().linha_regiao == "Texto do admin"
 
 
 # --- Página Sobre e valores ------------------------------------------------------------

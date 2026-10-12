@@ -21,6 +21,7 @@ class ConfiguracaoForm(forms.ModelForm):
             "slogan",
             "empresa",
             "cidade_sede",
+            "logo_completo",
             "simbolo_claro",
             "simbolo_escuro",
             "imagem_compartilhamento",
@@ -67,6 +68,10 @@ class ConfiguracaoForm(forms.ModelForm):
         if isinstance(arquivo, UploadedFile):
             validador(arquivo, self._limite(campo_limite))
         return arquivo
+
+    def clean_logo_completo(self):
+        """SVG seguro ou PNG, dentro do limite dos símbolos."""
+        return self._imagem_nova("logo_completo", imagens.validar_simbolo, "limite_simbolo_kb")
 
     def clean_simbolo_claro(self):
         """SVG seguro ou PNG, dentro do limite."""

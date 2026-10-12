@@ -161,9 +161,10 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Nome e textos", {"fields": ("nome", "linha_regiao", "slogan", "empresa", "cidade_sede")}),
         (
-            "Símbolos e imagem de compartilhamento",
+            "Logo, símbolos e imagem de compartilhamento",
             {
                 "fields": (
+                    "logo_completo",
                     "simbolo_claro",
                     "simbolo_escuro",
                     "previa_simbolos",
@@ -238,15 +239,17 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
         processar_identidade(obj, set(form.changed_data))
 
-    @admin.display(description="prévia dos símbolos")
+    @admin.display(description="prévia do logo e dos símbolos")
     def previa_simbolos(self, config: Configuracao) -> str:
-        """Símbolo claro sobre fundo branco e escuro sobre o azul do topo."""
+        """Logo completo e símbolo escuro sobre o azul do topo; símbolo claro sobre fundo branco."""
         dados = dados_do_site()
         return format_html(
+            '<span class="nd-previa-logo"><img src="{}" height="40" alt="logo completo"></span> '
             '<span class="nd-previa-simbolo">'
             '<img src="{}" width="48" height="48" alt="claro"></span> '
             '<span class="nd-previa-simbolo nd-previa-simbolo-escuro">'
             '<img src="{}" width="48" height="48" alt="escuro"></span>',
+            dados["logo_completo"],
             dados["simbolo_claro"],
             dados["simbolo_escuro"],
         )

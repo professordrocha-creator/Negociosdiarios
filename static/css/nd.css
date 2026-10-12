@@ -314,3 +314,9 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-categoria:hover { box-shadow: 0 8px 22px rgba(8, 50, 59, .12); }
 .htmx-request #bloco-catalogo, #bloco-catalogo.htmx-request { opacity: .6; transition: opacity .2s; }
 .nd-lista-opcionais { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 16px; }
+
+/* ---------- Logo final (docs/marca/logo/): horizontal no tablet/computador, símbolo + nome no celular ---------- */
+.nd-logo-completo { height: 42px; width: auto; max-width: 260px; }
+.nd-logo-compacto { gap: 8px; font-size: 18px; white-space: nowrap; }
+.nd-logo-compacto img { height: 32px; width: auto; }
+.nd-logo-rodape { height: 48px; width: auto; max-width: 100%; }

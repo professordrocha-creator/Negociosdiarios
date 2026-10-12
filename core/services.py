@@ -584,18 +584,19 @@ def _url_ou_padrao(arquivo, padrao_estatico: str) -> str:
 
 
 def _favicon_svg(config: Configuracao) -> str:
-    """Favicon SVG: o símbolo enviado (se for SVG), o padrão (sem símbolo) ou nenhum (símbolo PNG)."""
+    """Favicon SVG: o símbolo enviado (se for SVG), o padrão (favicon.svg, sem símbolo) ou nenhum (PNG)."""
     from django.templatetags.static import static
 
     if not config.simbolo_claro:
-        return static("img/simbolo.svg")
+        return static("img/favicon.svg")
     return config.simbolo_claro.url if config.simbolo_claro.name.endswith(".svg") else ""
 
 
 def dados_do_site() -> dict:
     """Dicionário `site` dos templates (context processor), em cache até o admin salvar.
 
-    Sem símbolo ou favicon enviados, usa os arquivos padrão de static/img/.
+    Sem logo, símbolo ou favicon enviados, usa os arquivos padrão de static/img/ (logo final, ver
+    docs/marca/logo/LEIA-ME.md): logo horizontal, símbolo quadrado, símbolo para fundo escuro e favicon.
     """
     dados = cache.get(CHAVE_CACHE_CONFIGURACAO)
     if dados is not None:
@@ -613,8 +614,9 @@ def dados_do_site() -> dict:
         "endereco": config.endereco,
         "cnpj": config.cnpj,
         "instagram": config.instagram,
-        "simbolo_claro": _url_ou_padrao(config.simbolo_claro, "img/simbolo.svg"),
-        "simbolo_escuro": _url_ou_padrao(config.simbolo_escuro, "img/simbolo-ipe.svg"),
+        "logo_completo": _url_ou_padrao(config.logo_completo, "img/logo-horizontal-fundo-escuro.svg"),
+        "simbolo_claro": _url_ou_padrao(config.simbolo_claro, "img/simbolo-quadrado.svg"),
+        "simbolo_escuro": _url_ou_padrao(config.simbolo_escuro, "img/simbolo-fundo-escuro.svg"),
         "imagem_compartilhamento": config.imagem_compartilhamento.url
         if config.imagem_compartilhamento
         else "",
@@ -635,7 +637,7 @@ def processar_identidade(config: Configuracao, campos_mudados: set[str]) -> Conf
     regravados a partir dos pixels; SVG fica como está (passou na checagem de segurança).
     Trocou o símbolo para fundo claro (ou não há favicon ainda) → gera os 4 favicons.
     """
-    for campo in ("simbolo_claro", "simbolo_escuro", "imagem_compartilhamento"):
+    for campo in ("logo_completo", "simbolo_claro", "simbolo_escuro", "imagem_compartilhamento"):
         arquivo = getattr(config, campo)
         if campo in campos_mudados and arquivo and not arquivo.name.endswith(".svg"):
             limpo = imagens.reprocessar_raster(arquivo)

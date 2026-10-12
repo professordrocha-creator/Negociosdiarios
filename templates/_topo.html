@@ -4,10 +4,11 @@
 {% with atual=request.resolver_match.url_name %}
 <header class="nd-topo">
   <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
-    {# Logo: símbolo para fundo escuro + nome e linha da região (context processor "site"). #}
+    {# Logo (context processor "site", trocável no admin): do tablet para cima, o logo horizontal completo #}
+    {# (já traz o nome e o subtítulo); no celular, onde ele ficaria espremido, o símbolo + o nome. #}
     <a class="nd-logo me-auto" href="{% url 'core:inicio' %}">
-      <img src="{{ site.simbolo_escuro }}" width="38" height="38" alt="">
-      <span>{{ site.nome }}<small>{{ site.linha_regiao }}</small></span>
+      <img class="nd-logo-completo d-none d-sm-block" src="{{ site.logo_completo }}" width="222" height="42" alt="{{ site.nome }} – {{ site.linha_regiao }}">
+      <span class="nd-logo-compacto d-flex d-sm-none align-items-center"><img src="{{ site.simbolo_escuro }}" width="36" height="32" alt=""><span>{{ site.nome }}</span></span>
     </a>
     {# Menu principal; o item da página atual ganha a classe "ativo" (sublinhado amarelo). #}
     <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">

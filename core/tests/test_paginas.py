@@ -140,7 +140,8 @@ def test_layout_tem_favicon_e_arquivos_estaticos(client):
         "css/bootstrap.min.css",
         "css/nd.css",
         "js/bootstrap.bundle.min.js",
-        "img/simbolo.svg",
+        "img/favicon.svg",
+        "img/logo-horizontal-fundo-escuro.svg",
         "fonts/figtree-latin.woff2",
         "fonts/bricolage-grotesque-latin.woff2",
     ]:

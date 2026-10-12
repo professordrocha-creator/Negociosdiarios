@@ -92,10 +92,13 @@ docker compose exec web python manage.py apagar_dados_demo  # remove tudo que é
   o atalho "Admin" em dev (DEBUG) ou para a equipe logada; o endereço do admin é secreto.
   Por enquanto lê `SITE_*`
   do settings; na Sprint 1 passa a ler o modelo `Configuracao`.
-- `static/`: Bootstrap 5.3.3 (CSS e JS locais, licença MIT), `nd.css` e os
-  símbolos SVG do protótipo. Favicons (`favicon.ico`, `favicon-32.png`,
-  `apple-touch-icon.png`, `icone-512.png`) desenhados a partir de `simbolo.svg`;
-  na Sprint 1 serão gerados automaticamente quando o admin trocar o símbolo.
+- `static/`: Bootstrap 5.3.3 (CSS e JS locais, licença MIT), `nd.css` e o logo final
+  (originais e regras de uso em `docs/marca/logo/LEIA-ME.md`): `logo-horizontal-fundo-escuro.svg`
+  (topo do tablet/computador e rodapé), `simbolo-fundo-escuro.svg` (topo do celular, com o nome),
+  `simbolo-quadrado.svg` (símbolo para fundo claro) e `favicon.svg`. Favicons padrão gerados deles:
+  `favicon-32.png` e `favicon.ico` do `favicon.svg`; `apple-touch-icon.png` (180) e `icone-512.png`
+  do `simbolo-quadrado.svg`. Tudo isso é o padrão: o admin troca em Identidade do site (logo completo,
+  símbolos; o símbolo claro enviado gera favicons novos).
 - `nd.css` só tem estilos usados pelos templates atuais. Card de anúncio, mapa,
   vitrine e painel voltam de `prototipo/css/nd.css` quando as telas existirem.
 - Fontes em `static/fonts/` (woff2, subconjunto latin, versões variáveis):
