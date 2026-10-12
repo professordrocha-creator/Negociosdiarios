@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Anúncio de veículo › Dados (etapa 1 de 3). Catálogo FIPE em selects encadeados (HTMX; sem JS, botão). #}
+
+{% block titulo %}{% if anuncio %}Editar {{ anuncio.codigo }}{% else %}Novo anúncio de veículo{% endif %} · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Dados do anúncio de veículo.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-3" id="conteudo">
+      {% include "anuncios/_cabecalho.html" %}
+      {% if no_limite %}
+        <div class="alert alert-warning py-2 mb-0" role="status">{% icone "alerta" %} Seu plano está no limite de anúncios. Você pode montar o anúncio como rascunho; para publicar, pause um anúncio ou <a href="{% url 'planos:meu_plano' %}">mude de plano</a>.</div>
+      {% endif %}
+      <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-warning mb-0">{{ form.non_field_errors }}</div>{% endif %}
+        <fieldset class="d-grid gap-2">
+          <legend class="h6 m-0">Veículo (Tabela FIPE)</legend>
+          {% include "anuncios/_catalogo.html" with parcial=atualizar %}
+        </fieldset>
+        <div class="row g-3">
+          <div class="col-6 col-sm-3">{% include "anunciantes/_campo.html" with campo=form.ano_fabricacao %}</div>
+          <div class="col-6 col-sm-3">{% include "anunciantes/_campo.html" with campo=form.ano_modelo %}</div>
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.quilometragem %}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-6 col-sm-3">{% include "anunciantes/_campo.html" with campo=form.combustivel %}</div>
+          <div class="col-6 col-sm-3">{% include "anunciantes/_campo.html" with campo=form.cambio %}</div>
+          <div class="col-6 col-sm-2">{% include "anunciantes/_campo.html" with campo=form.cor %}</div>
+          <div class="col-3 col-sm-2">{% include "anunciantes/_campo.html" with campo=form.portas %}</div>
+          <div class="col-3 col-sm-2">{% include "anunciantes/_campo.html" with campo=form.final_placa %}</div>
+        </div>
+        <fieldset>
+          <legend class="form-label">{{ form.opcionais.label }}</legend>
+          <div class="nd-opcionais">{% for opcao in form.opcionais %}<label class="form-check-label">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}</div>
+        </fieldset>
+        <div class="row g-3">
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.preco %}</div>
+          <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.cidade %}</div>
+        </div>
+        {% include "anunciantes/_campo.html" with campo=form.titulo %}
+        {% include "anunciantes/_campo.html" with campo=form.descricao %}
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-nd">Salvar e continuar ›</button>
+          <a class="btn btn-outline-secondary" href="{% url 'anunciantes:painel' %}">Voltar ao painel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}

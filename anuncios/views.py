@@ -1,4 +1,5 @@
-"""Views do painel de anúncios: novo/editar em etapas (dados, localização, fotos, revisão) e ações.
+"""Views do painel de anúncios: novo/editar em etapas e ações. Imóvel: dados, localização, fotos,
+revisão. Veículo: dados (com o catálogo FIPE em selects encadeados), fotos, revisão.
 
 Todas usam `anunciante_ativo` e buscam o anúncio por `anuncios_do_dono(request.user.anunciante)`:
 o código na URL de outra loja dá 404 (sem IDOR). Regras ficam em anuncios.services.
@@ -7,11 +8,11 @@ o código na URL de outra loja dá 404 (sem IDOR). Regras ficam em anuncios.serv
 from django.contrib import messages
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from anunciantes.views import anunciante_ativo
 from anuncios import services
-from anuncios.forms import DadosImovelForm, FotosForm, LocalizacaoForm
+from anuncios.forms import DadosImovelForm, DadosVeiculoForm, FotosForm, LocalizacaoForm
 from anuncios.models import Anuncio
 from anuncios.tasks import processar_foto
 from core.services import configuracao, textos_ajuda
@@ -23,6 +24,18 @@ ETAPAS = [
     ("fotos", "Fotos"),
     ("revisao", "Revisão"),
 ]
+# Veículo não tem mapa: a cidade fica na etapa de dados.
+ETAPAS_VEICULO = [etapa for etapa in ETAPAS if etapa[0] != "localizacao"]
+
+
+def _formulario_de_dados(categoria: str):
+    """Classe do formulário de dados da categoria."""
+    return DadosVeiculoForm if categoria == Anuncio.Categoria.VEICULO else DadosImovelForm
+
+
+def _depois_dos_dados(anuncio: Anuncio) -> str:
+    """Próxima etapa depois dos dados: localização (imóvel) ou fotos (veículo)."""
+    return "anuncios:fotos" if anuncio.e_veiculo else "anuncios:localizacao"
 
 
 def _anuncio(request: HttpRequest, codigo: str) -> Anuncio:
@@ -43,7 +56,7 @@ def _contexto(request: HttpRequest, etapa: str, anuncio: Anuncio | None, **extra
         "ajuda_itens": textos_ajuda(f"anuncio_{etapa}"),
         "anunciante": request.user.anunciante,
         "anuncio": anuncio,
-        "etapas": ETAPAS,
+        "etapas": ETAPAS_VEICULO if extra.pop("veiculo", anuncio and anuncio.e_veiculo) else ETAPAS,
         "etapa": etapa,
         **extra,
     }
@@ -52,39 +65,72 @@ def _contexto(request: HttpRequest, etapa: str, anuncio: Anuncio | None, **extra
 @require_http_methods(["GET", "POST"])
 @anunciante_ativo
 def novo(request: HttpRequest) -> HttpResponse:
-    """Etapa 1 de um anúncio novo: ao salvar vira rascunho e segue para a localização."""
+    """Anúncio novo: primeiro a categoria (imóvel ou veículo, `?categoria=`), depois a etapa de dados.
+
+    Ao salvar vira rascunho e segue para a próxima etapa da categoria.
+    """
     anunciante = request.user.anunciante
-    form = DadosImovelForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        anuncio = services.criar_anuncio_imovel(anunciante, form.dados_anuncio(), form.dados_ficha())
-        messages.success(request, f"Rascunho {anuncio.codigo} criado. Agora marque a localização.")
-        return redirect("anuncios:localizacao", anuncio.codigo)
+    categoria = request.GET.get("categoria", "")
+    if categoria not in Anuncio.Categoria.values:
+        return render(
+            request,
+            "anuncios/escolher_categoria.html",
+            _contexto(request, "categoria", None, categorias=Anuncio.Categoria.choices),
+        )
+    veiculo = categoria == Anuncio.Categoria.VEICULO
+    Formulario = _formulario_de_dados(categoria)
+    dados_post = request.POST if request.method == "POST" else None
+    form = Formulario(dados_post, initial={"cidade": anunciante.cidade_id} if veiculo else None)
+    atualizar = request.method == "POST" and "_atualizar_catalogo" in request.POST
+    if request.method == "POST" and not atualizar and form.is_valid():
+        criar = services.criar_anuncio_veiculo if veiculo else services.criar_anuncio_imovel
+        anuncio = criar(anunciante, form.dados_anuncio(), form.dados_ficha())
+        proxima = "Agora envie as fotos." if veiculo else "Agora marque a localização."
+        messages.success(request, f"Rascunho {anuncio.codigo} criado. {proxima}")
+        return redirect(_depois_dos_dados(anuncio), anuncio.codigo)
     no_limite = not pode_publicar(anunciante, uso=services.contar_no_plano(anunciante))
     return render(
-        request, "anuncios/dados.html", _contexto(request, "editar", None, form=form, no_limite=no_limite)
+        request,
+        "anuncios/dados_veiculo.html" if veiculo else "anuncios/dados.html",
+        _contexto(
+            request, "editar", None, form=form, no_limite=no_limite, veiculo=veiculo, atualizar=atualizar
+        ),
     )
 
 
 @require_http_methods(["GET", "POST"])
 @anunciante_ativo
 def editar(request: HttpRequest, codigo: str) -> HttpResponse:
-    """Etapa 1 — dados do imóvel."""
+    """Etapa 1 — dados do imóvel ou do veículo."""
     anuncio = _anuncio(request, codigo)
     _editavel(anuncio)
-    form = DadosImovelForm(request.POST or None, initial=DadosImovelForm.inicial(anuncio))
-    if request.method == "POST" and form.is_valid():
+    Formulario = _formulario_de_dados(anuncio.categoria)
+    form = Formulario(request.POST or None, initial=Formulario.inicial(anuncio))
+    atualizar = request.method == "POST" and "_atualizar_catalogo" in request.POST
+    if request.method == "POST" and not atualizar and form.is_valid():
         services.atualizar_anuncio(anuncio, form.dados_anuncio(), form.dados_ficha())
         messages.success(request, "Dados salvos.")
-        return redirect("anuncios:localizacao", anuncio.codigo)
-    return render(request, "anuncios/dados.html", _contexto(request, "editar", anuncio, form=form))
+        return redirect(_depois_dos_dados(anuncio), anuncio.codigo)
+    modelo = "anuncios/dados_veiculo.html" if anuncio.e_veiculo else "anuncios/dados.html"
+    return render(request, modelo, _contexto(request, "editar", anuncio, form=form, atualizar=atualizar))
+
+
+@require_GET
+@anunciante_ativo
+def catalogo(request: HttpRequest) -> HttpResponse:
+    """HTMX: devolve o bloco tipo → marca → modelo → versão com as opções do que foi escolhido."""
+    form = DadosVeiculoForm(request.GET)
+    return render(request, "anuncios/_catalogo.html", {"form": form, "parcial": True})
 
 
 @require_http_methods(["GET", "POST"])
 @anunciante_ativo
 def localizacao(request: HttpRequest, codigo: str) -> HttpResponse:
-    """Etapa 2 — cidade, bairro, endereço privado e ponto no mapa (Leaflet servido pelo site)."""
+    """Etapa 2 (só imóvel) — cidade, bairro, endereço privado e ponto no mapa (Leaflet servido pelo site)."""
     anuncio = _anuncio(request, codigo)
     _editavel(anuncio)
+    if anuncio.e_veiculo:
+        return redirect("anuncios:editar", anuncio.codigo)  # veículo: a cidade fica nos dados
     form = LocalizacaoForm(request.POST or None, initial=LocalizacaoForm.inicial(anuncio))
     if request.method == "POST" and form.is_valid():
         dados = form.cleaned_data

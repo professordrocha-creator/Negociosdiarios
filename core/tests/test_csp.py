@@ -73,6 +73,8 @@ def test_paginas_de_anuncio_loja_e_painel_sem_nada_inline(client, loja, publicad
         reverse("anunciantes:painel_loja"),
         reverse("planos:meu_plano"),
         reverse("anuncios:novo"),
+        reverse("anuncios:novo") + "?categoria=imovel",
+        reverse("anuncios:novo") + "?categoria=veiculo",
         reverse("anuncios:editar", args=[rascunho.codigo]),
         reverse("anuncios:localizacao", args=[rascunho.codigo]),
         reverse("anuncios:fotos", args=[rascunho.codigo]),

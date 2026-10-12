@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     "contas",
     "anunciantes",
     "planos",
+    "catalogo",
     "anuncios",
     "estatisticas",
 ]

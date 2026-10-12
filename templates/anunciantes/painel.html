@@ -48,7 +48,7 @@
                 {% elif anuncio.situacao == "expirado" %}<span class="status st-expirado">Expirado</span>
                 {% else %}<span class="status st-pausado" title="{{ anuncio.get_pausado_por_display }}">Pausado{% if anuncio.pausado_por == "atraso" %} (pagamento){% endif %}</span>{% endif %}
               </td>
-              <td class="tabular text-end">{{ anuncio.preco|moeda }}{% if anuncio.imovel.aluguel %}/mês{% endif %}</td>
+              <td class="tabular text-end">{{ anuncio.preco|moeda }}{% if anuncio.aluguel %}/mês{% endif %}</td>
               <td class="tabular text-end">{{ anuncio.totais.visualizacoes }}</td>
               <td class="tabular text-end">{{ anuncio.totais.cliques_whatsapp }}</td>
               <td class="text-end">

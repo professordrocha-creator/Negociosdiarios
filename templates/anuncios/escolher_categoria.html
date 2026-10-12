@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Novo anúncio: primeiro a categoria (imóvel ou veículo). Links simples (GET ?categoria=). #}
+
+{% block titulo %}Novo anúncio · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Escolha o que vai anunciar.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-3">
+      <h1 class="h4 m-0">O que você vai anunciar?</h1>
+      {% include "_ajuda.html" %}
+      <div class="row row-cols-1 row-cols-sm-2 g-3">
+        <div class="col"><a class="nd-caixa nd-categoria d-flex gap-3 align-items-center text-reset text-decoration-none h-100" href="?categoria=imovel">
+          <span class="nd-valor-ico">{% icone "casa" %}</span><span><b class="d-block fs-5">Imóvel</b><span class="small text-suave">Casa, apartamento, terreno, chácara, sala…</span></span></a></div>
+        <div class="col"><a class="nd-caixa nd-categoria d-flex gap-3 align-items-center text-reset text-decoration-none h-100" href="?categoria=veiculo">
+          <span class="nd-valor-ico">{% icone "carro" %}</span><span><b class="d-block fs-5">Veículo</b><span class="small text-suave">Carro, caminhonete, moto ou caminhão</span></span></a></div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

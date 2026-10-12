@@ -55,6 +55,14 @@ def cnpj(digitos: str | None) -> str:
 
 
 @register.filter
+def km(valor: int | str | None) -> str:
+    """Quilometragem com ponto de milhar: 98000 → "98.000 km"."""
+    if valor is None or valor == "":
+        return ""
+    return f"{int(valor):,} km".replace(",", ".")
+
+
+@register.filter
 def area(valor: Decimal | int | str | None) -> str:
     """Área em m² no padrão brasileiro; a partir de 10.000 m², em hectares.
 

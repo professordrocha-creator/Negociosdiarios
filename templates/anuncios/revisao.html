@@ -18,9 +18,9 @@
       <section class="nd-caixa d-grid gap-2">
         {% if fotos %}<div class="nd-revisao-fotos">{% for foto in fotos %}{% if foto.miniatura %}<img src="{{ foto.miniatura.url }}" alt="Foto {{ forloop.counter }}" width="400" height="300">{% endif %}{% endfor %}</div>{% endif %}
         <h2 class="h5 m-0">{{ anuncio.titulo }}</h2>
-        <div class="fs-4 fw-bold tabular">{{ anuncio.preco|moeda }}{% if anuncio.imovel.aluguel %}<span class="fs-6 text-suave">/mês</span>{% endif %}</div>
-        <div class="text-suave">{{ anuncio.imovel }} · {{ anuncio.imovel.resumo }}</div>
-        <div class="text-suave">{% icone "pin" %} {{ anuncio.local }} · no site: {{ anuncio.imovel.get_exibir_localizacao_display|lower }}</div>
+        <div class="fs-4 fw-bold tabular">{{ anuncio.preco|moeda }}{% if anuncio.aluguel %}<span class="fs-6 text-suave">/mês</span>{% endif %}</div>
+        <div class="text-suave">{% if anuncio.e_veiculo %}{{ anuncio.veiculo.versao }}{% else %}{{ anuncio.imovel }}{% endif %} · {{ anuncio.detalhe.resumo }}</div>
+        <div class="text-suave">{% icone "pin" %} {{ anuncio.local }}{% if not anuncio.e_veiculo %} · no site: {{ anuncio.imovel.get_exibir_localizacao_display|lower }}{% endif %}</div>
         {% if anuncio.descricao %}<p class="nd-texto-livre mb-0">{{ anuncio.descricao }}</p>{% endif %}
       </section>
 

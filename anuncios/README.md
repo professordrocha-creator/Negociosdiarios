@@ -10,13 +10,16 @@ plano do app `planos` para publicar e reage aos sinais de atraso e pagamento.
   `demo`, histórico). Proxy `AnuncioEmModeracao` = fila de moderação no admin.
 - `DetalheImovel` (1:1): tipo, modalidade, quartos, banheiros, vagas, áreas, IPTU, endereço e ponto
   **privados**, `exibir_localizacao` (padrão aproximada).
+- `DetalheVeiculo` (1:1, Sprint 4): versão do `catalogo` (FIPE), anos, km, combustível, câmbio, cor,
+  portas, final da placa (1 dígito, opcional) e opcionais. `Anuncio.detalhe` devolve a ficha da categoria.
 - `Foto`: ordem (a primeira é a capa), WebP 1600 e 400 e JPEG 1200×630 de compartilhamento; o envio original
   é apagado.
 
 **Serviços (`services.py`):**
 - Consultas: `anuncios_do_dono` (sempre a partir do dono: sem IDOR), `contar_no_plano`, `ids_no_plano`,
   `precisa_moderacao`, `pendencias`.
-- Criar/editar: `criar_anuncio_imovel`, `atualizar_anuncio`, `ponto`.
+- Criar/editar: `criar_anuncio_imovel`, `criar_anuncio_veiculo` (título em branco = `titulo_do_veiculo`),
+  `atualizar_anuncio`, `ponto`.
 - Ciclo de vida: `enviar_para_publicacao` (via `planos.services.reservar_vaga`), `aprovar`, `recusar`,
   `pausar`, `reativar`, `pode_renovar`, `renovar`, `excluir` (lógica), `expirar_vencidos`.
 - Planos: `pausar_por_atraso`, `reativar_apos_pagamento` (ligados em `receptores.py`), `pausar_por_downgrade`.

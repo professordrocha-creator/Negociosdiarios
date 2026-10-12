@@ -53,7 +53,7 @@ interna. Containers rodam com usuário não-root.
 | `contas` | Usuário customizado (login por e-mail), 2FA para staff, recuperação de senha |
 | `anunciantes` | Cadastro, verificação (CRECI/CNPJ), **vitrine pública** (`/loja/<slug>/`) |
 | `anuncios` | Anúncio base + detalhes de imóvel e veículo, fotos, busca, expiração |
-| `catalogo` | Tabelas de referência: marcas/modelos (FIPE), tipos de imóvel |
+| `catalogo` | Catálogo de veículos da Tabela FIPE: marca → modelo → versão, por tipo (carro, caminhonete, moto, caminhão) |
 | `planos` | Planos, assinatura do anunciante, regra de limite de anúncios |
 | `pagamentos` | Faturas, integração Mercado Pago (camada de gateway), webhooks |
 | `publicidade` | Banners, cards de patrocinador, anúncio nativo; contagem de impressões |
@@ -149,8 +149,22 @@ Planejado: `telefone`, `ponto` (PointField, mapa na Sprint 5).
   apenas no cache (`estatisticas.services.registrar`); robôs, prévias de link e o dono não contam.
 
 ### DetalheVeiculo
-- `marca`, `modelo`, `versao` (FK para catálogo FIPE), `ano_fabricacao`, `ano_modelo`
-- `quilometragem`, `combustivel`, `cambio`, `cor`, `final_placa` (opcional, só 1 dígito)
+Implementado na Sprint 4A (1:1 com Anuncio, chave = o anúncio, histórico):
+- `versao` (FK PROTECT para `catalogo.Versao`; marca, modelo e tipo vêm dela), `ano_fabricacao`, `ano_modelo`
+  (o mesmo ou o seguinte), `quilometragem`, `combustivel`, `cambio`, `cor`, `portas` (opcional; moto sem),
+  `final_placa` (opcional, só 1 dígito: nunca a placa inteira), `opcionais` (ArrayField de escolhas fixas:
+  ar, direção, vidros, travas, ABS, multimídia, 4x4...)
+- Anúncio de veículo: código `ND-VE-00001`, sem mapa e sem etapa de localização (a cidade fica nos dados);
+  a página mostra o endereço da loja só se ela marcou "mostrar no mapa". Título em branco = marca +
+  modelo + versão + ano.
+
+### Catálogo de veículos — app `catalogo` (Sprint 4A)
+`Marca` (nome, slug único, ativo) → `Modelo` (marca, tipo: carro | caminhonete | moto | caminhao, nome,
+slug, ativo; único por marca+tipo+slug) → `Versao` (modelo, nome, código FIPE, ativo; única por
+modelo+nome). Carga de `catalogo/dados/fipe.csv` (Tabela FIPE de outubro/2026, 11.422 versões) pelo
+`carregar_catalogo` (idempotente, em lote, nunca apaga); `atualizar_catalogo_fipe` regera o CSV pela API
+pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as regras de separação estão em
+`catalogo/services.py` (ver `catalogo/README.md`). Selects encadeados no painel via HTMX (`anuncios:catalogo`).
 
 ## 5. Regras de negócio críticas
 

@@ -143,17 +143,29 @@ def test_destaques_sao_so_os_marcados_mais_novos_primeiro(lojas_demo):
     lista = destaques()
 
     assert [a.titulo for a in lista] == [
+        "Ford Ranger XLT 3.2 4x4 Diesel",
+        "Toyota Hilux SRV 2.8 4x4 Diesel",
         "Casa 3 quartos com área gourmet",
         "Chácara 2 ha com represa e pomar",
     ]
-    assert all(a.url.startswith("/anuncio/ND-IM-") and a.capa.endswith(".webp") for a in lista)
+    assert all(a.url.startswith("/anuncio/ND-") and a.capa.endswith(".webp") for a in lista)
 
 
 def test_recem_anunciados_no_maximo_2_por_loja(lojas_demo):
-    """O Paulo tem 4 imóveis, mas só os 2 mais novos entram (rodízio justo entre lojas)."""
+    """Mais novos primeiro, no máximo 2 por loja: a Garagem Rota 358 tem 3 (a Hilux fica de fora) e o
+    Paulo tem 4 (só os 2 mais novos). A Toro da Bugres está pausada (assinatura em atraso)."""
     lista = recem_anunciados()
 
-    assert [a.titulo for a in lista] == ["Apartamento 2 quartos mobiliado", "Casa 3 quartos com área gourmet"]
+    assert [a.titulo for a in lista] == [
+        "Volkswagen Gol 1.0 MPI",
+        "Apartamento 2 quartos mobiliado",
+        "Chevrolet Onix LT 1.0 Turbo",
+        "Ford Ranger XLT 3.2 4x4 Diesel",
+        "Fiat Strada Freedom 1.3 CD",
+        "Honda CG 160 Fan",
+        "Casa 3 quartos com área gourmet",
+        "Yamaha Fazer FZ25 ABS",
+    ]
     assert [a.publicado_em for a in lista] == sorted((a.publicado_em for a in lista), reverse=True)
 
 
@@ -168,23 +180,24 @@ def test_vitrine_so_mostra_publicados_de_loja_ativa(lojas_demo):
     }
 
     Anunciante.objects.filter(slug="paulo-mendes-corretor").update(status="suspenso")
-    assert recem_anunciados() == [] and destaques() == []
+    lojas = {a.loja_slug for a in recem_anunciados(limite=50, por_loja=50) + destaques()}
+    assert "paulo-mendes-corretor" not in lojas
 
 
 def test_lojas_verificadas_com_mais_anuncios_primeiro(lojas_demo):
     """6 lojas ativas (as pendentes não), por anúncios visíveis e depois pelo nome.
 
-    Só os imóveis estão no banco; os veículos do demo.json entram na Sprint 4.
+    A Bugres está em atraso: a Toro dela fica pausada (0 visíveis).
     """
     lojas = [(loja.nome, loja.total_anuncios) for loja in lojas_verificadas()]
 
     assert lojas == [
         ("Paulo Mendes Corretor", 4),
+        ("Garagem Rota 358", 3),
+        ("Chapada Motos", 2),
+        ("Parecis Veículos", 1),
+        ("Serra Caminhonetes", 1),
         ("Bugres Auto Center", 0),
-        ("Chapada Motos", 0),
-        ("Garagem Rota 358", 0),
-        ("Parecis Veículos", 0),
-        ("Serra Caminhonetes", 0),
     ]
 
 
@@ -531,7 +544,7 @@ def test_criar_dados_demo_leva_os_imoveis_para_o_banco(dev):
 
     criar_dados_demo(SENHA_DEMO)
 
-    anuncios = Anuncio.objects.filter(demo=True)
+    anuncios = Anuncio.objects.filter(demo=True, categoria="imovel")
     assert anuncios.count() == 4
     assert set(anuncios.values_list("situacao", flat=True)) == {"publicado"}
     assert set(anuncios.values_list("anunciante__slug", flat=True)) == {"paulo-mendes-corretor"}
@@ -543,7 +556,7 @@ def test_criar_dados_demo_leva_os_imoveis_para_o_banco(dev):
     exibir = sorted(anuncios.values_list("imovel__exibir_localizacao", flat=True))
     assert exibir == ["aproximada", "aproximada", "exata", "so_bairro"]
     assert Anuncio.objects.get(imovel__exibir_localizacao="exata").imovel.ponto is not None
-    assert Foto.objects.filter(anuncio__demo=True).count() == 17
+    assert Foto.objects.filter(anuncio__demo=True, anuncio__categoria="imovel").count() == 17
     assert anuncios.get(titulo="Casa 3 quartos com área gourmet").bairro.nome == "Jardim Europa"
 
 
@@ -554,8 +567,8 @@ def test_criar_dados_demo_anuncios_idempotente(dev):
     criar_dados_demo(SENHA_DEMO)
     criar_dados_demo(SENHA_DEMO)
 
-    assert Anuncio.objects.filter(demo=True).count() == 4
-    assert Foto.objects.filter(anuncio__demo=True).count() == 17
+    assert Anuncio.objects.filter(demo=True).count() == 12
+    assert Foto.objects.filter(anuncio__demo=True).count() == 17 + 31
 
 
 def test_demo_tem_estatisticas_para_o_painel(dev):
@@ -581,3 +594,22 @@ def test_apagar_dados_demo_remove_anuncios_fotos_e_estatisticas(dev):
     assert not Anuncio.objects.exists() and not Anuncio.history.exists()
     assert not Foto.objects.exists() and not EstatisticaDiaria.objects.exists()
     assert not storage.exists(arquivo)
+
+
+def test_criar_dados_demo_leva_os_veiculos_para_o_banco(dev):
+    """8 veículos das revendas (ND-VE-), com versão do catálogo FIPE, fotos e ficha; Bugres pausada."""
+    from anuncios.models import Anuncio
+
+    criar_dados_demo(SENHA_DEMO)
+
+    veiculos = Anuncio.objects.filter(demo=True, categoria="veiculo").select_related(
+        "veiculo__versao__modelo"
+    )
+    assert veiculos.count() == 8
+    assert all(a.codigo.startswith("ND-VE-") and 3 <= a.fotos.count() <= 5 for a in veiculos)
+    hilux = veiculos.get(titulo="Toyota Hilux SRV 2.8 4x4 Diesel").veiculo
+    assert (hilux.versao.modelo.tipo, hilux.versao.nome) == ("caminhonete", "CD SRV 4x4 2.8 TDI Diesel Aut.")
+    assert hilux.quilometragem == 98000 and "tracao_4x4" in hilux.opcionais
+    assert veiculos.get(titulo="Honda CG 160 Fan").veiculo.versao.modelo.tipo == "moto"
+    toro = veiculos.get(titulo="Fiat Toro Volcano 2.0 Diesel 4x4")
+    assert (toro.situacao, toro.pausado_por) == ("pausado", "atraso")

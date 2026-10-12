@@ -13,6 +13,7 @@ urlpatterns = [
     re_path(rf"^anuncio/{CODIGO}/whatsapp/$", views_publicas.whatsapp, name="whatsapp"),
     re_path(rf"^anuncio/{CODIGO}(?:-(?P<slug>[-a-z0-9]*))?/$", views_publicas.publico, name="publico"),
     path("painel/anuncios/novo/", views.novo, name="novo"),
+    path("painel/anuncios/catalogo/", views.catalogo, name="catalogo"),
     path("painel/anuncios/<str:codigo>/editar/", views.editar, name="editar"),
     path("painel/anuncios/<str:codigo>/editar/localizacao/", views.localizacao, name="localizacao"),
     path("painel/anuncios/<str:codigo>/editar/fotos/", views.fotos, name="fotos"),

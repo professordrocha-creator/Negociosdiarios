@@ -21,6 +21,7 @@ from planos.models import PedidoTrocaPlano, Plano
 pytestmark = pytest.mark.django_db
 
 Situacao = Anuncio.Situacao
+NOVO_IMOVEL = "/painel/anuncios/novo/?categoria=imovel"
 
 DADOS = {
     "titulo": "Casa 3 quartos com área gourmet",
@@ -75,9 +76,9 @@ def test_novo_cria_rascunho_e_segue_para_localizacao(client, loja):
     """Etapa 1: cria o rascunho com preço e área no formato brasileiro; caixa de ajuda presente."""
     anunciante = loja()
     client.force_login(anunciante.usuario)
-    assert "Sobre esta tela" in client.get(reverse("anuncios:novo")).content.decode()
+    assert "Sobre esta tela" in client.get(NOVO_IMOVEL).content.decode()
 
-    resposta = client.post(reverse("anuncios:novo"), DADOS)
+    resposta = client.post(NOVO_IMOVEL, DADOS)
 
     anuncio = Anuncio.objects.get()
     assert resposta["Location"] == reverse("anuncios:localizacao", args=[anuncio.codigo])
@@ -98,7 +99,7 @@ def test_dados_invalidos(client, loja, mudanca, erro):
     """Título curto (limite da Configuracao), área construída maior que a total, preço inválido."""
     client.force_login(loja().usuario)
 
-    html = client.post(reverse("anuncios:novo"), {**DADOS, **mudanca}).content.decode()
+    html = client.post(NOVO_IMOVEL, {**DADOS, **mudanca}).content.decode()
 
     assert erro in html and not Anuncio.objects.exists()
 

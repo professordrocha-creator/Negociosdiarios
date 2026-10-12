@@ -169,56 +169,64 @@
       "titulo": "Toyota Hilux SRV 2.8 4x4 Diesel", "preco": "189900.00",
       "cidade_ibge": 5107958, "bairro": "",
       "detalhes": {"marca": "Toyota", "modelo": "Hilux SRV 2.8 4x4", "ano": 2019, "km": 98000, "cambio": "automático", "combustivel": "diesel"},
-      "destaque": true, "fotos": 10, "estilo_foto": "f5", "publicado_ha_horas": 20
+      "destaque": true, "fotos": 10, "estilo_foto": "f5", "publicado_ha_horas": 20,
+      "fipe": ["Toyota", "Hilux", "CD SRV 4x4 2.8 TDI Diesel Aut."], "cor": "prata", "portas": 4, "final_placa": "7", "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "travas_eletricas", "multimidia", "tracao_4x4", "camera_de_re", "revisoes_em_dia"], "descricao": "Hilux SRV diesel automática, revisões na concessionária, pneus novos.\nAceita troca e financiamento.", "num_fotos": 5
     },
     {
       "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Carro",
       "titulo": "Chevrolet Onix LT 1.0 Turbo", "preco": "72500.00",
       "cidade_ibge": 5107958, "bairro": "",
       "detalhes": {"marca": "Chevrolet", "modelo": "Onix LT 1.0 Turbo", "ano": 2021, "km": 52000, "cambio": "manual", "combustivel": "flex"},
-      "destaque": false, "fotos": 9, "estilo_foto": "f4", "publicado_ha_horas": 5
+      "destaque": false, "fotos": 9, "estilo_foto": "f4", "publicado_ha_horas": 5,
+      "fipe": ["Chevrolet", "ONIX", "HATCH LT 1.0 12V TB Flex 5p Mec."], "cor": "branco", "portas": 4, "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "travas_eletricas", "multimidia", "airbag", "freio_abs"], "descricao": "Onix turbo econômico, único dono, manual e chave reserva.", "num_fotos": 4
     },
     {
       "loja": "garagem-rota-358", "categoria": "veiculo", "finalidade": "venda", "tipo": "Carro",
       "titulo": "Volkswagen Gol 1.0 MPI", "preco": "63900.00",
       "cidade_ibge": 5107958, "bairro": "",
       "detalhes": {"marca": "Volkswagen", "modelo": "Gol 1.0 MPI", "ano": 2020, "km": 61000, "cambio": "manual", "combustivel": "flex"},
-      "destaque": false, "fotos": 7, "estilo_foto": "f1", "publicado_ha_horas": 1
+      "destaque": false, "fotos": 7, "estilo_foto": "f1", "publicado_ha_horas": 1,
+      "fipe": ["Volkswagen", "Gol", "1.0 Flex 12V 5p"], "cor": "vermelho", "portas": 4, "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "travas_eletricas"], "descricao": "Gol completo, ótimo para o dia a dia. IPVA pago.", "num_fotos": 3
     },
     {
       "loja": "serra-caminhonetes", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
       "titulo": "Ford Ranger XLT 3.2 4x4 Diesel", "preco": "179000.00",
       "cidade_ibge": 5107958, "bairro": "",
       "detalhes": {"marca": "Ford", "modelo": "Ranger XLT 3.2 4x4", "ano": 2020, "km": 87000, "cambio": "automático", "combustivel": "diesel"},
-      "destaque": true, "fotos": 11, "estilo_foto": "f5", "publicado_ha_horas": 9
+      "destaque": true, "fotos": 11, "estilo_foto": "f5", "publicado_ha_horas": 9,
+      "fipe": ["Ford", "Ranger", "XLT 3.2 20V 4x4 CD Diesel Aut."], "cor": "preto", "portas": 4, "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "travas_eletricas", "tracao_4x4", "capota", "piloto_automatico", "bancos_couro"], "descricao": "Ranger XLT com capota marítima e santo antônio. Pronta para a lida no campo.", "num_fotos": 5
     },
     {
       "loja": "parecis-veiculos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
       "titulo": "Fiat Strada Freedom 1.3 CD", "preco": "98900.00",
       "cidade_ibge": 5102637, "bairro": "",
       "detalhes": {"marca": "Fiat", "modelo": "Strada Freedom 1.3 CD", "ano": 2022, "km": 41000, "cambio": "manual", "combustivel": "flex"},
-      "destaque": false, "fotos": 8, "estilo_foto": "f6", "publicado_ha_horas": 14
+      "destaque": false, "fotos": 8, "estilo_foto": "f6", "publicado_ha_horas": 14,
+      "fipe": ["Fiat", "Strada", "Freedom 1.3 Flex 8V CD"], "cor": "cinza", "portas": 4, "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "multimidia", "sensor_estacionamento"], "descricao": "Strada cabine dupla, flex, revisada. Caçamba com protetor.", "num_fotos": 4
     },
     {
       "loja": "chapada-motos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Moto",
       "titulo": "Honda CG 160 Fan", "preco": "16900.00",
       "cidade_ibge": 5106232, "bairro": "",
       "detalhes": {"marca": "Honda", "modelo": "CG 160 Fan", "ano": 2023, "km": 9000, "cambio": "manual", "combustivel": "flex"},
-      "destaque": false, "fotos": 6, "estilo_foto": "f2", "publicado_ha_horas": 26
+      "destaque": false, "fotos": 6, "estilo_foto": "f2", "publicado_ha_horas": 26,
+      "fipe": ["Honda", "CG", "160 FAN Flex"], "cor": "vermelho", "opcionais": ["freio_abs", "unico_dono"], "descricao": "CG 160 Fan flex, baixa quilometragem, documentação em dia.", "num_fotos": 3
     },
     {
       "loja": "chapada-motos", "categoria": "veiculo", "finalidade": "venda", "tipo": "Moto",
       "titulo": "Yamaha Fazer FZ25 ABS", "preco": "21900.00",
       "cidade_ibge": 5106232, "bairro": "",
       "detalhes": {"marca": "Yamaha", "modelo": "Fazer FZ25 ABS", "ano": 2022, "km": 14000, "cambio": "manual", "combustivel": "flex"},
-      "destaque": false, "fotos": 6, "estilo_foto": "f3", "publicado_ha_horas": 40
+      "destaque": false, "fotos": 6, "estilo_foto": "f3", "publicado_ha_horas": 40,
+      "fipe": ["Yamaha", "FZ25", "250 FAZER FLEX"], "cor": "azul", "opcionais": ["freio_abs"], "descricao": "Fazer 250 flex com ABS, pneus novos, revisada.", "num_fotos": 3
     },
     {
       "loja": "bugres-auto-center", "categoria": "veiculo", "finalidade": "venda", "tipo": "Caminhonete",
       "titulo": "Fiat Toro Volcano 2.0 Diesel 4x4", "preco": "129900.00",
       "cidade_ibge": 5101704, "bairro": "",
       "detalhes": {"marca": "Fiat", "modelo": "Toro Volcano 2.0 4x4", "ano": 2021, "km": 67000, "cambio": "automático", "combustivel": "diesel"},
-      "destaque": false, "fotos": 9, "estilo_foto": "f6", "publicado_ha_horas": 11
+      "destaque": false, "fotos": 9, "estilo_foto": "f6", "publicado_ha_horas": 11,
+      "fipe": ["Fiat", "Toro", "Volcano 2.0 16V 4x4 TB Diesel Aut."], "cor": "branco", "portas": 4, "opcionais": ["ar_condicionado", "direcao", "vidros_eletricos", "travas_eletricas", "multimidia", "tracao_4x4", "camera_de_re", "rodas_liga"], "descricao": "Toro Volcano diesel 4x4 automática, top de linha. Aceita troca.", "num_fotos": 4
     }
   ]
 }

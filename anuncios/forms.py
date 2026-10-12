@@ -9,9 +9,12 @@ from decimal import Decimal, InvalidOperation
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxLengthValidator, MinLengthValidator
+from django.core.validators import MaxLengthValidator, MaxValueValidator, MinLengthValidator
+from django.utils import timezone
 
-from anuncios.models import DetalheImovel
+from anuncios.models import DetalheImovel, DetalheVeiculo
+from catalogo import services as catalogo
+from catalogo.models import Marca, Modelo, TipoVeiculo, Versao
 from core import imagens
 from core.models import Bairro, Cidade
 from core.services import configuracao
@@ -96,33 +99,7 @@ class DadosImovelForm(forms.Form):
     def __init__(self, *args, **kwargs):
         """Limites de texto da Configuracao (no help_text e no navegador) e classes do Bootstrap."""
         super().__init__(*args, **kwargs)
-        config = configuracao()
-        self.fields["titulo"].validators += [
-            MinLengthValidator(
-                config.titulo_min_caracteres,
-                message="O título precisa ter pelo menos %(limit_value)d caracteres.",
-            ),
-            MaxLengthValidator(
-                config.titulo_max_caracteres,
-                message="O título pode ter no máximo %(limit_value)d caracteres.",
-            ),
-        ]
-        self.fields["titulo"].widget.attrs["maxlength"] = config.titulo_max_caracteres
-        self.fields["titulo"].help_text = (
-            f"De {config.titulo_min_caracteres} a {config.titulo_max_caracteres} caracteres. "
-            'Ex.: "Casa 3 quartos com área gourmet".'
-        )
-        self.fields["descricao"].validators.append(
-            MaxLengthValidator(
-                config.descricao_max_caracteres,
-                message="A descrição pode ter no máximo %(limit_value)d caracteres.",
-            )
-        )
-        self.fields["descricao"].widget.attrs["maxlength"] = config.descricao_max_caracteres
-        self.fields["descricao"].help_text = (
-            f"Até {config.descricao_max_caracteres} caracteres, texto simples. "
-            "Não coloque telefone nem link: o contato é pelo botão do WhatsApp."
-        )
+        aplicar_limites_de_texto(self, 'Ex.: "Casa 3 quartos com área gourmet".')
         for nome, campo in self.fields.items():
             if nome == "modalidade":
                 continue
@@ -153,6 +130,194 @@ class DadosImovelForm(forms.Form):
         return {
             **{campo: getattr(anuncio, campo) for campo in cls.CAMPOS_ANUNCIO},
             **{campo: getattr(imovel, campo) for campo in cls.CAMPOS_FICHA},
+        }
+
+
+def aplicar_limites_de_texto(form: forms.Form, exemplo_titulo: str) -> None:
+    """Título e descrição com os limites da Configuracao (validação, maxlength e help_text)."""
+    config = configuracao()
+    form.fields["titulo"].validators += [
+        MinLengthValidator(
+            config.titulo_min_caracteres,
+            message="O título precisa ter pelo menos %(limit_value)d caracteres.",
+        ),
+        MaxLengthValidator(
+            config.titulo_max_caracteres,
+            message="O título pode ter no máximo %(limit_value)d caracteres.",
+        ),
+    ]
+    form.fields["titulo"].widget.attrs["maxlength"] = config.titulo_max_caracteres
+    form.fields["titulo"].help_text = (
+        f"De {config.titulo_min_caracteres} a {config.titulo_max_caracteres} caracteres. " + exemplo_titulo
+    )
+    form.fields["descricao"].validators.append(
+        MaxLengthValidator(
+            config.descricao_max_caracteres,
+            message="A descrição pode ter no máximo %(limit_value)d caracteres.",
+        )
+    )
+    form.fields["descricao"].widget.attrs["maxlength"] = config.descricao_max_caracteres
+    form.fields["descricao"].help_text = (
+        f"Até {config.descricao_max_caracteres} caracteres, texto simples. "
+        "Não coloque telefone nem link: o contato é pelo botão do WhatsApp."
+    )
+
+
+class CampoInteiro(forms.IntegerField):
+    """IntegerField que aceita "98.000" (ponto de milhar)."""
+
+    widget = forms.TextInput
+
+    def to_python(self, value):
+        """Converte antes das validações de mínimo e máximo."""
+        if value in self.empty_values:
+            return None
+        valor = ler_valor(value)
+        if valor is None or valor != valor.to_integral_value():
+            raise ValidationError("Digite um número inteiro, como 98.000.")
+        return int(valor)
+
+
+class ModeloField(forms.ModelChoiceField):
+    """Modelo mostrado só pelo nome (a marca já está no select anterior)."""
+
+    def label_from_instance(self, modelo: Modelo) -> str:
+        """Ex.: 'Hilux'."""
+        return modelo.nome
+
+
+class VersaoField(forms.ModelChoiceField):
+    """Versão mostrada só pelo nome (marca e modelo já estão nos selects anteriores)."""
+
+    def label_from_instance(self, versao: Versao) -> str:
+        """Ex.: 'CD SRV 4x4 2.8 Diesel Aut.'."""
+        return versao.nome
+
+
+class DadosVeiculoForm(forms.Form):
+    """Etapa 1 do veículo: catálogo FIPE (tipo → marca → modelo → versão), ficha, preço, cidade e texto.
+
+    Os selects do catálogo são encadeados: as opções de cada um dependem do anterior (lidas de
+    `self.data` ou do `initial`). Com JavaScript o HTMX troca o bloco ao mudar um select
+    (`anuncios:catalogo`); sem JavaScript, o botão "Atualizar listas" reenvia o formulário.
+    """
+
+    tipo_veiculo = forms.ChoiceField(label="Tipo", choices=[("", "Escolha…"), *TipoVeiculo.choices])
+    marca = forms.ModelChoiceField(label="Marca", queryset=Marca.objects.none(), empty_label="Escolha…")
+    modelo = ModeloField(label="Modelo", queryset=Modelo.objects.none(), empty_label="Escolha…")
+    versao = VersaoField(label="Versão", queryset=Versao.objects.none(), empty_label="Escolha…")
+    ano_fabricacao = forms.IntegerField(label="Ano de fabricação", min_value=1950)
+    ano_modelo = forms.IntegerField(label="Ano do modelo", min_value=1950)
+    quilometragem = CampoInteiro(label="Quilometragem (km)", min_value=0, max_value=3_000_000)
+    combustivel = forms.ChoiceField(label="Combustível", choices=DetalheVeiculo.Combustivel.choices)
+    cambio = forms.ChoiceField(label="Câmbio", choices=DetalheVeiculo.Cambio.choices)
+    cor = forms.ChoiceField(label="Cor", choices=DetalheVeiculo.Cor.choices)
+    portas = forms.TypedChoiceField(
+        label="Portas",
+        choices=[("", "—"), *DetalheVeiculo.PORTAS],
+        coerce=int,
+        empty_value=None,
+        required=False,
+    )
+    final_placa = forms.RegexField(
+        label="Final da placa",
+        regex=r"^\d$",
+        required=False,
+        max_length=1,
+        error_messages={"invalid": "Só o último dígito da placa (0 a 9)."},
+        help_text="Opcional: só o último dígito. Nunca a placa inteira.",
+    )
+    opcionais = forms.MultipleChoiceField(
+        label="Opcionais",
+        choices=DetalheVeiculo.Opcional.choices,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+    preco = CampoValor(label="Preço (R$)", max_digits=12, decimal_places=2, min_value=Decimal("0.01"))
+    cidade = forms.ModelChoiceField(label="Cidade", queryset=Cidade.objects.none(), empty_label=None)
+    titulo = forms.CharField(label="Título", required=False)
+    descricao = forms.CharField(label="Descrição", widget=forms.Textarea(attrs={"rows": 8}), required=False)
+
+    CAMPOS_CATALOGO = ("tipo_veiculo", "marca", "modelo", "versao")
+    CAMPOS_ANUNCIO = ("titulo", "descricao", "preco", "cidade")
+    CAMPOS_FICHA = (
+        "versao",
+        "ano_fabricacao",
+        "ano_modelo",
+        "quilometragem",
+        "combustivel",
+        "cambio",
+        "cor",
+        "portas",
+        "final_placa",
+        "opcionais",
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Opções encadeadas do catálogo, cidades liberadas, limites de texto e classes do Bootstrap."""
+        super().__init__(*args, **kwargs)
+        aplicar_limites_de_texto(self, "Deixe em branco para usar marca, modelo, versão e ano.")
+        ano_max = timezone.localdate().year + 1
+        self.fields["ano_fabricacao"].max_value = ano_max
+        self.fields["ano_modelo"].max_value = ano_max + 1
+        self.fields["ano_fabricacao"].validators.append(MaxValueValidator(ano_max))
+        self.fields["ano_modelo"].validators.append(MaxValueValidator(ano_max + 1))
+        self.fields["cidade"].queryset = Cidade.objects.filter(liberada=True, uf__liberado=True).order_by(
+            "nome"
+        )
+        tipo, marca, modelo = (self._valor(campo) for campo in ("tipo_veiculo", "marca", "modelo"))
+        self.fields["marca"].queryset = catalogo.marcas_do_tipo(tipo)
+        self.fields["modelo"].queryset = catalogo.modelos_da_marca(marca, tipo)
+        self.fields["versao"].queryset = catalogo.versoes_do_modelo(modelo)
+        for nome, campo in self.fields.items():
+            if nome == "opcionais":
+                continue
+            eh_select = isinstance(campo.widget, forms.Select)
+            campo.widget.attrs.setdefault("class", "form-select" if eh_select else "form-control")
+        self.fields["preco"].widget.attrs["inputmode"] = "decimal"
+        self.fields["quilometragem"].widget.attrs["inputmode"] = "numeric"
+
+    def _valor(self, campo: str) -> str:
+        """Valor atual do campo: o enviado (data) ou o inicial (initial), como texto."""
+        if self.is_bound:
+            return str(self.data.get(self.add_prefix(campo), "") or "")
+        valor = self.initial.get(campo, "")
+        return str(getattr(valor, "pk", valor) or "")
+
+    def clean(self) -> dict:
+        """Coerência do catálogo (versão do modelo, modelo da marca e do tipo) e dos anos."""
+        dados = super().clean()
+        tipo, marca, modelo, versao = (dados.get(c) for c in self.CAMPOS_CATALOGO)
+        if versao and modelo and versao.modelo_id != modelo.pk:
+            self.add_error("versao", "Esta versão não é do modelo escolhido.")
+        if modelo and (marca and modelo.marca_id != marca.pk or tipo and modelo.tipo != tipo):
+            self.add_error("modelo", "Este modelo não é da marca e do tipo escolhidos.")
+        fabricacao, ano_modelo = dados.get("ano_fabricacao"), dados.get("ano_modelo")
+        if fabricacao and ano_modelo and not (fabricacao <= ano_modelo <= fabricacao + 1):
+            self.add_error("ano_modelo", "O ano do modelo é o mesmo da fabricação ou o seguinte.")
+        return dados
+
+    def dados_anuncio(self) -> dict:
+        """Só os campos do Anuncio."""
+        return {campo: self.cleaned_data[campo] for campo in self.CAMPOS_ANUNCIO}
+
+    def dados_ficha(self) -> dict:
+        """Só os campos do DetalheVeiculo."""
+        return {campo: self.cleaned_data[campo] for campo in self.CAMPOS_FICHA}
+
+    @classmethod
+    def inicial(cls, anuncio) -> dict:
+        """Valores atuais do anúncio para editar (o catálogo vem da versão gravada)."""
+        veiculo = anuncio.veiculo
+        modelo = veiculo.versao.modelo
+        return {
+            **{campo: getattr(anuncio, campo) for campo in cls.CAMPOS_ANUNCIO},
+            **{campo: getattr(veiculo, campo) for campo in cls.CAMPOS_FICHA},
+            "tipo_veiculo": modelo.tipo,
+            "marca": modelo.marca_id,
+            "modelo": modelo.pk,
+            "versao": veiculo.versao_id,
+            "cidade": anuncio.cidade_id,
         }
 
 

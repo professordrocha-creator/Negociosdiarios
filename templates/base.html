@@ -32,6 +32,8 @@
   {# Bootstrap 5.3.3 servido localmente; nd.css vem depois e só sobrescreve o necessário. #}
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/nd.css' %}">
+  {# HTMX sem nada inline (CSP): sem estilo injetado, sem eval e sem executar <script> que venha nas respostas. #}
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false}'>
   {% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -52,6 +54,8 @@
 
   {# JS do Bootstrap (abas da busca). Local, para a futura CSP não precisar liberar CDN. #}
   <script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
+  {# HTMX 2.0.4 servido localmente (selects encadeados do painel, filtros da busca). #}
+  <script src="{% static 'vendor/htmx/htmx.min.js' %}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

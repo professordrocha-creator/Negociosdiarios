@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from anunciantes.models import Anunciante
-from anuncios.models import Anuncio, DetalheImovel, Foto
+from anuncios.models import Anuncio, DetalheImovel, DetalheVeiculo, Foto
 from core import imagens
 from core.models import Configuracao
 from core.services import configuracao, enviar_email_modelo
@@ -50,7 +50,7 @@ def anuncios_do_dono(anunciante: Anunciante) -> QuerySet[Anuncio]:
     return (
         Anuncio.objects.filter(anunciante=anunciante)
         .exclude(situacao=Situacao.REMOVIDO)
-        .select_related("cidade", "cidade__uf", "bairro", "imovel")
+        .select_related("cidade", "cidade__uf", "bairro", "imovel", "veiculo__versao__modelo__marca")
         .prefetch_related(Prefetch("fotos", queryset=Foto.objects.order_by("ordem", "pk")))
     )
 
@@ -86,16 +86,20 @@ def precisa_moderacao(anunciante: Anunciante) -> bool:
 def pendencias(anuncio: Anuncio) -> list[str]:
     """O que falta para enviar para publicação (lista vazia = pode enviar)."""
     faltas = []
-    imovel = getattr(anuncio, "imovel", None)
-    if imovel is None:
-        faltas.append("Preencha os dados do imóvel.")
+    detalhe = anuncio.detalhe
+    if detalhe is None:
+        faltas.append(
+            "Preencha os dados do veículo." if anuncio.e_veiculo else "Preencha os dados do imóvel."
+        )
         return faltas
     if not anuncio.descricao.strip():
         faltas.append("Escreva a descrição do anúncio.")
-    if imovel.exibir_localizacao == DetalheImovel.ExibirLocalizacao.SO_BAIRRO:
+    if anuncio.e_veiculo:
+        pass  # veículo não tem mapa: a cidade basta (o endereço exibido é o da loja, se ela permitir)
+    elif detalhe.exibir_localizacao == DetalheImovel.ExibirLocalizacao.SO_BAIRRO:
         if not anuncio.bairro_id:
             faltas.append('Escolha o bairro (a localização no site é "só o bairro").')
-    elif not imovel.ponto:
+    elif not detalhe.ponto:
         faltas.append('Marque o ponto no mapa ou escolha mostrar "só o bairro".')
     if not any(foto.imagem for foto in anuncio.fotos.all()):
         faltas.append("Envie pelo menos uma foto (e espere ela ficar pronta).")
@@ -126,6 +130,30 @@ def criar_anuncio_imovel(anunciante: Anunciante, dados: dict, ficha: dict) -> An
     return anuncio
 
 
+def titulo_do_veiculo(versao, ano_modelo: int) -> str:
+    """Título sugerido quando o anunciante não escreve um: "Toyota Hilux CD SRV 4x4 2.8 Diesel Aut. 2020"."""
+    return f"{versao.modelo.marca.nome} {versao.modelo.nome} {versao.nome} {ano_modelo}"[:120]
+
+
+def criar_anuncio_veiculo(anunciante: Anunciante, dados: dict, ficha: dict) -> Anuncio:
+    """Cria o rascunho do veículo (código ND-VE-...). Sem título, usa marca, modelo, versão e ano.
+
+    `dados` tem os campos do Anuncio (titulo, descricao, preco, cidade); `ficha`, os do DetalheVeiculo.
+    """
+    with transaction.atomic():
+        dados = {"cidade": anunciante.cidade, **dados}
+        if not dados.get("titulo"):
+            dados["titulo"] = titulo_do_veiculo(ficha["versao"], ficha["ano_modelo"])
+        anuncio = Anuncio(
+            anunciante=anunciante, categoria=Anuncio.Categoria.VEICULO, demo=anunciante.demo, **dados
+        )
+        anuncio.slug = slugify(anuncio.titulo)[:140]
+        anuncio._change_reason = "Rascunho criado pelo anunciante."
+        anuncio.save()
+        DetalheVeiculo.objects.create(anuncio=anuncio, **ficha)
+    return anuncio
+
+
 def atualizar_anuncio(anuncio: Anuncio, dados: dict, ficha: dict | None = None, motivo: str = "") -> Anuncio:
     """Grava as mudanças do formulário (dados ou localização) no anúncio e na ficha.
 
@@ -135,6 +163,8 @@ def atualizar_anuncio(anuncio: Anuncio, dados: dict, ficha: dict | None = None, 
     with transaction.atomic():
         for campo, valor in dados.items():
             setattr(anuncio, campo, valor)
+        if anuncio.e_veiculo and not anuncio.titulo and ficha:
+            anuncio.titulo = titulo_do_veiculo(ficha["versao"], ficha["ano_modelo"])
         anuncio.slug = slugify(anuncio.titulo)[:140]
         if (
             anuncio.situacao == Situacao.PUBLICADO
@@ -144,10 +174,10 @@ def atualizar_anuncio(anuncio: Anuncio, dados: dict, ficha: dict | None = None, 
         anuncio._change_reason = motivo or "Editado pelo anunciante."
         anuncio.save()
         if ficha:
-            imovel = anuncio.imovel
+            detalhe = anuncio.detalhe
             for campo, valor in ficha.items():
-                setattr(imovel, campo, valor)
-            imovel.save()
+                setattr(detalhe, campo, valor)
+            detalhe.save()
     return anuncio
 
 
@@ -569,7 +599,15 @@ def anuncios_visiveis() -> QuerySet[Anuncio]:
             cidade__liberada=True,
             cidade__uf__liberado=True,
         )
-        .select_related("anunciante", "anunciante__cidade", "cidade", "cidade__uf", "bairro", "imovel")
+        .select_related(
+            "anunciante",
+            "anunciante__cidade",
+            "cidade",
+            "cidade__uf",
+            "bairro",
+            "imovel",
+            "veiculo__versao__modelo__marca",
+        )
         .prefetch_related(Prefetch("fotos", queryset=Foto.objects.order_by("ordem", "pk")))
     )
 
@@ -609,6 +647,8 @@ def localizacao_publica(anuncio: Anuncio) -> dict | None:
     """
     import math
 
+    if anuncio.e_veiculo:
+        return None  # veículo não tem mapa (a página mostra o endereço da loja, se ela permitir)
     imovel = getattr(anuncio, "imovel", None)
     if imovel is None or imovel.ponto is None:
         return None
@@ -648,17 +688,21 @@ def para_vitrine(anuncio: Anuncio):
     """Converte para o AnuncioVitrine do card (os mesmos campos que o demo.json usava na 4c)."""
     from core.services import AnuncioVitrine
 
-    imovel = anuncio.imovel
+    detalhe = anuncio.detalhe
     fotos = [foto for foto in anuncio.fotos.all() if foto.imagem]
+    if anuncio.e_veiculo:
+        finalidade, tipo = "venda", detalhe.versao.modelo.get_tipo_display()
+    else:
+        finalidade, tipo = detalhe.modalidade, detalhe.get_tipo_display()
     return AnuncioVitrine(
         titulo=anuncio.titulo,
         categoria=anuncio.categoria,
-        finalidade=imovel.modalidade,
-        tipo=imovel.get_tipo_display(),
+        finalidade=finalidade,
+        tipo=tipo,
         preco=anuncio.preco,
         cidade=anuncio.cidade.nome,
         bairro=anuncio.bairro.nome if anuncio.bairro else "",
-        resumo=imovel.resumo,
+        resumo=detalhe.resumo,
         loja_nome=anuncio.anunciante.nome_publico,
         loja_slug=anuncio.anunciante.slug,
         destaque=bool(anuncio.destaque_ate and anuncio.destaque_ate > timezone.now()),
@@ -681,15 +725,21 @@ def mais_da_loja(anuncio: Anuncio, limite: int = 4) -> list[Anuncio]:
 
 
 def parecidos(anuncio: Anuncio, limite: int = 4) -> list[Anuncio]:
-    """Anúncios visíveis da mesma cidade e do mesmo tipo de imóvel; completa com a mesma cidade."""
+    """Anúncios visíveis da mesma cidade e do mesmo tipo (de imóvel ou de veículo); completa com a cidade."""
     base = (
         anuncios_visiveis()
         .filter(cidade_id=anuncio.cidade_id)
         .exclude(pk=anuncio.pk)
         .order_by("-publicado_em")
     )
-    imovel = getattr(anuncio, "imovel", None)
-    mesmos = list(base.filter(imovel__tipo=imovel.tipo)[:limite]) if imovel else []
+    detalhe = anuncio.detalhe
+    if anuncio.e_veiculo and detalhe:
+        mesmo_tipo = base.filter(veiculo__versao__modelo__tipo=detalhe.tipo)
+    elif detalhe:
+        mesmo_tipo = base.filter(imovel__tipo=detalhe.tipo)
+    else:
+        mesmo_tipo = base.none()
+    mesmos = list(mesmo_tipo[:limite])
     if len(mesmos) < limite:
         mesmos += list(base.exclude(pk__in=[a.pk for a in mesmos])[: limite - len(mesmos)])
     return mesmos

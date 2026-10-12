@@ -28,6 +28,7 @@ def ambiente_de_teste_previsivel(settings, tmp_path):
     cache.clear()
     settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
     settings.MEDIA_ROOT = tmp_path / "media"  # uploads e imagens geradas nunca caem na media/ do projeto
+    settings.DEMO_FOTO_ESCALA = 0.5  # fotos demo em 800×600: os testes da demonstração rodam mais rápido
     celery_app.conf.task_always_eager = True
     celery_app.conf.task_eager_propagates = True
     yield
@@ -99,6 +100,72 @@ def criar_anunciante(tangara):
             status=status,
             **campos,
         )
+
+    return _criar
+
+
+# --- Catálogo de veículos (Sprint 4): um pedaço pequeno da FIPE ------------------------------
+
+
+@pytest.fixture
+def catalogo_teste(db):
+    """Toyota Hilux (caminhonete, 2 versões), Toyota Corolla (carro) e Honda CG (moto)."""
+    from catalogo.models import Marca, Modelo, Versao
+
+    toyota = Marca.objects.create(nome="Toyota", slug="toyota")
+    honda = Marca.objects.create(nome="Honda", slug="honda")
+    hilux = Modelo.objects.create(marca=toyota, tipo="caminhonete", nome="Hilux", slug="hilux")
+    corolla = Modelo.objects.create(marca=toyota, tipo="carro", nome="Corolla", slug="corolla")
+    cg = Modelo.objects.create(marca=honda, tipo="moto", nome="CG", slug="cg")
+    return {
+        "toyota": toyota,
+        "honda": honda,
+        "hilux": hilux,
+        "corolla": corolla,
+        "cg": cg,
+        "hilux_srv": Versao.objects.create(
+            modelo=hilux, nome="CD SRV 4x4 2.8 TDI Diesel Aut.", codigo_fipe="7406"
+        ),
+        "hilux_sr": Versao.objects.create(modelo=hilux, nome="CD SR 4x4 2.8 TDI Diesel", codigo_fipe="7405"),
+        "corolla_xei": Versao.objects.create(
+            modelo=corolla, nome="XEi 2.0 Flex 16V Aut.", codigo_fipe="6000"
+        ),
+        "cg_fan": Versao.objects.create(modelo=cg, nome="160 FAN Flex", codigo_fipe="8000"),
+    }
+
+
+@pytest.fixture
+def veiculo(catalogo_teste, tangara):
+    """Fábrica: anúncio de veículo em rascunho; `completo=True` já tem descrição e foto."""
+    from decimal import Decimal
+
+    from anuncios import services
+    from anuncios.tests.conftest import foto_pronta
+
+    def _criar(anunciante, versao: str = "hilux_srv", completo: bool = True, titulo: str = "", **ficha):
+        dados = {
+            "titulo": titulo,
+            "descricao": "Revisada, pneus novos." if completo else "",
+            "preco": Decimal("189900"),
+            "cidade": tangara,
+        }
+        ficha = {
+            "versao": catalogo_teste[versao],
+            "ano_fabricacao": 2019,
+            "ano_modelo": 2020,
+            "quilometragem": 98000,
+            "combustivel": "diesel",
+            "cambio": "automatico",
+            "cor": "prata",
+            "portas": 4,
+            "final_placa": "",
+            "opcionais": ["ar_condicionado", "tracao_4x4"],
+            **ficha,
+        }
+        anuncio = services.criar_anuncio_veiculo(anunciante, dados, ficha)
+        if completo:
+            foto_pronta(anuncio)
+        return anuncio
 
     return _criar
 

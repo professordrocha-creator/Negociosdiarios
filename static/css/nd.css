@@ -307,3 +307,10 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-preco-grande { font-family: var(--nd-fonte-titulo); font-weight: 800; font-size: 34px; color: var(--nd-petroleo); }
 .nd-contato { position: sticky; top: 90px; }
 .nd-mapa-anuncio { height: 300px; }
+
+/* ---------- Painel › Anúncio de veículo (Sprint 4) ---------- */
+.nd-opcionais { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; }
+.nd-opcionais label { display: flex; align-items: center; gap: 6px; }
+.nd-categoria:hover { box-shadow: 0 8px 22px rgba(8, 50, 59, .12); }
+.htmx-request #bloco-catalogo, #bloco-catalogo.htmx-request { opacity: .6; transition: opacity .2s; }
+.nd-lista-opcionais { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px 16px; }

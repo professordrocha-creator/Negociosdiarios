@@ -1,7 +1,8 @@
-"""Modelos do app anuncios: o anúncio (base comum), o detalhe de imóvel e as fotos.
+"""Modelos do app anuncios: o anúncio (base comum), os detalhes de imóvel e de veículo e as fotos.
 
-Veículo (DetalheVeiculo, catálogo FIPE) chega na Sprint 4 com a mesma base `Anuncio`.
-Nada é apagado pelo anunciante: "excluir" muda a situação para `removido` (exclusão lógica).
+Cada anúncio tem um detalhe conforme a categoria: `DetalheImovel` (imóvel) ou `DetalheVeiculo`
+(veículo, com a versão do catálogo FIPE). Nada é apagado pelo anunciante: "excluir" muda a
+situação para `removido` (exclusão lógica).
 """
 
 import uuid
@@ -9,11 +10,13 @@ from decimal import Decimal
 from pathlib import PurePath
 
 from django.contrib.gis.db import models
-from django.core.validators import MinValueValidator
+from django.contrib.postgres.fields import ArrayField
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
 from anunciantes.models import Anunciante
+from catalogo.models import Versao
 from core.models import Bairro, Cidade, MarcaDemo
 
 PREFIXO_CODIGO = {"imovel": "ND-IM", "veiculo": "ND-VE"}
@@ -137,6 +140,22 @@ class Anuncio(MarcaDemo):
             return None
         return max((self.expira_em - timezone.now()).days, 0)
 
+    @property
+    def e_veiculo(self) -> bool:
+        """Anúncio de veículo?"""
+        return self.categoria == self.Categoria.VEICULO
+
+    @property
+    def detalhe(self) -> "DetalheImovel | DetalheVeiculo | None":
+        """A ficha da categoria (imóvel ou veículo), ou None se ainda não existe."""
+        return getattr(self, "veiculo" if self.e_veiculo else "imovel", None)
+
+    @property
+    def aluguel(self) -> bool:
+        """Preço mensal (só imóvel para alugar)."""
+        detalhe = self.detalhe
+        return bool(detalhe and getattr(detalhe, "aluguel", False))
+
 
 class DetalheImovel(models.Model):
     """Ficha do imóvel. Endereço e ponto exato são privados: o público vê conforme `exibir_localizacao`."""
@@ -226,6 +245,132 @@ class DetalheImovel(models.Model):
         else:
             partes.append(f"{area:g} m²".replace(".", ","))
         return " · ".join(partes)
+
+
+class DetalheVeiculo(models.Model):
+    """Ficha do veículo: versão do catálogo FIPE (marca → modelo → versão), ano, km e equipamentos.
+
+    Placa: só o último dígito, e só se o anunciante quiser (docs/LGPD.md §4: nunca a placa inteira).
+    """
+
+    class Combustivel(models.TextChoices):
+        FLEX = "flex", "Flex"
+        GASOLINA = "gasolina", "Gasolina"
+        ETANOL = "etanol", "Etanol"
+        DIESEL = "diesel", "Diesel"
+        HIBRIDO = "hibrido", "Híbrido"
+        ELETRICO = "eletrico", "Elétrico"
+        GNV = "gnv", "GNV"
+
+    class Cambio(models.TextChoices):
+        MANUAL = "manual", "Manual"
+        AUTOMATICO = "automatico", "Automático"
+        AUTOMATIZADO = "automatizado", "Automatizado"
+        CVT = "cvt", "CVT"
+
+    class Cor(models.TextChoices):
+        BRANCO = "branco", "Branco"
+        PRETO = "preto", "Preto"
+        PRATA = "prata", "Prata"
+        CINZA = "cinza", "Cinza"
+        VERMELHO = "vermelho", "Vermelho"
+        AZUL = "azul", "Azul"
+        VERDE = "verde", "Verde"
+        AMARELO = "amarelo", "Amarelo"
+        MARROM = "marrom", "Marrom"
+        BEGE = "bege", "Bege"
+        LARANJA = "laranja", "Laranja"
+        DOURADO = "dourado", "Dourado"
+        OUTRA = "outra", "Outra"
+
+    class Opcional(models.TextChoices):
+        AR_CONDICIONADO = "ar_condicionado", "Ar-condicionado"
+        DIRECAO = "direcao", "Direção hidráulica ou elétrica"
+        VIDROS_ELETRICOS = "vidros_eletricos", "Vidros elétricos"
+        TRAVAS_ELETRICAS = "travas_eletricas", "Travas elétricas"
+        ALARME = "alarme", "Alarme"
+        AIRBAG = "airbag", "Airbag"
+        FREIO_ABS = "freio_abs", "Freio ABS"
+        MULTIMIDIA = "multimidia", "Central multimídia"
+        CAMERA_DE_RE = "camera_de_re", "Câmera de ré"
+        SENSOR_ESTACIONAMENTO = "sensor_estacionamento", "Sensor de estacionamento"
+        RODAS_LIGA = "rodas_liga", "Rodas de liga leve"
+        BANCOS_COURO = "bancos_couro", "Bancos de couro"
+        PILOTO_AUTOMATICO = "piloto_automatico", "Piloto automático"
+        TETO_SOLAR = "teto_solar", "Teto solar"
+        TRACAO_4X4 = "tracao_4x4", "Tração 4x4"
+        CAPOTA = "capota", "Capota marítima"
+        UNICO_DONO = "unico_dono", "Único dono"
+        REVISOES_EM_DIA = "revisoes_em_dia", "Revisões em dia"
+
+    PORTAS = [(2, "2"), (3, "3"), (4, "4"), (5, "5")]
+
+    anuncio = models.OneToOneField(
+        Anuncio, on_delete=models.CASCADE, primary_key=True, related_name="veiculo", verbose_name="anúncio"
+    )
+    versao = models.ForeignKey(
+        Versao, on_delete=models.PROTECT, related_name="anuncios", verbose_name="versão"
+    )
+    ano_fabricacao = models.PositiveSmallIntegerField(
+        "ano de fabricação", validators=[MinValueValidator(1950), MaxValueValidator(2100)]
+    )
+    ano_modelo = models.PositiveSmallIntegerField(
+        "ano do modelo", validators=[MinValueValidator(1950), MaxValueValidator(2101)]
+    )
+    quilometragem = models.PositiveIntegerField(
+        "quilometragem (km)", validators=[MaxValueValidator(3_000_000)]
+    )
+    combustivel = models.CharField("combustível", max_length=10, choices=Combustivel.choices)
+    cambio = models.CharField("câmbio", max_length=12, choices=Cambio.choices)
+    cor = models.CharField("cor", max_length=10, choices=Cor.choices)
+    portas = models.PositiveSmallIntegerField("portas", choices=PORTAS, null=True, blank=True)
+    final_placa = models.CharField(
+        "final da placa",
+        max_length=1,
+        blank=True,
+        validators=[RegexValidator(r"^\d$", "Só o último dígito da placa (0 a 9).")],
+        help_text=(
+            "Opcional: só o último dígito (ajuda no rodízio e no licenciamento). Nunca a placa inteira."
+        ),
+    )
+    opcionais = ArrayField(
+        models.CharField(max_length=24, choices=Opcional.choices),
+        default=list,
+        blank=True,
+        verbose_name="opcionais",
+    )
+
+    history = HistoricalRecords(verbose_name="histórico da ficha do veículo")
+
+    class Meta:
+        verbose_name = "ficha do veículo"
+        verbose_name_plural = "fichas de veículo"
+
+    def __str__(self) -> str:
+        """Ex.: 'Toyota Hilux CD SRV 2019/2020'."""
+        return f"{self.versao} {self.ano_fabricacao}/{self.ano_modelo}"
+
+    @property
+    def tipo(self) -> str:
+        """carro, caminhonete, moto ou caminhão (do catálogo)."""
+        return self.versao.modelo.tipo
+
+    @property
+    def aluguel(self) -> bool:
+        """Veículo é sempre venda."""
+        return False
+
+    @property
+    def resumo(self) -> str:
+        """Linha de ficha do card. Ex.: "2019/2020 · 98.000 km · Automático"."""
+        km = f"{self.quilometragem:,}".replace(",", ".")
+        return f"{self.ano_fabricacao}/{self.ano_modelo} · {km} km · {self.get_cambio_display()}"
+
+    @property
+    def opcionais_rotulos(self) -> list[str]:
+        """Nomes dos opcionais marcados, na ordem da lista."""
+        rotulos = dict(self.Opcional.choices)
+        return [rotulos[o] for o in self.opcionais if o in rotulos]
 
 
 class Foto(models.Model):

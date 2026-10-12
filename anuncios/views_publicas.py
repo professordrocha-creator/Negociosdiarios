@@ -22,18 +22,23 @@ def _do_dono(request: HttpRequest, anuncio: Anuncio) -> bool:
 
 
 def _contexto_pagina(request: HttpRequest, anuncio: Anuncio, previa: bool) -> dict:
-    """Tudo o que a página do anúncio mostra (SEO, galeria, ficha, mapa, loja e "mais desta loja")."""
+    """Tudo o que a página do anúncio mostra (SEO, galeria, ficha, mapa ou endereço da loja, mais da loja)."""
     fotos = [foto for foto in anuncio.fotos.all() if foto.imagem]
     url = settings.SITE_URL + services.url_publica(anuncio)
-    imovel = anuncio.imovel
+    detalhe = anuncio.detalhe
     descricao = (anuncio.descricao or "").strip().replace("\n", " ")
-    resumo_seo = f"{imovel} em {anuncio.local}: {imovel.resumo}. {descricao}"[:300].rstrip()
+    rotulo = anuncio.titulo if anuncio.e_veiculo else str(detalhe)
+    resumo_seo = f"{rotulo} em {anuncio.local}: {detalhe.resumo}. {descricao}"[:300].rstrip()
     capa = fotos[0] if fotos else None
+    loja = anuncio.anunciante
     return {
         "tela": "anuncio",
         "anuncio": anuncio,
-        "imovel": imovel,
-        "loja": anuncio.anunciante,
+        "imovel": None if anuncio.e_veiculo else detalhe,
+        "veiculo": detalhe if anuncio.e_veiculo else None,
+        "loja": loja,
+        # Veículo não tem mapa: mostra onde ver o carro se a loja publicou o endereço e permitiu.
+        "endereco_loja": loja.endereco_publico if anuncio.e_veiculo and loja.mostrar_no_mapa else "",
         "fotos": fotos,
         "url_canonica": url,
         "descricao_seo": resumo_seo,
@@ -47,9 +52,20 @@ def _contexto_pagina(request: HttpRequest, anuncio: Anuncio, previa: bool) -> di
     }
 
 
+def _endereco(anuncio: Anuncio) -> dict:
+    """Cidade e UF (nunca o endereço exato)."""
+    return {
+        "@type": "PostalAddress",
+        "addressLocality": anuncio.cidade.nome,
+        "addressRegion": anuncio.cidade.uf_id,
+        "addressCountry": "BR",
+    }
+
+
 def _schema(anuncio: Anuncio, url: str, fotos: list) -> dict:
-    """schema.org (oferta de imóvel) para os buscadores. Sem endereço exato nem telefone."""
-    imovel = anuncio.imovel
+    """schema.org da oferta (imóvel ou veículo) para os buscadores. Sem endereço exato nem telefone."""
+    detalhe = anuncio.detalhe
+    loja = anuncio.anunciante
     dados = {
         "@context": "https://schema.org",
         "@type": "Offer",
@@ -60,34 +76,45 @@ def _schema(anuncio: Anuncio, url: str, fotos: list) -> dict:
         "price": str(anuncio.preco),
         "priceCurrency": "BRL",
         "availability": "https://schema.org/InStock",
-        "businessFunction": "http://purl.org/goodrelations/v1#" + ("LeaseOut" if imovel.aluguel else "Sell"),
+        "businessFunction": "http://purl.org/goodrelations/v1#" + ("LeaseOut" if anuncio.aluguel else "Sell"),
         "seller": {
-            "@type": "RealEstateAgent",
-            "name": anuncio.anunciante.nome_publico,
-            "url": settings.SITE_URL + f"/loja/{anuncio.anunciante.slug}/",
-        },
-        "itemOffered": {
-            "@type": "Accommodation"
-            if imovel.tipo not in ("terreno", "fazenda", "sitio", "chacara")
-            else "Place",
-            "name": anuncio.titulo,
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": anuncio.cidade.nome,
-                "addressRegion": anuncio.cidade.uf_id,
-                "addressCountry": "BR",
-            },
+            "@type": "AutoDealer" if anuncio.e_veiculo else "RealEstateAgent",
+            "name": loja.nome_publico,
+            "url": settings.SITE_URL + f"/loja/{loja.slug}/",
         },
     }
     if fotos:
         dados["image"] = [settings.SITE_URL + foto.imagem.url for foto in fotos[:5]]
-    if imovel.quartos:
-        dados["itemOffered"]["numberOfRooms"] = imovel.quartos
-    dados["itemOffered"]["floorSize"] = {
-        "@type": "QuantitativeValue",
-        "value": str(imovel.area_total),
-        "unitCode": "MTK",
+    if anuncio.e_veiculo:
+        modelo = detalhe.versao.modelo
+        dados["itemOffered"] = {
+            "@type": "Motorcycle" if modelo.tipo == "moto" else "Car",
+            "name": anuncio.titulo,
+            "brand": {"@type": "Brand", "name": modelo.marca.nome},
+            "model": f"{modelo.nome} {detalhe.versao.nome}",
+            "productionDate": str(detalhe.ano_fabricacao),
+            "vehicleModelDate": str(detalhe.ano_modelo),
+            "mileageFromOdometer": {
+                "@type": "QuantitativeValue",
+                "value": detalhe.quilometragem,
+                "unitCode": "KMT",
+            },
+            "fuelType": detalhe.get_combustivel_display(),
+            "vehicleTransmission": detalhe.get_cambio_display(),
+            "color": detalhe.get_cor_display(),
+            "itemCondition": "https://schema.org/UsedCondition",
+        }
+        return dados
+    dados["itemOffered"] = {
+        "@type": "Accommodation"
+        if detalhe.tipo not in ("terreno", "fazenda", "sitio", "chacara")
+        else "Place",
+        "name": anuncio.titulo,
+        "address": _endereco(anuncio),
+        "floorSize": {"@type": "QuantitativeValue", "value": str(detalhe.area_total), "unitCode": "MTK"},
     }
+    if detalhe.quartos:
+        dados["itemOffered"]["numberOfRooms"] = detalhe.quartos
     return dados
 
 
@@ -95,10 +122,12 @@ def _schema(anuncio: Anuncio, url: str, fotos: list) -> dict:
 def publico(request: HttpRequest, codigo: str, slug: str = "") -> HttpResponse:
     """Página do anúncio. Slug diferente do atual redireciona (301) para a URL canônica."""
     anuncio = get_object_or_404(
-        Anuncio.objects.select_related("anunciante", "anunciante__cidade", "cidade", "bairro", "imovel"),
+        Anuncio.objects.select_related(
+            "anunciante", "anunciante__cidade", "cidade", "bairro", "imovel", "veiculo__versao__modelo__marca"
+        ),
         codigo=codigo.upper(),
     )
-    if getattr(anuncio, "imovel", None) is None:
+    if anuncio.detalhe is None:
         raise Http404
     if services.visivel(anuncio):
         if slug != anuncio.slug or codigo != anuncio.codigo:

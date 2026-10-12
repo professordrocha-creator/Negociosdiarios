@@ -9,7 +9,7 @@
 - Para parar ou reiniciar sem perder nada: `docker compose down` (sem `-v`) ou `docker compose restart`.
 - O nome do projeto é fixo (`name: negocios-diarios` no `docker-compose.yml`), então o
   volume é o mesmo mesmo que a pasta mude de nome.
-- Se o banco for recriado de propósito: `migrate`, `carregar_municipios`, `createsuperuser`
+- Se o banco for recriado de propósito: `migrate`, `carregar_municipios`, `carregar_catalogo` (veículos da FIPE), `createsuperuser`
   e liberar as cidades no admin.
 
 ## Cadastro de anunciante (fluxo e problemas comuns)

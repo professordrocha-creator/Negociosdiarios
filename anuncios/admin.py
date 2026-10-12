@@ -11,7 +11,7 @@ from django.utils.html import format_html, format_html_join
 from simple_history.admin import SimpleHistoryAdmin
 
 from anuncios import services
-from anuncios.models import Anuncio, AnuncioEmModeracao, DetalheImovel
+from anuncios.models import Anuncio, AnuncioEmModeracao, DetalheImovel, DetalheVeiculo
 from core.admin_acoes import tela_motivo
 
 
@@ -54,6 +54,31 @@ class DetalheImovelInline(admin.StackedInline):
         return False
 
 
+class DetalheVeiculoInline(admin.StackedInline):
+    """Ficha do veículo dentro do anúncio (só leitura)."""
+
+    model = DetalheVeiculo
+    can_delete = False
+    extra = 0
+    fields = (
+        "versao",
+        "ano_fabricacao",
+        "ano_modelo",
+        "quilometragem",
+        "combustivel",
+        "cambio",
+        "cor",
+        "portas",
+        "final_placa",
+        "opcionais",
+    )
+    readonly_fields = fields
+
+    def has_add_permission(self, request: HttpRequest, obj=None) -> bool:
+        """A ficha nasce com o anúncio."""
+        return False
+
+
 class BaseAnuncioAdmin(admin.ModelAdmin):
     """Comum às duas telas: só leitura (o conteúdo é do anunciante), sem criar nem apagar."""
 
@@ -62,7 +87,14 @@ class BaseAnuncioAdmin(admin.ModelAdmin):
 
     list_select_related = ("anunciante", "cidade", "bairro")
     search_fields = ("codigo", "titulo", "anunciante__nome_publico")
-    inlines = [DetalheImovelInline]
+    inlines = [DetalheImovelInline, DetalheVeiculoInline]
+
+    def get_inlines(self, request: HttpRequest, obj: Anuncio | None = None):
+        """Só a ficha da categoria do anúncio."""
+        if obj is None:
+            return self.inlines
+        return [DetalheVeiculoInline] if obj.e_veiculo else [DetalheImovelInline]
+
     readonly_fields = (
         "codigo",
         "anunciante",

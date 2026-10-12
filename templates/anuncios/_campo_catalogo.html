@@ -1,0 +1,4 @@
+{# Um select do catálogo. Na resposta do HTMX ("parcial") os erros não aparecem: só ao salvar. #}
+<label class="form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+{{ campo }}
+{% if not parcial %}{% for erro in campo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}{% endif %}

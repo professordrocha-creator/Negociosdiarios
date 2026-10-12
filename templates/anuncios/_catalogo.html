@@ -1,0 +1,10 @@
+{# Bloco do catálogo FIPE: tipo → marca → modelo → versão. Recebe "form" (DadosVeiculoForm) e "parcial". #}
+{# Com JS: ao mudar um select, o HTMX pede a anuncios:catalogo o bloco com as opções certas e troca este div. #}
+{# Sem JS: o botão "Atualizar listas" (noscript) reenvia o formulário inteiro. Erros só fora da resposta HTMX. #}
+<div id="bloco-catalogo" class="row g-3" hx-get="{% url 'anuncios:catalogo' %}" hx-trigger="change" hx-target="this" hx-swap="outerHTML" hx-include="this">
+  <div class="col-sm-6 col-lg-3">{% include "anuncios/_campo_catalogo.html" with campo=form.tipo_veiculo %}</div>
+  <div class="col-sm-6 col-lg-3">{% include "anuncios/_campo_catalogo.html" with campo=form.marca %}</div>
+  <div class="col-sm-6 col-lg-3">{% include "anuncios/_campo_catalogo.html" with campo=form.modelo %}</div>
+  <div class="col-sm-6 col-lg-3">{% include "anuncios/_campo_catalogo.html" with campo=form.versao %}</div>
+  <noscript><div class="col-12"><button type="submit" name="_atualizar_catalogo" value="1" class="btn btn-sm btn-outline-secondary" formnovalidate>Atualizar listas</button> <span class="small text-suave">Escolha um campo e clique para carregar as opções do próximo.</span></div></noscript>
+</div>

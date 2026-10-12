@@ -1,9 +1,11 @@
-"""Anúncios de demonstração no banco (Sprint 3, parte B), a partir do demo.json (a fonte continua lá).
+"""Anúncios de demonstração no banco (imóveis desde a Sprint 3B, veículos desde a 4A), a partir do
+demo.json (a fonte continua lá).
 
 Chamado pelo `core.services.criar_dados_demo`. Cada imóvel do demo.json vira um anúncio publicado
 da loja demo, com 3 a 5 fotos de exemplo desenhadas pelo Pillow (passam pelo mesmo processamento
 das fotos reais: WebP, compartilhamento JPEG, sem EXIF), ponto no mapa conforme `exibir_localizacao`
-e estatísticas fictícias dos últimos 30 dias. Veículos entram na Sprint 4. Idempotente.
+e estatísticas fictícias dos últimos 30 dias. Veículos usam a versão do catálogo FIPE indicada no
+demo.json (`fipe`); sem catálogo no banco, as marcas da demo são carregadas do fipe.csv. Idempotente.
 """
 
 from __future__ import annotations
@@ -12,7 +14,9 @@ import io
 import random
 from datetime import timedelta
 from decimal import Decimal
+from functools import lru_cache
 
+from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.files.base import ContentFile
 from django.utils import timezone
@@ -21,7 +25,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 from anunciantes.models import Anunciante
 from anuncios import services
-from anuncios.models import Anuncio, DetalheImovel, Foto
+from anuncios.models import Anuncio, DetalheImovel, DetalheVeiculo, Foto
+from catalogo.models import Versao
+from catalogo.services import carregar_catalogo
 from core.models import Bairro, Cidade
 from core.services import configuracao
 
@@ -98,12 +104,82 @@ def _interior(desenho: ImageDraw.ImageDraw, paleta, comodo: str) -> None:
             desenho.rectangle([x, 600, x + 200, 780], outline=(150, 150, 150), width=4)
 
 
-def foto_de_exemplo(tipo: str, indice: int, rotulo: str) -> bytes:
-    """Desenha uma foto fictícia (JPEG 1600×1200) do tipo de imóvel; marca "FOTO ILUSTRATIVA"."""
+CORES_CARRO = {
+    "branco": (240, 240, 240),
+    "preto": (35, 35, 40),
+    "prata": (185, 190, 195),
+    "cinza": (120, 125, 130),
+    "vermelho": (190, 40, 40),
+    "azul": (40, 80, 170),
+}
+
+
+def _veiculo(desenho: ImageDraw.ImageDraw, tipo: str, cor: tuple, indice: int) -> None:
+    """Carro, caminhonete ou moto de perfil sobre o asfalto (ângulo muda um pouco por foto)."""
+    chao = ALTURA * 70 // 100
+    desenho.rectangle([0, chao, LARGURA, ALTURA], fill=(70, 72, 76))
+    for x in range(0, LARGURA, 220):
+        desenho.rectangle([x, chao + 150, x + 120, chao + 166], fill=(230, 220, 120))
+    deslocamento = (indice % 3 - 1) * 90
+    if tipo == "moto":
+        x0 = 520 + deslocamento
+        for cx in (x0, x0 + 520):
+            desenho.ellipse([cx - 120, chao - 240, cx + 120, chao], fill=(30, 30, 30))
+            desenho.ellipse([cx - 60, chao - 180, cx + 60, chao - 60], fill=(150, 150, 150))
+        desenho.polygon(
+            [(x0, chao - 130), (x0 + 200, chao - 330), (x0 + 430, chao - 320), (x0 + 520, chao - 130)],
+            fill=cor,
+        )
+        desenho.rectangle([x0 + 180, chao - 380, x0 + 330, chao - 340], fill=(25, 25, 25))
+        desenho.line([(x0 + 430, chao - 320), (x0 + 470, chao - 440)], fill=(60, 60, 60), width=16)
+        return
+    x0 = 250 + deslocamento
+    comprimento = 1100
+    altura_cabine = 230
+    if tipo == "caminhonete":
+        desenho.rectangle([x0, chao - 250, x0 + comprimento, chao - 90], fill=cor)  # carroceria + caçamba
+        desenho.polygon(
+            [
+                (x0 + 120, chao - 250),
+                (x0 + 220, chao - 250 - altura_cabine),
+                (x0 + 600, chao - 250 - altura_cabine),
+                (x0 + 660, chao - 250),
+            ],
+            fill=cor,
+        )
+        desenho.rectangle(
+            [x0 + 680, chao - 270, x0 + comprimento, chao - 250], fill=(60, 60, 60)
+        )  # borda da caçamba
+        janelas = [(x0 + 240, chao - 460, x0 + 420, chao - 270), (x0 + 435, chao - 460, x0 + 590, chao - 270)]
+    else:
+        desenho.rounded_rectangle([x0, chao - 230, x0 + comprimento, chao - 90], radius=60, fill=cor)
+        desenho.polygon(
+            [(x0 + 200, chao - 230), (x0 + 360, chao - 420), (x0 + 760, chao - 420), (x0 + 900, chao - 230)],
+            fill=cor,
+        )
+        janelas = [(x0 + 380, chao - 400, x0 + 560, chao - 240), (x0 + 575, chao - 400, x0 + 740, chao - 240)]
+    for janela in janelas:
+        desenho.rectangle(janela, fill=(150, 200, 225))
+    for cx in (x0 + 230, x0 + comprimento - 230):
+        desenho.ellipse([cx - 110, chao - 200, cx + 110, chao + 20], fill=(25, 25, 25))
+        desenho.ellipse([cx - 55, chao - 145, cx + 55, chao - 35], fill=(170, 170, 175))
+    desenho.rectangle([x0 + comprimento - 40, chao - 200, x0 + comprimento, chao - 160], fill=(250, 220, 120))
+
+
+@lru_cache(maxsize=128)
+def foto_de_exemplo(tipo: str, indice: int, rotulo: str, cor: str = "prata") -> bytes:
+    """Desenha uma foto fictícia (JPEG) do imóvel ou veículo, marcada "FOTO ILUSTRATIVA".
+
+    Desenhada em 1600×1200 e reduzida pela escala `settings.DEMO_FOTO_ESCALA` (os testes usam
+    0,5 para rodar rápido). Guardada em memória: a mesma foto não é desenhada duas vezes.
+    """
     paleta = PALETAS[indice % len(PALETAS)]
     imagem = Image.new("RGB", (LARGURA, ALTURA))
     desenho = ImageDraw.Draw(imagem)
-    if tipo in ("casa", "apartamento", "kitnet") and indice > 0:
+    if tipo in ("carro", "caminhonete", "moto", "caminhao"):
+        _ceu_e_chao(desenho, paleta, ALTURA * 70 // 100)
+        _veiculo(desenho, tipo, CORES_CARRO.get(cor, (185, 190, 195)), indice)
+    elif tipo in ("casa", "apartamento", "kitnet") and indice > 0:
         _interior(desenho, paleta, ("sala", "quarto", "cozinha", "sala")[(indice - 1) % 4])
     else:
         horizonte = ALTURA * 55 // 100
@@ -128,6 +204,9 @@ def foto_de_exemplo(tipo: str, indice: int, rotulo: str) -> bytes:
     fonte = ImageFont.load_default(size=44)
     desenho.rectangle([0, ALTURA - 90, LARGURA, ALTURA], fill=(14, 74, 87))
     desenho.text((40, ALTURA - 70), f"FOTO ILUSTRATIVA · DEMO · {rotulo}", fill=(255, 244, 204), font=fonte)
+    escala = getattr(settings, "DEMO_FOTO_ESCALA", 1.0)
+    if escala != 1.0:
+        imagem = imagem.resize((round(LARGURA * escala), round(ALTURA * escala)), Image.LANCZOS)
     saida = io.BytesIO()
     imagem.save(saida, format="JPEG", quality=88)
     return saida.getvalue()
@@ -156,16 +235,16 @@ def _estatisticas_ficticias(anuncio: Anuncio) -> None:
 
 
 def criar_anuncios_demo(anuncios: list[dict]) -> int:
-    """Cria (ou atualiza) os imóveis do demo.json no banco. Devolve quantos anúncios demo existem.
+    """Cria (ou atualiza) os imóveis e veículos do demo.json no banco. Devolve quantos anúncios demo existem.
 
     Só lojas demo ATIVAS em cidades liberadas. Fotos são geradas só na primeira vez.
     """
+    _garantir_catalogo(anuncios)
     agora = timezone.now()
     prazo = timedelta(days=configuracao().expiracao_dias)
     total = 0
     for dado in anuncios:
-        if dado["categoria"] != "imovel":
-            continue  # veículos: Sprint 4
+        veiculo = dado["categoria"] == "veiculo"
         loja = Anunciante.objects.filter(slug=dado["loja"], demo=True, status=Anunciante.Status.ATIVO).first()
         cidade = Cidade.objects.filter(codigo_ibge=dado["cidade_ibge"]).first()
         if loja is None or cidade is None:
@@ -185,9 +264,7 @@ def criar_anuncios_demo(anuncios: list[dict]) -> int:
         }
         anuncio = Anuncio.objects.filter(anunciante=loja, titulo=dado["titulo"]).first()
         if anuncio is None:
-            anuncio = Anuncio(
-                anunciante=loja, categoria=Anuncio.Categoria.IMOVEL, titulo=dado["titulo"], **campos
-            )
+            anuncio = Anuncio(anunciante=loja, categoria=dado["categoria"], titulo=dado["titulo"], **campos)
         else:
             for campo, valor in campos.items():
                 setattr(anuncio, campo, valor)
@@ -195,33 +272,88 @@ def criar_anuncios_demo(anuncios: list[dict]) -> int:
         anuncio._change_reason = "Dados de demonstração."
         anuncio.save()
 
-        detalhes = dado["detalhes"]
-        ponto = dado.get("ponto")
-        DetalheImovel.objects.update_or_create(
-            anuncio=anuncio,
-            defaults={
-                "tipo": TIPOS[dado["tipo"]],
-                "modalidade": dado["finalidade"],
-                "quartos": detalhes.get("quartos", 0),
-                "banheiros": detalhes.get("banheiros", 0),
-                "vagas": detalhes.get("vagas", 0),
-                "area_total": Decimal(detalhes["area_m2"]),
-                "area_construida": Decimal(dado["area_construida"]) if dado.get("area_construida") else None,
-                "iptu": Decimal(dado["iptu"]) if dado.get("iptu") else None,
-                "endereco": "Endereço fictício (demonstração)",
-                "ponto": Point(ponto[1], ponto[0], srid=4326) if ponto else None,
-                "exibir_localizacao": dado.get("exibir_localizacao", "aproximada"),
-            },
-        )
+        if veiculo:
+            tipo_foto = _criar_ficha_veiculo(anuncio, dado)
+        else:
+            tipo_foto = _criar_ficha_imovel(anuncio, dado)
         if not anuncio.fotos.exists():
-            tipo = TIPOS[dado["tipo"]]
             for indice in range(dado.get("num_fotos", 3)):
                 foto = Foto(anuncio=anuncio, ordem=indice)
-                foto.original.save(
-                    "demo.jpg", ContentFile(foto_de_exemplo(tipo, indice, dado["tipo"].upper())), save=False
-                )
+                imagem = foto_de_exemplo(tipo_foto, indice, dado["tipo"].upper(), dado.get("cor", "prata"))
+                foto.original.save("demo.jpg", ContentFile(imagem), save=False)
                 foto.save()
                 services.processar_foto(foto)  # na hora (o comando roda sem esperar o Celery)
         _estatisticas_ficticias(anuncio)
         total += 1
+    # Como no sistema real: loja com assinatura em atraso fica com os anúncios pausados.
+    for loja in Anunciante.objects.filter(demo=True, assinatura__situacao="em_atraso"):
+        services.pausar_por_atraso(loja)
     return total
+
+
+def _criar_ficha_imovel(anuncio: Anuncio, dado: dict) -> str:
+    """DetalheImovel do demo.json; devolve o tipo usado no desenho das fotos."""
+    detalhes = dado["detalhes"]
+    ponto = dado.get("ponto")
+    DetalheImovel.objects.update_or_create(
+        anuncio=anuncio,
+        defaults={
+            "tipo": TIPOS[dado["tipo"]],
+            "modalidade": dado["finalidade"],
+            "quartos": detalhes.get("quartos", 0),
+            "banheiros": detalhes.get("banheiros", 0),
+            "vagas": detalhes.get("vagas", 0),
+            "area_total": Decimal(detalhes["area_m2"]),
+            "area_construida": Decimal(dado["area_construida"]) if dado.get("area_construida") else None,
+            "iptu": Decimal(dado["iptu"]) if dado.get("iptu") else None,
+            "endereco": "Endereço fictício (demonstração)",
+            "ponto": Point(ponto[1], ponto[0], srid=4326) if ponto else None,
+            "exibir_localizacao": dado.get("exibir_localizacao", "aproximada"),
+        },
+    )
+    return TIPOS[dado["tipo"]]
+
+
+def _versao_fipe(dado: dict) -> Versao:
+    """A versão do catálogo indicada em `fipe` ([marca, modelo, versão]) no demo.json."""
+    marca, modelo, versao = dado["fipe"]
+    return Versao.objects.select_related("modelo").get(
+        modelo__marca__nome=marca, modelo__nome=modelo, nome=versao
+    )
+
+
+def _criar_ficha_veiculo(anuncio: Anuncio, dado: dict) -> str:
+    """DetalheVeiculo do demo.json; devolve o tipo (carro, caminhonete, moto) para o desenho."""
+    detalhes = dado["detalhes"]
+    versao = _versao_fipe(dado)
+    automatico = detalhes["cambio"].startswith("autom")
+    DetalheVeiculo.objects.update_or_create(
+        anuncio=anuncio,
+        defaults={
+            "versao": versao,
+            "ano_fabricacao": detalhes["ano"],
+            "ano_modelo": detalhes["ano"] + (1 if automatico else 0),
+            "quilometragem": detalhes["km"],
+            "combustivel": detalhes["combustivel"],
+            "cambio": "automatico" if automatico else "manual",
+            "cor": dado.get("cor", "prata"),
+            "portas": dado.get("portas"),
+            "final_placa": dado.get("final_placa", ""),
+            "opcionais": dado.get("opcionais", []),
+        },
+    )
+    return versao.modelo.tipo
+
+
+def _garantir_catalogo(anuncios: list[dict]) -> None:
+    """Sem as versões da demo no banco, carrega do fipe.csv só as marcas que a demo usa (rápido)."""
+    marcas = {dado["fipe"][0] for dado in anuncios if dado["categoria"] == "veiculo" and dado.get("fipe")}
+    faltando = [dado for dado in anuncios if dado.get("fipe") and not _existe(dado)]
+    if marcas and faltando:
+        carregar_catalogo(somente_marcas=marcas)
+
+
+def _existe(dado: dict) -> bool:
+    """A versão do veículo demo já está no catálogo?"""
+    marca, modelo, versao = dado["fipe"]
+    return Versao.objects.filter(modelo__marca__nome=marca, modelo__nome=modelo, nome=versao).exists()

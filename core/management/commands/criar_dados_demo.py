@@ -43,7 +43,7 @@ class Command(BaseCommand):
             f"em atraso, com os anúncios pausados: {', '.join(em_atraso) or 'nenhuma'}."
         )
         self.stdout.write(
-            f"{resumo.anuncios} imóveis demo no banco, com fotos de exemplo e estatísticas "
-            "(veículos: Sprint 4). Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
-            "e no painel do Paulo Mendes."
+            f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
+            "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
+            "e no painel de cada loja."
         )
