@@ -183,7 +183,7 @@ def fotos(request: HttpRequest, codigo: str) -> HttpResponse:
                 request, f"{len(novas)} foto(s) enviada(s). Estamos otimizando: recarregue em instantes."
             )
             return redirect("anuncios:fotos", anuncio.codigo)
-    lista = list(anuncio.fotos.order_by("ordem", "pk"))
+    lista = services.marcar_fotos_pequenas(list(anuncio.fotos.order_by("ordem", "pk")))
     return render(
         request,
         "anuncios/fotos.html",
@@ -195,6 +195,7 @@ def fotos(request: HttpRequest, codigo: str) -> HttpResponse:
             fotos=lista,
             vagas=vagas,
             processando=any(f.processando for f in lista),
+            pequenas=sum(f.pequena for f in lista),
         ),
     )
 

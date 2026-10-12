@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load nd static %}
 {# Painel › Anúncio › Fotos (etapa 3). Envio múltiplo; ordem por arrastar (fotos-anuncio.js) ou setas (sem JS). #}
-{# Os WebP são gerados pelo Celery: enquanto isso a foto aparece como "otimizando". #}
+{# Os WebP são gerados pelo Celery: enquanto isso a foto aparece como "otimizando". Antes do envio, #}
+{# reduzir-fotos.js diminui as fotos grandes no navegador; foto pequena é aceita e ganha o aviso. #}
 
 {% block titulo %}Fotos · {{ anuncio.codigo }}{% endblock %}
 {% block descricao %}Fotos do anúncio.{% endblock %}
@@ -25,6 +26,7 @@
         <div class="alert alert-info py-2 mb-0" role="status">Este anúncio já tem o máximo de fotos. Exclua uma para enviar outra.</div>
       {% endif %}
 
+      {% if pequenas %}<div class="alert alert-warning py-2 mb-0" role="status">{% icone "alerta" %} {{ pequenas }} foto{{ pequenas|pluralize }} pequena{{ pequenas|pluralize }}: pode{{ pequenas|pluralize:"m" }} aparecer borrada{{ pequenas|pluralize }} no anúncio. Se tiver uma versão maior (a original do celular), troque.</div>{% endif %}
       {% if processando %}<div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} Estamos otimizando as fotos enviadas. <a href="">Recarregue a página</a> em alguns segundos.</div>{% endif %}
 
       <section class="nd-caixa">
@@ -40,6 +42,7 @@
               {% if foto.miniatura %}<img src="{{ foto.miniatura.url }}" alt="Foto {{ forloop.counter }}" width="400" height="300">{% else %}<div class="processando small text-suave">otimizando…</div>{% endif %}
               <div class="barra">
                 {% if forloop.first %}<span class="nd-capa-selo">Capa</span>{% else %}<span class="small text-suave">{{ forloop.counter }}</span>{% endif %}
+                {% if foto.pequena %}<span class="nd-foto-pequena" title="{{ foto.largura }}×{{ foto.altura }} px: pode aparecer borrada">{% icone "alerta" %} Foto pequena</span>{% endif %}
                 <span class="me-auto"></span>
                 <button type="submit" name="mover" value="{{ foto.pk }}:subir" class="btn btn-sm btn-outline-secondary" title="Subir" aria-label="Subir a foto {{ forloop.counter }}"{% if forloop.first %} disabled{% endif %}>↑</button>
                 <button type="submit" name="mover" value="{{ foto.pk }}:descer" class="btn btn-sm btn-outline-secondary" title="Descer" aria-label="Descer a foto {{ forloop.counter }}"{% if forloop.last %} disabled{% endif %}>↓</button>
@@ -65,4 +68,4 @@
 </main>
 {% endblock %}
 
-{% block scripts %}<script src="{% static 'js/fotos-anuncio.js' %}" defer></script><script src="{% static 'js/confirmar.js' %}" defer></script>{% endblock %}
+{% block scripts %}<script src="{% static 'js/reduzir-fotos.js' %}" defer></script><script src="{% static 'js/fotos-anuncio.js' %}" defer></script><script src="{% static 'js/confirmar.js' %}" defer></script>{% endblock %}

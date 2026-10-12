@@ -423,6 +423,10 @@ class Foto(models.Model):
     compartilhamento = models.FileField(
         "compartilhamento (JPEG 1200×630)", upload_to=caminho_foto, blank=True, editable=False
     )
+    # Dimensões da foto enviada (já na posição certa), gravadas no processamento: foto pequena é
+    # aceita, mas o painel avisa (Configuracao.foto_aviso_*).
+    largura = models.PositiveIntegerField("largura enviada (px)", null=True, blank=True, editable=False)
+    altura = models.PositiveIntegerField("altura enviada (px)", null=True, blank=True, editable=False)
     criado_em = models.DateTimeField("enviada em", default=timezone.now, editable=False)
 
     class Meta:

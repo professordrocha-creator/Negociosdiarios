@@ -13,6 +13,7 @@ from defusedxml import ElementTree
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps, UnidentifiedImageError
+from pillow_heif import register_heif_opener
 
 # Trechos que tornam um SVG perigoso (scripts, eventos, links externos, entidades XML).
 _SVG_PROIBIDO = re.compile(
@@ -22,6 +23,10 @@ _SVG_PROIBIDO = re.compile(
 )
 
 FORMATOS_RASTER = {"PNG": "png", "JPEG": "jpg"}
+
+
+# HEIC/HEIF do iPhone: o Pillow passa a abrir (e o processamento converte para WebP).
+register_heif_opener()
 
 
 def _tamanho_ok(arquivo, limite_kb: int) -> None:
@@ -133,10 +138,16 @@ def favicons(simbolo) -> dict[str, ContentFile]:
 # --- Fotos enviadas por anunciantes (logo e capa da loja; fotos de anúncio na Sprint 3) ----
 
 FORMATOS_FOTO = {"JPEG", "PNG", "WEBP"}
+# Fotos de anúncio aceitam também HEIC/HEIF (iPhone): o Pillow abre com o pillow-heif (registrado acima)
+# e o processamento regrava em WebP. Logo e capa da loja continuam só JPG/PNG/WebP.
+FORMATOS_FOTO_ANUNCIO = FORMATOS_FOTO | {"HEIF"}
 
 
-def validar_foto(arquivo, limite_kb: int, min_largura: int, min_altura: int) -> None:
-    """JPG, PNG ou WebP de verdade (Pillow), até `limite_kb` e com as dimensões mínimas.
+def validar_foto(
+    arquivo, limite_kb: int, min_largura: int, min_altura: int, formatos: set[str] = FORMATOS_FOTO
+) -> tuple[int, int]:
+    """JPG, PNG ou WebP (ou os `formatos` pedidos) de verdade (Pillow), até `limite_kb` e com as dimensões
+    mínimas. Devolve (largura, altura) já na posição certa.
 
     As dimensões consideram a rotação gravada pelo celular (EXIF), como a imagem aparece.
     Mensagens dizem o que fazer (docs/TELAS.md).
@@ -154,13 +165,15 @@ def validar_foto(arquivo, limite_kb: int, min_largura: int, min_altura: int) -> 
         raise ValidationError("Imagem inválida ou corrompida. Envie JPG, PNG ou WebP.") from erro
     finally:
         arquivo.seek(0)
-    if formato not in FORMATOS_FOTO:
-        raise ValidationError(f"Formato {formato} não aceito. Envie JPG, PNG ou WebP.")
+    if formato not in formatos:
+        aceitos = "JPG, PNG, WebP ou HEIC" if "HEIF" in formatos else "JPG, PNG ou WebP"
+        raise ValidationError(f"Formato {formato} não aceito. Envie {aceitos}.")
     if largura < min_largura or altura < min_altura:
         raise ValidationError(
             f"Imagem de {largura}×{altura} px: o mínimo é {min_largura}×{min_altura} px. "
             "Envie uma imagem maior."
         )
+    return largura, altura
 
 
 def abrir_limpa(arquivo) -> Image.Image:

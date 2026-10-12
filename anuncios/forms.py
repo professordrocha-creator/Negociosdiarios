@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from anuncios.localizacao import longe_da_cidade
 from anuncios.models import DetalheImovel, DetalheVeiculo
+from anuncios.services import LADO_MAXIMO_NO_NAVEGADOR
 from catalogo import services as catalogo
 from catalogo.models import Marca, Modelo, TipoVeiculo, Versao
 from core import imagens
@@ -424,11 +425,21 @@ class VariasFotosField(forms.FileField):
 
 
 class FotosForm(forms.Form):
-    """Etapa 3 — fotos: várias de uma vez, cada uma validada (tipo real, tamanho, dimensões mínimas)."""
+    """Etapa 3 — fotos: várias de uma vez, cada uma validada (tipo real, tamanho, dimensões mínimas).
+
+    O mínimo aceito é baixo (só recusa ícone/miniatura); foto pequena passa e o painel avisa. Fotos
+    grandes do celular são reduzidas no navegador antes do envio (`data-reduzir-fotos`).
+    """
 
     fotos = VariasFotosField(
         label="Adicionar fotos",
-        widget=VariosArquivos(attrs={"accept": "image/jpeg,image/png,image/webp", "class": "form-control"}),
+        widget=VariosArquivos(
+            attrs={
+                "accept": "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif",
+                "class": "form-control",
+                "data-reduzir-fotos": "",  # static/js/reduzir-fotos.js reduz antes de enviar
+            }
+        ),
         error_messages={"required": "Escolha pelo menos uma foto."},
     )
 
@@ -437,11 +448,13 @@ class FotosForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.vagas = vagas
         config = configuracao()
+        self.fields["fotos"].widget.attrs["data-lado-maximo"] = LADO_MAXIMO_NO_NAVEGADOR
         self.fields["fotos"].help_text = (
-            f"JPG, PNG ou WebP, até {config.limite_foto_anuncio_kb // 1024} MB cada, mínimo "
-            f"{config.foto_min_largura_px}×{config.foto_min_altura_px} px; ideal 1600×1200 (deitada). "
-            f"Até {config.max_fotos_anuncio} fotos (ainda cabem {vagas}). Não fotografe pessoas, documentos "
-            "nem placas de carro."
+            "Escolha as fotos do celular ou do computador (JPG, PNG, WebP ou HEIC do iPhone): o site "
+            "ajusta o tamanho sozinho. Prefira fotos deitadas. "
+            f"Até {config.max_fotos_anuncio} fotos (ainda cabem {vagas}), "
+            f"até {config.limite_foto_anuncio_kb // 1024} MB cada. "
+            "Não fotografe pessoas, documentos nem placas de carro."
         )
 
     def clean_fotos(self) -> list:
@@ -460,6 +473,7 @@ class FotosForm(forms.Form):
                     config.limite_foto_anuncio_kb,
                     config.foto_min_largura_px,
                     config.foto_min_altura_px,
+                    imagens.FORMATOS_FOTO_ANUNCIO,
                 )
             except ValidationError as erro:
                 erros.append(f"{arquivo.name[:60]}: {' '.join(erro.messages)}")

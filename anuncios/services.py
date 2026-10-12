@@ -37,6 +37,9 @@ PausadoPor = Anuncio.PausadoPor
 
 # Tamanhos gerados de cada foto (ARQUITETURA §8): nome do campo → largura em px.
 SAIDAS_FOTO = {"imagem": 1600, "miniatura": 400}
+# O navegador reduz fotos maiores que isto antes de enviar (static/js/reduzir-fotos.js): folga sobre os
+# 1600 px gerados aqui, envio rápido no 4G. Parâmetro técnico (não é limite para o anunciante).
+LADO_MAXIMO_NO_NAVEGADOR = 2560
 
 
 class AnuncioIncompleto(Exception):
@@ -542,6 +545,7 @@ def processar_foto(foto: Foto) -> bool:
         foto.original.delete(save=False)
         foto.delete()
         return False
+    foto.largura, foto.altura = limpa.size
     for campo, largura in SAIDAS_FOTO.items():
         getattr(foto, campo).save(f"{campo}.webp", imagens.webp(limpa, largura, campo), save=False)
     foto.compartilhamento.save(
@@ -550,6 +554,18 @@ def processar_foto(foto: Foto) -> bool:
     foto.original.delete(save=False)  # o original nunca é servido (docs/SEGURANCA.md)
     foto.save()
     return True
+
+
+def marcar_fotos_pequenas(fotos: list[Foto]) -> list[Foto]:
+    """Liga `foto.pequena` abaixo de Configuracao.foto_aviso_* (aceita, mas pode aparecer borrada)."""
+    config = configuracao()
+    for foto in fotos:
+        foto.pequena = bool(
+            foto.largura
+            and foto.altura
+            and (foto.largura < config.foto_aviso_largura_px or foto.altura < config.foto_aviso_altura_px)
+        )
+    return fotos
 
 
 def _renumerar(anuncio: Anuncio, ids_em_ordem: list[int]) -> None:

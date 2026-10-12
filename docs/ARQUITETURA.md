@@ -294,11 +294,18 @@ pública da FIPE. A FIPE junta modelo e versão e lista picapes como carro: as r
 
 Logo e capa da loja (Sprint 2) já seguem este fluxo (`core/imagens.py`: tipo real, dimensões mínimas,
 limites da `Configuracao`, rotação do EXIF aplicada e EXIF descartado, recorte pelo centro, WebP sem ampliar).
-Fotos de anúncio (Sprint 3, parte A, `anuncios.services`): envio múltiplo validado no formulário (tipo real
-pelo Pillow, tamanho e dimensões mínimas da `Configuracao`) → `anuncios.tasks.processar_foto` (Celery) aplica a
-rotação do celular, descarta EXIF (GPS), gera WebP 1600 + miniatura 400 e apaga o original. Limites na
-`Configuracao` (padrão 10 fotos, 8 MB, mín. 800×600). Formatos: JPEG, PNG e WebP (o iPhone converte HEIC para
-JPEG ao enviar pelo navegador; HEIC direto exigiria `pillow-heif`, fica para quando houver demanda).
+Fotos de anúncio (Sprint 3, parte A; "fotos fáceis" depois da Sprint 6, `anuncios.services`):
+1. **No navegador** (`static/js/reduzir-fotos.js`): foto maior que 2560 px ou 3 MB vira JPEG de até 2560 px
+   (orientação do celular aplicada) antes do envio: rápido no 4G e sem esbarrar no limite. Falhou ou não
+   abriu (ex.: HEIC fora do Safari), vai o arquivo original. Sem JavaScript, também vai o original.
+2. **No servidor** (rede de segurança, `core.imagens.validar_foto`): tipo real pelo Pillow (JPEG, PNG, WebP e
+   HEIC/HEIF pelo `pillow-heif`), até `Configuracao.limite_foto_anuncio_kb` (15 MB) e mínimo aceito
+   `foto_min_*` (200×150: só recusa ícone/miniatura). Foto abaixo de `foto_aviso_*` (800×600) é aceita e o
+   painel mostra "Foto pequena" (`Foto.largura`/`altura`, `marcar_fotos_pequenas`).
+3. **No Celery** (`anuncios.tasks.processar_foto`): aplica a rotação, descarta EXIF (GPS), gera WebP 1600 +
+   miniatura 400 (nunca amplia), grava as dimensões e apaga o original (inclusive o HEIC).
+Logo e capa da loja não mudaram: só JPG/PNG/WebP e os mínimos de antes (a página da loja precisa de
+qualidade).
 Mapa do painel: Leaflet 1.9.4 servido pelo site (`static/vendor/leaflet/`, sem CDN) e tiles do OpenStreetMap.
 
 ## 9. Abrangência geográfica (pronto para vários estados)

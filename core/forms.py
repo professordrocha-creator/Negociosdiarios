@@ -45,6 +45,8 @@ class ConfiguracaoForm(forms.ModelForm):
             "limite_foto_anuncio_kb",
             "foto_min_largura_px",
             "foto_min_altura_px",
+            "foto_aviso_largura_px",
+            "foto_aviso_altura_px",
             "titulo_min_caracteres",
             "titulo_max_caracteres",
             "descricao_max_caracteres",

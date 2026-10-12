@@ -264,9 +264,25 @@ class Configuracao(models.Model):
     max_fotos_anuncio = models.PositiveSmallIntegerField(
         "fotos por anúncio", default=10, help_text="A primeira foto é a capa do anúncio."
     )
-    limite_foto_anuncio_kb = models.PositiveIntegerField("limite de cada foto de anúncio (KB)", default=8192)
-    foto_min_largura_px = models.PositiveIntegerField("largura mínima da foto de anúncio (px)", default=800)
-    foto_min_altura_px = models.PositiveIntegerField("altura mínima da foto de anúncio (px)", default=600)
+    limite_foto_anuncio_kb = models.PositiveIntegerField(
+        "limite de cada foto de anúncio (KB)",
+        default=15360,
+        help_text="Rede de segurança: o navegador já reduz as fotos antes de enviar (vale se o JS falhar).",
+    )
+    foto_min_largura_px = models.PositiveIntegerField(
+        "largura mínima aceita da foto de anúncio (px)",
+        default=200,
+        help_text="Abaixo disso a imagem é recusada (ícone ou miniatura, não uma foto).",
+    )
+    foto_min_altura_px = models.PositiveIntegerField(
+        "altura mínima aceita da foto de anúncio (px)", default=150
+    )
+    foto_aviso_largura_px = models.PositiveIntegerField(
+        "foto pequena: largura (px)",
+        default=800,
+        help_text="Abaixo disso a foto é aceita, mas o painel avisa que pode aparecer borrada.",
+    )
+    foto_aviso_altura_px = models.PositiveIntegerField("foto pequena: altura (px)", default=600)
     titulo_min_caracteres = models.PositiveSmallIntegerField(
         "título do anúncio: mínimo de caracteres", default=10
     )
