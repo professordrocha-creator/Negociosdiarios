@@ -59,7 +59,8 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 | Patrocinador de publicidade (`publicidade.Patrocinador`: nome da empresa, CNPJ, nome, e-mail e WhatsApp da pessoa de contato) | Contato do patrocinador | Vender, cobrar e avisar sobre a campanha | Execução de contrato (V) | Enquanto houver relação comercial + 5 anos (fiscal); nunca apagado pelo admin (exclusão lógica) |
 | Métricas de publicidade (`publicidade.MetricaDiaria`: totais de impressões e cliques por peça e dia) | — (nenhum dado do visitante: sem IP, sem cookie, sem identificador; o User-Agent só é lido na hora para pular robôs) | Relatório ao patrocinador | Não é dado pessoal | Enquanto a campanha existir |
 | Denúncias (e-mail opcional do denunciante) | Visitante | Moderação | Legítimo interesse (IX) | 1 ano |
-| Cookies não essenciais | Visitante | Publicidade/medição de terceiros | Consentimento (I) | Até revogar |
+| Pedidos de titulares (`privacidade.PedidoTitular`: tipo, origem, descrição, contato informado só nos pedidos por e-mail, situação, prazo, resposta, histórico) | Titular | Atender e provar o atendimento (art. 18 e 19) | Obrigação legal (II) | 5 anos |
+| Aceite dos Termos e da Política (`contas.AceiteDocumento`: documento, versão, data e hora; sem IP) | Anunciante | Provar o que foi aceito | Execução de contrato (V) / exercício regular de direitos (VI) | Enquanto a conta existir + 5 anos (fica ligado à conta anonimizada) |
 
 **Regra:** novo campo com dado pessoal → nova linha nesta tabela no mesmo PR.
 
@@ -74,21 +75,37 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 ## 5. Direitos do titular (art. 18) — implementação
 | Direito | Como atendemos |
 |---|---|
-| Confirmação e acesso | Painel → "Meus dados" mostra tudo que temos |
-| Portabilidade | Botão "Baixar meus dados" (JSON + fotos em ZIP), gerado pelo Celery |
-| Correção | Edição no próprio painel |
-| Eliminação / anonimização | "Encerrar conta": apaga anúncios e fotos, anonimiza usuário; mantém só o exigido por lei (faturas) |
-| Revogação de consentimento | Banner de cookies reabrível no rodapé |
+| Confirmação e acesso | Painel → "Meus dados" (`/painel/meus-dados/`) mostra o que guardamos e os aceites |
+| Portabilidade | "Baixar meus dados": senha de novo, JSON com conta, loja, assinatura, pedidos de plano, anúncios (ficha, endereço e ponto privados, endereços das fotos), faturas e aceites; pedido registrado como atendido |
+| Correção | Edição no próprio painel; o resto por e-mail (pedido registrado no admin) |
+| Eliminação / anonimização | "Excluir minha conta": senha + a palavra EXCLUIR; e-mail vira `removido-<id>@anonimo.invalid`, nome "Conta removida", senha inutilizável, conta inativa; loja encerrada e anonimizada (também no histórico); anúncios removidos e fotos apagadas do storage; endereço/ponto do imóvel apagados (também no histórico); assinatura cancelada; tentativas de login e códigos de acesso apagados; e-mail de confirmação ao endereço antigo. Fica só o exigido por lei: faturas e comprovantes pela guarda fiscal (`Configuracao.retencao_fiscal_anos`, padrão 5) e o CRECI/CNPJ ligado a elas. Fatura em aberto é avisada, não impede |
+| Revogação de consentimento | Não há consentimento hoje (nenhum cookie não essencial) |
 | Informação sobre compartilhamento | Lista de operadores na Política de Privacidade |
 
-Prazo para resposta completa: até **15 dias** (art. 19, II). Registrar cada pedido no admin.
+Prazo para resposta completa: até **15 dias** (art. 19, II; `Configuracao.prazo_titular_dias`). Cada pedido fica em Admin › Privacidade › Pedidos dos titulares, com data, prazo e "prazo vencido".
+
+Guarda fiscal: a rotina diária (4h) apaga o comprovante e as anotações das faturas pagas ou canceladas há mais que `Configuracao.retencao_fiscal_anos` (padrão 5 anos), também no histórico.
+
+## 5a. Cookies (lista completa)
+O site só grava cookies essenciais: **sem banner**. A seção "Cookies" da Política de Privacidade (`/privacidade/#cookies`, link no rodapé) mostra a mesma lista (`privacidade.services.COOKIES`; um teste confere que todo cookie gravado está aqui e lá). Cookie não essencial novo exige o banner com "Aceitar" e "Recusar" do mesmo tamanho e sem caixa pré-marcada.
+
+| Cookie | Para que serve | Quem recebe | Duração | Tipo |
+|---|---|---|---|---|
+| `csrftoken` | Proteção de formulários contra envio forjado | Quem usa um formulário | 1 ano | Essencial |
+| `sessionid` | Manter o login | Anunciantes e equipe | 2 semanas | Essencial |
+| `messages` | Mostrar um aviso na página seguinte | Quem envia um formulário | Até o aviso aparecer | Essencial |
+| `nd_admin_navegador` | Navegador confiável do admin (não pedir código de novo) | Só a equipe | 30 dias | Essencial |
+
+Não gravam cookie: estatísticas de anúncios, métricas de publicidade (contadas sem cookie e sem IP) e os tiles do mapa (OpenStreetMap).
 
 ## 6. Documentos públicos necessários antes do lançamento
-- [ ] Política de Privacidade (linguagem simples) — rascunho em `/privacidade/`, falta revisão do advogado
-- [ ] Termos de Uso para visitantes — rascunho em `/termos/`, falta revisão do advogado
+- [ ] Política de Privacidade (linguagem simples) — texto e versão no admin (`DocumentoLegal`), em `/privacidade/`,
+  com o Encarregado (`Configuracao.encarregado_nome` + e-mail de privacidade) e a seção Cookies; falta revisão do advogado
+  (o aviso "rascunho, revisão jurídica pendente" aparece só no admin)
+- [ ] Termos de Uso — texto e versão no admin, em `/termos/`; falta revisão do advogado. Versão nova publicada → no
+  próximo acesso ao painel o anunciante vê o resumo e aceita (aceite gravado com versão, data e hora)
 - [ ] Contrato/Termos do Anunciante (responsabilidade pelo conteúdo, regras de anúncio, cancelamento, reembolso)
-- [ ] Política de Cookies + banner com opção "Recusar" do mesmo tamanho de "Aceitar" — rascunho em
-  `/cookies/` (hoje só cookies essenciais, sem banner); falta revisão do advogado
+- [x] Cookies: só essenciais → sem banner; seção na Política (`/cookies/` redireciona para ela) e link no rodapé
 - [ ] Canal de denúncia de anúncio (Marco Civil art. 19 + combate a golpes)
 
 ## 7. Incidente de segurança

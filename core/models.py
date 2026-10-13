@@ -228,6 +228,13 @@ class Configuracao(models.Model):
     )
     email_contato = models.EmailField("e-mail de contato")
     email_privacidade = models.EmailField("e-mail de privacidade (LGPD)")
+    encarregado_nome = models.CharField(
+        "encarregado de dados (DPO)",
+        max_length=120,
+        blank=True,
+        help_text="Nome de quem responde pelos dados pessoais (aparece na Política de Privacidade com o "
+        "e-mail de privacidade). Vazio = só o canal de privacidade.",
+    )
     endereco = models.CharField("endereço", max_length=200, blank=True)
     cnpj = models.CharField(
         "CNPJ", max_length=18, blank=True, help_text="Pontuação opcional; guardado só com dígitos."
@@ -311,6 +318,18 @@ class Configuracao(models.Model):
         "aviso de fim de campanha (dias antes)",
         default=7,
         help_text="A equipe recebe e-mail quando faltam estes dias para a campanha sair do ar.",
+    )
+
+    # LGPD (Sprint 7B): prazo de resposta ao titular e guarda fiscal de faturas e comprovantes.
+    prazo_titular_dias = models.PositiveSmallIntegerField(
+        "prazo para responder ao titular (dias)",
+        default=15,
+        help_text="Prazo dos pedidos de titulares (acesso, correção, exclusão...) contado do recebimento.",
+    )
+    retencao_fiscal_anos = models.PositiveSmallIntegerField(
+        "guarda de faturas e comprovantes (anos)",
+        default=5,
+        help_text="Depois disso o comprovante é apagado e as anotações da fatura são limpas (rotina diária).",
     )
 
     # Regras do negócio: prazos e moderação (nunca fixos no código).

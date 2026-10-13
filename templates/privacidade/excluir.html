@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Meus dados › Excluir minha conta (LGPD, Sprint 7B): o que acontece, aviso de fatura em aberto, #}
+{# senha e a palavra EXCLUIR digitada. A regra fica em privacidade.services.anonimizar_conta. #}
+
+{% block titulo %}Excluir minha conta · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Excluir a conta e anonimizar os dados.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-4">
+      <h1 class="h4 m-0">Excluir minha conta</h1>
+      {% include "_ajuda.html" %}
+
+      {% if faturas_em_aberto %}
+      <div class="alert alert-warning mb-0" role="status">
+        {% icone "alerta" %} <b>Você tem {{ faturas_em_aberto|length }} fatura{{ faturas_em_aberto|pluralize }} em aberto</b>
+        ({% for f in faturas_em_aberto %}{{ f.codigo }}: {{ f.valor|moeda }}, vence {{ f.vencimento|date:"d/m/Y" }}{% if not forloop.last %}; {% endif %}{% endfor %}).
+        A exclusão não cancela o que já é devido.
+      </div>
+      {% endif %}
+
+      <section class="nd-caixa">
+        <h2 class="h6">O que acontece</h2>
+        <ul class="small mb-0">
+          <li>Seu nome, e-mail, WhatsApp e os dados da página da loja são apagados; a loja sai do ar.</li>
+          <li>Todos os anúncios saem do ar e as fotos são apagadas.</li>
+          <li>Você não consegue mais entrar com esta conta.</li>
+          <li>Ficam guardados só o que a lei exige: faturas e comprovantes por {{ config.retencao_fiscal_anos }} anos, sem seus dados de contato, e o CRECI ou CNPJ ligado a elas.</li>
+          <li>Enviamos a confirmação para o e-mail que você usa hoje.</li>
+        </ul>
+        <p class="small mb-0 mt-2">Antes, se quiser, <a href="{% url 'privacidade:meus_dados' %}">baixe uma cópia dos seus dados</a>.</p>
+      </section>
+
+      <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        {% include "anunciantes/_campo.html" with campo=form.senha %}
+        {% include "anunciantes/_campo.html" with campo=form.confirmacao %}
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-danger">Excluir minha conta</button>
+          <a class="btn btn-outline-secondary" href="{% url 'privacidade:meus_dados' %}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}

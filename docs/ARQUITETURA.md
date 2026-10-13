@@ -121,6 +121,19 @@ Planejado: `telefone`.
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
 
+### DocumentoLegal e PedidoTitular — app `privacidade` (Sprint 7B; docs/LGPD.md)
+- `DocumentoLegal`: `tipo` (termos | privacidade), `versao` (única por tipo), `vigencia`, `resumo` ("o que mudou"),
+  `texto` (texto puro: `## ` título, `- ` item, variáveis `{site}`...), `publicado`, `revisao_juridica_pendente`
+  (aviso só no admin), histórico. Em vigor = a publicada de vigência mais recente já começada; texto travado.
+- `PedidoTitular`: `usuario` (SET_NULL) ou `contato`, `tipo` (acesso | exportacao | correcao | exclusao | outro),
+  `origem`, `descricao`, `situacao`, `recebido_em`, `prazo` (recebido + `Configuracao.prazo_titular_dias`),
+  `atendido_em`, `resposta`, `demo`, histórico.
+- Aceite: `contas.AceiteDocumento` (usuário, documento, versão, data e hora), gravado no cadastro e no aceite da
+  versão nova (login e painel redirecionam para `/painel/termos-atualizados/` enquanto houver pendência).
+- `Anunciante.status` ganhou `encerrado` (conta excluída pelo titular: anonimizada). `Configuracao` ganhou
+  `encarregado_nome`, `prazo_titular_dias` (15) e `retencao_fiscal_anos` (5). `Fatura.token` passou a ter 32 bytes
+  do `secrets` (CharField).
+
 ### Patrocinador, Campanha, Banner e MetricaDiaria — app `publicidade` (Sprint 7A; docs/PUBLICIDADE.md)
 - `Patrocinador`: `nome`, `cnpj` (opcional), `contato_nome`, `email`, `whatsapp`, `anunciante` (loja do site,
   opcional; só compra com assinatura ativa), `observacao`, `demo`, histórico.

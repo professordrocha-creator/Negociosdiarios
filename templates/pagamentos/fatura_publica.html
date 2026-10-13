@@ -1,37 +1,39 @@
 {% extends "base.html" %}
 {% load nd static %}
 {# Fatura de publicidade (Sprint 7A): página pública pelo link com token enviado ao patrocinador (sem login). #}
-{# Mesmo Pix estático e mesmo "Já paguei" do painel das lojas. noindex. #}
+{# Só o necessário (nome, código, valor, vencimento, Pix). Paga/cancelada: só a situação. noindex e no-referrer #}
+{# também no cabeçalho HTTP (pagamentos.views._privada). #}
 
-{% block titulo %}Fatura {{ fatura.codigo }}{% endblock %}
-{% block descricao %}Pagamento da fatura de publicidade.{% endblock %}
-{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block titulo %}{% if fatura.situacao == "paga" %}Fatura paga{% else %}Fatura {{ fatura.codigo }}{% endif %}{% endblock %}
+{% block descricao %}Pagamento de fatura.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">{% endblock %}
 {% block ajuda %}{% endblock %}
 
 {% block conteudo %}
 <main class="container mt-4">
   <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+  {% if fatura.situacao == "paga" %}
+    <h1 class="h4 m-0">{% icone "verificado" %} Fatura paga</h1>
+    <p class="mb-0">Obrigado! Não há nada a pagar neste link.</p>
+  {% elif fatura.situacao == "cancelada" %}
+    <h1 class="h4 m-0">Fatura cancelada</h1>
+    <p class="mb-0">Não há nada a pagar neste link.</p>
+  {% else %}
     <h1 class="h4 m-0">Fatura {{ fatura.codigo }}</h1>
     {% include "_ajuda.html" %}
     {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
     {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
 
     <section class="nd-caixa d-grid gap-2">
-      <span class="small text-suave">{{ fatura.cliente_nome }} · {{ fatura.descricao }}</span>
-      <span class="small text-suave">Período: {{ fatura.competencia|date:"d/m/Y" }} a {{ fatura.periodo_fim|date:"d/m/Y" }}</span>
+      <span class="small text-suave">{{ fatura.campanha.patrocinador.nome }}</span>
       <div class="d-flex flex-wrap align-items-end gap-3">
         <span class="nd-preco-grande tabular me-auto">{{ fatura.valor|moeda }}</span>
         <span><span class="d-block small text-suave">Vencimento</span><b class="tabular">{{ fatura.vencimento|date:"d/m/Y" }}</b></span>
       </div>
-      <span><span class="selo selo-verificado">{{ fatura.get_situacao_display }}</span></span>
     </section>
 
-    {% if fatura.situacao == "paga" %}
-      <div class="alert alert-success mb-0" role="status">{% icone "verificado" %} Pagamento confirmado em {{ fatura.pago_em|date:"d/m/Y" }}. Obrigado!</div>
-    {% elif fatura.situacao == "aguardando_confirmacao" %}
+    {% if fatura.situacao == "aguardando_confirmacao" %}
       <div class="alert alert-info mb-0" role="status">{% icone "relogio" %} Recebemos seu comprovante. A equipe confere e avisa por e-mail.</div>
-    {% elif fatura.situacao == "cancelada" %}
-      <div class="alert alert-secondary mb-0" role="status">Esta fatura foi cancelada.</div>
     {% else %}
       {% if fatura.motivo_recusa %}<div class="alert alert-warning py-2 mb-0" role="status"><b>Comprovante recusado:</b> {{ fatura.motivo_recusa }} Envie outro abaixo.</div>{% endif %}
       <section class="nd-caixa d-grid gap-3">
@@ -43,7 +45,7 @@
               <textarea class="form-control font-monospace small" id="pix-copia" rows="3" readonly>{{ pix.copia_e_cola }}</textarea>
               <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-nd" data-copiar="pix-copia"><span>Copiar código Pix</span></button>
-                {% if fatura.link_boleto %}<a class="btn btn-outline-secondary" href="{{ fatura.link_boleto }}" target="_blank" rel="noopener nofollow">Abrir boleto</a>{% endif %}
+                {% if fatura.link_boleto %}<a class="btn btn-outline-secondary" href="{{ fatura.link_boleto }}" target="_blank" rel="noopener noreferrer nofollow">Abrir boleto</a>{% endif %}
               </div>
               <span class="small text-suave">O valor e o identificador <b>{{ fatura.identificador_pix }}</b> já vão preenchidos.</span>
             </div>
@@ -62,8 +64,9 @@
         </details>
       </section>
     {% endif %}
+  {% endif %}
   </div>
 </main>
 {% endblock %}
 
-{% block scripts %}<script src="{% static 'js/copiar.js' %}" defer></script>{% endblock %}
+{% block scripts %}{% if pix %}<script src="{% static 'js/copiar.js' %}" defer></script>{% endif %}{% endblock %}

@@ -14,7 +14,7 @@
     <a {% if atual == "painel_loja" %}class="ativo" aria-current="page"{% endif %} href="{% url 'anunciantes:painel_loja' %}">{% icone "loja" %} Página da loja</a>
     <a {% if atual == "meu_plano" %}class="ativo" aria-current="page"{% endif %} href="{% url 'planos:meu_plano' %}">{% icone "plano" %} Meu plano</a>
     <a {% if atual == "faturas" %}class="ativo" aria-current="page"{% endif %} href="{% url 'pagamentos:faturas' %}">{% icone "fatura" %} Faturas</a>
-    <a class="nd-em-breve-link" aria-disabled="true" title="Em breve">{% icone "verificado" %} Meus dados (LGPD)</a>
+    <a {% if atual == "meus_dados" or atual == "excluir" %}class="ativo" aria-current="page"{% endif %} href="{% url 'privacidade:meus_dados' %}">{% icone "verificado" %} Meus dados (LGPD)</a>
     <form method="post" action="{% url 'contas:sair' %}">{% csrf_token %}<button type="submit" class="nd-lateral-sair">{% icone "sair" %} Sair</button></form>
   </nav>
 </div>

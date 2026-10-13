@@ -32,6 +32,8 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
       `changepassword`). Testes: `anunciantes/tests/test_confirmacao.py`, `contas/tests/test_senha.py`
 
 ### Autorização
+- [x] Ações sensíveis do titular (baixar os dados, excluir a conta) pedem a senha de novo, com 10 tentativas/hora
+      por IP; a exclusão pede ainda a palavra EXCLUIR. Redirecionamento depois do aceite só para o próprio site.
 - [ ] Toda queryset do painel do anunciante filtrada pelo dono (`anunciante=request.user.anunciante`)
 - [ ] IDs públicos de anúncio não sequenciais na URL (`slug-curto` ou hashid) para evitar varredura
 - [ ] Teste automatizado: anunciante A **não** edita, vê rascunho ou apaga anúncio de B
@@ -66,6 +68,11 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
 
 ### Pagamentos
+- [x] Link público da fatura de publicidade `/fatura/<token>/`: token de 32 bytes do `secrets` (nunca id nem código),
+      URL só aceita o formato do token, `noindex`, `Referrer-Policy: no-referrer`, sem cache, fora do sitemap, só o
+      necessário na página (paga: só "Fatura paga"), envio de comprovante com os mesmos limites e 10 tentativas/hora
+      por IP.
+- [x] Clique da publicidade: destino só do banco (pelo id da peça) e só http/https: sem redirecionamento aberto.
 - [x] V1 (Sprint 6) sem gateway: Pix estático gerado no servidor, sem chave de API; nada de cartão.
 - [x] Comprovantes em armazenamento **privado** (fora da mídia pública), entregues só ao dono da fatura
       ou à equipe com permissão; imagem regravada sem EXIF, PDF sem conteúdo ativo; resposta com

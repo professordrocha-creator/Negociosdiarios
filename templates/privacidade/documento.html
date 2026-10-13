@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Termos de Uso / Política de Privacidade na versão em vigor (Sprint 7B). O texto vem do admin (DocumentoLegal) #}
+{# e é montado em blocos escapados (privacidade.services.blocos_do_texto): nada de HTML vindo do banco. #}
+{# O aviso "rascunho, revisão jurídica pendente" aparece só no admin; aqui o rascunho só não é indexado. #}
+
+{% block titulo %}{{ documento.get_tipo_display }}{% endblock %}
+{% block descricao %}{% if privacidade %}Como o {{ site.nome }} trata dados pessoais: o que coletamos, para quê, por quanto tempo, cookies e como exercer seus direitos.{% else %}Regras de uso do {{ site.nome }} para visitantes e anunciantes.{% endif %}{% endblock %}
+{% block robots %}{% if documento.revisao_juridica_pendente %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <article class="nd-doc">
+    <h1 class="h2 mb-1">{{ documento.get_tipo_display }}</h1>
+    <p class="text-suave small">Versão {{ documento.versao }} · em vigor desde {{ documento.vigencia|date:"d/m/Y" }} · {{ site.nome }} · {{ site.empresa }}{% if site.cnpj %}, CNPJ {{ site.cnpj|cnpj }}{% else %} (CNPJ a informar){% endif %} · {{ site.cidade_sede }}</p>
+
+    {% for bloco in blocos %}
+      {% if bloco.tipo == "titulo" %}<h2 id="{{ bloco.ancora }}">{{ bloco.conteudo }}</h2>
+      {% elif bloco.tipo == "lista" %}<ul>{% for item in bloco.conteudo %}<li>{{ item }}</li>{% endfor %}</ul>
+      {% else %}<p>{{ bloco.conteudo }}</p>{% endif %}
+    {% endfor %}
+
+    {% if privacidade %}
+    <h2 id="encarregado">Encarregado pelo tratamento de dados (DPO)</h2>
+    <p>{% if config.encarregado_nome %}Encarregado: <b>{{ config.encarregado_nome }}</b>. {% endif %}Para falar sobre seus dados ou exercer seus direitos (acesso, correção, portabilidade, exclusão), escreva para <a href="mailto:{{ config.email_privacidade }}">{{ config.email_privacidade }}</a>. Respondemos em até <b>{{ config.prazo_titular_dias }} dias</b>. Anunciantes também podem baixar os dados e excluir a conta no painel, em "Meus dados".</p>
+
+    <h2 id="cookies">Cookies</h2>
+    <p>Cookies são pequenos arquivos que o site guarda no seu navegador. <b>O {{ site.nome }} usa apenas cookies essenciais</b>, sem os quais o site não funciona com segurança; por isso não há aviso de consentimento. Não usamos cookies de publicidade nem de rastreamento: as estatísticas e as métricas de publicidade são contadas sem cookie.</p>
+    <div class="table-responsive">
+      <table class="table table-sm align-top">
+        <caption class="small">Cookies que o site grava</caption>
+        <thead><tr><th scope="col">Nome</th><th scope="col">Para que serve</th><th scope="col">Quem recebe</th><th scope="col">Duração</th></tr></thead>
+        <tbody>
+          {% for cookie in cookies %}<tr><td><code>{{ cookie.nome }}</code></td><td>{{ cookie.finalidade }}</td><td>{{ cookie.quem }}</td><td>{{ cookie.duracao }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Você pode apagar ou bloquear cookies no seu navegador. Bloqueando os essenciais, o login e os formulários deixam de funcionar; a navegação pelos anúncios continua.</p>
+    {% endif %}
+
+    <hr>
+    <p class="small text-suave mb-0">Dúvidas sobre este documento ou sobre seus dados: <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.
+      Veja também: <a href="{% url 'core:privacidade' %}">Privacidade</a> · <a href="{% url 'core:termos' %}">Termos de Uso</a> · <a href="{% url 'core:privacidade' %}#cookies">Cookies</a>.</p>
+  </article>
+</main>
+{% endblock %}

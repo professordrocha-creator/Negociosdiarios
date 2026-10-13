@@ -1,7 +1,6 @@
 """Testes do cadastro público (/cadastro/): válido, inválido, duplicado, honeypot e limite por IP."""
 
 import pytest
-from django.conf import settings
 from django.core import mail
 from django.urls import reverse
 
@@ -76,7 +75,10 @@ def test_cadastro_valido_cria_loja_pendente_aceites_e_emails(client, dados):
     assert (loja.documento_tipo, loja.documento_numero) == ("cnpj", "90000001000129")
     assert loja.whatsapp == "+5565999991234" and loja.slug == "revenda-da-maria"
     aceites = {(a.documento, a.versao) for a in AceiteDocumento.objects.filter(usuario=usuario)}
-    assert aceites == {("termos", settings.VERSAO_TERMOS), ("privacidade", settings.VERSAO_PRIVACIDADE)}
+    from privacidade.services import documento_vigente
+
+    vigentes = {(tipo, documento_vigente(tipo).versao) for tipo in ("termos", "privacidade")}
+    assert aceites == vigentes
     assert all(a.aceito_em for a in AceiteDocumento.objects.filter(usuario=usuario))
     assuntos = sorted(m.subject for m in mail.outbox)
     assert len(assuntos) == 2

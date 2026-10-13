@@ -123,41 +123,60 @@ def comprovante(request: HttpRequest, codigo: str) -> HttpResponse:
 
 # --- Fatura de publicidade: página pública com token (patrocinador não tem login) ------------------
 
+# Tentativas de envio de comprovante pela página pública, por IP e por hora (contra robô e abuso).
+TENTATIVAS_POR_HORA = 10
+
+
+def _privada(resposta: HttpResponse) -> HttpResponse:
+    """Link secreto: fora dos buscadores, sem cache e sem vazar o endereço (com o token) para outros sites."""
+    resposta["X-Robots-Tag"] = "noindex, nofollow"
+    resposta["Referrer-Policy"] = "no-referrer"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
 
 def _pagina_publica(request: HttpRequest, fatura: Fatura, form: ComprovanteForm, status: int = 200):
-    """Valor, vencimento, Pix (copia e cola + QR) e "Já paguei" da fatura do patrocinador."""
-    return render(
-        request,
-        "pagamentos/fatura_publica.html",
-        {
-            "tela": "fatura_publica",
-            "ajuda_itens": textos_ajuda("fatura_publica"),
-            "fatura": fatura,
-            "pix": dados_pix(fatura) if fatura.a_pagar else None,
-            "form": form,
-        },
-        status=status,
+    """Só o necessário: nome do patrocinador, código, valor, vencimento, Pix e "Já paguei". Paga ou cancelada:
+    só a situação (sem valor nem QR)."""
+    return _privada(
+        render(
+            request,
+            "pagamentos/fatura_publica.html",
+            {
+                "tela": "fatura_publica",
+                "ajuda_itens": textos_ajuda("fatura_publica") if fatura.situacao in Fatura.EM_ABERTO else [],
+                "fatura": fatura,
+                "pix": dados_pix(fatura) if fatura.a_pagar else None,
+                "form": form,
+            },
+            status=status,
+        )
     )
 
 
-@require_GET
-def fatura_publica(request: HttpRequest, token) -> HttpResponse:
-    """Fatura de campanha pelo link enviado por e-mail (token aleatório; fatura de loja não abre aqui)."""
+def _fatura_do_token(token: str) -> Fatura:
+    """Fatura de campanha pelo token (fatura de loja, token errado ou inexistente: 404 igual)."""
     fatura = buscar_fatura_publica(token)
     if fatura is None:
         raise Http404("Fatura não encontrada.")
-    return _pagina_publica(request, fatura, ComprovanteForm())
+    return fatura
+
+
+@require_GET
+def fatura_publica(request: HttpRequest, token: str) -> HttpResponse:
+    """Fatura de campanha pelo link enviado por e-mail (token de 32 bytes; fatura de loja não abre aqui)."""
+    return _pagina_publica(request, _fatura_do_token(token), ComprovanteForm())
 
 
 @require_POST
-def fatura_publica_ja_paguei(request: HttpRequest, token) -> HttpResponse:
-    """ "Já paguei" do patrocinador: mesmo envio e conferência do painel, com limite por IP contra robô."""
-    fatura = buscar_fatura_publica(token)
-    if fatura is None:
-        raise Http404("Fatura não encontrada.")
+def fatura_publica_ja_paguei(request: HttpRequest, token: str) -> HttpResponse:
+    """ "Já paguei" do patrocinador: mesma validação e armazenamento privado do painel; limite por hora."""
+    fatura = _fatura_do_token(token)
     form = ComprovanteForm(request.POST, request.FILES)
-    if limite_por_ip_excedido(request, "comprovante_publico", limite=10):
-        form.add_error(None, "Muitos envios seguidos. Aguarde um pouco e tente de novo.")
+    if limite_por_ip_excedido(
+        request, "comprovante_publico", limite=TENTATIVAS_POR_HORA, janela_segundos=3600
+    ):
+        form.add_error(None, "Muitos envios na última hora. Aguarde e tente de novo.")
         return _pagina_publica(request, fatura, form, status=429)
     if form.is_valid():
         try:
@@ -166,8 +185,8 @@ def fatura_publica_ja_paguei(request: HttpRequest, token) -> HttpResponse:
             form.add_error("comprovante", erro)
         except ValueError as erro:
             messages.warning(request, str(erro))
-            return redirect("pagamentos:fatura_publica", token)
+            return _privada(redirect("pagamentos:fatura_publica", token))
         else:
             messages.success(request, "Comprovante enviado! A equipe confere e avisa por e-mail.")
-            return redirect("pagamentos:fatura_publica", token)
+            return _privada(redirect("pagamentos:fatura_publica", token))
     return _pagina_publica(request, fatura, form, status=400)

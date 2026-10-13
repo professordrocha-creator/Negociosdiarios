@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
@@ -71,20 +71,24 @@ def _pagina(request: HttpRequest, template: str, tela: str, **contexto) -> HttpR
 
 @require_GET
 def privacidade(request: HttpRequest) -> HttpResponse:
-    """Política de Privacidade (rascunho até a revisão do advogado; baseada em docs/LGPD.md)."""
-    return _pagina(request, "core/privacidade.html", "privacidade")
+    """Política de Privacidade na versão em vigor (texto e versão no admin; Encarregado e Cookies no fim)."""
+    from privacidade.views import documento
+
+    return documento(request, "privacidade")
 
 
 @require_GET
 def termos(request: HttpRequest) -> HttpResponse:
-    """Termos de Uso (rascunho até a revisão do advogado)."""
-    return _pagina(request, "core/termos.html", "termos")
+    """Termos de Uso na versão em vigor (texto e versão no admin)."""
+    from privacidade.views import documento
+
+    return documento(request, "termos")
 
 
 @require_GET
 def cookies(request: HttpRequest) -> HttpResponse:
-    """Política de Cookies: hoje o site só usa cookies essenciais (rascunho até a revisão)."""
-    return _pagina(request, "core/cookies.html", "cookies")
+    """Os cookies agora são uma seção da Política de Privacidade (só essenciais: sem banner)."""
+    return redirect(reverse("core:privacidade") + "#cookies", permanent=True)
 
 
 @require_GET

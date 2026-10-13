@@ -50,6 +50,7 @@ class Command(BaseCommand):
             "Publicidade demo: 3 campanhas fictícias (banner na home e no anúncio, banner e nativo na busca, "
             "card no rodapé da home), com 14 dias de números e faturas (uma paga, duas abertas)."
         )
+        self.stdout.write("LGPD demo: 1 pedido de titular fictício em aberto (admin › Privacidade).")
         self.stdout.write(
             f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
             "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "

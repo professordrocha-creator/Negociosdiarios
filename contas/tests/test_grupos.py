@@ -46,6 +46,15 @@ PUBLICIDADE_TUDO = PUBLICIDADE_VER | {
     "publicidade.add_banner",
     "publicidade.change_banner",
 }
+# Sprint 7B (privacidade/0002): só o Administrador cuida dos documentos legais e dos pedidos dos titulares.
+PRIVACIDADE = {
+    "privacidade.view_documentolegal",
+    "privacidade.add_documentolegal",
+    "privacidade.change_documentolegal",
+    "privacidade.view_pedidotitular",
+    "privacidade.add_pedidotitular",
+    "privacidade.change_pedidotitular",
+}
 
 ESPERADO = {
     "Administrador": {
@@ -86,7 +95,8 @@ ESPERADO = {
     | ANUNCIOS_MODERAR
     | CATALOGO_TUDO
     | COBRANCA
-    | PUBLICIDADE_TUDO,
+    | PUBLICIDADE_TUDO
+    | PRIVACIDADE,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE

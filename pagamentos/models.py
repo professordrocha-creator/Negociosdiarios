@@ -6,6 +6,7 @@ Dinheiro em DecimalField; nada se apaga (cancelar é uma situação); histórico
 """
 
 import re
+import secrets
 import uuid
 from pathlib import PurePath
 
@@ -19,6 +20,11 @@ from simple_history.models import HistoricalRecords
 from core.models import MarcaDemo
 from pagamentos.armazenamento import armazenamento_privado
 from planos.models import Assinatura
+
+
+def gerar_token() -> str:
+    """Token do link público de pagamento: 32 bytes do `secrets` em base64 de URL (43 caracteres)."""
+    return secrets.token_urlsafe(32)
 
 
 def caminho_comprovante(instancia, nome_arquivo: str) -> str:
@@ -75,8 +81,11 @@ class Fatura(MarcaDemo):
         related_name="faturas",
         verbose_name="campanha de publicidade",
     )
-    # Endereço da página pública de pagamento (/fatura/<token>/): aleatório, não dá para adivinhar.
-    token = models.UUIDField("token do link de pagamento", default=uuid.uuid4, unique=True, editable=False)
+    # Endereço da página pública de pagamento (/fatura/<token>/): 32 bytes do `secrets` (256 bits), nunca o
+    # id nem o código ND-FT; não dá para adivinhar nem percorrer.
+    token = models.CharField(
+        "token do link de pagamento", max_length=64, default=gerar_token, unique=True, editable=False
+    )
     codigo = models.CharField("código", max_length=16, unique=True, null=True, blank=True, editable=False)
     competencia = models.DateField("competência", help_text="Início do período pago por esta fatura.")
     periodo_fim = models.DateField("fim do período")

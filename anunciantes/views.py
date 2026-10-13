@@ -6,7 +6,7 @@ Toda view do painel usa `anunciante_ativo`: o anunciante vem SEMPRE de
 
 from collections.abc import Callable
 from functools import wraps
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 from django.conf import settings
 from django.contrib import messages
@@ -38,11 +38,16 @@ from anuncios.services import ponto
 from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 
 
-def anunciante_ativo(view: Callable) -> Callable:
+def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True) -> Callable:
     """Só deixa passar anunciante ativo. Anônimo vai ao /entrar/; equipe, pendente e suspenso veem 403.
 
-    Equipe recebe 403 (e não o login) porque já está logada: o painel dela é o admin.
+    Equipe recebe 403 (e não o login) porque já está logada: o painel dela é o admin. Com versão nova dos
+    Termos/Política ainda não aceita, vai para o aceite (Sprint 7B), menos nas telas de "Meus dados"
+    (`exigir_aceite=False`): baixar os dados e excluir a conta valem sem aceitar nada.
+    Uso: `@anunciante_ativo` ou `@anunciante_ativo(exigir_aceite=False)`.
     """
+    if view is None:
+        return lambda v: anunciante_ativo(v, exigir_aceite=exigir_aceite)
 
     @wraps(view)
     def _view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -52,6 +57,12 @@ def anunciante_ativo(view: Callable) -> Callable:
         if motivo:
             contexto = {"tela": "painel", "mensagem": MENSAGENS_SEM_ACESSO[motivo], "motivo": motivo}
             return render(request, "anunciantes/sem_acesso.html", contexto, status=403)
+        if exigir_aceite:
+            from privacidade.services import pendencias_de_aceite  # import local: privacidade usa este módulo
+
+            if pendencias_de_aceite(request.user):
+                destino = reverse("privacidade:aceitar") + "?" + urlencode({"next": request.get_full_path()})
+                return redirect(destino)
         return view(request, *args, **kwargs)
 
     return _view

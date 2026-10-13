@@ -175,7 +175,17 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
         ),
         (
             "Contatos",
-            {"fields": ("whatsapp", "email_contato", "email_privacidade", "endereco", "cnpj", "instagram")},
+            {
+                "fields": (
+                    "whatsapp",
+                    "email_contato",
+                    "email_privacidade",
+                    "encarregado_nome",
+                    "endereco",
+                    "cnpj",
+                    "instagram",
+                )
+            },
         ),
         ("Página Sobre", {"fields": ("sobre_quem_somos", "sobre_missao", "sobre_visao")}),
         (
@@ -231,6 +241,8 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
                     "carencia_dias",
                     "fatura_antecedencia_dias",
                     "limite_comprovante_kb",
+                    "prazo_titular_dias",
+                    "retencao_fiscal_anos",
                     "expiracao_dias",
                     "aviso_expiracao_dias",
                     "moderacao",

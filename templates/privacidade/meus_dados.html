@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Painel › Meus dados (LGPD, Sprint 7B): o que guardamos, baixar uma cópia (senha de novo) e excluir a conta. #}
+
+{% block titulo %}Meus dados · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Seus dados no site: baixar uma cópia e excluir a conta.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
+    <div class="col-lg-9 d-grid gap-4">
+      <h1 class="h4 m-0">Meus dados</h1>
+      {% include "_ajuda.html" %}
+
+      <section class="nd-caixa">
+        <h2 class="h5">O que guardamos</h2>
+        <ul class="small mb-0">
+          <li>Conta: seu nome e e-mail (a senha só como código irreversível).</li>
+          <li>Loja: dados públicos da página, CRECI ou CNPJ e o WhatsApp.</li>
+          <li>Anúncios: textos, fotos (sem GPS), endereço e ponto do imóvel (privados).</li>
+          <li>Assinatura e faturas, com os comprovantes enviados (guarda fiscal de {{ config.retencao_fiscal_anos }} anos).</li>
+          <li>Seus aceites dos Termos e da Política (versão, data e hora) e os pedidos feitos aqui.</li>
+        </ul>
+        <p class="small text-suave mb-0 mt-2">Detalhes na <a href="{% url 'core:privacidade' %}">Política de Privacidade</a>. Para corrigir dados, use as telas do painel ou escreva para <a href="mailto:{{ config.email_privacidade }}">{{ config.email_privacidade }}</a>.</p>
+      </section>
+
+      <section class="nd-caixa d-grid gap-3">
+        <h2 class="h5 m-0">Baixar meus dados</h2>
+        <p class="small mb-0">Um arquivo JSON com a conta, a loja, os anúncios, as faturas e os aceites. Para sua segurança, confirme a senha.</p>
+        <form method="post" action="{% url 'privacidade:baixar' %}" class="d-grid gap-3" novalidate>
+          {% csrf_token %}
+          {% if form_baixar.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form_baixar.non_field_errors|join:" " }}</div>{% endif %}
+          {% include "anunciantes/_campo.html" with campo=form_baixar.senha %}
+          <div><button type="submit" class="btn btn-nd">Baixar meus dados</button></div>
+        </form>
+      </section>
+
+      <section class="nd-caixa">
+        <h2 class="h5">Documentos aceitos</h2>
+        {% if aceites %}<ul class="small mb-0">{% for aceite in aceites %}<li>{{ aceite.get_documento_display }} · versão {{ aceite.versao }} · {{ aceite.aceito_em|date:"d/m/Y H:i" }}</li>{% endfor %}</ul>
+        {% else %}<p class="small text-suave mb-0">Nenhum aceite registrado.</p>{% endif %}
+      </section>
+
+      {% if pedidos %}
+      <section class="nd-caixa">
+        <h2 class="h5">Pedidos sobre seus dados</h2>
+        <ul class="small mb-0">{% for pedido in pedidos %}<li>{{ pedido.get_tipo_display }} · {{ pedido.recebido_em|date:"d/m/Y" }} · {{ pedido.get_situacao_display }}</li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+
+      <section class="nd-caixa">
+        <h2 class="h5">Excluir minha conta</h2>
+        <p class="small">Apaga seus dados de contato, tira a loja e os anúncios do ar e apaga as fotos. Não pode ser desfeito.</p>
+        <a class="btn btn-outline-danger" href="{% url 'privacidade:excluir' %}">Quero excluir minha conta</a>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

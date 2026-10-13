@@ -4,11 +4,13 @@ A equipe usa o login do admin (endereço secreto + código por e-mail); estas te
 só para clientes e pedem apenas e-mail e senha (com o bloqueio do django-axes).
 """
 
+from urllib.parse import urlencode
+
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
 
 from contas.forms import EntrarForm, EsqueciSenhaForm, NovaSenhaForm
 from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
@@ -26,6 +28,16 @@ class EntrarView(auth_views.LoginView):
         contexto = super().get_context_data(**kwargs)
         contexto.update(tela="entrar", ajuda_itens=textos_ajuda("entrar"))
         return contexto
+
+    def form_valid(self, form) -> HttpResponse:
+        """Entrou: se há versão nova dos Termos/Política sem aceite, passa antes pelo aceite (Sprint 7B)."""
+        resposta = super().form_valid(form)
+        from privacidade.services import pendencias_de_aceite
+
+        if pendencias_de_aceite(form.get_user()):
+            proximo = urlencode({"next": self.get_success_url()})
+            return redirect(reverse("privacidade:aceitar") + "?" + proximo)
+        return resposta
 
 
 class SairView(auth_views.LogoutView):

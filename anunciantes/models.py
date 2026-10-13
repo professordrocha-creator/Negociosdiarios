@@ -47,6 +47,8 @@ class Anunciante(MarcaDemo):
         PENDENTE = "pendente", "Pendente (em análise)"
         ATIVO = "ativo", "Ativo"
         SUSPENSO = "suspenso", "Suspenso"
+        # Conta excluída pelo titular (LGPD, Sprint 7B): dados anonimizados, loja fora do ar para sempre.
+        ENCERRADO = "encerrado", "Encerrado (conta excluída)"
 
     # Corretor autônomo prova a profissão pelo CRECI; os demais tipos são empresas (CNPJ).
     DOCUMENTO_POR_TIPO = {Tipo.CORRETOR_AUTONOMO: DocumentoTipo.CRECI}

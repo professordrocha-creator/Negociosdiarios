@@ -21,7 +21,8 @@ Ajustes (Sprint 7, passo 0): a renovação conta sempre do **vencimento original
 o dia de cobrança); o **primeiro plano aprovado** gera na hora a fatura do primeiro ciclo (vence no início,
 com a mesma carência); e, se a rotina não rodar num dia, o lembrete devido sai no dia seguinte (só o mais
 recente). Faturas de **campanha de publicidade** (Sprint 7A) usam o mesmo fluxo; o patrocinador, sem login,
-paga pelo link `/fatura/<token>/` (ver docs/PUBLICIDADE.md).
+paga pelo link `/fatura/<token>/` (ver docs/PUBLICIDADE.md). O token tem 32 bytes do `secrets` (Sprint 7B); a página
+mostra só nome, valor, vencimento e Pix, e depois de paga só "Fatura paga" (docs/SEGURANCA.md).
 
 Situações da fatura: `aberta` → (`aguardando_confirmacao`) → `paga`; ou `vencida`; ou `cancelada` (ação do
 admin, com motivo). Nada se apaga. O "Registrar pagamento manual" da assinatura baixa a fatura em aberto

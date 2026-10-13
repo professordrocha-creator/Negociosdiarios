@@ -12,7 +12,8 @@ from planos.models import Plano
 
 pytestmark = pytest.mark.django_db
 
-PAGINAS = ["privacidade", "termos", "cookies", "planos", "anuncie", "contato", *PAGINAS_EM_BREVE]
+# /cookies/ virou a seção "Cookies" da Política (Sprint 7B): redireciona, testado em privacidade/tests.
+PAGINAS = ["privacidade", "termos", "planos", "anuncie", "contato", *PAGINAS_EM_BREVE]
 
 
 def html_de(client, rota: str) -> str:
@@ -36,9 +37,9 @@ def test_pagina_responde_200_com_titulo_e_descricao_proprios(client, settings, r
     assert descricao and descricao != settings.SITE_SLOGAN
 
 
-@pytest.mark.parametrize("rota", ["privacidade", "termos", "cookies", *PAGINAS_EM_BREVE])
+@pytest.mark.parametrize("rota", ["privacidade", "termos", *PAGINAS_EM_BREVE])
 def test_paginas_provisorias_nao_sao_indexadas(client, rota):
-    """Rascunhos legais e páginas "em breve" pedem noindex aos buscadores."""
+    """Documentos legais ainda sem revisão jurídica e páginas "em breve" pedem noindex aos buscadores."""
     assert '<meta name="robots" content="noindex">' in html_de(client, rota)
 
 
@@ -73,37 +74,37 @@ def test_rodape_nao_tem_link_sem_destino(client):
 # --- Documentos legais ---------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("rota", ["privacidade", "termos", "cookies"])
-def test_documentos_legais_tem_aviso_de_rascunho_e_dados_do_site(client, settings, rota):
-    """Aviso de rascunho visível; empresa e cidade vêm do settings (nada fixo no texto)."""
+@pytest.mark.parametrize("rota", ["privacidade", "termos"])
+def test_documentos_legais_sem_aviso_publico_e_com_dados_do_site(client, settings, rota):
+    """Aviso de rascunho só no admin (Sprint 7B); empresa e cidade vêm da identidade (nada fixo no texto)."""
     settings.SITE_EMPRESA = "Empresa Teste Ltda"
     settings.SITE_CIDADE_SEDE = "Cidade Teste, XX"
     settings.SITE_EMAIL_PRIVACIDADE = "dados@teste.example"
 
     html = html_de(client, rota)
 
-    assert "Rascunho — será revisado por advogado antes do lançamento" in html
+    assert "Rascunho" not in html and "revisão jurídica" not in html
     assert "Empresa Teste Ltda" in html and "Cidade Teste, XX" in html
     assert "dados@teste.example" in html
     assert "D&#x27;Rocha" not in html and "Tangará da Serra" not in html.split("<footer", 1)[0]
 
 
 def test_privacidade_cobre_os_pontos_da_lgpd(client):
-    """Dados, finalidades, bases legais, retenção, operadores, direitos e cookies."""
+    """Dados, finalidades, bases legais, guarda, operadores, direitos, Encarregado e cookies."""
     html = html_de(client, "privacidade")
 
     for trecho in [
         "Base legal",
-        "Por quanto tempo",
-        "Execução de contrato",
-        "Obrigação legal",
-        "Legítimo interesse",
+        "Guarda",
+        "execução de contrato",
+        "obrigação legal",
+        "legítimo interesse",
         "Cloudflare R2",
-        "Mercado Pago",
         "art. 18",
         "15 dias",
         "ANPD",
-        reverse("core:cookies"),
+        'id="encarregado"',
+        'id="cookies"',
     ]:
         assert trecho in html, trecho
 
@@ -121,8 +122,8 @@ def test_cnpj_aparece_formatado_ou_a_informar(client):
 
 
 def test_cookies_lista_os_cookies_reais(client):
-    """A política lista os cookies que o site usa hoje."""
-    html = html_de(client, "cookies")
+    """A seção Cookies da Política lista os cookies que o site usa hoje."""
+    html = html_de(client, "privacidade")
 
     for nome in ["csrftoken", "sessionid", "messages", "nd_admin_navegador"]:
         assert f"<code>{nome}</code>" in html

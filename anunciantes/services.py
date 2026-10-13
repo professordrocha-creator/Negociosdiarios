@@ -47,6 +47,7 @@ MENSAGENS_SEM_ACESSO = {
     ),
     Anunciante.Status.PENDENTE: "Seu cadastro está em análise. Avisaremos por e-mail quando for aprovado.",
     Anunciante.Status.SUSPENSO: "Sua loja está suspensa. Fale com a gente para entender o motivo.",
+    Anunciante.Status.ENCERRADO: "Esta conta foi excluída a pedido do titular.",
 }
 
 
@@ -168,6 +169,9 @@ def criar_anunciantes_demo(lojas: list[dict], senha: str) -> int:
         usuario.email_confirmado_em = usuario.email_confirmado_em or timezone.now()
         usuario.set_password(senha)
         usuario.save()
+        from privacidade.services import pendencias_de_aceite, registrar_aceites
+
+        registrar_aceites(usuario, pendencias_de_aceite(usuario))  # loja demo já aceitou as versões em vigor
 
         cidade = cidades[loja["cidade_ibge"]]
         if loja["tipo"] == Anunciante.Tipo.CORRETOR_AUTONOMO:
@@ -264,8 +268,6 @@ def cadastrar_anunciante(dados: DadosCadastro) -> Anunciante:
     e-mail" e "recebemos seu cadastro") só saem depois que o banco gravou. A equipe só
     é avisada quando o e-mail for confirmado (`confirmar_email`).
     """
-    from contas.models import AceiteDocumento
-
     Usuario = get_user_model()
     with transaction.atomic():
         usuario = Usuario.objects.create_user(email=dados.email, password=dados.senha, nome=dados.nome)
@@ -287,12 +289,9 @@ def cadastrar_anunciante(dados: DadosCadastro) -> Anunciante:
         anunciante.save()
         if not dados.cidade.liberada:  # cidade ainda não atendida: vira pedido para o admin
             SolicitacaoCidade.objects.create(anunciante=anunciante, cidade=dados.cidade)
-        AceiteDocumento.objects.bulk_create(
-            [
-                AceiteDocumento(usuario=usuario, documento="termos", versao=settings.VERSAO_TERMOS),
-                AceiteDocumento(usuario=usuario, documento="privacidade", versao=settings.VERSAO_PRIVACIDADE),
-            ]
-        )
+        from privacidade.services import documentos_vigentes, registrar_aceites
+
+        registrar_aceites(usuario, documentos_vigentes())  # as versões em vigor dos Termos e da Privacidade
     enviar_confirmacao(usuario)
     enviar_email_modelo(
         "cadastro_recebido", "Recebemos seu cadastro", [usuario.email], {"anunciante": anunciante}

@@ -94,6 +94,8 @@ def postar_config(client, **mudancas):
             "card_patrocinador_px",
             "limite_banner_kb",
             "campanha_aviso_dias",
+            "prazo_titular_dias",
+            "retencao_fiscal_anos",
             "carencia_dias",
             "fatura_antecedencia_dias",
             "limite_comprovante_kb",

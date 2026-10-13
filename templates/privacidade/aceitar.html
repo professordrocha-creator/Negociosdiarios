@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Versão nova dos Termos/Política (Sprint 7B): resumo do que mudou e o aceite (caixa sem marcação prévia). #}
+
+{% block titulo %}Termos atualizados{% endblock %}
+{% block descricao %}Aceite as versões atualizadas para continuar usando o painel.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Atualizamos {% if pendentes|length > 1 %}nossos documentos{% else %}um documento{% endif %}</h1>
+    {% include "_ajuda.html" %}
+    {% for doc in pendentes %}
+    <section class="nd-caixa d-grid gap-2">
+      <h2 class="h6 m-0">{{ doc.get_tipo_display }} · versão {{ doc.versao }} (em vigor desde {{ doc.vigencia|date:"d/m/Y" }})</h2>
+      {% if doc.resumo %}<b class="small">O que mudou:</b><ul class="small mb-0">{% for linha in doc.resumo.splitlines %}{% if linha.strip %}<li>{{ linha }}</li>{% endif %}{% endfor %}</ul>{% endif %}
+      <a class="small" href="{% if doc.tipo == 'termos' %}{% url 'core:termos' %}{% else %}{% url 'core:privacidade' %}{% endif %}" target="_blank" rel="noopener">Ler o texto completo ›</a>
+    </section>
+    {% endfor %}
+    <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <label class="form-check">{{ form.aceito }} <span class="form-check-label">{{ form.aceito.label }}</span></label>
+      {% for erro in form.aceito.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" name="aceitar" value="1" class="btn btn-nd">Continuar</button>
+        <button type="submit" name="recusar" value="1" class="btn btn-outline-secondary">Não aceito (sair)</button>
+      </div>
+      <p class="small text-suave mb-0">Sem aceitar não dá para usar o painel. Seus dados continuam disponíveis: baixe uma cópia ou peça a exclusão em <a href="{% url 'privacidade:meus_dados' %}">Meus dados</a>.</p>
+    </form>
+  </div>
+</main>
+{% endblock %}

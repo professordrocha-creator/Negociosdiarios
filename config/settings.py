@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     "planos",
     "pagamentos",
     "publicidade",
+    "privacidade",
     "catalogo",
     "anuncios",
     "busca",
@@ -227,10 +228,7 @@ SITE_CIDADE_SEDE = "Tangará da Serra, MT"
 # Endereço público do site, usado nos links dos e-mails (confirmação, aprovação, senha).
 SITE_URL = env("SITE_URL", default="http://localhost:8000").rstrip("/")
 
-# Versões dos documentos legais aceitos no cadastro (gravadas em contas.AceiteDocumento).
-# Mudou o texto de /termos/ ou /privacidade/? Suba a versão: novos aceites registram a nova.
-VERSAO_TERMOS = "2026-10-rascunho"
-VERSAO_PRIVACIDADE = "2026-10-rascunho"
+# Termos de Uso e Política de Privacidade: texto e versão no admin (privacidade.DocumentoLegal, Sprint 7B).
 
 # Cadastro e recuperação de senha. Provisório: na Sprint 2 os limites vão para Configuracao.
 CONFIRMACAO_EMAIL_HORAS = 48  # validade do link "confirme seu e-mail"
@@ -393,6 +391,8 @@ CELERY_BEAT_SCHEDULE = {
     "expiracao": {"task": "anuncios.tasks.expirar_anuncios", "schedule": crontab(hour=3, minute=0)},
     # Todo dia às 5h: campanhas de publicidade que passaram do fim saem do ar; aviso à equipe antes do fim.
     "publicidade": {"task": "publicidade.tasks.rotina_de_publicidade", "schedule": crontab(hour=5, minute=0)},
+    # Todo dia às 4h: apaga comprovantes e anotações de faturas que passaram da guarda fiscal (LGPD).
+    "lgpd": {"task": "privacidade.tasks.limpar_dados_vencidos", "schedule": crontab(hour=4, minute=0)},
 }
 
 # --- E-mail --------------------------------------------------------------------

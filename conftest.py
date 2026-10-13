@@ -89,6 +89,9 @@ def criar_anunciante(tangara):
         )
         documento = ("creci", "CRECI/MT 12345-F") if corretor else ("cnpj", next(cnpjs))
         tipo = campos.pop("tipo", Anunciante.Tipo.CORRETOR_AUTONOMO if corretor else Anunciante.Tipo.REVENDA)
+        from privacidade.services import documentos_vigentes, registrar_aceites
+
+        registrar_aceites(usuario, documentos_vigentes())  # como no cadastro: aceitou as versões em vigor
         return Anunciante.objects.create(
             usuario=usuario,
             tipo=tipo,
