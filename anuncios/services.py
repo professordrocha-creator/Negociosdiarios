@@ -425,6 +425,88 @@ def excluir(anuncio: Anuncio) -> Anuncio:
     return anuncio
 
 
+class AcaoDaEquipe:
+    """Ações da equipe na lista "Anúncios" do admin (pausar, reativar, remover)."""
+
+    PAUSAR = "pausar"
+    REATIVAR = "reativar"
+    REMOVER = "remover"
+
+
+def acao_da_equipe(anuncio: Anuncio, por, acao: str, motivo: str = "") -> Anuncio:
+    """A equipe (Administrador ou Moderador) pausa, reativa ou remove um anúncio pelo admin.
+
+    - pausar: só publicado → pausado "pela moderação" (o anunciante corrige e reativa no painel);
+    - reativar: só o que a equipe pausou ("moderação") volta ao ar, se couber no plano (mesma trava do envio).
+      Pausa por denúncia sai pela fila de denúncias; por atraso, com o pagamento; pelo cliente, com ele;
+    - remover: exclusão lógica (some do site e do painel; o registro e o histórico ficam).
+    O motivo vai para o anúncio e para o histórico (com quem e quando) e, por e-mail, ao anunciante (o mesmo
+    envio das decisões de denúncia: `enviar_email_modelo`). Motivo obrigatório para pausar e remover.
+    Levanta ValueError com o que impediu.
+    """
+    from planos.services import LimiteDoPlano, SemAssinaturaAtiva, reservar_vaga
+
+    motivo = motivo.strip()
+    if acao in (AcaoDaEquipe.PAUSAR, AcaoDaEquipe.REMOVER) and not motivo:
+        raise ValueError("Escreva o motivo: ele vai para o anunciante.")
+    agora = timezone.now()
+    with transaction.atomic():
+        anuncio = Anuncio.objects.select_for_update().select_related("anunciante__usuario").get(pk=anuncio.pk)
+        anuncio._history_user = por
+        if acao == AcaoDaEquipe.PAUSAR:
+            if anuncio.situacao != Situacao.PUBLICADO:
+                raise ValueError(f"{anuncio.codigo}: só anúncios publicados podem ser pausados.")
+            anuncio.situacao, anuncio.pausado_por = Situacao.PAUSADO, PausadoPor.MODERACAO
+            anuncio.motivo_moderacao, anuncio.moderado_por = motivo, por
+            anuncio._change_reason = f"Pausado pela equipe: {motivo}"[:100]
+            anuncio.save()
+        elif acao == AcaoDaEquipe.REMOVER:
+            if anuncio.situacao == Situacao.REMOVIDO:
+                raise ValueError(f"{anuncio.codigo}: já está removido.")
+            anuncio.situacao, anuncio.removido_em = Situacao.REMOVIDO, agora
+            anuncio.motivo_moderacao, anuncio.moderado_por = motivo, por
+            anuncio._change_reason = f"Removido pela equipe: {motivo}"[:100]
+            anuncio.save()
+        elif acao == AcaoDaEquipe.REATIVAR:
+            if anuncio.situacao != Situacao.PAUSADO or anuncio.pausado_por != PausadoPor.MODERACAO:
+                raise ValueError(
+                    f"{anuncio.codigo}: a equipe só reativa o que ela pausou "
+                    "(denúncia: use a fila de denúncias)."
+                )
+            if motivo:
+                anuncio.motivo_moderacao, anuncio.moderado_por = motivo, por
+            anunciante = anuncio.anunciante
+            try:
+                reservar_vaga(
+                    anunciante,
+                    contar=lambda _assinatura: contar_no_plano(anunciante),
+                    publicar=lambda: _publicar(anuncio, agora, f"Reativado pela equipe. {motivo}"[:100]),
+                )
+            except (SemAssinaturaAtiva, LimiteDoPlano) as erro:  # mesma trava do anunciante
+                raise ValueError(f"{anuncio.codigo}: {erro}") from erro
+        else:
+            raise ValueError("Ação desconhecida.")
+    enviar_email_modelo(
+        "anuncio_acao_equipe",
+        f"Seu anúncio {anuncio.codigo} foi {_PARTICIPIO[acao]}",
+        [anuncio.anunciante.usuario.email],
+        {
+            "anuncio": anuncio,
+            "acao": acao,
+            "motivo": motivo,
+            "link_painel": settings.SITE_URL + reverse("anunciantes:painel"),
+        },
+    )
+    return anuncio
+
+
+_PARTICIPIO = {
+    AcaoDaEquipe.PAUSAR: "pausado",
+    AcaoDaEquipe.REATIVAR: "reativado",
+    AcaoDaEquipe.REMOVER: "removido",
+}
+
+
 def expirar_vencidos(agora: datetime | None = None) -> int:
     """Tarefa diária: publicado com prazo vencido → expirado (nunca apagado) e e-mail por loja."""
     agora = agora or timezone.now()

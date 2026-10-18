@@ -391,9 +391,10 @@ class Configuracao(models.Model):
         help_text="Depois disso o anúncio sai do ar (expira) até o anunciante clicar em Renovar.",
     )
     aviso_expiracao_dias = models.PositiveSmallIntegerField(
-        "aviso de expiração (dias antes)",
+        "mostrar botão Renovar a partir de (dias antes)",
         default=5,
-        help_text='Quantos dias antes de expirar o painel mostra "Expira em X dias" e o botão Renovar.',
+        help_text='Quantos dias antes de expirar o painel do anunciante mostra "Expira em X dias" e o botão '
+        "Renovar. Não envia e-mail.",
     )
     moderacao = models.CharField(
         "anúncios que passam por moderação",
@@ -405,12 +406,13 @@ class Configuracao(models.Model):
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
 
     class Meta:
-        verbose_name = "identidade do site"
-        verbose_name_plural = "identidade do site"
+        # Menu do admin: "Configurações do site" (antes "Identidade do site"; mais fácil de achar).
+        verbose_name = "configurações do site"
+        verbose_name_plural = "configurações do site"
 
     def __str__(self) -> str:
         """Nome fixo no admin."""
-        return "Identidade do site"
+        return "Configurações do site"
 
     def save(self, *args, **kwargs) -> None:
         """Sempre o registro 1 (registro único); limpa o cache lido pelo context processor."""
@@ -420,7 +422,7 @@ class Configuracao(models.Model):
 
     def delete(self, *args, **kwargs):
         """O registro único nunca é apagado."""
-        raise PermissionError("A identidade do site não pode ser apagada.")
+        raise PermissionError("As configurações do site não podem ser apagadas.")
 
     @property
     def paragrafos_quem_somos(self) -> list[str]:

@@ -703,3 +703,55 @@ def manual_da_equipe(arquivo: Path = ARQUIVO_MANUAL):
     except OSError:
         texto = "# Manual indisponível\n\nO arquivo docs/MANUAL_ADMIN.md não foi encontrado no servidor."
     return markdown_para_html(texto)
+
+
+# --- Painel de pendências (página inicial do admin) ---------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Pendencia:
+    """Um contador da caixa "Pendências" do admin: rótulo, quantos e o link para a lista já filtrada."""
+
+    rotulo: str
+    total: int
+    url: str
+
+
+def pendencias_da_equipe(usuario) -> list[Pendencia]:
+    """Contadores do que espera a equipe, só do que o usuário tem permissão de ver (grupos do Django).
+
+    Denúncias pendentes, pedidos de privacidade do site e do guia em aberto, comprovantes aguardando
+    confirmação e lojas pendentes de aprovação. Cada link abre a lista do admin já filtrada.
+    """
+    from django.urls import reverse
+
+    from anunciantes.models import Anunciante
+    from guia.models import PedidoDoPerfil
+    from moderacao.models import Denuncia
+    from pagamentos.models import Fatura
+    from privacidade.models import PedidoTitular
+
+    abertos_titular = (PedidoTitular.Situacao.ABERTO, PedidoTitular.Situacao.EM_ANDAMENTO)
+    abertos_guia = (PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
+    itens = [  # (permissão, rótulo, consulta, rota do admin, filtro da lista)
+        ("moderacao.view_denuncia", "Denúncias pendentes",
+         Denuncia.objects.filter(situacao=Denuncia.Situacao.PENDENTE),
+         "admin:moderacao_denuncia_changelist", "situacao__exact=pendente"),
+        ("privacidade.view_pedidotitular", "Pedidos de privacidade do site",
+         PedidoTitular.objects.filter(situacao__in=abertos_titular),
+         "admin:privacidade_pedidotitular_changelist", "situacao__in=" + ",".join(abertos_titular)),
+        ("guia.view_pedidodoperfil", "Pedidos do Guia de Negócios",
+         PedidoDoPerfil.objects.filter(status__in=abertos_guia),
+         "admin:guia_pedidodoperfil_changelist", "status__in=" + ",".join(abertos_guia)),
+        ("pagamentos.view_fatura", "Comprovantes aguardando confirmação",
+         Fatura.objects.filter(situacao=Fatura.Situacao.AGUARDANDO),
+         "admin:pagamentos_fatura_changelist", f"situacao__exact={Fatura.Situacao.AGUARDANDO}"),
+        ("anunciantes.view_anunciante", "Lojas pendentes de aprovação",
+         Anunciante.objects.filter(status=Anunciante.Status.PENDENTE),
+         "admin:anunciantes_anunciante_changelist", "status__exact=pendente"),
+    ]  # fmt: skip
+    return [
+        Pendencia(rotulo, consulta.count(), f"{reverse(rota)}?{filtro}")
+        for permissao, rotulo, consulta, rota, filtro in itens
+        if usuario.has_perm(permissao)
+    ]

@@ -39,9 +39,9 @@ RUN useradd --create-home --uid 1000 app \
 
 USER app
 
-# Estáticos coletados na imagem (confere que o collectstatic funciona no build). Variáveis falsas só para o
+# Estáticos coletados na imagem, já versionados (confere que o collectstatic funciona no build). Variáveis falsas só para o
 # settings carregar: nada disso vai para a imagem como configuração (o .env.prod é lido na subida).
-RUN DJANGO_SECRET_KEY=so-para-o-build ADMIN_URL=build-somente \
+RUN DJANGO_SECRET_KEY=so-para-o-build ADMIN_URL=build-somente ESTATICOS_VERSIONADOS=True \
     DATABASE_URL=postgis://build:build@localhost:5432/build REDIS_URL=redis://localhost:6379/0 \
     python manage.py collectstatic --noinput
 

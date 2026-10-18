@@ -86,7 +86,10 @@ emergência** de uso único, que serve na tela do código no lugar do código po
 
 ## 2. Visão geral do painel
 
-Depois de entrar, a página "Painel" mostra os grupos de menus. Cada pessoa vê só o que o grupo dela permite
+Depois de entrar, a página "Painel" mostra no topo a caixa **"Pendências"**: denúncias pendentes, pedidos de
+privacidade do site, pedidos do Guia de Negócios, comprovantes aguardando confirmação e lojas pendentes de
+aprovação. Cada número abre a lista já filtrada, e cada pessoa vê só os contadores do que o grupo dela pode ver.
+Abaixo vêm os grupos de menus. Cada pessoa vê só o que o grupo dela permite
 (capítulo 11). No topo: "Ajuda" (este manual), "Ver o site", "Alterar senha" e "Encerrar sessão".
 
 | Menu | Para que serve |
@@ -94,11 +97,11 @@ Depois de entrar, a página "Painel" mostra os grupos de menus. Cada pessoa vê 
 | Anunciantes | Lojas e corretores ("Anunciantes") e os pedidos de cidade nova ("Solicitações de cidade") |
 | Anúncios | Todos os anúncios (só leitura) e a "Fila de moderação" (aprovar ou recusar) |
 | Catálogo de veículos | Marcas, modelos e versões da Tabela FIPE (só esconder o que não deve aparecer) |
-| Cobrança | "Faturas" (com o "Painel de cobrança") e os "E-mails de cobrança" |
+| Faturas e pagamentos | "Faturas" (com o "Painel de cobrança") e os "E-mails de cobrança" |
 | Contas | "Usuários": equipe e clientes |
 | Guia de Negócios | Perfis do guia, categorias, termos, pedidos dos titulares, lista de convites e configuração |
 | Moderação | "Denúncias" de anúncios |
-| Núcleo | "Identidade do site" (configurações gerais), estados, cidades, regiões, bairros, textos de ajuda, valores da empresa |
+| Núcleo | "Configurações do site" (limites, prazos, contatos e textos), estados, cidades, regiões, bairros, textos de ajuda, valores da empresa |
 | Planos e assinaturas | Planos (preços e limites), assinaturas das lojas e pedidos de troca de plano |
 | Privacidade (LGPD) | Termos de Uso e Política de Privacidade (com versões) e pedidos dos titulares |
 | Publicidade | Patrocinadores e campanhas (com as peças e o "Painel de publicidade") |
@@ -117,12 +120,12 @@ Toda mudança importante tem "Histórico" (botão no canto da ficha).
 
 ## 3. Configurações gerais do site
 
-Quase todos os limites, prazos e textos ficam em **"Núcleo" › "Identidade do site"** (um registro só). O Guia
+Quase todos os limites, prazos e textos ficam em **"Núcleo" › "Configurações do site"** (um registro só). O Guia
 de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do guia"** (capítulo 10).
 
 ### Mudar um limite, prazo ou texto
 
-1. **Onde clicar:** "Núcleo" › "Identidade do site" (abre direto o formulário).
+1. **Onde clicar:** "Núcleo" › "Configurações do site" (abre direto o formulário).
 2. **O que preencher:** o campo desejado. Os blocos são:
    - **Nome e textos:** "nome do site", "linha da região", "slogan", "frase do rodapé", "empresa responsável",
      "cidade-sede".
@@ -138,7 +141,7 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
      vencimento)" (10), "limite do comprovante de pagamento (KB)", "prazo para responder ao titular (dias)" (15),
      "guarda de faturas e comprovantes (anos)" (5), **"denúncias de golpe para pausar"** (3), "denúncias por
      visitante por dia" (5), "guarda do contato da denúncia (dias)" (365), "validade do anúncio (dias)" (60),
-     "aviso de expiração (dias antes)" (5) e "anúncios que passam por moderação" ("Só o primeiro anúncio de
+     "mostrar botão Renovar a partir de (dias antes)" (5; só mostra o botão no painel do anunciante, não manda e-mail) e "anúncios que passam por moderação" ("Só o primeiro anúncio de
      cada loja", "Todos os anúncios" ou "Nenhum (publicação direta)").
 3. **O que acontece depois:** clique em "Salvar". Vale a partir do próximo uso, para todas as lojas.
 
@@ -153,7 +156,7 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
 - **Cidades no site:** "Núcleo" › "Cidades", marque "liberada" (ou ação "Liberar cidades selecionadas").
   Estados: "Núcleo" › "Estados" › "liberado". O seletor de estado aparece sozinho com 2 ou mais liberados.
 - **Guia de Negócios:** "Guia de Negócios" › "Configuração do guia" › "guia no ar" (capítulo 10).
-- **E-mails de cobrança:** "Cobrança" › "E-mails de cobrança", desmarque "enviar" (coluna "ativo") no e-mail
+- **E-mails de cobrança:** "Faturas e pagamentos" › "E-mails de cobrança", desmarque "enviar" (coluna "ativo") no e-mail
   que não quer mandar.
 
 ### Se der errado
@@ -174,20 +177,29 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
 3. **O que acontece depois:** aprovado vai ao ar e o anunciante recebe e-mail; recusado volta para ele corrigir,
    com o motivo.
 
-Quais anúncios passam pela fila: "Núcleo" › "Identidade do site" › "anúncios que passam por moderação".
+Quais anúncios passam pela fila: "Núcleo" › "Configurações do site" › "anúncios que passam por moderação".
 
 ### Consultar todos os anúncios
 
 1. **Onde clicar:** "Anúncios" › "Anúncios". Filtros por situação, categoria e cidade; busca por código
    (ND-IM-…, ND-VE-…), título ou loja.
-2. **O que preencher:** nada: a ficha é só leitura (o anúncio é do anunciante).
+2. **O que preencher:** nada: o conteúdo é só leitura (o anúncio é do anunciante). Só o "destaque até" é
+   editável (veja "Destaques").
 3. **O que acontece depois:** use "Histórico" para ver quem mudou o quê.
 
-### Pausar ou remover um anúncio
+### Pausar, reativar ou remover um anúncio
 
-Pelo admin, um anúncio é pausado ou removido **pela fila de denúncias** (capítulo 8: "Aceitar: pausar ou remover
-o anúncio"). O anunciante pausa, reativa e exclui os próprios anúncios no painel dele. Anúncios também saem do
-ar sozinhos: na expiração (validade) e quando a loja fica em atraso.
+1. **Onde clicar:** "Anúncios" › "Anúncios", marque os anúncios e escolha a ação:
+   - "Pausar (motivo obrigatório; avisa o anunciante)": só anúncios publicados;
+   - "Reativar (só os pausados pela equipe; respeita o plano)";
+   - "Remover do site (motivo obrigatório; nada é apagado)".
+2. **O que preencher:** o motivo na tela seguinte e "Aplicar".
+3. **O que acontece depois:** o anunciante recebe e-mail com o motivo; o histórico guarda quem fez, quando e por
+   quê. Pausado pela equipe, o anunciante corrige e reativa no painel (ou a equipe reativa). Removido some do site
+   e do painel, mas o registro fica. Só Administrador e Moderador têm essas ações.
+
+O anunciante também pausa, reativa e exclui os próprios anúncios no painel. Anúncios saem do ar sozinhos na
+expiração e quando a loja fica em atraso. Pausa por denúncia sai pela fila de denúncias (capítulo 8).
 
 ### Planos
 
@@ -201,8 +213,12 @@ Pedidos de troca de plano: "Planos e assinaturas" › "Pedidos de troca de plano
 
 ### Destaques
 
-Os anúncios da seção "Destaques" da página inicial são os que têm "destaque até" no futuro. **Hoje esse campo
-não é editável pelo admin** (ver o fim do relatório do manual). A seção mostra "Em breve" quando não há destaques.
+1. **Onde clicar:** "Anúncios" › "Anúncios" › abra o anúncio.
+2. **O que preencher:** "destaque até": data e hora do fim do destaque (ex.: o fim do período pago). Em branco =
+   sem destaque. "Salvar".
+3. **O que acontece depois:** até essa data o anúncio aparece na seção "Destaques" da página inicial (com o selo
+   "Patrocinado"), enquanto estiver publicado. A seção mostra "Em breve" quando não há destaques. A coluna
+   "destaque até" da lista mostra quem está em destaque.
 
 ### Se der errado
 
@@ -259,21 +275,21 @@ As faturas das lojas **nascem sozinhas**: a rotina das 6h gera a fatura X dias a
 
 ### Ver o panorama
 
-1. **Onde clicar:** "Cobrança" › "Faturas" › botão "Painel de cobrança".
+1. **Onde clicar:** "Faturas e pagamentos" › "Faturas" › botão "Painel de cobrança".
 2. **O que preencher:** nada.
 3. **O que acontece depois:** mostra a receber no mês, recebido no mês, vencendo em 7 dias, vencidas e aguardando
    confirmação. Cada número abre a lista filtrada.
 
 ### Enviar o link de pagamento
 
-1. **Onde clicar:** "Cobrança" › "Faturas" › abra a fatura.
+1. **Onde clicar:** "Faturas e pagamentos" › "Faturas" › abra a fatura.
 2. **O que preencher:** se for boleto, o "link do boleto". Copie o "link de pagamento" mostrado na ficha.
 3. **O que acontece depois:** mande o link pelo WhatsApp a quem pedir. A loja também vê a fatura no painel
    ("Faturas"); o patrocinador recebe o link por e-mail.
 
 ### Conferir o comprovante e dar baixa
 
-1. **Onde clicar:** "Cobrança" › "Faturas", filtro "Aguardando confirmação"; abra a fatura e clique no
+1. **Onde clicar:** "Faturas e pagamentos" › "Faturas", filtro "Aguardando confirmação"; abra a fatura e clique no
    comprovante.
 2. **O que preencher:** confira valor e data no extrato. Na lista, marque e use "Confirmar pagamento (renova a
    assinatura e reativa os anúncios)", escolhendo a forma e uma observação. Se o comprovante não confere: "Recusar
@@ -364,7 +380,7 @@ denunciou.
 
 Quando um anúncio recebe **"denúncias de golpe para pausar"** (padrão 3) de visitantes diferentes, ele sai do ar
 "em revisão" sozinho e a equipe recebe e-mail. O anunciante não consegue reativar até a equipe decidir. O número
-fica em "Núcleo" › "Identidade do site" › "Regras do negócio". No começo, um número mais alto evita que um
+fica em "Núcleo" › "Configurações do site" › "Regras do negócio". No começo, um número mais alto evita que um
 concorrente derrube anúncios.
 
 ### Se der errado
@@ -538,9 +554,9 @@ registrada.
 | Grupo | O que vê e faz |
 |---|---|
 | Administrador | Tudo do dia a dia: usuários, configurações, anunciantes, anúncios, moderação, cobrança, publicidade, privacidade, denúncias e o Guia de Negócios inteiro (inclui categorias, termos e configuração do guia) |
-| Moderador | Aprova e suspende anunciantes, modera anúncios e denúncias; no guia, vê os perfis e cuida dos pedidos dos titulares |
+| Moderador | Aprova e suspende anunciantes, modera anúncios (inclui pausar, reativar, remover e destaque) e denúncias; no guia, vê os perfis e cuida dos pedidos dos titulares |
 | Guia | Só o Guia de Negócios: cadastra perfis, envia convites e autorizações, publica, pausa, remove, importa e convida a lista, exporta e vê estatísticas |
-| Financeiro | Cobrança (faturas, e-mails de cobrança), planos e assinaturas; publicidade só para ver. Não vê o guia |
+| Financeiro | Faturas e pagamentos (faturas, e-mails de cobrança), planos e assinaturas; publicidade só para ver. Não vê o guia |
 | Comercial | Publicidade (patrocinadores, campanhas, peças, painel, fatura). Não vê o guia |
 
 O superusuário (o dono) é o único que muda permissões avulsas e mexe nos códigos de acesso.
@@ -599,9 +615,10 @@ Todos os e-mails do site também saem por essa fila (não travam a página).
 
 **Todo dia**
 
-1. "Anúncios" › "Fila de moderação": aprovar ou recusar.
+1. A caixa "Pendências" no topo do painel: o que estiver com número amarelo.
+   "Anúncios" › "Fila de moderação": aprovar ou recusar.
 2. "Moderação" › "Denúncias": pendentes, principalmente "Em revisão (fora do ar)".
-3. "Cobrança" › "Faturas" › "Painel de cobrança": "aguardando confirmação".
+3. "Faturas e pagamentos" › "Faturas" › "Painel de cobrança": "aguardando confirmação".
 4. "Anunciantes" › "Anunciantes": cadastros pendentes que já confirmaram o e-mail.
 5. "Guia de Negócios" › "Pedidos dos perfis (titulares)": filtro "Prazo vencido".
 

@@ -54,5 +54,7 @@ fi
 echo "== Subindo de novo"
 "${COMPOSE[@]}" up -d --no-build
 "${COMPOSE[@]}" exec -T web python manage.py migrate --noinput
+# Por garantia: o nd_nginx volta a procurar o web recriado (evita o 502 depois de restaurar).
+"${COMPOSE[@]}" restart nginx
 "${COMPOSE[@]}" ps
 echo "Restauração concluída a partir de $ESCOLHA."

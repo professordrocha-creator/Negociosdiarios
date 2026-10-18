@@ -70,6 +70,13 @@ class AdminSiteND(admin.AdminSite):
         """Além de ser da equipe, a sessão precisa ter passado pela verificação (se exigida)."""
         return super().has_permission(request) and acesso_verificado(request)
 
+    def index(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
+        """Página inicial do admin com a caixa "Pendências" (só o que o usuário pode ver)."""
+        from core.services import pendencias_da_equipe
+
+        contexto = {"pendencias": pendencias_da_equipe(request.user), **(extra_context or {})}
+        return super().index(request, contexto)
+
     def get_urls(self):
         """Acrescenta a tela de verificação (fora do `admin_view`, que exigiria já estar verificado)."""
         return [path("verificar/", self.verificar, name="verificar"), *super().get_urls()]

@@ -15,7 +15,9 @@ PLANOS_VER = {"planos.view_plano", "planos.view_assinatura", "planos.view_pedido
 CATALOGO_VER = {"catalogo.view_marca", "catalogo.view_modelo", "catalogo.view_versao"}
 CATALOGO_TUDO = CATALOGO_VER | {"catalogo.change_marca", "catalogo.change_modelo", "catalogo.change_versao"}
 ANUNCIOS_VER = {"anuncios.view_anuncio", "anuncios.view_detalheimovel", "anuncios.view_detalheveiculo"}
+# Lote de correções (anuncios/0015): destaque e ações Pausar/Reativar/Remover pelo admin.
 ANUNCIOS_MODERAR = ANUNCIOS_VER | {
+    "anuncios.change_anuncio",
     "anuncios.view_historicalanuncio",
     "anuncios.view_anuncioemmoderacao",
     "anuncios.change_anuncioemmoderacao",

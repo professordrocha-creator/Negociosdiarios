@@ -62,6 +62,9 @@ echo "== 5/6 Migrations e arquivos estáticos"
 "${COMPOSE[@]}" exec -T web python manage.py migrate --noinput
 "${COMPOSE[@]}" exec -T web python manage.py collectstatic --noinput --clear
 
+# Por garantia, o nd_nginx é reiniciado: se o web foi recriado, ele não fica com o endereço antigo.
+"${COMPOSE[@]}" restart nginx
+
 echo "== 6/6 Checagem de saúde"
 SAUDE="falhou"
 for _ in $(seq 1 20); do

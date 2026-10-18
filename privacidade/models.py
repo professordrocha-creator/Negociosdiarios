@@ -119,7 +119,7 @@ class PedidoTitular(MarcaDemo):
     )
     recebido_em = models.DateTimeField("recebido em", default=timezone.now)
     prazo = models.DateField(
-        "prazo", blank=True, help_text="Vazio = recebido + o prazo da Identidade do site (15 dias)."
+        "prazo", blank=True, help_text="Vazio = recebido + o prazo das Configurações do site (15 dias)."
     )
     atendido_em = models.DateTimeField("respondido em", null=True, blank=True)
     resposta = models.TextField("resposta / o que foi feito", blank=True)

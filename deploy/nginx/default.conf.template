@@ -14,9 +14,9 @@ set_real_ip_from ${ND_PROXY_REDE_3};
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
 
-upstream nd_web {
-    server web:8000;
-}
+# O endereço do "web" é resolvido a cada 10 s pelo DNS do Docker (127.0.0.11). Com um "upstream" fixo o nginx
+# guardava o IP antigo e dava 502 quando o web era recriado (ex.: depois de restaurar um backup).
+resolver 127.0.0.11 valid=10s ipv6=off;
 
 server {
     listen 80;
@@ -34,12 +34,19 @@ server {
         return 200 "ok\n";
     }
 
-    # Estáticos do collectstatic (volume "estaticos"). Sem nomes versionados ainda: cache curto.
+    # Estáticos do collectstatic (volume "estaticos"). Com ESTATICOS_VERSIONADOS=True o nome traz o hash do
+    # conteúdo (nd.3f2a9c1b7e4d.css): cache de 1 ano, imutável (cada deploy muda o nome do que mudou).
+    # Sem hash no nome (ex.: o próprio staticfiles.json): cache curto.
+    location ~ "^/static/(?<arquivo>.+\.[0-9a-f]{12}\.[A-Za-z0-9]+)$" {
+        alias /srv/static/$arquivo;
+        access_log off;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Content-Type-Options "nosniff";
+    }
     location /static/ {
         alias /srv/static/;
         access_log off;
-        expires 1h;
-        add_header Cache-Control "public";
+        add_header Cache-Control "public, max-age=3600";
         add_header X-Content-Type-Options "nosniff";
     }
 
@@ -48,15 +55,16 @@ server {
     location /media/ {
         alias /srv/media/;
         access_log off;
-        expires 30d;
-        add_header Cache-Control "public";
+        add_header Cache-Control "public, max-age=2592000";
         add_header X-Content-Type-Options "nosniff";
         # Nada de script: a mídia só tem imagens (o SVG dos símbolos do site já é validado no envio).
         location ~* \.(php|py|sh|html?|js)$ { return 403; }
     }
 
     location / {
-        proxy_pass http://nd_web;
+        # Variável + resolver: o IP do web é procurado de novo (nada de IP guardado da subida).
+        set $nd_web http://web:8000;
+        proxy_pass $nd_web;
         proxy_set_header Host $host;
         # $remote_addr aqui já é o IP real (realip acima). Sobrescreve o que veio de fora.
         proxy_set_header X-Real-IP $remote_addr;

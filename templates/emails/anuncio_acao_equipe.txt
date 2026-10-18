@@ -1,0 +1,13 @@
+{% autoescape off %}Olá,
+
+A equipe do {{ site_nome }} {% if acao == "pausar" %}pausou{% elif acao == "remover" %}removeu{% else %}reativou{% endif %} o anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}").
+{% if motivo %}
+Motivo: {{ motivo }}
+{% endif %}{% if acao == "pausar" %}
+Corrija o anúncio no painel e reative quando estiver tudo certo:
+{{ link_painel }}
+{% elif acao == "remover" %}
+O anúncio não volta ao ar. Dúvidas: responda este e-mail.
+{% else %}
+O anúncio está no ar de novo: {{ link_painel }}
+{% endif %}{% endautoescape %}

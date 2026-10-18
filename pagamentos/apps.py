@@ -8,4 +8,4 @@ class PagamentosConfig(AppConfig):
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "pagamentos"
-    verbose_name = "Cobrança"
+    verbose_name = "Faturas e pagamentos"  # nome do menu no admin

@@ -1,4 +1,4 @@
-"""Comando `criar_dados_demo`: dados fictícios para ver e testar as telas (só em dev)."""
+"""Comando `criar_dados_demo`: dados fictícios para ver e testar as telas (dev ou servidor de teste)."""
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -10,9 +10,14 @@ class Command(BaseCommand):
     """Cria ou atualiza os dados de demonstração. Pode rodar quantas vezes quiser."""
 
     help = (
-        "Cria/atualiza os dados de DEMONSTRAÇÃO (core/dados/demo.json): usuários de equipe demo "
-        "e cidades liberadas. Só com DEBUG=True; senha dos usuários = DEMO_SENHA do .env. "
-        "Desfazer: apagar_dados_demo."
+        "Cria/atualiza os dados de DEMONSTRAÇÃO (core/dados/demo.json), todos marcados como demo: usuários "
+        "de equipe (um por grupo), cidades, regiões e bairros, lojas com login e planos, anúncios com "
+        "fotos e "
+        "estatísticas, faturas, campanhas de publicidade, pedido de titular, denúncias e o Guia de Negócios "
+        "(perfis, pedidos, lista de convites e um termo novo). Roda em dev (DEBUG=True) ou no servidor de "
+        "teste "
+        "(DEMO_NO_SERVIDOR=True, que exige SITE_NOINDEX=True). Senha dos usuários = DEMO_SENHA (atenção: "
+        "rodar de novo redefine essas senhas). Desfazer: apagar_dados_demo."
     )
 
     def handle(self, *args, **opcoes):
@@ -43,7 +48,8 @@ class Command(BaseCommand):
             f"em atraso, com os anúncios pausados: {', '.join(em_atraso) or 'nenhuma'}."
         )
         self.stdout.write(
-            "Faturas demo (Painel › Faturas e admin › Cobrança): histórico pago em todas as lojas, uma "
+            "Faturas demo (Painel › Faturas e admin › Faturas e pagamentos): histórico pago em todas as "
+            "lojas, uma "
             "aberta, uma aguardando confirmação (comprovante fictício) e a das lojas em atraso vencida."
         )
         self.stdout.write(
@@ -58,4 +64,9 @@ class Command(BaseCommand):
             f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
             "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
             "e no painel de cada loja."
+        )
+        self.stdout.write(
+            "Guia de Negócios demo: cerca de 60 perfis em 3 cidades, 6 pedidos do titular, 15 contatos de "
+            "convite "
+            "e um termo novo pendente (admin › Guia de Negócios)."
         )

@@ -170,6 +170,7 @@ class CampanhaAdmin(SimpleHistoryAdmin):
                 self.message_user(request, str(erro), messages.WARNING)
         self.message_user(
             request,
-            f"{feitas} fatura(s) gerada(s) e enviada(s) por e-mail. Acompanhe em Cobrança › Faturas.",
+            f"{feitas} fatura(s) gerada(s) e enviada(s) por e-mail. "
+            "Acompanhe em Faturas e pagamentos › Faturas.",
             messages.SUCCESS,
         )

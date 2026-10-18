@@ -103,7 +103,14 @@ class Anuncio(MarcaDemo):
     )
     publicado_em = models.DateTimeField("publicado em", null=True, blank=True)
     expira_em = models.DateTimeField("expira em", null=True, blank=True, db_index=True)
-    destaque_ate = models.DateTimeField("destaque até", null=True, blank=True)
+    destaque_ate = models.DateTimeField(
+        "destaque até",
+        null=True,
+        blank=True,
+        help_text='Até esta data e hora o anúncio aparece na seção "Destaques" da página inicial '
+        "(selo Patrocinado; "
+        "só enquanto estiver publicado). Em branco = sem destaque. Ex.: o fim do período pago.",
+    )
     removido_em = models.DateTimeField("excluído em", null=True, blank=True, editable=False)
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)

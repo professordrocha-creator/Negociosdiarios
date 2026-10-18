@@ -147,10 +147,56 @@ class BaseAnuncioAdmin(admin.ModelAdmin):
 
 @admin.register(Anuncio)
 class AnuncioAdmin(SimpleHistoryAdmin, BaseAnuncioAdmin):
-    """Todos os anúncios: filtro por situação, categoria, cidade e demo."""
+    """Todos os anúncios: filtro por situação, categoria, cidade e demo.
 
-    list_display = ("codigo", "capa_mini", "titulo", "anunciante", "cidade", "situacao", "expira_em", "demo")
+    O conteúdo é do anunciante (só leitura). A equipe com permissão de alterar anúncios (Administrador e
+    Moderador) edita só o "destaque até" (seção Destaques da home) e usa as ações Pausar, Reativar e Remover,
+    com motivo, histórico e e-mail ao anunciante (`anuncios.services.acao_da_equipe`).
+    """
+
+    list_display = (
+        "codigo", "capa_mini", "titulo", "anunciante", "cidade", "situacao", "expira_em", "destaque_ate",
+        "demo",
+    )  # fmt: skip
     list_filter = ("situacao", "categoria", "cidade", "demo")
+    # Tudo continua só leitura, menos o "destaque até".
+    readonly_fields = tuple(campo for campo in BaseAnuncioAdmin.readonly_fields if campo != "destaque_ate")
+    fields = BaseAnuncioAdmin.readonly_fields
+    actions = ["pausar_acao", "reativar_acao", "remover_acao"]
+
+    def _acao(
+        self, request: HttpRequest, queryset: QuerySet[Anuncio], acao: str, titulo: str, obrigatorio: bool
+    ):
+        """Tela intermediária com o motivo (a mesma das outras decisões) e a ação em cada anúncio."""
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            f"{acao}_acao",
+            titulo,
+            obrigatorio,
+            lambda anuncio, por, motivo: services.acao_da_equipe(anuncio, por, acao, motivo),
+            "{n} anúncio(s) "
+            + {"pausar": "pausado(s)", "reativar": "reativado(s)", "remover": "removido(s)"}[acao]
+            + "; anunciantes avisados por e-mail.",
+        )
+
+    @admin.action(description="Pausar (motivo obrigatório; avisa o anunciante)", permissions=["change"])
+    def pausar_acao(self, request: HttpRequest, queryset: QuerySet[Anuncio]):
+        """Publicado → pausado pela equipe; o anunciante corrige e reativa no painel."""
+        return self._acao(request, queryset, "pausar", "Pausar anúncios", True)
+
+    @admin.action(
+        description="Reativar (só os pausados pela equipe; respeita o plano)", permissions=["change"]
+    )
+    def reativar_acao(self, request: HttpRequest, queryset: QuerySet[Anuncio]):
+        """Volta ao ar o que a equipe pausou, se couber no plano da loja."""
+        return self._acao(request, queryset, "reativar", "Reativar anúncios", False)
+
+    @admin.action(description="Remover do site (motivo obrigatório; nada é apagado)", permissions=["change"])
+    def remover_acao(self, request: HttpRequest, queryset: QuerySet[Anuncio]):
+        """Exclusão lógica: some do site e do painel; o registro e o histórico ficam."""
+        return self._acao(request, queryset, "remover", "Remover anúncios do site", True)
 
 
 @admin.register(AnuncioEmModeracao)

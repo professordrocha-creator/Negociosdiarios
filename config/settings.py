@@ -70,7 +70,12 @@ def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple
     pasta privado/ ao lado da media/; s3: outro bucket (S3_BUCKET_PRIVADO), sem domínio público e com URLs
     assinadas. As views servem o arquivo depois de conferir quem pede.
     """
-    estaticos = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
+    # Estáticos com nome versionado (nd.3f2a9c1b7e4d.css) em produção: o navegador pode guardar por 1 ano e
+    # cada deploy troca o nome do que mudou. Dev e testes ficam com o comum (não precisam do collectstatic).
+    if env.bool("ESTATICOS_VERSIONADOS", default=False):
+        estaticos = {"BACKEND": "core.estaticos.EstaticosVersionados"}  # Manifest do Django sem os .map
+    else:
+        estaticos = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
     media_root = base_dir / "media"
     if tipo == "local":
         midia = {"BACKEND": "django.core.files.storage.FileSystemStorage"}

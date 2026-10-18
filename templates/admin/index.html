@@ -1,0 +1,17 @@
+{% extends "admin/index.html" %}
+{% load static %}
+{# Página inicial do admin + caixa "Pendências" (core.services.pendencias_da_equipe: só o que o grupo pode ver). #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin-nd.css' %}">{% endblock %}
+{% block content %}
+{% if pendencias %}
+<div class="module nd-pendencias" aria-labelledby="pendencias-titulo">
+  <h2 id="pendencias-titulo">Pendências</h2>
+  <ul>
+    {% for item in pendencias %}
+    <li><a href="{{ item.url }}" class="{% if item.total %}nd-pendencia-ativa{% endif %}"><b class="nd-pendencia-numero">{{ item.total }}</b> {{ item.rotulo }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}
