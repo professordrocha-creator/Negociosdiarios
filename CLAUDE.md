@@ -74,6 +74,14 @@
 - Dados pessoais novos devem entrar na exportação ("Meus dados") e na rotina
   de exclusão/anonimização.
 
+## Checkpoint de progresso (`docs/PROGRESSO.md`)
+- **Ao iniciar uma sessão, leia `docs/PROGRESSO.md` antes de qualquer coisa** e continue de onde parou.
+- Ao concluir cada etapa de uma sprint (um modelo, uma tela, um conjunto de testes), **sobrescreva**
+  `docs/PROGRESSO.md` (sem acumular histórico), com no máximo 15 linhas:
+  sprint e parte em andamento; o que já está feito; o que falta, em ordem; arquivos mexidos e o que
+  está pela metade (se houver); o último comando de teste que passou.
+- Se o limite de uso estiver perto de acabar, faça o checkpoint **imediatamente**.
+
 ## Economia de tokens (como trabalhar com o Claude Code)
 - Este arquivo fica **curto**. Detalhes ficam em `docs/` e só são lidos quando a tarefa pedir.
 - Uma tarefa por sessão (ex.: "Sprint 3: model DetalheImovel + testes"). Ao terminar, `/clear`.
