@@ -1,7 +1,9 @@
-# Segredos: nunca versionar (só o modelo .env.example)
+# Segredos: nunca versionar (só os modelos .env.example e .env.prod.example)
 .env
 .env.*
+*.env
 !.env.example
+!.env.prod.example
 
 # Python
 __pycache__/

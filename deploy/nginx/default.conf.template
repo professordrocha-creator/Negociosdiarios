@@ -1,0 +1,69 @@
+# nginx INTERNO do Negócios Diários (container nd_nginx; docs/DEPLOY.md).
+# Fica atrás do nginx de outro projeto (que tem as portas 80/443 e o certificado) e só recebe pela rede Docker.
+# Serve /static/ e /media/ direto dos volumes e repassa o resto ao Gunicorn (web:8000).
+# Arquivos PRIVADOS (comprovantes, fotos do termo do guia) não estão em nenhum volume deste nginx: só saem
+# pelas views do Django, que conferem quem pede.
+# As variáveis ${...} são trocadas na subida pela imagem oficial do nginx (envsubst em /etc/nginx/templates).
+
+# IP real do visitante: confia no X-Forwarded-For só quando quem conectou é um proxy das redes Docker
+# (ND_PROXIES_CONFIAVEIS). Com real_ip_recursive, pega o último IP que NÃO é proxy: o que o visitante escreve
+# no cabeçalho fica à esquerda e é ignorado. O IP resolvido vai ao Django em X-Real-IP.
+set_real_ip_from ${ND_PROXY_REDE_1};
+set_real_ip_from ${ND_PROXY_REDE_2};
+set_real_ip_from ${ND_PROXY_REDE_3};
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+upstream nd_web {
+    server web:8000;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    # Limite do corpo: o formulário de fotos manda até 10 fotos de até 15 MB numa requisição (o navegador
+    # costuma reduzir antes). O nginx externo precisa do mesmo valor (docs/DEPLOY.md).
+    client_max_body_size ${ND_LIMITE_UPLOAD};
+    server_tokens off;
+
+    # Checagem de saúde do próprio nginx (healthcheck do Docker).
+    location = /nginx-saude {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Estáticos do collectstatic (volume "estaticos"). Sem nomes versionados ainda: cache curto.
+    location /static/ {
+        alias /srv/static/;
+        access_log off;
+        expires 1h;
+        add_header Cache-Control "public";
+        add_header X-Content-Type-Options "nosniff";
+    }
+
+    # Mídia pública (fotos de anúncios, logos, banners; volume "media"). Nomes aleatórios: cache longo.
+    # Só com ARMAZENAMENTO=local; com s3 a mídia sai do bucket e esta pasta fica vazia.
+    location /media/ {
+        alias /srv/media/;
+        access_log off;
+        expires 30d;
+        add_header Cache-Control "public";
+        add_header X-Content-Type-Options "nosniff";
+        # Nada de script: a mídia só tem imagens (o SVG dos símbolos do site já é validado no envio).
+        location ~* \.(php|py|sh|html?|js)$ { return 403; }
+    }
+
+    location / {
+        proxy_pass http://nd_web;
+        proxy_set_header Host $host;
+        # $remote_addr aqui já é o IP real (realip acima). Sobrescreve o que veio de fora.
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        # Protocolo original (https) informado pelo nginx externo; o Django usa para cookies e redirecionamento.
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_read_timeout 75s;
+        proxy_send_timeout 75s;
+    }
+}

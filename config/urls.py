@@ -8,11 +8,21 @@ from django.urls import include, path
 
 from config.sitemaps import SITEMAPS
 
+
+def sitemap_ou_404(request, **kwargs):
+    """sitemap.xml normal; com SITE_NOINDEX (servidor de teste) não existe (404)."""
+    from django.http import Http404
+
+    if settings.SITE_NOINDEX:
+        raise Http404("Sitemap desligado no servidor de teste.")
+    return sitemap(request, **kwargs)
+
+
 urlpatterns = [
     # Admin em endereço secreto (ADMIN_URL no .env) e com código para navegador novo
     # (config/admin_site.py). Não existe rota /admin/: quem tentar recebe 404.
     path(settings.ADMIN_URL, admin.site.urls),
-    path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
+    path("sitemap.xml", sitemap_ou_404, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("", include("contas.urls")),  # /entrar/ e /sair/ (cliente)
     path("", include("anunciantes.urls")),  # /painel/, /loja/, /lojas/, /cadastro/
     path("", include("planos.urls")),  # /painel/plano/

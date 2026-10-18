@@ -34,17 +34,27 @@ def normalizar_admin_url(valor: str) -> str:
     return caminho + "/"
 
 
-def validar_mostrar_demo(mostrar: bool, debug: bool) -> bool:
-    """Garante que a home só mostre dados de demonstração em dev.
+def validar_mostrar_demo(mostrar: bool, debug: bool, demo_no_servidor: bool = False) -> bool:
+    """Garante que o site só mostre dados de demonstração em dev ou no servidor de TESTE.
 
-    MOSTRAR_DEMO=True com DEBUG=False derruba a subida: dados fictícios nunca podem
-    aparecer em produção (regra "Dados de demonstração" do CLAUDE.md).
+    MOSTRAR_DEMO=True com DEBUG=False derruba a subida, a não ser no servidor de teste declarado
+    (DEMO_NO_SERVIDOR=True, que por sua vez exige SITE_NOINDEX=True: ver `validar_demo_no_servidor`).
+    Dados fictícios nunca aparecem no site público (regra "Dados de demonstração" do CLAUDE.md).
     """
-    if mostrar and not debug:
+    if mostrar and not (debug or demo_no_servidor):
         raise ImproperlyConfigured(
-            "MOSTRAR_DEMO=True é proibido com DEBUG=False (dados fictícios em produção)."
+            "MOSTRAR_DEMO=True é proibido com DEBUG=False (dados fictícios em produção). No servidor de "
+            "teste, use DEMO_NO_SERVIDOR=True junto com SITE_NOINDEX=True."
         )
     return mostrar
+
+
+def validar_demo_no_servidor(demo_no_servidor: bool, noindex: bool) -> bool:
+    """DEMO_NO_SERVIDOR (dados fictícios com DEBUG=False) só vale com SITE_NOINDEX=True: servidor de teste,
+    fora do Google. No lançamento, ao desligar o noindex, a demo tem de sair junto (docs/DEPLOY.md)."""
+    if demo_no_servidor and not noindex:
+        raise ImproperlyConfigured("DEMO_NO_SERVIDOR=True exige SITE_NOINDEX=True (só no servidor de teste).")
+    return demo_no_servidor
 
 
 def armazenamento_de_midia(tipo: str, env: environ.Env, base_dir: Path) -> tuple[dict, str, Path]:
@@ -112,6 +122,14 @@ DEBUG = env("DJANGO_DEBUG")
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = env("DJANGO_CSRF_TRUSTED_ORIGINS")
 
+# Servidor de TESTE (docs/DEPLOY.md): SITE_NOINDEX=True põe "noindex, nofollow, noarchive" em todas as
+# respostas, robots.txt com "Disallow: /" e desliga o sitemap. No lançamento: False.
+SITE_NOINDEX = env.bool("SITE_NOINDEX", default=False)
+# Proxies confiáveis (CIDR, separados por vírgula): só deles o X-Real-IP vale como IP do visitante
+# (core.middleware.IPRealMiddleware). Vazio em dev (o REMOTE_ADDR já é o visitante). Em produção, as redes
+# privadas do Docker, por onde só o nd_nginx chega ao web.
+PROXIES_CONFIAVEIS = env.list("PROXIES_CONFIAVEIS", default=[])
+
 INSTALLED_APPS = [
     "config.apps.AdminConfigND",  # admin com verificação de navegador novo (config/admin_site.py)
     "django.contrib.auth",
@@ -143,6 +161,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "core.middleware.IPRealMiddleware",  # o primeiro: IP real do visitante, só vindo do proxy confiável
+    "core.middleware.NoindexMiddleware",  # SITE_NOINDEX: noindex em todas as respostas (servidor de teste)
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -283,7 +303,9 @@ PUBLICIDADE_FORMATOS = [
 # --- Dados de demonstração (só em dev; regra no CLAUDE.md) --------------------------------
 # MOSTRAR_DEMO: a home mostra lojas e anúncios fictícios de core/dados/demo.json (até a
 # Sprint 3, quando passam a vir do banco). Proibido com DEBUG=False.
-MOSTRAR_DEMO = validar_mostrar_demo(env.bool("MOSTRAR_DEMO", default=False), DEBUG)
+# DEMO_NO_SERVIDOR: permite os dados fictícios com DEBUG=False só no servidor de TESTE (exige SITE_NOINDEX).
+DEMO_NO_SERVIDOR = validar_demo_no_servidor(env.bool("DEMO_NO_SERVIDOR", default=False), SITE_NOINDEX)
+MOSTRAR_DEMO = validar_mostrar_demo(env.bool("MOSTRAR_DEMO", default=False), DEBUG, DEMO_NO_SERVIDOR)
 # Senha de todos os usuários criados pelo criar_dados_demo (sem padrão: nada de senha conhecida).
 DEMO_SENHA = env("DEMO_SENHA", default="")
 
@@ -329,8 +351,8 @@ AXES_RESET_ON_SUCCESS = True  # login certo zera os erros anteriores
 # Não guardar IP e navegador de cada login bem-sucedido (LGPD: só o necessário). O last_login basta.
 AXES_DISABLE_ACCESS_LOG = True
 AXES_LOCKOUT_TEMPLATE = "contas/bloqueado.html"
-# O IP vem só do REMOTE_ADDR (cabeçalho X-Forwarded-For pode ser forjado). Na etapa 8, atrás do
-# Nginx, passar a ler o X-Forwarded-For com AXES_IPWARE_PROXY_COUNT = 1.
+# O IP vem só do REMOTE_ADDR (X-Forwarded-For do visitante pode ser forjado). Em produção o
+# core.middleware.IPRealMiddleware já trocou o REMOTE_ADDR pelo IP real (só vindo do proxy confiável).
 AXES_IPWARE_META_PRECEDENCE_ORDER = ["REMOTE_ADDR"]
 
 # --- Arquivos estáticos e mídia -----------------------------------------------
@@ -438,5 +460,9 @@ if not DEBUG:
     SECURE_REDIRECT_EXEMPT = [r"^saude/$"]
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    # Começa com 1 dia; subir para 1 ano depois do lançamento estável (docs/SEGURANCA.md).
-    SECURE_HSTS_SECONDS = env.int("DJANGO_HSTS_SECONDS", default=60 * 60 * 24)
+    # Começa curto (padrão 1 hora no servidor de teste); subir para 1 ano depois do lançamento estável
+    # (docs/SEGURANCA.md). Subdomínios e preload só quando o domínio inteiro estiver em HTTPS de vez.
+    SECURE_HSTS_SECONDS = env.int("DJANGO_HSTS_SECONDS", default=60 * 60)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_HSTS_SUBDOMINIOS", default=False)
+    SECURE_HSTS_PRELOAD = env.bool("DJANGO_HSTS_PRELOAD", default=False)
+    CSRF_COOKIE_SAMESITE = "Lax"

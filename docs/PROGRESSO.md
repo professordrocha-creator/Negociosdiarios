@@ -1,14 +1,14 @@
 # Progresso (checkpoint — sobrescrever, sem histórico; máx. 15 linhas)
-- **Pronto, sem commit: Guia de Negócios G3 (LGPD e operação).** Migrations 0005/0006; "Esta é minha empresa"
-  (/guia/pedido/<slug>/) e fila de pedidos; remoção + limpeza diária; termo novo (links, prazo de 30 dias, pausa,
-  painel "quem falta"); lista de convites (CSV com prévia, convidar, não contatar, criar perfil); fila/lotes/CSV/
-  estatísticas no admin; estabelecimentos regulados com horário; demo G3; rotina Celery `guia` (4:30); docs.
-- **No GitHub:** Sprints 0 a 7, Guia G1 e G2, correção do acesso da equipe ao admin.
-- **Falta, em ordem:** 1) Daniel confere no navegador e põe `GUIA_CPF_CHAVE` no .env; commit. 2) G4 opcional.
-  3) revisão geral; servidor de teste; Sprint 8 só se pedirem; Sprint 9 (lista em docs/ROADMAP.md).
+- **Pronto, sem commit: preparação para o servidor de teste/produção.** Dockerfile.prod, docker-compose.prod.yml
+  (sem porta no host; nd_nginx na rede drocha_solucoes_default), deploy/nginx (realip), .env.prod.example,
+  deploy.sh, backup.sh, restaurar.sh (marcados executáveis no índice do Git), docs/DEPLOY.md; SITE_NOINDEX,
+  IP real só do proxy (core/middleware.py), HSTS configurável, DEMO_NO_SERVIDOR, apagar_dados_demo com texto.
+- **No GitHub:** Sprints 0 a 7, Guia G1 a G3, Manual do Administrador (/painel/ajuda/).
+- **Falta, em ordem:** 1) Daniel confere e faz o commit; 2) subir no servidor seguindo docs/DEPLOY.md (DNS,
+  bloco do nginx externo, certbot, .env.prod, deploy.sh, superusuário, demo); 3) amigos testando; 4) revisão
+  geral; G4 opcional; Sprint 8 só se pedirem; 5) lançamento (docs/DEPLOY.md §12 e docs/ROADMAP.md).
 - **Pendências:** aviso por e-mail de Termos novos do site; relatório ao patrocinador (V2); limite da pausa por
-  denúncias; advogado: base legal da lista de convites e guarda do "não contatar".
-- **Manual do Administrador, sem commit:** docs/MANUAL_ADMIN.md + /painel/ajuda/ (link "Ajuda" no admin); testes core ok.
+  denúncias; advogado (termos, guia, lista de convites); estáticos versionados (ManifestStaticFilesStorage).
 - **Pela metade:** nada.
-- **Último teste que passou:** suíte completa 1024 passed, 1 skipped; depois de regerar a 0005 (só help_text):
-  `pytest guia contas/tests/test_grupos.py` 86 passed; ruff e makemigrations --check limpos.
+- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1038 passed, 1 skipped; ruff limpo;
+  `docker compose -f docker-compose.prod.yml --env-file .env.prod.example config` ok; check --deploy só W005/W021.

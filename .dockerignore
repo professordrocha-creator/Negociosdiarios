@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+# Scripts do servidor e dumps não entram na imagem
+*.sql.gz
 .git/
 .venv/
 **/__pycache__/

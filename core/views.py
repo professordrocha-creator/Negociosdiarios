@@ -128,7 +128,12 @@ def favicon(request: HttpRequest) -> HttpResponseRedirect:
 
 @require_GET
 def robots(request: HttpRequest) -> HttpResponse:
-    """robots.txt: tudo liberado, menos áreas privadas; aponta o sitemap (com o domínio da requisição)."""
+    """robots.txt: tudo liberado, menos áreas privadas; aponta o sitemap (com o domínio da requisição).
+
+    Servidor de teste (SITE_NOINDEX=True): "Disallow: /" e sem sitemap (que também fica desligado).
+    """
+    if settings.SITE_NOINDEX:
+        return HttpResponse("User-agent: *\nDisallow: /\n", content_type="text/plain; charset=utf-8")
     linhas = [
         "User-agent: *",
         "Disallow: /painel/",

@@ -1,0 +1,131 @@
+# Ambiente de PRODUÇÃO / servidor de teste (docs/DEPLOY.md). Uso, sempre com o arquivo de variáveis:
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+# O deploy.sh faz isso (com backup, migrate e checagem de saúde).
+#
+# Nenhuma porta é publicada no host: as portas 80/443 da VPS são de um nginx de outro projeto, que encaminha o
+# domínio para o nosso "nd_nginx" pela rede externa "drocha_solucoes_default". Só o nd_nginx entra nessa rede;
+# banco, redis, web, worker e beat ficam na rede interna "nd_interna".
+# Memória: a VPS tem 7,8 GB divididos com outros sistemas; os limites somam ~3,2 GB no pior caso.
+
+name: negocios-diarios-prod
+
+# Base comum do web, worker e beat: mesma imagem, mesmo .env.prod, mesmos volumes de arquivos.
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile.prod
+  image: negocios-diarios-prod-app:latest
+  # Opcional só para o "docker compose config" validar sem ele; o deploy.sh exige o .env.prod.
+  env_file:
+    - path: .env.prod
+      required: false
+  restart: unless-stopped
+  volumes:
+    - media:/app/media                   # mídia pública (ARMAZENAMENTO=local); o nd_nginx serve /media/
+    - privado:/app/privado               # comprovantes e fotos de termos: PRIVADOS, nunca no nginx
+    - estaticos:/app/staticfiles         # collectstatic; o nd_nginx serve /static/
+  networks: [nd_interna]
+  depends_on:
+    db: {condition: service_healthy}
+    redis: {condition: service_healthy}
+
+services:
+  db:
+    image: postgis/postgis:16-3.4        # mesma versão do dev; unaccent e pg_trgm vêm nas migrations
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - backups:/backups                 # pasta de apoio para dumps manuais (o backup.sh grava em /opt/backups)
+    networks: [nd_interna]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: 1g
+
+  redis:                                 # fila do Celery e cache (limites por IP); sem porta no host
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --maxmemory 192mb --maxmemory-policy noeviction"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks: [nd_interna]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: 256m
+
+  web:                                   # Django + Gunicorn (comando do Dockerfile.prod)
+    <<: *app
+    healthcheck:
+      test: ["CMD", "python", "deploy/saude.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 768m
+
+  worker:                                # Celery: e-mails, imagens e tarefas (SEM o agendador)
+    <<: *app
+    command: ["celery", "-A", "config", "worker", "-l", "info", "--concurrency", "2"]
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME --timeout 10 | grep -q pong"]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+      start_period: 30s
+    mem_limit: 768m
+
+  beat:                                  # Celery beat: só agenda as rotinas diárias (serviço próprio, 1 só)
+    <<: *app
+    command: ["celery", "-A", "config", "beat", "-l", "info", "--schedule", "/tmp/celerybeat-schedule"]
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/celerybeat-schedule"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    mem_limit: 256m
+
+  nginx:                                 # nginx interno: /static, /media e o resto para o web
+    image: nginx:1.27-alpine
+    container_name: nd_nginx             # nome fixo: é o que o nginx externo chama (proxy_pass http://nd_nginx)
+    restart: unless-stopped
+    environment:
+      ND_LIMITE_UPLOAD: ${ND_LIMITE_UPLOAD:-160m}
+      ND_PROXY_REDE_1: ${ND_PROXY_REDE_1:-172.16.0.0/12}
+      ND_PROXY_REDE_2: ${ND_PROXY_REDE_2:-10.0.0.0/8}
+      ND_PROXY_REDE_3: ${ND_PROXY_REDE_3:-192.168.0.0/16}
+    volumes:
+      - ./deploy/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - estaticos:/srv/static:ro
+      - media:/srv/media:ro              # o volume "privado" NÃO entra aqui
+    networks: [nd_interna, drocha_solucoes_default]
+    depends_on:
+      web: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/nginx-saude"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    mem_limit: 128m
+
+networks:
+  nd_interna:
+    name: nd_interna
+  drocha_solucoes_default:
+    external: true                       # criada pelo outro projeto; nós só entramos nela com o nginx
+
+volumes:
+  pgdata:
+  media:
+  privado:
+  estaticos:
+  backups:

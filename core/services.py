@@ -363,11 +363,13 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
     Guia de Negócios (G1): 10 perfis fictícios com as categorias do CSV.
     Os imóveis viram anúncios publicados no banco (`anuncios.demo`), com fotos de exemplo. Faturas
     (Sprint 6): histórico pago, uma aberta, uma aguardando confirmação e as das lojas em atraso vencidas.
-    Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
-    uma conta real (nunca sobrescreve conta de verdade).
+    Recusa fora de dev (DEBUG) e do servidor de teste (DEMO_NO_SERVIDOR, que exige SITE_NOINDEX), sem senha,
+    ou se um e-mail demo já for de uma conta real (nunca sobrescreve conta de verdade).
     """
-    if not settings.DEBUG:
-        raise PermissionError("Dados de demonstração só com DEBUG=True (nunca em produção).")
+    if not (settings.DEBUG or settings.DEMO_NO_SERVIDOR):
+        raise PermissionError(
+            "Dados de demonstração só em dev (DEBUG=True) ou no servidor de teste (DEMO_NO_SERVIDOR=True)."
+        )
     if not senha:
         raise ValueError("Defina DEMO_SENHA no .env (senha dos usuários de demonstração).")
     dados = ler_demo(arquivo)
@@ -460,8 +462,10 @@ def apagar_dados_demo() -> ResumoDemo:
         anunciantes = apagar_anunciantes_demo()  # antes dos usuários (Anunciante.usuario é PROTECT)
         Bairro.objects.filter(demo=True).delete()
         Regiao.objects.filter(demo=True).delete()
-        usuarios = Usuario.objects.filter(demo=True).count()
-        Usuario.objects.filter(demo=True).delete()
+        # Superusuário nunca sai, mesmo se marcado como demo por engano (o dono do sistema).
+        demo = Usuario.objects.filter(demo=True, is_superuser=False)
+        usuarios = demo.count()
+        demo.delete()
         cidades = Cidade.objects.filter(liberada_pela_demo=True).update(
             liberada=False, liberada_pela_demo=False
         )

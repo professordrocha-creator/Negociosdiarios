@@ -16,7 +16,8 @@
 - HTMX + Bootstrap 5 no frontend (sem SPA); Leaflet + OpenStreetMap nos mapas
 - PostgreSQL 16 + PostGIS (imagem `postgis/postgis`) desde a V1
 - Redis + Celery para tarefas assíncronas (imagens, e-mails, expiração, cobranças)
-- Docker Compose (dev e produção), Nginx na frente do Gunicorn
+- Docker Compose (dev e produção), Nginx na frente do Gunicorn. Produção/teste: `docker-compose.prod.yml` +
+  `Dockerfile.prod` + `./deploy.sh` (sem porta no host; passo a passo em `docs/DEPLOY.md`)
 - Mídia por `ARMAZENAMENTO=local|s3`: pasta local em dev; S3 compatível (Cloudflare R2) em produção (ADR 0002)
 - E-mail sempre pela fila do Celery (`core.email.CeleryEmailBackend`); Mailpit em dev, SMTP em produção
 

@@ -285,6 +285,17 @@ def test_criar_dados_demo_so_com_debug(settings, cidades_demo):
     assert not Usuario.objects.filter(demo=True).exists()
 
 
+def test_criar_dados_demo_no_servidor_de_teste(settings, cidades_demo):
+    """Servidor de teste (DEBUG=False + DEMO_NO_SERVIDOR=True, que exige noindex): a demo é carregada."""
+    settings.DEBUG = False
+    settings.DEMO_NO_SERVIDOR = True
+    settings.DEMO_SENHA = SENHA_DEMO
+
+    call_command("criar_dados_demo")
+
+    assert Usuario.objects.filter(demo=True).count() == USUARIOS_DEMO
+
+
 def test_criar_dados_demo_exige_demo_senha(dev, settings):
     """Sem DEMO_SENHA não há usuário demo (nada de senha conhecida no código)."""
     settings.DEMO_SENHA = ""
@@ -355,18 +366,26 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
     assert CategoriaServico.objects.count() == 82  # categorias são dados reais, ficam
 
 
-def test_comando_apagar_pede_confirmacao(dev, monkeypatch, capsys):
-    """Sem --sim, só apaga se a pessoa digitar "sim"."""
+def test_comando_apagar_pede_o_texto_de_confirmacao(dev, monkeypatch, capsys):
+    """Só apaga com o texto exato "APAGAR DEMONSTRACAO" ("sim" não basta); superusuário e configurações
+    ficam."""
+    from core.models import Configuracao
+    from guia.models import ConfiguracaoGuia
+
+    dono = Usuario.objects.create_superuser(email="dono@exemplo.com", password=SENHA_REAL, nome="Dono")
+    Usuario.objects.filter(pk=dono.pk).update(demo=True)  # marcado por engano: nem assim sai
     criar_dados_demo(SENHA_DEMO)
-    monkeypatch.setattr("builtins.input", lambda _: "não")
+    configs = (Configuracao.objects.count(), ConfiguracaoGuia.objects.count())
+    monkeypatch.setattr("builtins.input", lambda _: "sim")
 
     call_command("apagar_dados_demo")
 
-    assert "Nada foi apagado." in capsys.readouterr().out
-    assert Usuario.objects.filter(demo=True).count() == USUARIOS_DEMO
+    assert "Nada foi apagado" in capsys.readouterr().out
+    assert Usuario.objects.filter(demo=True, is_superuser=False).count() == USUARIOS_DEMO
 
-    call_command("apagar_dados_demo", "--sim")
-    assert not Usuario.objects.filter(demo=True).exists()
+    call_command("apagar_dados_demo", confirmar="APAGAR DEMONSTRACAO")
+    assert list(Usuario.objects.filter(demo=True)) == [dono]
+    assert (Configuracao.objects.count(), ConfiguracaoGuia.objects.count()) == configs
 
 
 @pytest.mark.parametrize(

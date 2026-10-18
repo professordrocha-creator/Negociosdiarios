@@ -104,6 +104,10 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] Nunca confiar no corpo do webhook: **consultar o pagamento na API** antes de liberar plano
 
 ## 2. Segredos
+- [x] Produção/teste (docs/DEPLOY.md): `.env.prod` fora do Git (`.env.prod.example` sem valores), nenhuma porta no
+      host, IP real só vindo do proxy confiável (`PROXIES_CONFIAVEIS` + realip no nd_nginx; X-Forwarded-For do
+      visitante não vale), `SITE_NOINDEX` no servidor de teste, `check --deploy` só com W005/W021 (HSTS curto de
+      propósito), arquivos privados fora do nginx, backups com `chmod 700`.
 - [ ] `.env` fora do Git (`.gitignore`); `.env.example` sem valores reais
 - [ ] `SECRET_KEY`, senhas do banco e tokens do Mercado Pago diferentes em dev e produção
 - [ ] Access token de produção do Mercado Pago **só** no servidor
