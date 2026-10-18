@@ -63,8 +63,13 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 ### Abuso
 - [ ] Rate limit no Nginx (`limit_req`) para login, cadastro, denúncia e busca. *Já na aplicação:*
       limite por IP no cadastro, no "esqueci minha senha" e no reenvio de confirmação (cache Redis,
-      IP só como hash), campo-armadilha (honeypot) no cadastro, sem captcha de terceiros
-- [ ] reCAPTCHA **não**: usar Cloudflare Turnstile ou hCaptcha só no cadastro e denúncia
+      IP só como hash), campo-armadilha (honeypot) no cadastro, sem captcha de terceiros.
+      Denúncia de anúncio (Sprint 7B parte 2): honeypot (robô vê sucesso e nada é gravado), limite de
+      `Configuracao.denuncias_por_dia` por visitante (resumo do dia com sal aleatório, sem IP), a mesma
+      origem não repete denúncia do mesmo anúncio no dia; X denúncias de golpe de origens diferentes
+      tiram o anúncio do ar "em revisão" (o anunciante não reativa) até a equipe decidir.
+- [ ] reCAPTCHA **não**. Hoje sem captcha nenhum (honeypot + limites); se o abuso aparecer, Cloudflare
+      Turnstile só no cadastro e na denúncia
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
 
 ### Pagamentos

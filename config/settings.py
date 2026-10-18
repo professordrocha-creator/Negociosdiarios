@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     "pagamentos",
     "publicidade",
     "privacidade",
+    "moderacao",
     "catalogo",
     "anuncios",
     "busca",
@@ -393,6 +394,8 @@ CELERY_BEAT_SCHEDULE = {
     "publicidade": {"task": "publicidade.tasks.rotina_de_publicidade", "schedule": crontab(hour=5, minute=0)},
     # Todo dia às 4h: apaga comprovantes e anotações de faturas que passaram da guarda fiscal (LGPD).
     "lgpd": {"task": "privacidade.tasks.limpar_dados_vencidos", "schedule": crontab(hour=4, minute=0)},
+    # Todo dia às 4h15: apaga o e-mail e os detalhes das denúncias decididas há mais que a guarda (LGPD).
+    "denuncias": {"task": "moderacao.tasks.limpar_denuncias_antigas", "schedule": crontab(hour=4, minute=15)},
 }
 
 # --- E-mail --------------------------------------------------------------------

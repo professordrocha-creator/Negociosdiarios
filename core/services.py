@@ -11,8 +11,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import AnonymousUser, Group
+from django.contrib.auth.models import Group
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection, send_mail
@@ -185,17 +184,6 @@ def cidades_atendidas() -> list[EstadoAtendido]:
             grupos[cidade.uf_id] = EstadoAtendido(estado=cidade.uf, cidades=[])
         grupos[cidade.uf_id].cidades.append(cidade)
     return list(grupos.values())
-
-
-def mostrar_link_admin(usuario: AbstractBaseUser | AnonymousUser | None, debug: bool) -> bool:
-    """Diz se o rodapé mostra o atalho para o admin.
-
-    O endereço do admin é secreto (ADMIN_URL): publicá-lo para todos entregaria o
-    alvo a robôs. Por isso o link só sai no HTML em dev (DEBUG ligado, no PC do
-    desenvolvedor) ou para quem já é da equipe e está logado. Visitantes em
-    produção nunca recebem o endereço.
-    """
-    return debug or bool(getattr(usuario, "is_staff", False))
 
 
 # --- E-mail pela fila do Celery ---------------------------------------------------------
@@ -430,9 +418,13 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from privacidade.services import criar_pedido_demo
 
         criar_pedido_demo()
+        from moderacao.services import apagar_denuncias_demo, criar_denuncias_demo
+
+        apagar_denuncias_demo()  # a denúncia protege o anúncio: sai antes de recriar os anúncios demo
         from anuncios.demo import criar_anuncios_demo
 
         anuncios = criar_anuncios_demo(dados["anuncios"])
+        criar_denuncias_demo()
     return ResumoDemo(
         usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas, anuncios=anuncios
     )
@@ -447,12 +439,14 @@ def apagar_dados_demo() -> ResumoDemo:
     """
     from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
     from anuncios.services import apagar_anuncios_demo
+    from moderacao.services import apagar_denuncias_demo
     from planos.services import apagar_assinaturas_demo
     from privacidade.services import apagar_pedidos_demo
     from publicidade.services import apagar_publicidade_demo
 
     Usuario = get_user_model()
     with transaction.atomic():
+        apagar_denuncias_demo()  # antes dos anúncios (Denuncia.anuncio é PROTECT)
         apagar_anuncios_demo()  # anúncios, fotos e histórico (Anuncio.anunciante é PROTECT)
         apagar_assinaturas_demo()  # antes dos anunciantes (e leva o histórico junto)
         apagar_publicidade_demo()  # campanhas, peças e patrocinadores demo
@@ -504,17 +498,8 @@ def formatos_publicidade() -> list[FormatoPublicidade]:
 
 # Páginas que existem no menu e no rodapé mas ainda não foram construídas: mostram
 # "Em breve" (nunca 404). A chave é o nome da rota em core/urls.py.
-PAGINAS_EM_BREVE = {
-    "denunciar": {
-        "titulo": "Denunciar anúncio",
-        "descricao": "Viu um anúncio suspeito, enganoso ou que expõe seus dados? Avise a equipe.",
-        "quando": (
-            "O botão de denúncia em cada anúncio chega junto com os anúncios. "
-            "Até lá, escreva para o e-mail de contato."
-        ),
-        "icone": "alerta",
-    },
-}
+# (A última, "Denunciar anúncio", virou o formulário de verdade na Sprint 7B parte 2: app moderacao.)
+PAGINAS_EM_BREVE: dict[str, dict] = {}
 
 
 def textos_ajuda(tela: str) -> list[str]:
@@ -607,6 +592,7 @@ def dados_do_site() -> dict:
     dados = {
         "nome": config.nome,
         "slogan": config.slogan,
+        "frase_rodape": config.frase_rodape,
         "linha_regiao": config.linha_regiao,
         "empresa": config.empresa,
         "cidade_sede": config.cidade_sede,

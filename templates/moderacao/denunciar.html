@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Denúncia de anúncio (Sprint 7B parte 2), sem login. Regras em moderacao.services. O campo site_empresa é #}
+{# armadilha para robôs (escondido por CSS .nd-armadilha, fora do Tab). Sem CAPTCHA de terceiros. #}
+
+{% block titulo %}Denunciar anúncio{% endblock %}
+{% block descricao %}Avise a equipe sobre golpe, anúncio vendido, dados falsos ou conteúdo impróprio.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Denunciar anúncio</h1>
+    {% include "_ajuda.html" %}
+    {% if anuncio %}<p class="mb-0">Anúncio: <b>{{ anuncio.codigo }}</b> · {{ anuncio.titulo }}</p>{% endif %}
+    <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "anunciantes/_campo.html" with campo=form.anuncio %}
+      <fieldset>
+        <legend class="form-label">{{ form.motivo.label }}</legend>
+        {% for opcao in form.motivo %}<label class="d-block">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+        {% for erro in form.motivo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </fieldset>
+      {% include "anunciantes/_campo.html" with campo=form.texto %}
+      {% include "anunciantes/_campo.html" with campo=form.email %}
+      <div class="nd-armadilha" aria-hidden="true">
+        <label for="{{ form.site_empresa.id_for_label }}">{{ form.site_empresa.label }}</label>{{ form.site_empresa }}
+      </div>
+      <p class="small text-suave mb-0">O anunciante não fica sabendo quem denunciou. Em caso de golpe, não pague nada e, se já pagou, registre boletim de ocorrência.</p>
+      <div><button type="submit" class="btn btn-nd">Enviar denúncia</button></div>
+    </form>
+  </div>
+</main>
+{% endblock %}

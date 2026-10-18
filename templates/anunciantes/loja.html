@@ -26,17 +26,17 @@
 </div>
 
 <main class="container">
-  <div class="nd-loja-cab d-flex flex-column flex-md-row gap-3 align-items-md-end">
+  <div class="nd-loja-cab d-flex flex-column flex-md-row gap-3 align-items-md-start">
     {% if anunciante.logo %}<img class="nd-monograma nd-loja-logo nd-monograma-img" src="{{ anunciante.logo.url }}" width="112" height="112" alt="Logo de {{ anunciante.nome_publico }}">
     {% else %}<span class="nd-monograma nd-loja-logo nd-cor-{{ anunciante.cor }}" aria-hidden="true">{{ anunciante.iniciais }}</span>{% endif %}
-    <div class="me-auto pb-md-2">
+    <div class="me-auto nd-loja-cab-texto">
       <h1 class="h2 mb-1">{{ anunciante.nome_publico }}</h1>
       <div class="d-flex flex-wrap gap-2 align-items-center small">
         <span class="selo selo-verificado">{% icone "verificado" %} {{ anunciante.get_documento_tipo_display }} verificado</span>
         <span class="text-suave">{{ anunciante.get_tipo_display }} · {{ anunciante.cidade }}</span>
       </div>
     </div>
-    <div class="d-flex gap-2 pb-md-2">
+    <div class="d-flex gap-2 nd-loja-cab-texto">
       <a class="btn btn-zap" href="{% url 'anunciantes:loja_whatsapp' anunciante.slug %}" rel="nofollow noopener" target="_blank">{% icone "zap" %} WhatsApp da loja</a>
     </div>
   </div>

@@ -19,6 +19,7 @@ class ConfiguracaoForm(forms.ModelForm):
             "nome",
             "linha_regiao",
             "slogan",
+            "frase_rodape",
             "empresa",
             "cidade_sede",
             "logo_completo",

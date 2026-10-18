@@ -18,9 +18,9 @@
 <main class="container mt-4">
   <div class="text-center mb-3">
     <input type="radio" class="btn-check" name="periodo" id="periodo-mensal" autocomplete="off" checked>
-    <label class="btn btn-outline-secondary nd-periodo" for="periodo-mensal">Mensal</label>
+    <label class="btn nd-opcao nd-periodo" for="periodo-mensal">Mensal</label>
     <input type="radio" class="btn-check" name="periodo" id="periodo-anual" autocomplete="off">
-    <label class="btn btn-outline-secondary nd-periodo" for="periodo-anual">Anual <span class="selo selo-destaque ms-1">{{ planos.0.meses_gratis }} meses grátis</span></label>
+    <label class="btn nd-opcao nd-periodo" for="periodo-anual">Anual <span class="selo selo-destaque ms-1">{{ planos.0.meses_gratis }} meses grátis</span></label>
 
     <div class="nd-planos row row-cols-1 row-cols-md-3 g-3 mt-2 text-start">
       {% for plano in planos %}

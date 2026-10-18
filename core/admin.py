@@ -159,7 +159,10 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
         css = {"all": ("css/admin-nd.css",)}
 
     fieldsets = (
-        ("Nome e textos", {"fields": ("nome", "linha_regiao", "slogan", "empresa", "cidade_sede")}),
+        (
+            "Nome e textos",
+            {"fields": ("nome", "linha_regiao", "slogan", "frase_rodape", "empresa", "cidade_sede")},
+        ),
         (
             "Logo, símbolos e imagem de compartilhamento",
             {
@@ -243,6 +246,9 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
                     "limite_comprovante_kb",
                     "prazo_titular_dias",
                     "retencao_fiscal_anos",
+                    "denuncias_golpe_para_pausar",
+                    "denuncias_por_dia",
+                    "retencao_denuncia_dias",
                     "expiracao_dias",
                     "aviso_expiracao_dias",
                     "moderacao",

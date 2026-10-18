@@ -242,6 +242,8 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-capa-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .nd-capa:has(.nd-capa-img)::after { display: none; }
 .nd-loja-cab { margin-top: -56px; position: relative; z-index: 1; }
+/* Só o logo sobe sobre a capa; nome, selo e botões ficam sempre abaixo dela (nada de texto sobre a imagem). */
+@media (min-width: 768px) { .nd-loja-cab-texto { margin-top: 64px; } }
 .nd-loja-logo { width: 112px; height: 112px; border-radius: 18px; border: 4px solid var(--nd-papel); font-size: 38px; }
 .nd-monograma-img { object-fit: cover; background: var(--nd-papel); }
 .nd-texto-livre { white-space: pre-line; }
@@ -371,3 +373,11 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-pub-banner img { max-width: 100%; height: auto; border-radius: 6px; }
 .nd-pub-card img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; flex: none; }
 .nd-pub-nativo { border-left: 4px solid var(--nd-ipe); margin-bottom: 12px; }
+
+/* ---------- Grupos de opções (filtros da busca, Lista | Mapa, Mensal | Anual) ---------- */
+/* Quebram linha dentro do painel em vez de transbordar; selecionado na cor da marca e foco visível no teclado. */
+.nd-opcoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.nd-opcao { border: 1px solid var(--nd-borda); background: var(--nd-papel); color: var(--nd-texto); min-width: 44px; }
+.nd-opcao:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
+.btn-check:checked + .nd-opcao { background: var(--nd-petroleo); border-color: var(--nd-petroleo); color: #fff; }
+.btn-check:focus-visible + .nd-opcao { outline: 3px solid var(--nd-ipe); outline-offset: 2px; box-shadow: none; }

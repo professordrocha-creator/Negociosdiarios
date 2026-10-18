@@ -52,6 +52,9 @@ class Command(BaseCommand):
         )
         self.stdout.write("LGPD demo: 1 pedido de titular fictício em aberto (admin › Privacidade).")
         self.stdout.write(
+            "Denúncias demo: 2 pendentes (golpe e já vendido) em admin › Moderação › Denúncias."
+        )
+        self.stdout.write(
             f"{resumo.anuncios} anúncios demo no banco (imóveis do Paulo Mendes e veículos das revendas), "
             "com fotos de exemplo e estatísticas. Aparecem na home e nas lojas com MOSTRAR_DEMO=True "
             "e no painel de cada loja."

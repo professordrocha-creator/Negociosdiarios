@@ -58,7 +58,7 @@ A melhor proteção é não ter o dado. Decisões já tomadas por isso:
 | Estatísticas de anúncio: totais diários de visualizações e cliques no WhatsApp (`estatisticas.EstatisticaDiaria`; **sem IP nem identificador**). Para não contar a mesma pessoa duas vezes no dia, um hash de IP + navegador + sal aleatório do dia fica só no cache até o fim do dia | Visitante (só o hash temporário) | Mostrar ao anunciante o desempenho dos anúncios | Legítimo interesse (IX) | Hash: até o fim do dia (sal: 2 dias). Totais: enquanto o anúncio existir (não são dado pessoal) |
 | Patrocinador de publicidade (`publicidade.Patrocinador`: nome da empresa, CNPJ, nome, e-mail e WhatsApp da pessoa de contato) | Contato do patrocinador | Vender, cobrar e avisar sobre a campanha | Execução de contrato (V) | Enquanto houver relação comercial + 5 anos (fiscal); nunca apagado pelo admin (exclusão lógica) |
 | Métricas de publicidade (`publicidade.MetricaDiaria`: totais de impressões e cliques por peça e dia) | — (nenhum dado do visitante: sem IP, sem cookie, sem identificador; o User-Agent só é lido na hora para pular robôs) | Relatório ao patrocinador | Não é dado pessoal | Enquanto a campanha existir |
-| Denúncias (e-mail opcional do denunciante) | Visitante | Moderação | Legítimo interesse (IX) | 1 ano |
+| Denúncias (`moderacao.Denuncia`: anúncio, motivo, detalhes e e-mail opcionais do denunciante, decisão e histórico; **sem IP**: só um resumo do visitante no dia, com sal aleatório guardado 2 dias no cache, para o limite diário e para contar origens diferentes) | Visitante | Moderação e combate a golpes | Legítimo interesse (IX) | E-mail e detalhes: apagados `Configuracao.retencao_denuncia_dias` (padrão 365) depois da decisão, também no histórico (rotina diária). O anunciante nunca recebe quem denunciou, o e-mail nem o texto |
 | Pedidos de titulares (`privacidade.PedidoTitular`: tipo, origem, descrição, contato informado só nos pedidos por e-mail, situação, prazo, resposta, histórico) | Titular | Atender e provar o atendimento (art. 18 e 19) | Obrigação legal (II) | 5 anos |
 | Aceite dos Termos e da Política (`contas.AceiteDocumento`: documento, versão, data e hora; sem IP) | Anunciante | Provar o que foi aceito | Execução de contrato (V) / exercício regular de direitos (VI) | Enquanto a conta existir + 5 anos (fica ligado à conta anonimizada) |
 
@@ -106,7 +106,7 @@ Não gravam cookie: estatísticas de anúncios, métricas de publicidade (contad
   próximo acesso ao painel o anunciante vê o resumo e aceita (aceite gravado com versão, data e hora)
 - [ ] Contrato/Termos do Anunciante (responsabilidade pelo conteúdo, regras de anúncio, cancelamento, reembolso)
 - [x] Cookies: só essenciais → sem banner; seção na Política (`/cookies/` redireciona para ela) e link no rodapé
-- [ ] Canal de denúncia de anúncio (Marco Civil art. 19 + combate a golpes)
+- [x] Canal de denúncia de anúncio (Marco Civil art. 19 + combate a golpes): `/denunciar/` e botão em cada anúncio, sem login (Sprint 7B parte 2)
 
 ## 7. Incidente de segurança
 1. Conter (derrubar acesso, trocar senhas/tokens).

@@ -30,8 +30,13 @@ class EntrarView(auth_views.LoginView):
         return contexto
 
     def form_valid(self, form) -> HttpResponse:
-        """Entrou: se há versão nova dos Termos/Política sem aceite, passa antes pelo aceite (Sprint 7B)."""
+        """Entrou: equipe vai ao admin (com a verificação); cliente com versão nova dos Termos/Política sem
+        aceite passa antes pelo aceite (Sprint 7B)."""
         resposta = super().form_valid(form)
+        if form.get_user().is_staff:  # equipe: mesmo caminho do login do admin (código em navegador novo)
+            from config.admin_site import encaminhar_equipe
+
+            return encaminhar_equipe(self.request)
         from privacidade.services import pendencias_de_aceite
 
         if pendencias_de_aceite(form.get_user()):

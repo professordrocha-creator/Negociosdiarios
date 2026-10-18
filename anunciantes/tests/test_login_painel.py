@@ -54,14 +54,15 @@ def test_anunciante_pendente_ou_suspenso_nao_entra(client, criar_anunciante, sta
     assert "_auth_user_id" not in client.session
 
 
-def test_equipe_nao_entra_pelo_login_do_cliente(client, db):
-    """Conta da equipe (staff) é mandada para o admin, nunca para o painel do cliente."""
+def test_equipe_pelo_login_do_cliente_vai_ao_admin(client, db):
+    """Conta da equipe (staff) que entra pela Área do anunciante é levada ao admin, nunca ao painel do
+    cliente (com a mesma verificação do login do admin: ver core/tests/test_rodape_e_login_equipe.py)."""
     Usuario.objects.create_superuser(email="daniel@exemplo.com", password=SENHA, nome="Daniel")
 
     resposta = entrar(client, "daniel@exemplo.com")
 
-    assert "conta da equipe" in resposta.content.decode()
-    assert "_auth_user_id" not in client.session
+    assert resposta.status_code == 302 and resposta["Location"] == reverse("admin:index")
+    assert client.get(reverse("anunciantes:painel")).status_code == 403
 
 
 def test_usuario_sem_loja_nao_entra(client, db):

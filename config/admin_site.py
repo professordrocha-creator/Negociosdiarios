@@ -41,6 +41,24 @@ AVISOS_ENVIO = {
 }
 
 
+def encaminhar_equipe(request: HttpRequest, destino: str | None = None) -> HttpResponseRedirect:
+    """Depois da senha certa de alguém da equipe (no login do admin OU na tela /entrar/): mesma regra.
+
+    Sessão já verificada ou navegador confiável → admin. Senão, manda o código por e-mail e leva à tela
+    "Confirme que é você". O admin só abre com a sessão verificada (`AdminSiteND.has_permission`): não há
+    atalho que pule o código, venha o login de onde vier.
+    """
+    destino = destino or reverse("admin:index")
+    if acesso_verificado(request):
+        return HttpResponseRedirect(destino)
+    if navegador_confiavel(request, request.user):
+        marcar_acesso_verificado(request)
+        return HttpResponseRedirect(destino)
+    nivel, texto = AVISOS_ENVIO[enviar_codigo_email(request.user)]
+    messages.add_message(request, nivel, texto.format(email=mascarar_email(request.user.email)))
+    return HttpResponseRedirect(f"{reverse('admin:verificar')}?{urlencode({'next': destino})}")
+
+
 class AdminSiteND(admin.AdminSite):
     """Site do admin: equipe logada e, quando exigido, com o navegador verificado."""
 
@@ -68,7 +86,7 @@ class AdminSiteND(admin.AdminSite):
             if navegador_confiavel(request, request.user):
                 marcar_acesso_verificado(request)
                 return resposta
-            return self._ir_para_verificacao(request, enviar=True)
+            return encaminhar_equipe(request, self._destino(request))
         return resposta
 
     @method_decorator(never_cache)

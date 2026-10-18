@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Como denunciar (link do rodapé). A denúncia em si é feita pelo botão "Denunciar" de cada anúncio. Sem prazo. #}
+
+{% block titulo %}Como denunciar um anúncio{% endblock %}
+{% block descricao %}Viu golpe, anúncio já vendido, dados falsos ou conteúdo impróprio? Veja como avisar a equipe.{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <article class="nd-doc d-grid gap-3">
+    <h1 class="h3 m-0">Como denunciar um anúncio</h1>
+    {% include "_ajuda.html" %}
+    <ol class="mb-0">
+      <li>Abra o anúncio que tem problema.</li>
+      <li>Toque no botão <b>"Denunciar"</b>, abaixo dos dados do anunciante.</li>
+      <li>Escolha o motivo (golpe, já vendido, preço ou dados falsos, conteúdo impróprio, dados de outras pessoas ou outro) e, se quiser, conte o que aconteceu.</li>
+    </ol>
+    <h2 class="h5 m-0">O que acontece depois</h2>
+    <ul class="mb-0">
+      <li>A equipe do {{ site.nome }} analisa a denúncia e pode pausar ou remover o anúncio.</li>
+      <li>Quando várias pessoas denunciam golpe no mesmo anúncio, ele sai do ar por precaução até a análise.</li>
+      <li>O anunciante não fica sabendo quem denunciou. O e-mail é opcional e serve só para darmos retorno.</li>
+    </ul>
+    <div class="nd-banner"><b>Caiu em golpe?</b>Não faça novos pagamentos e registre um boletim de ocorrência. Se o anúncio não estiver mais no ar, escreva para <a href="mailto:{{ site.email_contato }}">{{ site.email_contato }}</a> contando o que aconteceu.</div>
+  </article>
+</main>
+{% endblock %}

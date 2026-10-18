@@ -121,6 +121,15 @@ Planejado: `telefone`.
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
 
+### Denuncia — app `moderacao` (Sprint 7B parte 2)
+- `Denuncia`: `anuncio` (PROTECT), `motivo` (golpe | vendido | falso | improprio | dados_terceiros | outro),
+  `texto` e `email` (opcionais; apagados depois da guarda), `origem` (resumo do visitante no dia, sem IP; fora do
+  histórico), `situacao` (pendente | aceita | descartada), `acao` (pausar | remover), `motivo_decisao`,
+  `decidido_por`, `decidido_em`, `criado_em`, `demo`, histórico.
+- `Anuncio.pausado_por` ganhou `denuncia` (em revisão automática: o anunciante não reativa) e `moderacao`
+  (denúncia aceita: o anunciante corrige e reativa). `Configuracao`: `denuncias_golpe_para_pausar` (3),
+  `denuncias_por_dia` (5), `retencao_denuncia_dias` (365).
+
 ### DocumentoLegal e PedidoTitular — app `privacidade` (Sprint 7B; docs/LGPD.md)
 - `DocumentoLegal`: `tipo` (termos | privacidade), `versao` (única por tipo), `vigencia`, `resumo` ("o que mudou"),
   `texto` (texto puro: `## ` título, `- ` item, variáveis `{site}`...), `publicado`, `revisao_juridica_pendente`

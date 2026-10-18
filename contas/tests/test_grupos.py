@@ -55,6 +55,8 @@ PRIVACIDADE = {
     "privacidade.add_pedidotitular",
     "privacidade.change_pedidotitular",
 }
+# Sprint 7B parte 2 (moderacao/0002): Moderador e Administrador decidem as denúncias.
+DENUNCIAS = {"moderacao.view_denuncia", "moderacao.change_denuncia"}
 
 ESPERADO = {
     "Administrador": {
@@ -96,7 +98,8 @@ ESPERADO = {
     | CATALOGO_TUDO
     | COBRANCA
     | PUBLICIDADE_TUDO
-    | PRIVACIDADE,
+    | PRIVACIDADE
+    | DENUNCIAS,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -108,7 +111,8 @@ ESPERADO = {
     }
     | PLANOS_VER
     | ANUNCIOS_MODERAR
-    | CATALOGO_VER,
+    | CATALOGO_VER
+    | DENUNCIAS,
     "Financeiro": SO_CIDADES
     | VER_ANUNCIANTE
     | GEOGRAFIA

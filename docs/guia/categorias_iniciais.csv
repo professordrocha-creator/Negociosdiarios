@@ -1,0 +1,83 @@
+grupo,nome,slug,ordem,regulamentada,rotulo_registro,sinonimos
+Construção e Reforma,Pedreiro,pedreiro,1,0,,pedreiro; mestre de obras; alvenaria
+Construção e Reforma,Pintor,pintor,2,0,,pintura; pintor de parede
+Construção e Reforma,Eletricista,eletricista,3,0,,eletricista residencial; instalação elétrica
+Construção e Reforma,Encanador,encanador,4,0,,encanamento; hidráulica; vazamento
+Construção e Reforma,Marceneiro,marceneiro,5,0,,móveis planejados; móveis sob medida
+Construção e Reforma,Serralheiro,serralheiro,6,0,,portão; grade; solda
+Construção e Reforma,Vidraceiro e vidraçaria,vidraceiro-e-vidracaria,7,0,,vidraçaria; box de banheiro; espelho
+Construção e Reforma,Gesseiro,gesseiro,8,0,,gesso; forro de gesso; drywall
+Construção e Reforma,Azulejista e ladrilheiro,azulejista-e-ladrilheiro,9,0,,piso; revestimento; azulejo
+Construção e Reforma,Telhadista,telhadista,10,0,,telhado; calha; cobertura
+Construção e Reforma,Marmoraria,marmoraria,11,0,,granito; mármore; pia
+Construção e Reforma,Material de construção,material-de-construcao,12,0,,depósito de material; cimento; areia
+Construção e Reforma,Ferragens e ferramentas,ferragens-e-ferramentas,13,0,,ferragista; parafuso; ferramenta
+Construção e Reforma,Instalação de ar-condicionado,instalacao-de-ar-condicionado,14,0,,ar condicionado; split; refrigeração
+Construção e Reforma,Engenheiro e arquiteto,engenheiro-e-arquiteto,15,1,CREA ou CAU,engenheiro civil; projeto; arquiteto
+Casa e Serviços Domésticos,Diarista,diarista,16,0,,faxina; limpeza; doméstica
+Casa e Serviços Domésticos,Jardineiro,jardineiro,17,0,,jardim; poda; paisagismo
+Casa e Serviços Domésticos,Dedetizadora,dedetizadora,18,0,,dedetização; pragas; cupim
+Casa e Serviços Domésticos,Desentupidora,desentupidora,19,0,,desentupimento; esgoto; caixa de gordura
+Casa e Serviços Domésticos,Chaveiro,chaveiro,20,0,,chaves; fechadura; abertura de porta
+Casa e Serviços Domésticos,Mudanças e fretes,mudancas-e-fretes,21,0,,frete; carreto; mudança
+Casa e Serviços Domésticos,Lavanderia,lavanderia,22,0,,lavagem; passadoria
+Casa e Serviços Domésticos,Costureira,costureira,23,0,,conserto de roupa; barra; ajuste
+Casa e Serviços Domésticos,Estofador,estofador,24,0,,sofá; reforma de sofá; tapeceiro
+Casa e Serviços Domésticos,Técnico de eletrodomésticos,tecnico-de-eletrodomesticos,25,0,,máquina de lavar; geladeira; fogão
+Casa e Serviços Domésticos,Técnico de informática e celular,tecnico-de-informatica-e-celular,26,0,,computador; notebook; celular; assistência técnica
+Casa e Serviços Domésticos,Câmeras e segurança eletrônica,cameras-e-seguranca-eletronica,27,0,,cftv; alarme; cerca elétrica; portão eletrônico
+Beleza e Bem-estar,Cabeleireiro,cabeleireiro,28,0,,salão; corte; cabelo
+Beleza e Bem-estar,Barbeiro,barbeiro,29,0,,barbearia; barba
+Beleza e Bem-estar,Manicure e pedicure,manicure-e-pedicure,30,0,,unhas; esmalteria
+Beleza e Bem-estar,Esteticista,esteticista,31,0,,estética; limpeza de pele
+Beleza e Bem-estar,Maquiadora,maquiadora,32,0,,maquiagem; make
+Beleza e Bem-estar,Depilação,depilacao,33,0,,depiladora; cera
+Beleza e Bem-estar,Massagista,massagista,34,0,,massagem; massoterapia
+Beleza e Bem-estar,Tatuador,tatuador,35,0,,tatuagem; piercing
+Beleza e Bem-estar,Academia e estúdio,academia-e-estudio,36,0,,musculação; pilates; crossfit
+Beleza e Bem-estar,Personal trainer,personal-trainer,37,1,CREF,treino; personal
+Saúde,Médico,medico,38,1,CRM,consulta; especialista
+Saúde,Dentista,dentista,39,1,CRO,odontologia; ortodontia
+Saúde,Psicólogo,psicologo,40,1,CRP,psicologia; terapia
+Saúde,Fisioterapeuta,fisioterapeuta,41,1,CREFITO,fisioterapia; reabilitação
+Saúde,Nutricionista,nutricionista,42,1,CRN,nutrição; dieta
+Saúde,Clínica e laboratório,clinica-e-laboratorio,43,1,Registro do responsável técnico,exames; clínica médica; laboratório de análises
+Saúde,Hospital e pronto atendimento,hospital-e-pronto-atendimento,44,1,Registro do responsável técnico,hospital; upa; emergência
+Saúde,Farmácia,farmacia,45,1,CRF,drogaria; medicamentos
+Saúde,Veterinário,veterinario,46,1,CRMV,clínica veterinária; animais
+Saúde,Pet shop,pet-shop,47,0,,banho e tosa; ração; pet
+Automotivo,Mecânica,mecanica,48,0,,oficina; mecânico; revisão
+Automotivo,Auto elétrica,auto-eletrica,49,0,,bateria; alternador; elétrica de carro
+Automotivo,Funilaria e pintura,funilaria-e-pintura,50,0,,lanternagem; batida; pintura automotiva
+Automotivo,Borracharia,borracharia,51,0,,pneu; vulcanizadora; calibragem
+Automotivo,Lava-jato,lava-jato,52,0,,lavagem de carro; estética automotiva
+Automotivo,Auto peças,auto-pecas,53,0,,peças; acessórios
+Automotivo,Guincho,guincho,54,0,,reboque; socorro; plataforma
+Automotivo,Vidros e som automotivo,vidros-e-som-automotivo,55,0,,parabrisa; película; som
+Automotivo,Despachante de veículos,despachante-de-veiculos,56,0,,documentação; transferência; licenciamento
+Alimentação,Restaurante,restaurante,57,0,,almoço; self-service; prato feito
+Alimentação,Lanchonete,lanchonete,58,0,,lanches; hambúrguer; pastel
+Alimentação,Pizzaria,pizzaria,59,0,,pizza; delivery
+Alimentação,Padaria e confeitaria,padaria-e-confeitaria,60,0,,pão; bolo; doces
+Alimentação,Açaí e sorveteria,acai-e-sorveteria,61,0,,sorvete; açaí
+Alimentação,Marmitaria,marmitaria,62,0,,marmita; comida caseira
+Alimentação,Açougue e frigorífico,acougue-e-frigorifico,63,0,,carne; churrasco
+Alimentação,Distribuidora de bebidas,distribuidora-de-bebidas,64,0,,cerveja; gelo; água; gás
+Alimentação,Buffet e eventos,buffet-e-eventos,65,0,,festas; salgados; coffee break
+Comércio e Lojas,Supermercado e mercado,supermercado-e-mercado,66,0,,mercadinho; hortifruti
+Comércio e Lojas,Loja de roupas e calçados,loja-de-roupas-e-calcados,67,0,,moda; boutique; sapatos
+Comércio e Lojas,Loja de móveis e eletrodomésticos,loja-de-moveis-e-eletrodomesticos,68,0,,móveis; colchão; eletro
+Comércio e Lojas,Papelaria e armarinho,papelaria-e-armarinho,69,0,,material escolar; escritório
+Comércio e Lojas,Floricultura,floricultura,70,0,,flores; buquê; plantas
+Comércio e Lojas,Agropecuária,agropecuaria,71,0,,insumos; ração; sementes; produtos agrícolas
+Comércio e Lojas,Ótica,otica,72,0,,óculos; lentes
+Profissionais e Negócios,Advogado,advogado,73,1,OAB,advocacia; jurídico
+Profissionais e Negócios,Contador,contador,74,1,CRC,contabilidade; imposto; abrir empresa
+Profissionais e Negócios,Corretor de imóveis,corretor-de-imoveis,75,1,CRECI,imobiliária; venda de imóveis
+Profissionais e Negócios,Gráfica e comunicação visual,grafica-e-comunicacao-visual,76,0,,impressão; banner; adesivo; placa
+Profissionais e Negócios,Fotógrafo e filmagem,fotografo-e-filmagem,77,0,,fotografia; vídeo; ensaio
+Profissionais e Negócios,Marketing e design,marketing-e-design,78,0,,logo; redes sociais; site
+Educação e Eventos,Aulas particulares,aulas-particulares,79,0,,reforço; professor particular
+Educação e Eventos,Escola de idiomas,escola-de-idiomas,80,0,,inglês; espanhol; curso
+Educação e Eventos,Decoração e aluguel para festas,decoracao-e-aluguel-para-festas,81,0,,mesas; cadeiras; brinquedos; decoração
+Educação e Eventos,DJ e som para eventos,dj-e-som-para-eventos,82,0,,som; iluminação; banda

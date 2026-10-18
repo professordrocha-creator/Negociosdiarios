@@ -1,0 +1,11 @@
+{% autoescape off %}Olá,
+
+Depois de analisar denúncias, a equipe do {{ site_nome }} {% if removido %}removeu{% else %}pausou{% endif %} o anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}").
+
+Motivo: {{ motivo }}
+{% if removido %}
+O anúncio não volta ao ar. Dúvidas: responda este e-mail.
+{% else %}
+Corrija o anúncio no painel e reative quando estiver tudo certo:
+{{ link_painel }}
+{% endif %}{% endautoescape %}

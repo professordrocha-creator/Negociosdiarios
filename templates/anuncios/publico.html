@@ -112,7 +112,7 @@
         {% endif %}
       </div>
 
-      <p class="small text-suave mb-0">{% icone "olho" %} {{ visualizacoes }} visualizaç{{ visualizacoes|pluralize:"ão,ões" }}{% if anuncio.publicado_em %} · publicado em {{ anuncio.publicado_em|date:"d/m/Y" }}{% endif %} · <a href="{% url 'core:denunciar' %}?anuncio={{ anuncio.codigo }}" rel="nofollow">Denunciar este anúncio</a></p>
+      <p class="small text-suave mb-0">{% icone "olho" %} {{ visualizacoes }} visualizaç{{ visualizacoes|pluralize:"ão,ões" }}{% if anuncio.publicado_em %} · publicado em {{ anuncio.publicado_em|date:"d/m/Y" }}{% endif %} · <a href="{% url 'moderacao:denunciar' %}?anuncio={{ anuncio.codigo }}" rel="nofollow">Denunciar este anúncio</a></p>
     </div>
 
     <aside class="col-lg-4">

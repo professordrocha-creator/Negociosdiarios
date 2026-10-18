@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{# Tela intermediária de "Aceitar denúncias": pausar ou remover o anúncio e o motivo (vai ao anunciante). #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{{ url_voltar }}">{{ opts.verbose_name_plural|capfirst }}</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+  <p>Denúncias selecionadas (a decisão vale para todas as pendentes de cada anúncio):</p>
+  <ul>{% for item in itens %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% for id in ids %}<input type="hidden" name="{{ action_checkbox_name }}" value="{{ id }}">{% endfor %}
+  <input type="hidden" name="action" value="{{ acao }}">
+  <input type="hidden" name="aplicar" value="1">
+  <fieldset class="module aligned">
+    {% for campo in form %}
+    <div class="form-row">
+      {{ campo.errors }}
+      {{ campo.label_tag }} {{ campo }}
+      {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="Aceitar">
+    <a href="{{ url_voltar }}" class="button cancel-link">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

@@ -174,13 +174,13 @@ def test_cidades_atendidas_agrupa_e_ordena(mt):
 # --- Atalho do admin no rodapé ------------------------------------------------------
 
 
-def test_link_do_admin_aparece_em_dev(client, settings):
-    """Com DEBUG ligado (PC do desenvolvedor), o rodapé tem o atalho para o admin."""
+def test_link_do_admin_nao_aparece_para_visitante_nem_em_dev(client, settings):
+    """O rodapé não tem mais o atalho "Admin" (nem em dev): a equipe entra pela Área do anunciante."""
     settings.DEBUG = True
 
     html = client.get(reverse("core:inicio")).content.decode()
 
-    assert f'href="{reverse("admin:index")}"' in html
+    assert settings.ADMIN_URL not in html
 
 
 def test_link_do_admin_nunca_aparece_para_visitante_em_producao(client, settings):

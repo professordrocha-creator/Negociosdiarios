@@ -59,6 +59,10 @@ class Anuncio(MarcaDemo):
         CLIENTE = "cliente", "Anunciante"
         ATRASO = "atraso", "Pagamento em atraso"
         DOWNGRADE = "downgrade", "Troca para plano menor"
+        # Denúncias (Sprint 7B parte 2): em revisão (automática; o anunciante não reativa) e denúncia aceita
+        # pela equipe (o anunciante corrige e reativa).
+        DENUNCIA = "denuncia", "Em revisão por denúncias"
+        MODERACAO = "moderacao", "Moderação (denúncia aceita)"
 
     # Contam no limite do plano (ARQUITETURA §5, regra 1). Pausados e rascunhos não contam.
     SITUACOES_NO_PLANO = (Situacao.PUBLICADO, Situacao.EM_MODERACAO)

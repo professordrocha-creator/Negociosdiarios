@@ -17,11 +17,19 @@ from contas.services import normalizar_email
 
 
 class EntrarForm(AuthenticationForm):
-    """Login do cliente em /entrar/: e-mail e senha, só para anunciante ativo (nunca equipe).
+    """Login em /entrar/: e-mail e senha. Anunciante ativo vai ao painel; equipe vai ao admin (com o código
+    de navegador novo, como no login do admin).
 
-    A senha é conferida primeiro (com o bloqueio do django-axes); só depois vem a regra de
-    quem pode entrar, com uma mensagem que diz o que fazer.
+    A senha é conferida primeiro (com o bloqueio do django-axes); e-mail inexistente e senha errada dão a
+    MESMA mensagem (não revela quem tem conta). Só depois da senha certa vem a regra de quem pode entrar.
     """
+
+    # Igual para e-mail que não existe e senha errada: não revela quem tem conta.
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "invalid_login": "E-mail ou senha incorretos. Confira e tente de novo "
+        "(a senha diferencia maiúsculas).",
+    }
 
     def __init__(self, *args, **kwargs):
         """Rótulos e atributos de navegador (preenchimento automático) dos campos."""
@@ -36,8 +44,10 @@ class EntrarForm(AuthenticationForm):
         )
 
     def confirm_login_allowed(self, user) -> None:
-        """Recusa equipe, quem não tem loja e loja pendente ou suspensa."""
+        """Recusa quem não tem loja e loja pendente, suspensa ou encerrada (a equipe passa)."""
         super().confirm_login_allowed(user)
+        if user.is_staff:  # equipe: entra e segue para o admin (verificação em contas.views.EntrarView)
+            return
         motivo = motivo_sem_painel(user)
         if motivo:
             raise forms.ValidationError(MENSAGENS_SEM_ACESSO[motivo], code=motivo)

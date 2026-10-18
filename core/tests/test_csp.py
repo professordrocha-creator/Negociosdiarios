@@ -51,7 +51,7 @@ def test_cabecalho_csp_so_libera_o_site_e_o_openstreetmap(client):
         "core:cookies",
         "busca:imoveis",
         "busca:veiculos",
-        "core:denunciar",
+        "moderacao:denunciar",
         "anunciantes:lojas",
         "anunciantes:cadastro",
         "contas:entrar",

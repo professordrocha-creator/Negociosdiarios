@@ -49,12 +49,12 @@
       </div>
     </aside>
 
-    <div class="col-lg-9 nd-busca">
+    <div class="col-lg-9 nd-busca-resultados">
       {# Lista | Mapa (abaixo do xl). Só CSS: o rádio marcado mostra uma coluna e esconde a outra. #}
       <input type="radio" class="btn-check" name="visao" id="v-lista" autocomplete="off" checked>
-      <label class="btn btn-outline-secondary btn-sm nd-visao" for="v-lista">{% icone "lista" %} Lista</label>
+      <label class="btn btn-sm nd-opcao nd-visao" for="v-lista">{% icone "lista" %} Lista</label>
       <input type="radio" class="btn-check" name="visao" id="v-mapa" autocomplete="off">
-      <label class="btn btn-outline-secondary btn-sm nd-visao" for="v-mapa">{% icone "pin" %} Mapa</label>
+      <label class="btn btn-sm nd-opcao nd-visao" for="v-mapa">{% icone "pin" %} Mapa</label>
       <div class="row g-3 mt-0">
       <div class="col-xl-7 nd-busca-lista">
       <div id="resultados" aria-live="polite" data-mapa-url="{{ url_mapa }}" data-area="{{ area }}">

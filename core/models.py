@@ -183,6 +183,13 @@ class Configuracao(models.Model):
     slogan = models.CharField(
         "slogan", max_length=120, help_text="Até 120 caracteres. Usado na Sobre e no rodapé."
     )
+    frase_rodape = models.CharField(
+        "frase do rodapé",
+        max_length=160,
+        blank=True,
+        default="Só anunciantes verificados: corretores com CRECI e revendas com CNPJ.",
+        help_text="Até 160 caracteres. Aparece no rodapé depois do slogan. Vazio = não aparece.",
+    )
     empresa = models.CharField(
         "empresa responsável", max_length=120, help_text="Quem opera o site (documentos legais)."
     )
@@ -237,7 +244,11 @@ class Configuracao(models.Model):
     )
     endereco = models.CharField("endereço", max_length=200, blank=True)
     cnpj = models.CharField(
-        "CNPJ", max_length=18, blank=True, help_text="Pontuação opcional; guardado só com dígitos."
+        "CNPJ",
+        max_length=18,
+        blank=True,
+        help_text="Opcional. Se preenchido, aparece no rodapé e nos documentos legais. Pontuação opcional; "
+        "guardado só com dígitos.",
     )
     instagram = models.CharField(
         "Instagram", max_length=30, blank=True, help_text="Só o usuário, sem @ (ex.: negociosdiarios)."
@@ -330,6 +341,26 @@ class Configuracao(models.Model):
         "guarda de faturas e comprovantes (anos)",
         default=5,
         help_text="Depois disso o comprovante é apagado e as anotações da fatura são limpas (rotina diária).",
+    )
+
+    # Denúncias (Sprint 7B parte 2): pausa automática por golpe, limite diário e guarda do contato.
+    denuncias_golpe_para_pausar = models.PositiveSmallIntegerField(
+        "denúncias de golpe para pausar",
+        default=3,
+        validators=[MinValueValidator(1)],
+        help_text="Com este número de denúncias de golpe de origens diferentes, o anúncio sai do ar até a "
+        "revisão.",
+    )
+    denuncias_por_dia = models.PositiveSmallIntegerField(
+        "denúncias por visitante por dia",
+        default=5,
+        validators=[MinValueValidator(1)],
+        help_text="Limite por visitante (resumo do dia, sem IP) contra abuso.",
+    )
+    retencao_denuncia_dias = models.PositiveSmallIntegerField(
+        "guarda do contato da denúncia (dias)",
+        default=365,
+        help_text="Depois de decidida, o e-mail e os detalhes da denúncia são apagados após estes dias.",
     )
 
     # Regras do negócio: prazos e moderação (nunca fixos no código).

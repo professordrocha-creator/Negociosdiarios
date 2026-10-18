@@ -1,0 +1,6 @@
+{% autoescape off %}O anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}") saiu do ar no {{ site_nome }}: recebeu {{ limite }} ou mais denúncias de golpe de origens diferentes.
+
+Ele fica "em revisão" (o anunciante não consegue reativar) até a equipe decidir.
+Aceite (pausar ou remover) ou descarte na fila de denúncias:
+{{ link_admin }}
+{% endautoescape %}

@@ -371,6 +371,10 @@ def reativar(anuncio: Anuncio, agora: datetime | None = None) -> Anuncio:
         raise ValueError("Só anúncios pausados podem ser reativados.")
     if anuncio.pausado_por == PausadoPor.ATRASO:
         raise ValueError("Este anúncio volta sozinho quando o pagamento for registrado.")
+    if anuncio.pausado_por == PausadoPor.DENUNCIA:
+        raise ValueError(
+            "Este anúncio está em revisão pela equipe por causa de denúncias. Aguarde o resultado."
+        )
     agora = agora or timezone.now()
     anunciante = anuncio.anunciante
     reservar_vaga(

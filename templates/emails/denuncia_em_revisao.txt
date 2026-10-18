@@ -1,0 +1,6 @@
+{% autoescape off %}Olá,
+
+O anúncio {{ anuncio.codigo }} ("{{ anuncio.titulo }}") recebeu denúncias e saiu do ar por precaução enquanto a equipe do {{ site_nome }} analisa. Nada foi apagado.
+
+Se estiver tudo certo, ele volta sozinho ao ar. Se a equipe encontrar um problema, avisamos por e-mail o que corrigir.
+{% endautoescape %}

@@ -54,7 +54,7 @@ def test_pagina_mostra_galeria_ficha_preco_e_loja(visitante, loja, publicado):
     assert anuncio.fotos.first().imagem.url in html and "data-galeria" in html
     assert "<dt>Quartos</dt><dd>3</dd>" in html and "180 m²" in html
     assert "Loja Alfa" in html and "CNPJ verificado" in html
-    assert reverse("core:denunciar") + f"?anuncio={anuncio.codigo}" in html
+    assert reverse("moderacao:denunciar") + f"?anuncio={anuncio.codigo}" in html
     assert "Dica de segurança" in html
 
 

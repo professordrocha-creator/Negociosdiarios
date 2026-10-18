@@ -19,6 +19,7 @@ urlpatterns = [
     path("", include("pagamentos.urls")),  # /painel/faturas/, /fatura/<token>/
     path("", include("publicidade.urls")),  # /publicidade/clique/<id>/
     path("", include("privacidade.urls")),  # /painel/meus-dados/, /painel/termos-atualizados/
+    path("", include("moderacao.urls")),  # /denunciar/
     path("", include("anuncios.urls")),  # /painel/anuncios/
     path("", include("busca.urls")),  # /imoveis/, /veiculos/ (e por cidade)
     path("", include("core.urls")),

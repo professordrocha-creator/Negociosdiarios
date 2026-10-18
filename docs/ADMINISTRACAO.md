@@ -22,8 +22,8 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 
 | Grupo | Permissões hoje | Chega depois |
 |---|---|---|
-| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar · Planos: ver, criar, editar · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar · Faturas e e-mails de cobrança: como o Financeiro · **Privacidade: documentos legais e pedidos dos titulares (ver, criar, editar, marcar atendido)** (Sprint 7B) | Tudo dos modelos novos |
-| Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar | Denúncias (Sprint 7) |
+| **Administrador** | Usuários: ver, criar, editar · Grupos: ver · Estados e cidades: ver, editar (liberar no site) · Tentativas de login bloqueadas: ver, apagar (= desbloquear) · Histórico do admin: ver · Anunciantes: ver, cadastrar, editar, aprovar/suspender, histórico · Identidade do site, valores e textos de ajuda: ver, editar · Regiões e bairros: ver, criar, editar · Solicitações de cidade: ver, liberar/recusar · Planos: ver, criar, editar · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar · Faturas e e-mails de cobrança: como o Financeiro · **Privacidade: documentos legais e pedidos dos titulares (ver, criar, editar, marcar atendido)** (Sprint 7B) · Denúncias: como o Moderador | Tudo dos modelos novos |
+| Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar · **Denúncias: ver, aceitar (pausar/remover) ou descartar; recebe o e-mail de anúncio pausado por golpe** (Sprint 7B parte 2) | — |
 | Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos: ver, criar, editar (preços e limites) · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar (recebe o e-mail de pedido novo) · Anúncios: ver · **Faturas: ver, painel de cobrança, confirmar pagamento, recusar comprovante, cancelar, editar link do boleto/observação (recebe o e-mail de comprovante novo) · E-mails de cobrança: ver, editar** (Sprint 6) · Publicidade: patrocinadores e campanhas (ver) | Relatórios |
 | Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver · **Publicidade: patrocinadores, campanhas e peças (ver, criar, editar), painel e CSV, gerar fatura; recebe o aviso de campanha terminando** (Sprint 7A) | Relatório mensal ao patrocinador |
 
@@ -52,6 +52,11 @@ Ninguém além do superusuário pode:
   - faturas vencendo hoje / vencidas;
   - receita do mês (assinaturas + publicidade);
   - contratos de publicidade que vencem em 7 dias.
+- **Denúncias (Sprint 7B parte 2):** Moderação › Denúncias: abra o anúncio pelo link, decida e use
+  **Aceitar** (pausar: o anunciante corrige e reativa; remover: sai de vez; o motivo vai por e-mail, sem
+  dizer quem denunciou) ou **Descartar**. Com 3 denúncias de golpe de origens diferentes (Identidade do
+  site) o anúncio já sai do ar "em revisão" e chega e-mail: decida esses primeiro. A decisão vale para
+  todas as denúncias pendentes do anúncio.
 - **Privacidade (Sprint 7B):** Privacidade › Pedidos dos titulares: confira todo dia os "prazo vencido"; pedido
   por e-mail = adicionar com o contato e o tipo (o prazo de 15 dias se calcula sozinho) e, ao responder, usar
   "Marcar como atendido" com o que foi feito. Exportação e exclusão feitas pelo próprio anunciante já aparecem
