@@ -25,3 +25,7 @@
   .nd-guia-botoes .button, .nd-guia-botoes button { width: 100%; text-align: center; padding: 12px; box-sizing: border-box; }
   .nd-guia-mapa { height: 260px; }
 }
+.nd-guia-vencido { color: #a12a1b; }
+.nd-guia-tabela { width: 100%; max-width: 900px; }
+.nd-guia-tabela td.num, .nd-guia-tabela th.num { text-align: right; }
+.nd-guia-erro { color: #a12a1b; }

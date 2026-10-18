@@ -85,6 +85,14 @@ class PedidoTitularAdmin(SimpleHistoryAdmin):
         """Em aberto e com o prazo vencido."""
         return pedido.atrasado(timezone.localdate())
 
+    def changelist_view(self, request: HttpRequest, extra_context=None):
+        """Lembra os pedidos dos titulares do Guia de Negócios, que ficam na fila do guia."""
+        if request.method == "GET":
+            from guia.admin import _avisar_outra_fila
+
+            _avisar_outra_fila(request, "guia")
+        return super().changelist_view(request, extra_context)
+
     def has_delete_permission(self, request: HttpRequest, obj: PedidoTitular | None = None) -> bool:
         """Registro de atendimento (prova para a ANPD): não se apaga."""
         return False

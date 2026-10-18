@@ -12,7 +12,7 @@ from anunciantes.validators import normalizar_cnpj, normalizar_whatsapp
 from anuncios.localizacao import longe_da_cidade
 from core.models import Bairro, Cidade
 from guia import services
-from guia.models import CategoriaServico, GrupoCategoria, PerfilGuia
+from guia.models import CategoriaServico, ContatoConvite, GrupoCategoria, PerfilGuia
 
 
 class MapaPonto(forms.HiddenInput):
@@ -348,3 +348,98 @@ class RevogarForm(forms.Form):
         max_length=500,
         help_text="Ex.: pediu por WhatsApp em 18/10. Fica no registro interno. Até 500 caracteres.",
     )
+
+
+class PedidoForm(forms.Form):
+    """ "Esta é minha empresa" (sem login): tipo, descrição e contato para a resposta, com campo-armadilha."""
+
+    tipo = forms.ChoiceField(
+        label="O que você quer?",
+        choices=[
+            ("alterar", "Alterar dados da ficha"),
+            ("remover", "Remover a ficha do guia (revoga a autorização)"),
+            ("outro", "Outro assunto"),
+        ],
+        widget=forms.RadioSelect,
+    )
+    descricao = forms.CharField(
+        label="Explique o pedido",
+        max_length=1000,
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4, "class": "form-control", "maxlength": 1000}),
+        help_text="Até 1.000 caracteres. Ex.: o horário de sábado mudou para 8h às 12h.",
+    )
+    contato = forms.CharField(
+        label="Seu e-mail ou telefone para a resposta",
+        max_length=200,
+        widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "email"}),
+        help_text="Só para responder este pedido. Até 200 caracteres.",
+    )
+    # Campo-armadilha: invisível para pessoas (CSS), robôs costumam preencher.
+    site_empresa = forms.CharField(
+        required=False,
+        label="Deixe em branco",
+        widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+    )
+
+
+class PausarLoteForm(forms.Form):
+    """Pausar em lote no admin: cidade e/ou categoria e o motivo (opcional)."""
+
+    cidade = forms.ModelChoiceField(
+        queryset=Cidade.objects.filter(liberada=True).order_by("nome"),
+        required=False,
+        label="Cidade",
+        help_text="Em branco = todas.",
+    )
+    categoria = forms.ModelChoiceField(
+        queryset=CategoriaServico.objects.filter(ativa=True).order_by("nome"),
+        required=False,
+        label="Categoria",
+        help_text="Em branco = todas.",
+    )
+    motivo = forms.CharField(
+        label="Motivo",
+        required=False,
+        max_length=200,
+        help_text="Fica no histórico de cada perfil. Até 200 caracteres.",
+    )
+
+    def clean(self) -> dict:
+        """Escolha ao menos a cidade ou a categoria (nunca pausa o guia inteiro por engano)."""
+        dados = super().clean()
+        if not dados.get("cidade") and not dados.get("categoria"):
+            raise ValidationError("Escolha a cidade, a categoria ou as duas.")
+        return dados
+
+
+class ImportarConvitesForm(forms.Form):
+    """Importar a lista de convites: arquivo CSV (primeiro passo) e o texto já lido (passo de confirmação)."""
+
+    LIMITE_BYTES = 1024 * 1024
+
+    arquivo = forms.FileField(
+        label="Arquivo CSV",
+        required=False,
+        help_text="Colunas: nome, whatsapp, cidade, categoria (separadas por vírgula ou ponto e vírgula). "
+        "Até 1 MB "
+        "e 2.000 linhas.",
+    )
+    texto = forms.CharField(required=False, widget=forms.HiddenInput)
+    origem = forms.ChoiceField(label="Origem", choices=ContatoConvite.Origem.choices, initial="lista_antiga")
+
+    def clean(self) -> dict:
+        """Lê o arquivo (UTF-8 ou Latin-1, o do Excel) ou usa o texto da prévia."""
+        dados = super().clean()
+        arquivo = dados.get("arquivo")
+        if arquivo:
+            if arquivo.size > self.LIMITE_BYTES:
+                raise ValidationError("O arquivo pode ter até 1 MB.")
+            bruto = arquivo.read()
+            try:
+                dados["texto"] = bruto.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                dados["texto"] = bruto.decode("latin-1")
+        if not dados.get("texto"):
+            raise ValidationError("Escolha o arquivo CSV.")
+        return dados

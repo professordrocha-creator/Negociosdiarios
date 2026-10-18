@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+{# Lista de perfis do guia (G3): atalhos da operação no topo (fila pelo filtro "fila" ao lado). #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block object-tools-items %}
+  <li><a href="?fila=aguardando">Aguardando aceite</a></li>
+  <li><a href="?fila=link_vencido">Link vencido</a></li>
+  <li><a href="?fila=duplicidade">Repetidos</a></li>
+  <li><a href="{% url 'admin:guia_estatisticas' %}">Estatísticas</a></li>
+  <li><a href="{% url 'admin:guia_termo_pendentes' %}">Termo: quem falta</a></li>
+  {% if perms.guia.change_perfilguia %}<li><a href="{% url 'admin:guia_pausar_lote' %}">Pausar em lote</a></li>{% endif %}
+  {{ block.super }}
+{% endblock %}

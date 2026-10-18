@@ -155,3 +155,34 @@ def saude(request: HttpRequest) -> JsonResponse:
     if banco_disponivel():
         return JsonResponse({"status": "ok"})
     return JsonResponse({"status": "erro", "banco": "indisponivel"}, status=503)
+
+
+@require_GET
+def ajuda_equipe(request: HttpRequest) -> HttpResponse:
+    """/painel/ajuda/: o Manual do Administrador (docs/MANUAL_ADMIN.md) em HTML seguro, só para a equipe.
+
+    Visitante e cliente recebem 404 (a página nem "existe" para eles). Equipe com o navegador ainda não
+    verificado passa pela mesma verificação do admin (código por e-mail) antes de ler. Fora dos buscadores.
+    """
+    from django.http import Http404
+
+    from config.admin_site import encaminhar_equipe
+    from contas.services import acesso_verificado
+    from core.services import manual_da_equipe
+
+    usuario = request.user
+    if not (usuario.is_authenticated and usuario.is_staff):
+        raise Http404("Página não encontrada.")
+    if not acesso_verificado(request):
+        return encaminhar_equipe(request, destino=request.path)
+    from django.contrib import admin
+
+    contexto = {
+        **admin.site.each_context(request),
+        "title": "Manual do Administrador",
+        "manual": manual_da_equipe(),
+    }
+    resposta = render(request, "core/ajuda_equipe.html", contexto)
+    resposta["X-Robots-Tag"] = "noindex, nofollow"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta

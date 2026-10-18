@@ -75,6 +75,12 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] reCAPTCHA **não**. Hoje sem captcha nenhum (honeypot + limites); se o abuso aparecer, Cloudflare
       Turnstile só no cadastro e na denúncia
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
+- [x] Guia de Negócios (G3): "Esta é minha empresa" (`/guia/pedido/<slug>/`) com CSRF, campo-armadilha (robô vê
+      sucesso e nada é gravado), limite por visitante por hora (`ConfiguracaoGuia.pedidos_por_hora`, IP só como
+      resumo) e `noindex`; o aviso à equipe não leva o contato. Lista de convites sem página pública, convite um
+      a um (nada em massa) e "não contatar" bloqueando também o link de aceite. CSV exportado (perfis e
+      estatísticas) com células neutralizadas (= + - @ ganham apóstrofo) e sem documento nem contato do
+      responsável. Importação de CSV: até 1 MB e 2.000 linhas, prévia sem gravar, arquivo não fica no servidor.
 - [x] Guia de Negócios (G2): WhatsApp e telefone fora do HTML (também fora do schema.org); WhatsApp por
       `/guia/contato/<id>/whatsapp/` (302 ao wa.me) e "Ver telefone" por HTMX ou página própria, ambos
       `noindex`, sem cache, `rel=nofollow`, contados uma vez por visitante por dia (sem IP nem cookie; robô e

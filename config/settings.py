@@ -402,6 +402,8 @@ CELERY_BEAT_SCHEDULE = {
     "lgpd": {"task": "privacidade.tasks.limpar_dados_vencidos", "schedule": crontab(hour=4, minute=0)},
     # Todo dia às 4h15: apaga o e-mail e os detalhes das denúncias decididas há mais que a guarda (LGPD).
     "denuncias": {"task": "moderacao.tasks.limpar_denuncias_antigas", "schedule": crontab(hour=4, minute=15)},
+    # Guia de Negócios (G3): convites do termo novo, pausa sem aceite no prazo e limpeza depois da guarda.
+    "guia": {"task": "guia.tasks.rotina_do_guia", "schedule": crontab(hour=4, minute=30)},
 }
 
 # --- E-mail --------------------------------------------------------------------

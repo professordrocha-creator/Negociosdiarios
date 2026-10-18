@@ -48,6 +48,13 @@ from guia.models import (
 
 ARQUIVO_CATEGORIAS = Path(settings.BASE_DIR) / "docs" / "guia" / "categorias_iniciais.csv"
 COLUNAS_CATEGORIAS = {"grupo", "nome", "slug", "ordem", "regulamentada", "rotulo_registro", "sinonimos"}
+# Regulamentadas que são estabelecimentos (mostram horário; docs/GUIA.md §5, item 4).
+ESTABELECIMENTOS_REGULADOS = {
+    "farmacia",
+    "clinica-e-laboratorio",
+    "hospital-e-pronto-atendimento",
+    "veterinario",
+}
 TELEFONE_E164 = re.compile(r"^\+55\d{10,11}$")
 # Frase é texto puro: nada de link (http, www, domínio) nem marcação HTML.
 LINK_OU_HTML = re.compile(
@@ -372,14 +379,17 @@ def pausar(perfil: PerfilGuia, motivo: str = "Pausado pela equipe.") -> PerfilGu
 
 
 def gerar_convite(
-    perfil: PerfilGuia, por=None, canal: str = ConviteAceite.Canal.WHATSAPP
+    perfil: PerfilGuia, por=None, canal: str = ConviteAceite.Canal.WHATSAPP, expira_em=None
 ) -> tuple[ConviteAceite, str]:
-    """Cria o link de aceite (uso único, validade da configuração) e vence os convites anteriores não usados.
+    """Cria o link de aceite (uso único, validade da configuração ou `expira_em`) e vence os convites
+    anteriores não usados.
 
-    Só com tudo pronto, menos o aceite (o aceite publica na hora). Rascunho passa a "aguardando aceite".
-    Devolve (convite, token). Levanta PublicacaoRecusada.
+    Só com tudo pronto, menos o aceite (o aceite publica na hora), e nunca para número da lista "não
+    contatar". Rascunho passa a "aguardando aceite". Devolve (convite, token). Levanta PublicacaoRecusada.
     """
     faltas = pendencias(perfil, exigir_aceite=False)
+    if numero_bloqueado(perfil.whatsapp):
+        faltas.append("Este WhatsApp recusou ou pediu para não ser contatado (lista de convites).")
     if termo_vigente() is None:
         faltas.append("Não há termo do guia em vigor (cadastre uma versão no admin).")
     if faltas:
@@ -392,7 +402,7 @@ def gerar_convite(
             perfil=perfil,
             token=token,
             canal=canal,
-            expira_em=agora + timedelta(days=configuracao_guia().dias_validade_convite),
+            expira_em=expira_em or agora + timedelta(days=configuracao_guia().dias_validade_convite),
             criado_por=por,
         )
         if perfil.status == PerfilGuia.Status.RASCUNHO:
@@ -527,6 +537,9 @@ def aceitar_convite(
         convite.usado_em = aceite.aceito_em
         convite.save(update_fields=["usado_em"])
         publicar(perfil, motivo=f"Publicado pelo aceite do responsável (termo v{termo.versao}).")
+        from guia.models import ContatoConvite
+
+        ContatoConvite.objects.filter(perfil=perfil).update(situacao=ContatoConvite.Situacao.ACEITOU)
     if avisar:
         _confirmar_por_email(perfil, aceite)
     return aceite
@@ -631,7 +644,7 @@ def previa(perfil: PerfilGuia) -> Previa:
         whatsapp=telefone_legivel(perfil.whatsapp),
         telefone=telefone_legivel(perfil.telefone),
         local=local,
-        horarios=[] if regulamentado else horarios_legiveis(perfil.horarios),
+        horarios=horarios_legiveis(perfil.horarios) if perfil.mostra_horario else [],
         logo=perfil.logo.url if perfil.logo and not regulamentado else "",
         selo=selo,
     )
@@ -680,6 +693,7 @@ def carregar_categorias(caminho: Path = ARQUIVO_CATEGORIAS) -> ResultadoCategori
                     "regulamentada": regulamentada,
                     "rotulo_registro": linha["rotulo_registro"].strip() if regulamentada else "",
                     "sinonimos": linha["sinonimos"].strip(),
+                    "estabelecimento": regulamentada and linha["slug"].strip() in ESTABELECIMENTOS_REGULADOS,
                 },
             )
             criadas += criada
@@ -956,7 +970,7 @@ def schema_da_ficha(perfil: PerfilGuia, url: str) -> dict:
                 "latitude": round(perfil.ponto_publico.y, 6),
                 "longitude": round(perfil.ponto_publico.x, 6),
             }
-    if perfil.horarios and not regulamentado:
+    if perfil.horarios and perfil.mostra_horario:
         nomes = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         schema["openingHoursSpecification"] = [
             {"@type": "OpeningHoursSpecification", "dayOfWeek": nomes[i], "opens": inicio, "closes": fim}
@@ -996,6 +1010,537 @@ def paginas_do_sitemap() -> list[str]:
             caminhos.append(url_categoria(cidades[cidade_id], categorias[categoria_id]))
     caminhos.extend(reverse("guia:empresa", args=[p.slug]) for p in sorted(perfis, key=lambda p: p.pk))
     return caminhos
+
+
+# --- G3: pedidos do titular, remoção e limpeza (docs/GUIA.md §5, item 8; GUIA_LGPD_E_TERMO.md §5) --------
+
+
+def pedido_vencido(pedido: PedidoDoPerfil, hoje=None) -> bool:
+    """Ainda sem resposta final e com o prazo (15 dias) já passado."""
+    em_aberto = pedido.status in (PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
+    return em_aberto and pedido.prazo_ate < (hoje or timezone.localdate())
+
+
+def registrar_pedido(
+    perfil: PerfilGuia, tipo: str, descricao: str, contato: str, origem: str = PedidoDoPerfil.Origem.FICHA
+) -> PedidoDoPerfil:
+    """Grava o pedido do titular (prazo de 15 dias) e avisa a equipe (Moderador e Administrador) por e-mail.
+
+    O aviso leva só o tipo, o perfil e o link do admin: o contato e a descrição ficam no admin.
+    """
+    from core.services import enviar_email_modelo
+    from moderacao.services import destinatarios_moderacao
+
+    pedido = PedidoDoPerfil.objects.create(
+        perfil=perfil,
+        tipo=tipo,
+        descricao=descricao.strip()[:1000],
+        contato=contato.strip()[:200],
+        origem=origem,
+    )
+    enviar_email_modelo(
+        "guia_pedido_novo",
+        "Pedido novo no guia",
+        destinatarios_moderacao(),
+        {
+            "pedido": pedido,
+            "link_admin": settings.SITE_URL + reverse("admin:guia_pedidodoperfil_change", args=[pedido.pk]),
+        },
+    )
+    return pedido
+
+
+def responder_pedido(pedido: PedidoDoPerfil, por, status: str, resposta: str = "") -> PedidoDoPerfil:
+    """Fecha (ou marca em andamento) o pedido, com quem decidiu, quando e o que foi feito."""
+    pedido.status = status
+    pedido.resposta = resposta.strip() or pedido.resposta
+    if status in (PedidoDoPerfil.Status.ATENDIDO, PedidoDoPerfil.Status.RECUSADO):
+        pedido.decidido_por, pedido.decidido_em = por, timezone.now()
+    pedido._change_reason = f"Pedido {pedido.get_status_display().lower()}."
+    pedido.save()
+    return pedido
+
+
+def remover_perfil(
+    perfil: PerfilGuia, por=None, motivo: str = "", pedido: PedidoDoPerfil | None = None
+) -> PerfilGuia:
+    """Remoção (pedido do titular): despublica na hora e apaga logo, WhatsApp, telefone e o contato do
+    responsável, também no histórico. Ficam só o registro do aceite e o do pedido, pelo prazo de prova
+    (`prazo_prova_aceite_anos`); depois a limpeza diária apaga o resto (`limpar_guia_vencido`).
+
+    Com `pedido`, ele é fechado como atendido; se o contato do pedido for um e-mail, vai a confirmação.
+    """
+    from core.services import enviar_email_modelo
+
+    agora = timezone.now()
+    with transaction.atomic():
+        perfil = PerfilGuia.objects.select_for_update().get(pk=perfil.pk)
+        if perfil.logo:
+            perfil.logo.delete(save=False)
+        perfil.logo = ""
+        perfil.whatsapp = perfil.telefone = perfil.responsavel_contato = ""
+        perfil.status = PerfilGuia.Status.REMOVIDO
+        perfil.removido_em = agora
+        perfil._change_reason = f"Removido: {motivo.strip() or 'pedido do titular'}"[:100]
+        perfil.save()
+        PerfilGuia.history.filter(id=perfil.pk).update(
+            whatsapp="", telefone="", responsavel_contato="", logo=""
+        )
+        perfil.convites.filter(usado_em__isnull=True, expira_em__gt=agora).update(expira_em=agora)
+        if pedido is not None:
+            responder_pedido(
+                pedido, por, PedidoDoPerfil.Status.ATENDIDO, motivo or "Perfil removido do guia."
+            )
+    if pedido is not None and "@" in pedido.contato:
+        enviar_email_modelo(
+            "guia_remocao_confirmada",
+            "Ficha removida do guia",
+            [pedido.contato],
+            {"perfil": perfil, "nome_guia": configuracao_guia().nome_guia},
+        )
+    return perfil
+
+
+def limpar_guia_vencido(hoje=None) -> int:
+    """Rotina diária: passado o prazo de prova, apaga de vez o perfil removido com aceites (e fotos do termo),
+    convites, pedidos, estatísticas e histórico; e os pedidos já decididos de qualquer perfil. Devolve
+    quantos perfis saíram."""
+    from datetime import datetime, time
+
+    anos = configuracao_guia().prazo_prova_aceite_anos
+    hoje = hoje or timezone.localdate()
+    limite = timezone.make_aware(datetime.combine(hoje, time.min)) - timedelta(days=round(365.25 * anos))
+    vencidos = list(
+        PerfilGuia.objects.filter(status=PerfilGuia.Status.REMOVIDO, removido_em__lt=limite).values_list(
+            "pk", flat=True
+        )
+    )
+    from guia.models import ContatoConvite, EstatisticaGuiaDia
+
+    with transaction.atomic():
+        antigos = PedidoDoPerfil.objects.filter(
+            status__in=(PedidoDoPerfil.Status.ATENDIDO, PedidoDoPerfil.Status.RECUSADO),
+            decidido_em__lt=limite,
+        )
+        PedidoDoPerfil.history.filter(id__in=list(antigos.values_list("pk", flat=True))).delete()
+        antigos.delete()
+        if not vencidos:
+            return 0
+        for aceite in AceitePublicacao.objects.filter(perfil_id__in=vencidos).exclude(foto_termo=""):
+            aceite.foto_termo.delete(save=False)
+        PedidoDoPerfil.history.filter(perfil_id__in=vencidos).delete()
+        PedidoDoPerfil.objects.filter(perfil_id__in=vencidos).delete()
+        AceitePublicacao.history.filter(perfil_id__in=vencidos).delete()
+        AceitePublicacao.objects.filter(perfil_id__in=vencidos).delete()
+        ConviteAceite.objects.filter(perfil_id__in=vencidos).delete()
+        EstatisticaGuiaDia.objects.filter(perfil_id__in=vencidos).delete()
+        ContatoConvite.objects.filter(perfil_id__in=vencidos).update(perfil=None)
+        PerfilGuia.objects.filter(pk__in=vencidos).delete()
+        PerfilGuia.history.filter(id__in=vencidos).delete()
+    return len(vencidos)
+
+
+# --- G3: termo novo (docs/GUIA.md §5, item 3) -------------------------------------------------------------
+
+
+def prazo_do_termo(termo: TermoGuia):
+    """Último dia para aceitar a versão: início da vigência + `dias_aceite_termo_novo` (30)."""
+    return termo.vigente_desde + timedelta(days=configuracao_guia().dias_aceite_termo_novo)
+
+
+@dataclass(frozen=True)
+class PendenteDoTermo:
+    """Perfil publicado que ainda não aceitou a versão vigente."""
+
+    perfil: PerfilGuia
+    dias_restantes: int
+    convite_ate: object  # datetime do convite válido, ou None
+
+
+def pendentes_do_termo(hoje=None) -> list[PendenteDoTermo]:
+    """Publicados sem aceite da versão em vigor, com os dias que faltam (negativo = prazo passado)."""
+    termo = termo_vigente(hoje)
+    if termo is None:
+        return []
+    hoje = hoje or timezone.localdate()
+    dias = (prazo_do_termo(termo) - hoje).days
+    agora = timezone.now()
+    aceitaram = AceitePublicacao.objects.filter(termo=termo, revogado_em__isnull=True).values("perfil_id")
+    perfis = (
+        PerfilGuia.objects.filter(status=PerfilGuia.Status.PUBLICADO)
+        .exclude(pk__in=aceitaram)
+        .select_related("cidade")
+        .order_by("nome_publico")
+    )
+    resultado = []
+    for perfil in perfis:
+        convite = (
+            perfil.convites.filter(usado_em__isnull=True, expira_em__gt=agora).order_by("-expira_em").first()
+        )
+        resultado.append(PendenteDoTermo(perfil, dias, convite.expira_em if convite else None))
+    return resultado
+
+
+def convidar_para_termo_novo(hoje=None) -> int:
+    """Termo novo em vigor: cria o link de aceite (vale até o fim do prazo) para cada publicado sem aceite e
+    sem link válido. Se o contato do responsável for e-mail, manda o aviso com o link (aviso de mudança a
+    quem já autorizou; não é convite em massa). WhatsApp: a equipe envia um a um pelo admin."""
+    from datetime import datetime, time
+
+    from core.services import enviar_email_modelo
+
+    termo = termo_vigente(hoje)
+    if termo is None:
+        return 0
+    fim = timezone.make_aware(datetime.combine(prazo_do_termo(termo), time(23, 59)))
+    criados = 0
+    for pendente in pendentes_do_termo(hoje):
+        if pendente.convite_ate is not None:
+            continue
+        perfil = pendente.perfil
+        if perfil.aceites.filter(termo=termo).exists():
+            continue
+        try:
+            _, token = gerar_convite(perfil, None, ConviteAceite.Canal.EMAIL, expira_em=fim)
+        except PublicacaoRecusada:
+            continue
+        criados += 1
+        contato = perfil.responsavel_contato.strip()
+        if "@" in contato:
+            enviar_email_modelo(
+                "guia_termo_novo",
+                "Atualizamos o termo do guia",
+                [contato],
+                {
+                    "perfil": perfil,
+                    "termo": termo,
+                    "prazo": prazo_do_termo(termo),
+                    "link": link_aceite(token),
+                    "nome_guia": configuracao_guia().nome_guia,
+                },
+            )
+    return criados
+
+
+def pausar_sem_aceite_do_termo(hoje=None) -> int:
+    """Passado o prazo do termo novo sem aceite, pausa o perfil (nunca apaga); volta com o aceite."""
+    termo = termo_vigente(hoje)
+    hoje = hoje or timezone.localdate()
+    if termo is None or hoje <= prazo_do_termo(termo):
+        return 0
+    pausados = 0
+    for pendente in pendentes_do_termo(hoje):
+        pausar(pendente.perfil, f"Pausado: sem aceite do termo v{termo.versao} no prazo.")
+        pausados += 1
+    return pausados
+
+
+def rotina_do_guia(hoje=None) -> dict[str, int]:
+    """Rotina diária (Celery beat): convites do termo novo, pausa de quem passou do prazo, limpeza LGPD."""
+    return {
+        "convites_termo": convidar_para_termo_novo(hoje),
+        "pausados_termo": pausar_sem_aceite_do_termo(hoje),
+        "removidos_de_vez": limpar_guia_vencido(hoje),
+    }
+
+
+# --- G3: lista de convites e "não contatar" (docs/GUIA.md §9) ----------------------------------------------
+
+
+def numero_bloqueado(whatsapp: str) -> bool:
+    """O número recusou ou pediu para não ser contatado (vale para qualquer convite)."""
+    from guia.models import ContatoConvite
+
+    return (
+        bool(whatsapp)
+        and ContatoConvite.objects.filter(whatsapp=whatsapp, situacao__in=ContatoConvite.BLOQUEADOS).exists()
+    )
+
+
+@dataclass
+class ResultadoImportacao:
+    """Prévia da importação: linhas válidas (prontas para gravar), erros e linhas ignoradas, por número."""
+
+    validas: list[dict]
+    erros: list[tuple[int, str]]
+    ignoradas: list[tuple[int, str]]
+
+
+COLUNAS_CONVITES = {"nome", "whatsapp", "cidade"}
+LIMITE_LINHAS_IMPORTACAO = 2000
+
+
+def _cidade_do_csv(texto: str) -> Cidade | None:
+    """ "Tangará da Serra", "Tangará da Serra/MT" ou "tangara-da-serra": só cidades liberadas."""
+    nome, _, uf = texto.replace(" - ", "/").partition("/")
+    cidades = Cidade.objects.filter(liberada=True, uf__liberado=True, slug=slugify(nome))
+    if uf.strip():
+        cidades = cidades.filter(uf_id=uf.strip().upper())
+    return cidades.first() if cidades.count() == 1 else None
+
+
+def ler_csv_convites(texto: str) -> ResultadoImportacao:
+    """Lê o CSV (nome, whatsapp, cidade[, categoria]) e diz o que entra, o que tem erro e o que fica de fora.
+
+    Não grava nada (é a prévia). Fica de fora: número repetido no arquivo ou já na lista (mesmo bloqueado).
+    Levanta ValueError se faltar coluna ou se passar de `LIMITE_LINHAS_IMPORTACAO` linhas.
+    """
+    from anunciantes.validators import normalizar_whatsapp
+    from guia.models import ContatoConvite
+
+    leitor = csv.DictReader(
+        io.StringIO(texto.lstrip("﻿")), delimiter=";" if texto.count(";") > texto.count(",") else ","
+    )
+    colunas = {c.strip().lower() for c in (leitor.fieldnames or [])}
+    faltando = COLUNAS_CONVITES - colunas
+    if faltando:
+        raise ValueError(
+            f"Colunas faltando: {', '.join(sorted(faltando))}. Use: nome, whatsapp, cidade, categoria."
+        )
+    resultado = ResultadoImportacao([], [], [])
+    vistos: set[str] = set()
+    for numero, bruta in enumerate(leitor, start=2):  # linha 1 = cabeçalho
+        if numero - 1 > LIMITE_LINHAS_IMPORTACAO:
+            raise ValueError(f"Máximo de {LIMITE_LINHAS_IMPORTACAO} linhas por arquivo.")
+        linha = {(k or "").strip().lower(): (v or "").strip() for k, v in bruta.items()}
+        if not any(linha.values()):
+            continue
+        problemas = []
+        nome = linha.get("nome", "")[:120]
+        if not nome:
+            problemas.append("nome vazio")
+        try:
+            whatsapp = normalizar_whatsapp(linha.get("whatsapp", ""))
+        except ValidationError:
+            whatsapp = ""
+            problemas.append(f"WhatsApp inválido ({linha.get('whatsapp', '') or 'vazio'})")
+        cidade = _cidade_do_csv(linha.get("cidade", ""))
+        if cidade is None:
+            problemas.append(f"cidade não atendida ou não encontrada ({linha.get('cidade', '') or 'vazia'})")
+        categoria = None
+        if linha.get("categoria"):
+            categoria = CategoriaServico.objects.filter(
+                Q(slug=slugify(linha["categoria"])) | Q(nome__iexact=linha["categoria"])
+            ).first()
+            if categoria is None:
+                problemas.append(f"categoria desconhecida ({linha['categoria']})")
+        if problemas:
+            resultado.erros.append((numero, "; ".join(problemas)))
+            continue
+        if whatsapp in vistos:
+            resultado.ignoradas.append((numero, "número repetido no arquivo"))
+            continue
+        vistos.add(whatsapp)
+        existente = ContatoConvite.objects.filter(whatsapp=whatsapp).first()
+        if existente is not None:
+            motivo = "não contatar" if existente.bloqueado else "já está na lista"
+            resultado.ignoradas.append((numero, f"{motivo} ({existente.nome})"))
+            continue
+        resultado.validas.append(
+            {"linha": numero, "nome": nome, "whatsapp": whatsapp, "cidade": cidade, "categoria": categoria}
+        )
+    return resultado
+
+
+def importar_convites(texto: str, origem: str = "lista_antiga") -> int:
+    """Grava as linhas válidas do CSV (a mesma leitura da prévia). Devolve quantos contatos entraram."""
+    from guia.models import ContatoConvite
+
+    validas = ler_csv_convites(texto).validas
+    with transaction.atomic():
+        for linha in validas:
+            ContatoConvite.objects.create(
+                nome=linha["nome"],
+                whatsapp=linha["whatsapp"],
+                cidade=linha["cidade"],
+                categoria=linha["categoria"],
+                origem=origem,
+            )
+    return len(validas)
+
+
+def mensagem_convite_contato(contato, por=None) -> str:
+    """Primeiro contato (docs/GUIA_LGPD_E_TERMO.md §4): ainda sem ficha, então sem link; quem disser "sim"
+    ganha o perfil e o link de aceite depois. Montada no servidor."""
+    from core.services import configuracao
+
+    config = configuracao()
+    quem = (getattr(por, "nome", "") or "").split(" ")[0] or "a equipe"
+    cidade = config.cidade_sede.split(",")[0].strip()
+    return (
+        f"Olá, {contato.nome.split(' ')[0]}! Aqui é {quem}, do {config.nome}, de {cidade}. "
+        "Estou montando um guia "
+        f"gratuito de serviços e comércios da região e queria incluir {contato.nome}, sem custo. Antes de "
+        "publicar, você confere como vai aparecer e autoriza por um link que eu te mando. Posso montar a sua "
+        'ficha?\nSe preferir não participar, é só responder "não" e eu não entro em contato de novo.'
+    )
+
+
+def convidar_contato(contato, por=None) -> str:
+    """Marca o contato como convidado (com a data) e devolve o wa.me com a mensagem. Um por vez, pela equipe.
+    Levanta ValueError se o número estiver bloqueado ("recusou" / "não contatar")."""
+    if contato.bloqueado or numero_bloqueado(contato.whatsapp):
+        raise ValueError("Este número recusou ou pediu para não ser contatado: não envie convite.")
+    contato.situacao = contato.Situacao.CONVIDADO
+    contato.convidado_em = timezone.now()
+    contato._change_reason = "Convidado pelo WhatsApp."
+    contato.save(update_fields=["situacao", "convidado_em"])
+    return url_whatsapp(contato.whatsapp, mensagem_convite_contato(contato, por))
+
+
+def marcar_contato(contato, situacao: str) -> None:
+    """Recusou / não contatar (bloqueia novos convites) ou volta a "novo"."""
+    contato.situacao = situacao
+    contato._change_reason = f"Marcado como {contato.get_situacao_display().lower()}."
+    contato.save(update_fields=["situacao"])
+
+
+def criar_perfil_do_contato(contato, por=None) -> PerfilGuia:
+    """Quem disse "sim": vira rascunho de `PerfilGuia` (origem lista antiga), que a equipe completa e envia o
+    link de aceite. Reaproveita o perfil já criado para o contato."""
+    if contato.perfil_id:
+        return contato.perfil
+    if contato.bloqueado:
+        raise ValueError("Este número recusou ou pediu para não ser contatado.")
+    perfil = PerfilGuia.objects.create(
+        nome_publico=contato.nome,
+        tipo=PerfilGuia.Tipo.AUTONOMO,
+        responsavel_nome=contato.nome,
+        whatsapp=contato.whatsapp,
+        cidade=contato.cidade,
+        origem=PerfilGuia.Origem.LISTA_ANTIGA,
+        cadastrado_por=por,
+        demo=contato.demo,
+    )
+    if contato.categoria_id:
+        perfil.categorias.set([contato.categoria])
+    contato.perfil = perfil
+    contato.save(update_fields=["perfil"])
+    return perfil
+
+
+# --- G3: fila, lotes, CSV e estatísticas -------------------------------------------------------------------
+
+
+def perfis_com_duplicidade() -> QuerySet[PerfilGuia]:
+    """Perfis que dividem CNPJ, resumo do CPF ou WhatsApp com outro (fora os removidos)."""
+    from django.db.models import Exists, OuterRef
+
+    base = PerfilGuia.objects.exclude(status=PerfilGuia.Status.REMOVIDO)
+    outros = base.exclude(pk=OuterRef("pk"))
+    return base.filter(
+        Exists(outros.filter(cnpj=OuterRef("cnpj")).exclude(cnpj=""))
+        | Exists(outros.filter(cpf_hash=OuterRef("cpf_hash")).exclude(cpf_hash=""))
+        | Exists(outros.filter(whatsapp=OuterRef("whatsapp")).exclude(whatsapp=""))
+    )
+
+
+def pausar_em_lote(perfis, motivo: str = "Pausado em lote pela equipe.") -> int:
+    """Pausa os publicados do conjunto (os outros ficam como estão). Devolve quantos pausou."""
+    total = 0
+    for perfil in perfis:
+        if perfil.status == PerfilGuia.Status.PUBLICADO:
+            pausar(perfil, motivo)
+            total += 1
+    return total
+
+
+def reativar_em_lote(perfis) -> tuple[int, list[str]]:
+    """Volta ao ar os pausados que ainda cumprem os requisitos (com aceite vigente). (quantos, falhas)."""
+    total, falhas = 0, []
+    for perfil in perfis:
+        if perfil.status != PerfilGuia.Status.PAUSADO:
+            continue
+        try:
+            publicar(perfil, motivo="Reativado em lote pela equipe.")
+            total += 1
+        except PublicacaoRecusada as erro:
+            falhas.append(f"{perfil.nome_publico}: {erro.pendencias[0]}")
+    return total, falhas
+
+
+def celula_csv(valor) -> str:
+    """Texto seguro para planilha: neutraliza fórmula (começo com = + - @, tab ou CR) com um apóstrofo."""
+    texto = "" if valor is None else str(valor)
+    return "'" + texto if texto[:1] in ("=", "+", "-", "@", "\t", "\r") else texto
+
+
+def _csv(cabecalho: list[str], linhas) -> str:
+    """CSV com ; (abre direto no Excel em português) e todas as células neutralizadas."""
+    saida = io.StringIO()
+    escritor = csv.writer(saida, delimiter=";")
+    escritor.writerow(cabecalho)
+    for linha in linhas:
+        escritor.writerow([celula_csv(v) for v in linha])
+    return "﻿" + saida.getvalue()
+
+
+def csv_perfis(perfis) -> str:
+    """Exportação dos perfis (dados públicos e situação; sem documento nem contato do responsável)."""
+    linhas = (
+        [
+            p.nome_publico,
+            p.cidade.nome,
+            p.cidade.uf_id,
+            ", ".join(c.nome for c in p.categorias.all()),
+            p.get_tipo_display(),
+            p.get_status_display(),
+            p.get_origem_display(),
+            p.whatsapp,
+            p.telefone,
+            timezone.localtime(p.criado_em).strftime("%d/%m/%Y"),
+            timezone.localtime(p.publicado_em).strftime("%d/%m/%Y") if p.publicado_em else "",
+        ]
+        for p in perfis.select_related("cidade").prefetch_related("categorias")
+    )
+    cabecalho = ["nome", "cidade", "uf", "categorias", "tipo", "situacao", "origem", "whatsapp", "telefone",
+                 "criado_em", "publicado_em"]  # fmt: skip
+    return _csv(cabecalho, linhas)
+
+
+def estatisticas_do_guia(dias: int = 30) -> dict:
+    """Totais dos últimos `dias` dias (hoje incluído): por perfil e por categoria, mais vistos primeiro."""
+    from django.db.models import Sum
+
+    from guia.models import EstatisticaGuiaDia
+
+    inicio = timezone.localdate() - timedelta(days=dias - 1)
+    soma = {
+        "visualizacoes": Sum("visualizacoes"),
+        "cliques_whatsapp": Sum("cliques_whatsapp"),
+        "cliques_telefone": Sum("cliques_telefone"),
+    }
+    base = EstatisticaGuiaDia.objects.filter(dia__gte=inicio)
+    por_perfil = list(
+        base.values("perfil_id", "perfil__nome_publico", "perfil__cidade__nome")
+        .annotate(**soma)
+        .order_by("-visualizacoes", "perfil__nome_publico")
+    )
+    por_categoria = list(base.values("perfil__categorias__nome").annotate(**soma).order_by("-visualizacoes"))
+    total = base.aggregate(**soma)
+    return {
+        "dias": dias,
+        "inicio": inicio,
+        "por_perfil": por_perfil,
+        "por_categoria": por_categoria,
+        "total": total,
+    }
+
+
+def csv_estatisticas(dias: int = 30) -> str:
+    """Exportação das estatísticas por perfil do período."""
+    dados = estatisticas_do_guia(dias)
+    linhas = (
+        [
+            d["perfil__nome_publico"],
+            d["perfil__cidade__nome"],
+            d["visualizacoes"] or 0,
+            d["cliques_whatsapp"] or 0,
+            d["cliques_telefone"] or 0,
+        ]
+        for d in dados["por_perfil"]
+    )
+    return _csv(["perfil", "cidade", "visualizacoes", "cliques_whatsapp", "cliques_telefone"], linhas)
 
 
 # --- Demonstração ------------------------------------------------------------------------------------
@@ -1165,16 +1710,76 @@ def criar_guia_demo() -> int:
                 perfil.save()
                 perfil.categorias.set([categorias[slug]] if slug in categorias else [])
                 _publicar_demo(perfil, SITUACAO_DEMO.get(n, "publicado"), termo)
-    publicado = PerfilGuia.objects.filter(demo=True, status=PerfilGuia.Status.PUBLICADO).first()
-    if publicado:
-        PedidoDoPerfil.objects.create(
-            demo=True,
-            perfil=publicado,
-            tipo=PedidoDoPerfil.Tipo.ALTERAR,
-            descricao="Mudamos o horário de sábado (demonstração).",
-            contato="responsavel@demo.invalid",
-        )
+    _criar_operacao_demo(termo)
     return n
+
+
+def _criar_operacao_demo(termo: TermoGuia | None) -> None:
+    """G3: 6 pedidos do titular (2 vencidos, 2 no prazo, 2 atendidos, um deles removendo o perfil), 15
+    contatos da lista de convites em situações variadas e 1 termo novo (demo) aceito só por metade dos
+    publicados. Contatos de resposta sem e-mail: nada sai para a fila de e-mails."""
+    from guia.models import ContatoConvite
+
+    publicados = list(PerfilGuia.objects.filter(demo=True, status=PerfilGuia.Status.PUBLICADO).order_by("pk"))
+    if len(publicados) < 8:
+        return
+    agora = timezone.now()
+    Tipo, Status = PedidoDoPerfil.Tipo, PedidoDoPerfil.Status
+    pedidos = [  # (perfil, tipo, dias atrás, situação final)
+        (publicados[0], Tipo.ALTERAR, 20, Status.ABERTO),
+        (publicados[1], Tipo.OUTRO, 18, Status.EM_ANDAMENTO),
+        (publicados[2], Tipo.ALTERAR, 2, Status.ABERTO),
+        (publicados[3], Tipo.REMOVER, 1, Status.ABERTO),
+        (publicados[4], Tipo.ALTERAR, 30, Status.ATENDIDO),
+        (publicados[5], Tipo.REMOVER, 10, "remover"),
+    ]
+    for i, (perfil, tipo, dias, situacao) in enumerate(pedidos, 1):
+        pedido = PedidoDoPerfil.objects.create(
+            demo=True,
+            perfil=perfil,
+            tipo=tipo,
+            origem=PedidoDoPerfil.Origem.EMAIL if i % 3 == 0 else PedidoDoPerfil.Origem.FICHA,
+            descricao=f"Pedido de demonstração {i}.",
+            contato=f"WhatsApp (65) 90000-00{i:02d} (demo)",
+            criado_em=agora - timedelta(days=dias),
+        )
+        if situacao == "remover":
+            remover_perfil(perfil, None, "Remoção a pedido do titular (demonstração).", pedido=pedido)
+        elif situacao in (Status.ATENDIDO, Status.EM_ANDAMENTO):
+            responder_pedido(pedido, None, situacao, "Horário atualizado (demonstração).")
+
+    cidades = list(Cidade.objects.filter(codigo_ibge__in=DISTRIBUICAO_DEMO).order_by("pk"))
+    categorias = list(CategoriaServico.objects.filter(slug__in=CATEGORIAS_DEMO).order_by("pk"))
+    S = ContatoConvite.Situacao
+    situacoes = [S.NOVO] * 5 + [S.CONVIDADO] * 4 + [S.ACEITOU] * 2 + [S.RECUSOU] * 2 + [S.NAO_CONTATAR] * 2
+    for i, situacao in enumerate(situacoes, 1):
+        ContatoConvite.objects.create(
+            demo=True,
+            nome=f"Contato {i} (demo)",
+            whatsapp=f"+5565910{i:06d}",
+            cidade=cidades[i % len(cidades)],
+            categoria=categorias[i % len(categorias)],
+            situacao=situacao,
+            convidado_em=agora - timedelta(days=i) if situacao != S.NOVO else None,
+            perfil=publicados[6 + i % 2] if situacao == S.ACEITOU else None,
+        )
+
+    if termo is None:
+        return
+    novo = TermoGuia.objects.create(
+        demo=True,
+        versao=f"{termo.versao}-b (demo)",
+        texto=termo.texto
+        + "\n\n## 9. Novidade desta versão (demonstração)\nTexto fictício para testar o termo novo.",
+        vigente_desde=max(termo.vigente_desde, timezone.localdate()),
+    )
+    for perfil in publicados[::2]:  # metade aceita a versão nova; a outra aparece em "quem falta aceitar"
+        perfil.refresh_from_db()
+        if perfil.status != PerfilGuia.Status.PUBLICADO:
+            continue
+        _, token = gerar_convite(perfil)
+        aceitar_convite(token, perfil.responsavel_nome, "10.0.0.1", AGENTE_DEMO, avisar=False)
+    assert termo_vigente() == novo
 
 
 def _publicar_demo(perfil: PerfilGuia, situacao: str, termo: TermoGuia | None) -> None:
@@ -1215,6 +1820,15 @@ def apagar_guia_demo() -> int:
         AceitePublicacao.objects.filter(perfil_id__in=ids).delete()
         AceitePublicacao.history.filter(perfil_id__in=ids).delete()
         ConviteAceite.objects.filter(perfil_id__in=ids).delete()
+        from guia.models import ContatoConvite
+
+        contatos = ContatoConvite.objects.filter(Q(demo=True) | Q(perfil_id__in=ids))
+        ContatoConvite.history.filter(id__in=list(contatos.values_list("pk", flat=True))).delete()
+        contatos.delete()
         total, _ = perfis.delete()
         PerfilGuia.history.filter(id__in=ids).delete()
+        termos = TermoGuia.objects.filter(demo=True)
+        AceitePublicacao.objects.filter(termo__in=termos).delete()  # só em dev: aceites do termo demo
+        TermoGuia.history.filter(demo=True).delete()
+        termos.delete()
     return len(ids) if total else 0

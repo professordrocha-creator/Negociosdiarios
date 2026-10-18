@@ -1,0 +1,14 @@
+/* Manual do Administrador no admin (/painel/ajuda/): leitura confortável no celular e no computador. */
+.nd-manual { max-width: 860px; line-height: 1.6; font-size: 15px; }
+.nd-manual h1 { font-size: 1.6rem; margin: 0 0 .75rem; }
+.nd-manual h2 { font-size: 1.3rem; margin: 2rem 0 .5rem; padding-top: .5rem; border-top: 1px solid var(--hairline-color, #ddd); }
+.nd-manual h3 { font-size: 1.05rem; margin: 1.25rem 0 .4rem; }
+.nd-manual ol, .nd-manual ul { margin: .25rem 0 .75rem 1.25rem; padding: 0; }
+.nd-manual li { margin: .2rem 0; list-style: inherit; }
+.nd-manual ol > li { list-style: decimal; }
+.nd-manual ul > li { list-style: disc; }
+.nd-manual table { width: 100%; border-collapse: collapse; margin: .5rem 0 1rem; }
+.nd-manual th, .nd-manual td { border: 1px solid var(--hairline-color, #ddd); padding: 6px 8px; vertical-align: top; }
+.nd-manual .table-responsive { overflow-x: auto; }
+.nd-manual code { background: var(--darkened-bg, #f4f4f4); padding: 1px 4px; border-radius: 4px; }
+.nd-manual .nd-ajuda-nota { border-left: 4px solid #f2b705; background: #fff8dc; color: #4a3b00; margin: .75rem 0; padding: .5rem .75rem; }

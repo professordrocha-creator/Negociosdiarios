@@ -4,8 +4,7 @@
 classificados: não usa `Anunciante` (a empresa listada não tem login). Nada vai ao ar sem a autorização
 registrada do responsável (docs/GUIA_LGPD_E_TERMO.md).
 
-Etapas feitas: **G1 (base)** e **G2 (páginas públicas)**. Os pedidos do titular pela ficha, o termo novo e a
-lista de convites chegam na G3.
+Etapas feitas: **G1 (base)**, **G2 (páginas públicas)** e **G3 (LGPD e operação)**. A G4 (autocadastro) é opcional.
 
 ## Modelos
 - `GrupoCategoria`, `CategoriaServico`: carga pelo `carregar_categorias_guia` (CSV em `docs/guia/`, upsert por
@@ -18,7 +17,8 @@ lista de convites chegam na G3.
 - `ConviteAceite`: token de 32 bytes, uso único, validade (15 dias), canal.
 - `AceitePublicacao` (histórico): nome digitado, data e hora, versão, IP truncado, navegador resumido; foto do
   termo em papel no storage **privado**; revogação.
-- `EstatisticaGuiaDia` (visualizações e cliques por dia, sem IP), `PedidoDoPerfil` (MarcaDemo; formulário público na G3),
+- `ContatoConvite` (G3): lista de convites, sem página pública; recusou / não contatar bloqueiam o número.
+- `EstatisticaGuiaDia` (visualizações e cliques por dia, sem IP), `PedidoDoPerfil` (MarcaDemo; pela ficha ou registrado pela equipe),
   `ConfiguracaoGuia` (registro único).
 
 ## Serviços (`services.py`)
@@ -31,6 +31,11 @@ lista de convites chegam na G3.
   `aberto_agora` (fuso do estado, `FUSO_POR_UF`), `filtrar_lista`, `indexavel`, `pontos_do_mapa`, `buscar_no_guia`
   (`unaccent` + `pg_trgm`), `registrar_evento`, `contato_liberado`, `link_whatsapp_perfil`, `schema_da_ficha`,
   `paginas_do_sitemap`.
+- G3: `registrar_pedido`, `responder_pedido`, `pedido_vencido`, `remover_perfil` (apaga logo e contatos, também
+  no histórico), `limpar_guia_vencido`, `pendentes_do_termo`, `convidar_para_termo_novo`, `pausar_sem_aceite_do_termo`,
+  `rotina_do_guia` (tarefa diária), `numero_bloqueado`, `ler_csv_convites` / `importar_convites`, `convidar_contato`,
+  `criar_perfil_do_contato`, `pausar_em_lote` / `reativar_em_lote`, `perfis_com_duplicidade`, `celula_csv`,
+  `csv_perfis`, `estatisticas_do_guia` / `csv_estatisticas`.
 - `carregar_categorias`, `criar_guia_demo` / `apagar_guia_demo` (chamados por `criar_dados_demo` /
   `apagar_dados_demo`).
 

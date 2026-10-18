@@ -16,13 +16,21 @@ from django.utils.html import format_html
 from django.views.decorators.http import require_POST
 from simple_history.admin import SimpleHistoryAdmin
 
+from core.admin_acoes import tela_motivo
 from core.services import textos_ajuda
 from guia import services
-from guia.forms import AceitePresencialForm, PerfilGuiaAdminForm, RevogarForm
+from guia.forms import (
+    AceitePresencialForm,
+    ImportarConvitesForm,
+    PausarLoteForm,
+    PerfilGuiaAdminForm,
+    RevogarForm,
+)
 from guia.models import (
     AceitePublicacao,
     CategoriaServico,
     ConfiguracaoGuia,
+    ContatoConvite,
     ConviteAceite,
     GrupoCategoria,
     PedidoDoPerfil,
@@ -151,14 +159,67 @@ class ConviteInline(SoLeitura, admin.TabularInline):
     readonly_fields = fields
 
 
+class FilaFilter(admin.SimpleListFilter):
+    """Visões da fila do guia (docs/GUIA.md §8): aguardando aceite (com link vencido destacado), publicados,
+    pausados, cadastro repetido e removidos."""
+
+    title = "fila"
+    parameter_name = "fila"
+
+    def lookups(self, request, model_admin):
+        """Opções do filtro."""
+        return [
+            ("aguardando", "Aguardando aceite"),
+            ("link_vencido", "Aguardando aceite, com link vencido"),
+            ("publicados", "Publicados"),
+            ("pausados", "Pausados"),
+            ("duplicidade", "Possível cadastro repetido"),
+            ("removidos", "Removidos"),
+        ]
+
+    def queryset(self, request, queryset):
+        """Aplica a visão escolhida."""
+        from django.db.models import Exists, OuterRef
+        from django.utils import timezone
+
+        Status = PerfilGuia.Status
+        valor = self.value()
+        if valor == "aguardando":
+            return queryset.filter(status=Status.AGUARDANDO_ACEITE)
+        if valor == "link_vencido":
+            valido = ConviteAceite.objects.filter(
+                perfil=OuterRef("pk"), usado_em__isnull=True, expira_em__gt=timezone.now()
+            )
+            return queryset.filter(status=Status.AGUARDANDO_ACEITE).exclude(Exists(valido))
+        if valor == "publicados":
+            return queryset.filter(status=Status.PUBLICADO)
+        if valor == "pausados":
+            return queryset.filter(status=Status.PAUSADO)
+        if valor == "duplicidade":
+            return queryset.filter(pk__in=services.perfis_com_duplicidade().values("pk"))
+        if valor == "removidos":
+            return queryset.filter(status=Status.REMOVIDO)
+        return queryset
+
+
 @admin.register(PerfilGuia)
 class PerfilGuiaAdmin(SimpleHistoryAdmin):
     """Cadastro assistido (uma coluna, celular) com o painel de publicação no topo da ficha."""
 
     form = PerfilGuiaAdminForm
     change_form_template = "admin/guia/perfilguia/change_form.html"
-    list_display = ("nome_publico", "cidade", "status", "lista_categorias", "atualizado_em", "demo")
-    list_filter = ("status", "tipo", "origem", "cidade", "categorias", "demo")
+    change_list_template = "admin/guia/perfilguia/change_list.html"
+    list_display = (
+        "nome_publico",
+        "cidade",
+        "status",
+        "link_de_aceite",
+        "lista_categorias",
+        "atualizado_em",
+        "demo",
+    )
+    list_filter = (FilaFilter, "status", "tipo", "origem", "cidade", "categorias", "demo")
+    actions = ["pausar_selecionados", "reativar_selecionados", "remover_selecionados", "exportar_csv"]
     search_fields = ("nome_publico", "slug")
     list_select_related = ("cidade",)
     inlines = [AceiteInline, ConviteInline]
@@ -231,6 +292,65 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
     def get_queryset(self, request: HttpRequest) -> QuerySet[PerfilGuia]:
         """Com as categorias (lista)."""
         return super().get_queryset(request).prefetch_related("categorias")
+
+    @admin.display(description="link de aceite")
+    def link_de_aceite(self, perfil: PerfilGuia) -> str:
+        """Aguardando aceite: até quando vale o link, ou "VENCIDO" (reenviar pela ficha)."""
+        from django.utils import timezone
+
+        if perfil.status != PerfilGuia.Status.AGUARDANDO_ACEITE:
+            return "—"
+        convite = (
+            perfil.convites.filter(usado_em__isnull=True, expira_em__gt=timezone.now())
+            .order_by("-expira_em")
+            .first()
+        )
+        if convite is None:
+            return format_html('<b class="nd-guia-vencido">VENCIDO</b> · reenviar na ficha')
+        return f"vale até {timezone.localtime(convite.expira_em):%d/%m}"
+
+    @admin.action(description="Pausar os selecionados (com confirmação)", permissions=["change"])
+    def pausar_selecionados(self, request: HttpRequest, queryset: QuerySet[PerfilGuia]):
+        """Tela de confirmação com o motivo; pausa só os publicados (nada é apagado)."""
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            "pausar_selecionados",
+            "Pausar perfis",
+            False,
+            lambda perfil, por, motivo: services.pausar_em_lote(
+                [perfil], motivo or "Pausado em lote pela equipe."
+            ),
+            "{n} perfil(is) processado(s); os publicados foram pausados.",
+        )
+
+    @admin.action(description="Reativar os selecionados (só com aceite vigente)", permissions=["change"])
+    def reativar_selecionados(self, request: HttpRequest, queryset: QuerySet[PerfilGuia]) -> None:
+        """Volta ao ar os pausados que cumprem os requisitos; avisa os que não puderam."""
+        total, falhas = services.reativar_em_lote(queryset)
+        self.message_user(request, f"{total} perfil(is) reativado(s).", messages.SUCCESS)
+        for falha in falhas[:10]:
+            self.message_user(request, falha, messages.WARNING)
+
+    @admin.action(description="Remover (pedido do titular: apaga contatos e logo)", permissions=["change"])
+    def remover_selecionados(self, request: HttpRequest, queryset: QuerySet[PerfilGuia]):
+        """Confirmação com motivo obrigatório; despublica e apaga contatos e logo (fica o aceite)."""
+        return tela_motivo(
+            self,
+            request,
+            queryset.exclude(status=PerfilGuia.Status.REMOVIDO),
+            "remover_selecionados",
+            "Remover perfis do guia",
+            True,
+            lambda perfil, por, motivo: services.remover_perfil(perfil, por, motivo),
+            "{n} perfil(is) removido(s): contatos e logo apagados.",
+        )
+
+    @admin.action(description="Exportar CSV dos selecionados", permissions=["view"])
+    def exportar_csv(self, request: HttpRequest, queryset: QuerySet[PerfilGuia]) -> HttpResponse:
+        """Planilha com os dados públicos e a situação (fórmulas neutralizadas)."""
+        return _baixar_csv(services.csv_perfis(queryset), "perfis-guia.csv")
 
     @admin.display(description="categorias")
     def lista_categorias(self, perfil: PerfilGuia) -> str:
@@ -305,6 +425,8 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
             path("<int:pk>/pausar/", protegida(require_POST(self.pausar_view)), name="guia_perfil_pausar"),
             path("aceite/<int:pk>/revogar/", protegida(self.revogar_view), name="guia_aceite_revogar"),
             path("aceite/<int:pk>/foto/", protegida(self.foto_view), name="guia_aceite_foto"),
+            path("pausar-em-lote/", protegida(self.pausar_lote_view), name="guia_pausar_lote"),
+            path("estatisticas/", protegida(self.estatisticas_view), name="guia_estatisticas"),
             *super().get_urls(),
         ]
 
@@ -431,6 +553,48 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
             aceite=aceite,
         )
 
+    def pausar_lote_view(self, request: HttpRequest) -> HttpResponse:
+        """Pausar por cidade e/ou categoria: escolhe, vê a lista e confirma (nada é apagado)."""
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        form = PausarLoteForm(request.POST or None)
+        perfis = None
+        if request.method == "POST" and form.is_valid():
+            perfis = PerfilGuia.objects.filter(status=PerfilGuia.Status.PUBLICADO).select_related("cidade")
+            if form.cleaned_data["cidade"]:
+                perfis = perfis.filter(cidade=form.cleaned_data["cidade"])
+            if form.cleaned_data["categoria"]:
+                perfis = perfis.filter(categorias=form.cleaned_data["categoria"])
+            if "confirmar" in request.POST:
+                motivo = form.cleaned_data["motivo"] or "Pausado em lote pela equipe."
+                total = services.pausar_em_lote(perfis, motivo)
+                messages.success(request, f"{total} perfil(is) pausado(s).")
+                return redirect("admin:guia_perfilguia_changelist")
+        contexto = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": "Pausar em lote (cidade ou categoria)",
+            "form": form,
+            "perfis": perfis,
+        }
+        return TemplateResponse(request, "admin/guia/perfilguia/pausar_lote.html", contexto)
+
+    def estatisticas_view(self, request: HttpRequest) -> HttpResponse:
+        """Visualizações e cliques por perfil e por categoria (7 ou 30 dias); ?csv=1 baixa a tabela."""
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        dias = 7 if request.GET.get("dias") == "7" else 30
+        if request.GET.get("csv") == "1":
+            return _baixar_csv(services.csv_estatisticas(dias), f"estatisticas-guia-{dias}d.csv")
+        contexto = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": "Estatísticas do guia",
+            "dados": services.estatisticas_do_guia(dias),
+            "ajuda_itens": textos_ajuda("guia_estatisticas"),
+        }
+        return TemplateResponse(request, "admin/guia/perfilguia/estatisticas.html", contexto)
+
     def foto_view(self, request: HttpRequest, pk: int) -> FileResponse:
         """Foto do termo em papel (storage privado): só para quem vê os aceites, sem cache."""
         if not request.user.has_perm("guia.view_aceitepublicacao"):
@@ -497,31 +661,97 @@ class TermoGuiaAdmin(SimpleHistoryAdmin):
         """Prova do que foi aceito: nunca se apaga."""
         return False
 
+    def save_model(self, request: HttpRequest, obj: TermoGuia, form, change: bool) -> None:
+        """Versão nova que já está em vigor: cria os links de aceite dos publicados (no prazo)."""
+        super().save_model(request, obj, form, change)
+        if services.termo_vigente() == obj:
+            total = services.convidar_para_termo_novo()
+            if total:
+                messages.info(
+                    request,
+                    f"{total} perfil(is) publicado(s) ganharam o link para aceitar a v{obj.versao} até "
+                    f'{services.prazo_do_termo(obj):%d/%m/%Y}. Veja em "Quem falta aceitar".',
+                )
+
+    def get_urls(self):
+        """Painel "quem falta aceitar a versão vigente"."""
+        return [
+            path("pendentes/", self.admin_site.admin_view(self.pendentes_view), name="guia_termo_pendentes"),
+            *super().get_urls(),
+        ]
+
+    def pendentes_view(self, request: HttpRequest) -> HttpResponse:
+        """Publicados sem aceite da versão vigente, com os dias que faltam e o link para reenviar."""
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        termo = services.termo_vigente()
+        contexto = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": "Quem falta aceitar o termo vigente",
+            "termo": termo,
+            "prazo": services.prazo_do_termo(termo) if termo else None,
+            "pendentes": services.pendentes_do_termo(),
+            "ajuda_itens": textos_ajuda("guia_termo_pendentes"),
+        }
+        return TemplateResponse(request, "admin/guia/termoguia/pendentes.html", contexto)
+
+
+class VencidoFilter(admin.SimpleListFilter):
+    """Pedidos em aberto com o prazo (15 dias) já passado."""
+
+    title = "prazo"
+    parameter_name = "prazo"
+
+    def lookups(self, request, model_admin):
+        """Opções do filtro."""
+        return [("vencido", "Prazo vencido"), ("no_prazo", "Em aberto, no prazo")]
+
+    def queryset(self, request, queryset):
+        """Aplica o filtro."""
+        from django.utils import timezone
+
+        abertos = queryset.filter(
+            status__in=(PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
+        )
+        if self.value() == "vencido":
+            return abertos.filter(prazo_ate__lt=timezone.localdate())
+        if self.value() == "no_prazo":
+            return abertos.filter(prazo_ate__gte=timezone.localdate())
+        return queryset
+
 
 @admin.register(PedidoDoPerfil)
 class PedidoDoPerfilAdmin(SimpleHistoryAdmin):
-    """Pedidos dos titulares do guia (alterar, remover, outro), com prazo. O formulário público vem na G3."""
+    """Pedidos dos titulares do guia ("Esta é minha empresa", e-mail, WhatsApp), com prazo de 15 dias e marca
+    de vencido. A equipe registra os que chegam por e-mail; pedido de remoção pelo contato cadastrado pode ser
+    atendido na hora (ação "Atender: remover"), com a confirmação por e-mail depois."""
 
-    list_display = ("criado_em", "tipo", "perfil", "status", "prazo_ate", "demo")
-    list_filter = ("status", "tipo", "demo")
+    list_display = ("criado_em", "tipo", "perfil", "origem", "status", "prazo_ate", "vencido", "demo")
+    list_filter = (VencidoFilter, "status", "tipo", "origem", "demo")
     search_fields = ("perfil__nome_publico", "contato", "descricao")
     list_select_related = ("perfil", "perfil__cidade")
-    fields = ("perfil", "tipo", "descricao", "contato", "criado_em", "prazo_ate", "status", "resposta",
-              "decidido_por", "decidido_em", "demo")  # fmt: skip
-    readonly_fields = (
-        "perfil",
-        "tipo",
-        "descricao",
-        "contato",
-        "criado_em",
-        "decidido_por",
-        "decidido_em",
-        "demo",
-    )
+    autocomplete_fields = ("perfil",)
+    actions = ["atender_removendo", "marcar_atendido", "recusar"]
 
-    def has_add_permission(self, request: HttpRequest) -> bool:
-        """Pedidos chegam pela ficha pública (G3)."""
-        return False
+    def get_fields(self, request: HttpRequest, obj: PedidoDoPerfil | None = None) -> tuple[str, ...]:
+        """Novo (registrado pela equipe): perfil, tipo, origem, descrição e contato. Existente: tudo."""
+        if obj is None:
+            return ("perfil", "tipo", "origem", "descricao", "contato")
+        return ("perfil", "tipo", "origem", "descricao", "contato", "criado_em", "prazo_ate", "status",
+                "resposta", "decidido_por", "decidido_em", "demo")  # fmt: skip
+
+    def get_readonly_fields(self, request: HttpRequest, obj: PedidoDoPerfil | None = None) -> tuple[str, ...]:
+        """O que o titular pediu não se edita depois de registrado."""
+        if obj is None:
+            return ()
+        return ("perfil", "tipo", "origem", "descricao", "contato", "criado_em", "decidido_por",
+                "decidido_em", "demo")  # fmt: skip
+
+    @admin.display(description="vencido", boolean=True)
+    def vencido(self, pedido: PedidoDoPerfil) -> bool:
+        """Em aberto e com o prazo passado."""
+        return services.pedido_vencido(pedido)
 
     def has_delete_permission(self, request: HttpRequest, obj: PedidoDoPerfil | None = None) -> bool:
         """Registro do atendimento: não se apaga."""
@@ -537,6 +767,233 @@ class PedidoDoPerfilAdmin(SimpleHistoryAdmin):
         ):
             obj.decidido_por, obj.decidido_em = request.user, timezone.now()
         super().save_model(request, obj, form, change)
+
+    def changelist_view(self, request: HttpRequest, extra_context=None):
+        """Lembra os pedidos dos titulares do resto do site (privacidade), que ficam na outra fila."""
+        if request.method == "GET":
+            _avisar_outra_fila(request, "privacidade")
+        return super().changelist_view(request, extra_context)
+
+    @admin.action(description="Atender: remover o perfil (apaga contatos e logo; confirma por e-mail)",
+                  permissions=["change"])  # fmt: skip
+    def atender_removendo(self, request: HttpRequest, queryset: QuerySet[PedidoDoPerfil]):
+        """Confirmação com o que foi feito; remove o perfil de cada pedido em aberto e fecha o pedido."""
+        return tela_motivo(
+            self,
+            request,
+            queryset.filter(status__in=(PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)),
+            "atender_removendo",
+            "Atender pedidos removendo os perfis",
+            False,
+            lambda pedido, por, motivo: services.remover_perfil(pedido.perfil, por, motivo, pedido=pedido),
+            "{n} pedido(s) atendido(s); perfis removidos.",
+        )
+
+    @admin.action(description="Marcar como atendido (com o que foi feito)", permissions=["change"])
+    def marcar_atendido(self, request: HttpRequest, queryset: QuerySet[PedidoDoPerfil]):
+        """Fecha os pedidos com a resposta."""
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            "marcar_atendido",
+            "Marcar pedidos como atendidos",
+            True,
+            lambda pedido, por, motivo: services.responder_pedido(
+                pedido, por, PedidoDoPerfil.Status.ATENDIDO, motivo
+            ),
+            "{n} pedido(s) atendido(s).",
+        )
+
+    @admin.action(description="Recusar (com o motivo)", permissions=["change"])
+    def recusar(self, request: HttpRequest, queryset: QuerySet[PedidoDoPerfil]):
+        """Fecha os pedidos como recusados, com o motivo."""
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            "recusar",
+            "Recusar pedidos",
+            True,
+            lambda pedido, por, motivo: services.responder_pedido(
+                pedido, por, PedidoDoPerfil.Status.RECUSADO, motivo
+            ),
+            "{n} pedido(s) recusado(s).",
+        )
+
+
+@admin.register(ContatoConvite)
+class ContatoConviteAdmin(SimpleHistoryAdmin):
+    """Lista de convites (docs/GUIA.md §9): importar CSV com prévia, convidar um por vez pelo WhatsApp, marcar
+    "recusou"/"não contatar" (bloqueia o número) e criar o perfil de quem aceitou. Sem página pública."""
+
+    change_list_template = "admin/guia/contatoconvite/change_list.html"
+    list_display = (
+        "nome",
+        "whatsapp_legivel",
+        "cidade",
+        "categoria",
+        "situacao",
+        "convidado_em",
+        "acoes",
+        "demo",
+    )
+    list_filter = ("situacao", "origem", "cidade", "demo")
+    search_fields = ("nome", "whatsapp")
+    list_select_related = ("cidade", "categoria", "perfil")
+    fields = (
+        "nome",
+        "whatsapp",
+        "cidade",
+        "categoria",
+        "origem",
+        "situacao",
+        "convidado_em",
+        "perfil",
+        "observacao",
+    )
+    readonly_fields = ("convidado_em", "perfil")
+    actions = ["marcar_recusou", "marcar_nao_contatar", "marcar_novo"]
+
+    @admin.display(description="WhatsApp", ordering="whatsapp")
+    def whatsapp_legivel(self, contato: ContatoConvite) -> str:
+        """(65) 99999-0000."""
+        return services.telefone_legivel(contato.whatsapp)
+
+    @admin.display(description="ações")
+    def acoes(self, contato: ContatoConvite) -> str:
+        """Convidar (um por vez) e criar o perfil; nada para número bloqueado."""
+        if contato.bloqueado:
+            return "bloqueado"
+        if contato.perfil_id:
+            return format_html(
+                '<a href="{}">abrir perfil</a>',
+                reverse("admin:guia_perfilguia_change", args=[contato.perfil_id]),
+            )
+        return format_html(
+            '<a href="{}">convidar</a> · <a href="{}">criar perfil</a>',
+            reverse("admin:guia_contato_convidar", args=[contato.pk]),
+            reverse("admin:guia_contato_criar_perfil", args=[contato.pk]),
+        )
+
+    def save_model(self, request: HttpRequest, obj: ContatoConvite, form, change: bool) -> None:
+        """WhatsApp em E.164 (o modelo guarda já normalizado)."""
+        from anunciantes.validators import normalizar_whatsapp
+
+        obj.whatsapp = normalizar_whatsapp(obj.whatsapp)
+        super().save_model(request, obj, form, change)
+
+    def has_delete_permission(self, request: HttpRequest, obj: ContatoConvite | None = None) -> bool:
+        """A lista "não contatar" não pode sumir (é o que impede novo convite)."""
+        return False
+
+    def _marcar(self, request, queryset, situacao: str, texto: str) -> None:
+        """Marca a situação dos selecionados."""
+        for contato in queryset:
+            services.marcar_contato(contato, situacao)
+        self.message_user(request, texto.format(n=queryset.count()), messages.SUCCESS)
+
+    @admin.action(description="Marcar: recusou (bloqueia novos convites)", permissions=["change"])
+    def marcar_recusou(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]) -> None:
+        """Recusou o convite."""
+        self._marcar(
+            request, queryset, ContatoConvite.Situacao.RECUSOU, "{n} contato(s) marcado(s): recusou."
+        )
+
+    @admin.action(description="Marcar: não contatar (bloqueia novos convites)", permissions=["change"])
+    def marcar_nao_contatar(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]) -> None:
+        """Pediu para não ser contatado."""
+        self._marcar(
+            request,
+            queryset,
+            ContatoConvite.Situacao.NAO_CONTATAR,
+            "{n} contato(s) marcado(s): não contatar.",
+        )
+
+    @admin.action(description='Voltar para "novo"', permissions=["change"])
+    def marcar_novo(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]) -> None:
+        """Desfaz uma marcação feita por engano."""
+        self._marcar(request, queryset, ContatoConvite.Situacao.NOVO, "{n} contato(s) de volta para novo.")
+
+    def get_urls(self):
+        """Importar CSV, convidar e criar perfil."""
+        protegida = self.admin_site.admin_view
+        return [
+            path("importar/", protegida(self.importar_view), name="guia_contato_importar"),
+            path("<int:pk>/convidar/", protegida(self.convidar_view), name="guia_contato_convidar"),
+            path("<int:pk>/perfil/", protegida(self.criar_perfil_view), name="guia_contato_criar_perfil"),
+            *super().get_urls(),
+        ]
+
+    def _contexto(self, request: HttpRequest, titulo: str, **extra) -> dict:
+        """Cabeçalho e trilha do admin."""
+        return {**self.admin_site.each_context(request), "opts": self.model._meta, "title": titulo, **extra}
+
+    def importar_view(self, request: HttpRequest) -> HttpResponse:
+        """CSV → prévia (linhas válidas, erros e ignoradas por número de linha) → importar só as válidas."""
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        form = ImportarConvitesForm(request.POST or None, request.FILES or None)
+        previa, texto = None, ""
+        if request.method == "POST" and form.is_valid():
+            texto = form.cleaned_data["texto"]
+            try:
+                if "importar" in request.POST:
+                    total = services.importar_convites(texto, form.cleaned_data["origem"])
+                    messages.success(request, f"{total} contato(s) importado(s).")
+                    return redirect("admin:guia_contatoconvite_changelist")
+                previa = services.ler_csv_convites(texto)
+            except ValueError as erro:
+                form.add_error(None, str(erro))
+        contexto = self._contexto(
+            request,
+            "Importar lista de convites",
+            form=form,
+            previa=previa,
+            texto=texto,
+            ajuda_itens=textos_ajuda("guia_importar"),
+        )
+        return TemplateResponse(request, "admin/guia/contatoconvite/importar.html", contexto)
+
+    def convidar_view(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """GET: a mensagem e o botão. POST: marca "convidado" (com a data) e mostra o botão do wa.me."""
+        contato = get_object_or_404(ContatoConvite, pk=pk)
+        if not self.has_change_permission(request, contato):
+            raise PermissionDenied
+        url = ""
+        if request.method == "POST":
+            try:
+                url = services.convidar_contato(contato, request.user)
+            except ValueError as erro:
+                messages.error(request, str(erro))
+                return redirect("admin:guia_contatoconvite_changelist")
+        contexto = self._contexto(
+            request,
+            "Convidar pelo WhatsApp",
+            contato=contato,
+            mensagem=services.mensagem_convite_contato(contato, request.user),
+            url_whatsapp=url,
+            bloqueado=contato.bloqueado or services.numero_bloqueado(contato.whatsapp),
+        )
+        return TemplateResponse(request, "admin/guia/contatoconvite/convidar.html", contexto)
+
+    def criar_perfil_view(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """Quem disse "sim": cria o rascunho do perfil (origem lista antiga) e abre a ficha para completar."""
+        contato = get_object_or_404(ContatoConvite, pk=pk)
+        if not (
+            self.has_change_permission(request, contato) and request.user.has_perm("guia.add_perfilguia")
+        ):
+            raise PermissionDenied
+        if request.method != "POST":
+            contexto = self._contexto(request, "Criar perfil a partir do contato", contato=contato)
+            return TemplateResponse(request, "admin/guia/contatoconvite/criar_perfil.html", contexto)
+        try:
+            perfil = services.criar_perfil_do_contato(contato, request.user)
+        except ValueError as erro:
+            messages.error(request, str(erro))
+            return redirect("admin:guia_contatoconvite_changelist")
+        messages.success(request, "Perfil criado como rascunho. Complete os dados e envie o link de aceite.")
+        return redirect("admin:guia_perfilguia_change", perfil.pk)
 
 
 @admin.register(ConfiguracaoGuia)
@@ -556,3 +1013,46 @@ class ConfiguracaoGuiaAdmin(SimpleHistoryAdmin):
     def has_delete_permission(self, request: HttpRequest, obj: ConfiguracaoGuia | None = None) -> bool:
         """O registro único nunca é apagado."""
         return False
+
+
+def _baixar_csv(conteudo: str, nome: str) -> HttpResponse:
+    """Resposta de download do CSV (sem cache)."""
+    resposta = HttpResponse(conteudo, content_type="text/csv; charset=utf-8")
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+def _avisar_outra_fila(request: HttpRequest, qual: str) -> None:
+    """Pedidos do titular ficam em duas filas (site e guia): cada uma avisa quantos há em aberto na outra."""
+    from django.utils import timezone
+
+    from privacidade.models import PedidoTitular
+
+    if qual == "privacidade" and request.user.has_perm("privacidade.view_pedidotitular"):
+        abertos = PedidoTitular.objects.filter(
+            situacao__in=(PedidoTitular.Situacao.ABERTO, PedidoTitular.Situacao.EM_ANDAMENTO)
+        )
+        url = reverse("admin:privacidade_pedidotitular_changelist")
+    elif qual == "guia" and request.user.has_perm("guia.view_pedidodoperfil"):
+        abertos = PedidoDoPerfil.objects.filter(
+            status__in=(PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
+        )
+        url = reverse("admin:guia_pedidodoperfil_changelist") + "?prazo=vencido"
+    else:
+        return
+    total = abertos.count()
+    if total:
+        campo = "prazo" if qual == "privacidade" else "prazo_ate"
+        vencidos = abertos.filter(**{f"{campo}__lt": timezone.localdate()}).count()
+        nome = "do site (Meus dados, e-mail)" if qual == "privacidade" else "do Guia de Negócios"
+        messages.info(
+            request,
+            format_html(
+                'Pedidos dos titulares {}: {} em aberto, {} vencido(s). <a href="{}">Ver</a>',
+                nome,
+                total,
+                vencidos,
+                url,
+            ),  # fmt: skip
+        )

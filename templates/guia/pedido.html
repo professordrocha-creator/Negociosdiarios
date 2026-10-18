@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load nd %}
+{# "Esta é minha empresa" (G3; docs/GUIA_LGPD_E_TERMO.md §5): pedido do titular sem login. O campo site_empresa #}
+{# é armadilha para robôs (escondido por CSS .nd-armadilha). noindex (guia.views.pedido). #}
+
+{% block titulo %}Esta é minha empresa: {{ perfil.nome_publico }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <nav aria-label="Trilha" class="small"><a href="{% url 'guia:empresa' perfil.slug %}">{{ perfil.nome_publico }}</a> › Esta é minha empresa</nav>
+    <h1 class="h4 m-0">Esta é minha empresa</h1>
+    {% include "_ajuda.html" %}
+    <p class="mb-0">Pedido sobre a ficha <b>{{ perfil.nome_publico }}</b> ({{ perfil.cidade.nome }}/{{ perfil.cidade.uf_id }}). Respondemos em até <b>15 dias</b>. Se preferir, escreva para o Encarregado de dados: <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.</p>
+    <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      <fieldset>
+        <legend class="form-label">{{ form.tipo.label }}</legend>
+        {% for opcao in form.tipo %}<label class="d-block">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+        {% for erro in form.tipo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </fieldset>
+      {% include "anunciantes/_campo.html" with campo=form.descricao %}
+      {% include "anunciantes/_campo.html" with campo=form.contato %}
+      <div class="nd-armadilha" aria-hidden="true">
+        <label for="{{ form.site_empresa.id_for_label }}">{{ form.site_empresa.label }}</label>{{ form.site_empresa }}
+      </div>
+      <p class="small text-suave mb-0">Remover a ficha revoga a sua autorização: os contatos e o logo são apagados. Guardamos só o registro da autorização e deste pedido, pelo prazo de prova.</p>
+      <div><button type="submit" class="btn btn-nd">Enviar pedido</button></div>
+    </form>
+  </div>
+</main>
+{% endblock %}

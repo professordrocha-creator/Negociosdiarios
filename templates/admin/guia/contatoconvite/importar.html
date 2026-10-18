@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Importar lista de convites (G3): arquivo → prévia com erros por linha → importar só as válidas. #}
+{# O texto lido vai num campo escondido (o arquivo não fica no servidor). #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_contatoconvite_changelist' %}">Lista de convites</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+{% if ajuda_itens %}<details class="nd-guia-ajuda module" open><summary>Sobre esta tela</summary><ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+<form method="post" enctype="multipart/form-data" class="module nd-guia-painel" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="errornote">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% if previa %}
+    <input type="hidden" name="texto" value="{{ texto }}">
+    <input type="hidden" name="origem" value="{{ form.cleaned_data.origem }}">
+    <h2>Prévia: {{ previa.validas|length }} linha(s) para importar</h2>
+    {% if previa.erros %}
+      <h3 class="nd-guia-erro">Com erro (não entram): {{ previa.erros|length }}</h3>
+      <ul>{% for linha, erro in previa.erros %}<li class="nd-guia-erro">Linha {{ linha }}: {{ erro }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if previa.ignoradas %}
+      <h3>Ficam de fora: {{ previa.ignoradas|length }}</h3>
+      <ul>{% for linha, motivo in previa.ignoradas %}<li>Linha {{ linha }}: {{ motivo }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if previa.validas %}
+      <table class="nd-guia-tabela">
+        <thead><tr><th>Linha</th><th>Nome</th><th>WhatsApp</th><th>Cidade</th><th>Categoria</th></tr></thead>
+        <tbody>{% for v in previa.validas %}<tr><td>{{ v.linha }}</td><td>{{ v.nome }}</td><td>{{ v.whatsapp }}</td><td>{{ v.cidade }}</td><td>{{ v.categoria|default:"—" }}</td></tr>{% endfor %}</tbody>
+      </table>
+    {% endif %}
+    <div class="nd-guia-botoes">
+      {% if previa.validas %}<button type="submit" name="importar" value="1" class="button default">Importar {{ previa.validas|length }} contato(s)</button>{% endif %}
+      <a class="button" href="{% url 'admin:guia_contato_importar' %}">Escolher outro arquivo</a>
+    </div>
+  {% else %}
+    {% for campo in form.visible_fields %}
+    <div class="form-row">
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}</label> {{ campo }}
+      {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+      {{ campo.errors }}
+    </div>
+    {% endfor %}
+    <div class="nd-guia-botoes"><button type="submit" class="button default">Ver a prévia</button></div>
+  {% endif %}
+</form>
+{% endblock %}

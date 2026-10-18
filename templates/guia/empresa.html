@@ -2,7 +2,7 @@
 {% load nd static %}
 {# /guia/empresa/<slug>/ (G2): ficha. Só perfil publicado chega aqui (o resto é 404). Contato sem expor dados #}
 {# (docs/GUIA.md §7): WhatsApp por /guia/contato/<id>/whatsapp/ e "Ver telefone" (HTMX; sem JS, página própria). #}
-{# Profissional regulamentado: só nome, especialidade, registro, contato e local (sem frase, logo e horário). #}
+{# Regulamentado: sem frase e sem logo; horário só para estabelecimento (farmácia, clínica...; G3). #}
 
 {% block titulo %}{{ perfil.nome_publico }} · {% if primeira %}{{ primeira.nome }} em {% endif %}{{ perfil.cidade.nome }}{% endblock %}
 {% block descricao %}{% if perfil.frase and not regulamentado %}{{ perfil.frase }} {% endif %}{% if primeira %}{{ primeira.nome }} em {% endif %}{{ perfil.cidade.nome }}/{{ perfil.cidade.uf_id }}: contato pelo WhatsApp, local e horário no {{ nome_guia }}.{% endblock %}
@@ -67,7 +67,7 @@
     <aside class="col-lg-5 d-grid gap-3 align-content-start">
       <div class="nd-caixa small">
         <p class="mb-2">Os dados desta ficha foram autorizados pelo responsável. O {{ nome_guia }} não intermedia o serviço.</p>
-        <p class="mb-0">É o dono? Para alterar ou remover, escreva para <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.</p>
+        <p class="mb-0"><a href="{% url 'guia:pedido' perfil.slug %}" rel="nofollow">Esta é minha empresa: alterar ou remover</a></p>
       </div>
     </aside>
   </div>

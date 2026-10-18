@@ -1,5 +1,7 @@
 # Administração da plataforma
 
+> Passo a passo para a equipe (sem programação): **docs/MANUAL_ADMIN.md**, também em `/painel/ajuda/` (link "Ajuda" no topo do admin, só equipe).
+
 ## Quem administra
 **Daniel é o administrador geral (superusuário).** Tem acesso total: anunciantes,
 anúncios, planos, faturas, publicidade, moderação, relatórios e configurações.
@@ -26,9 +28,11 @@ grupo certo, seguindo a tabela acima. Teste: `contas/tests/test_grupos.py`.
 | Moderador | Estados e cidades, regiões e bairros: ver · Anunciantes: ver, aprovar/suspender (com motivo), histórico · Solicitações de cidade: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver, histórico · Fila de moderação: aprovar/recusar · **Denúncias: ver, aceitar (pausar/remover) ou descartar; recebe o e-mail de anúncio pausado por golpe** (Sprint 7B parte 2) · Guia: perfis (ver) e pedidos dos perfis (ver, responder) | — |
 | Financeiro | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos: ver, criar, editar (preços e limites) · Assinaturas: ver, criar, editar, pagamento manual · Pedidos de plano: ver, aprovar/recusar (recebe o e-mail de pedido novo) · Anúncios: ver · **Faturas: ver, painel de cobrança, confirmar pagamento, recusar comprovante, cancelar, editar link do boleto/observação (recebe o e-mail de comprovante novo) · E-mails de cobrança: ver, editar** (Sprint 6) · Publicidade: patrocinadores e campanhas (ver) | Relatórios |
 | Comercial | Estados e cidades, regiões e bairros: ver · Anunciantes: ver · Planos, assinaturas e pedidos: ver · Anúncios: ver · **Publicidade: patrocinadores, campanhas e peças (ver, criar, editar), painel e CSV, gerar fatura; recebe o aviso de campanha terminando** (Sprint 7A) | Relatório mensal ao patrocinador |
-| **Guia** (G1, `guia/migrations/0002`) | Guia de Negócios: perfis (ver, cadastrar, editar, enviar convite pelo WhatsApp, aceite em papel, publicar, pausar, revogar aceite) · categorias, termos, aceites e convites: ver | Pedidos do titular e lista de convites (G3) |
+| **Guia** (G1 e G3, `guia/migrations/0002` e `0006`) | Guia de Negócios: perfis (ver, cadastrar, editar, enviar convite pelo WhatsApp, aceite em papel, publicar, pausar e reativar em lote, remover, revogar aceite, exportar CSV, estatísticas) · **lista de convites (ver, importar, convidar, marcar não contatar, criar perfil)** · categorias, termos, aceites e convites de aceite: ver | — |
 
 Financeiro e Comercial **não veem nada do guia**. Equipe demo: `guia@demo.invalid` (grupo Guia).
+Pedidos dos titulares do guia: **Moderador** e **Administrador** (ver, registrar os que chegam por e-mail ou
+WhatsApp, atender removendo, marcar atendido, recusar). Termo novo do guia: só o Administrador grava versões.
 Ligar o guia no site: Admin › Guia de Negócios › Configuração do guia › "guia no ar" (desligado, a equipe
 logada vê as páginas como pré-visualização). Lá também: nome da aba, mínimo de empresas para o Google indexar
 e contatos revelados por hora por visitante.

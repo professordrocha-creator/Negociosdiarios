@@ -20,7 +20,7 @@ from django.views.decorators.vary import vary_on_headers
 from busca.services import cidade_escolhida
 from core.services import cidades_atendidas, limite_por_ip_excedido, textos_ajuda
 from guia import services
-from guia.forms import AceiteForm
+from guia.forms import AceiteForm, PedidoForm
 from guia.models import CategoriaServico, PerfilGuia
 
 
@@ -133,7 +133,7 @@ def inicio(request: HttpRequest) -> HttpResponse:
         return redirect("guia:cidade", cidade.uf_id.lower(), cidade.slug)
     perfis, categorias = services.buscar_no_guia(termo, cidade) if termo else ([], [])
     agora = timezone.now()
-    itens = [(p, None if p.regulamentado else services.aberto_agora(p, agora)) for p in perfis]
+    itens = [(p, services.aberto_agora(p, agora) if p.mostra_horario else None) for p in perfis]
     estados = cidades_atendidas()
     contexto = _contexto(
         request,
@@ -191,7 +191,7 @@ def categoria(request: HttpRequest, uf: str, cidade: str, categoria: str) -> Htt
     perfis = services.filtrar_lista(todos, aberto, bairro)
     pagina = Paginator(perfis, 24).get_page(request.GET.get("pagina"))
     agora = timezone.now()
-    itens = [(p, None if p.regulamentado else services.aberto_agora(p, agora)) for p in pagina.object_list]
+    itens = [(p, services.aberto_agora(p, agora) if p.mostra_horario else None) for p in pagina.object_list]
     bairros = sorted({(p.bairro.slug, p.bairro.nome) for p in todos if p.bairro_id}, key=lambda b: b[1])
     filtrada = aberto or bool(bairro) or pagina.number > 1
     titulo = f"{escolhida.nome} em {atual.nome} - {atual.uf_id}"
@@ -247,8 +247,8 @@ def empresa(request: HttpRequest, slug: str) -> HttpResponse:
         regulamentado=regulamentado,
         categorias=categorias,
         primeira=categorias[0] if categorias else None,
-        aberto=None if regulamentado else services.aberto_agora(perfil),
-        semana=[] if regulamentado or not perfil.horarios else services.horarios_da_semana(perfil),
+        aberto=services.aberto_agora(perfil) if perfil.mostra_horario else None,
+        semana=services.horarios_da_semana(perfil) if perfil.horarios and perfil.mostra_horario else [],
         localizacao=services.ponto_da_ficha(perfil),
         schema=services.schema_da_ficha(perfil, url),
         url_canonica=url,
@@ -300,3 +300,32 @@ def contato_telefone(request: HttpRequest, pk: int) -> HttpResponse:
     }
     modelo = "guia/_telefone.html" if htmx else "guia/telefone.html"
     return _noindex(render(request, modelo, contexto))
+
+
+@require_http_methods(["GET", "POST"])
+def pedido(request: HttpRequest, slug: str) -> HttpResponse:
+    """ "Esta é minha empresa" (/guia/pedido/<slug>/): alterar, remover ou outro, sem login. CSRF, campo-
+    armadilha (robô vê sucesso e nada é gravado) e limite por visitante por hora (IP só como resumo).
+    Entra na fila do admin com prazo de 15 dias; a equipe é avisada por e-mail."""
+    previa = _liberar(request)
+    perfil = _perfil_visivel(slug=slug)
+    form = PedidoForm(request.POST or None)
+    contexto = _contexto(request, "guia_pedido", previa, perfil=perfil, form=form)
+    if request.method == "POST":
+        limite = services.configuracao_guia().pedidos_por_hora
+        if limite_por_ip_excedido(request, "guia_pedido", limite=limite, janela_segundos=3600):
+            form.add_error(
+                None, "Muitos pedidos na última hora. Aguarde um pouco ou escreva para o e-mail abaixo."
+            )
+            return _noindex(render(request, "guia/pedido.html", contexto, status=429))
+        if form.is_valid():
+            if not form.cleaned_data["site_empresa"]:
+                services.registrar_pedido(
+                    perfil,
+                    form.cleaned_data["tipo"],
+                    form.cleaned_data["descricao"],
+                    form.cleaned_data["contato"],
+                )
+            return _noindex(render(request, "guia/pedido_recebido.html", contexto))
+        return _noindex(render(request, "guia/pedido.html", contexto, status=400))
+    return _noindex(render(request, "guia/pedido.html", contexto))

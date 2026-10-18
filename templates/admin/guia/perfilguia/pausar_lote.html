@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Pausar em lote por cidade e/ou categoria (G3): escolher → ver a lista → confirmar. Nada é apagado. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_perfilguia_changelist' %}">Perfis do guia</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+<form method="post" class="module nd-guia-painel" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="errornote">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+  {% for campo in form %}
+  <div class="form-row">
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label> {{ campo }}
+    {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+    {{ campo.errors }}
+  </div>
+  {% endfor %}
+  {% if perfis is not None %}
+    <h2>{{ perfis|length }} perfil(is) publicado(s) serão pausados</h2>
+    <ul>{% for perfil in perfis %}<li>{{ perfil }}</li>{% empty %}<li>Nenhum perfil publicado com esse filtro.</li>{% endfor %}</ul>
+    <div class="nd-guia-botoes">
+      {% if perfis %}<button type="submit" name="confirmar" value="1" class="button default">Confirmar: pausar {{ perfis|length }}</button>{% endif %}
+      <a class="button" href="{% url 'admin:guia_perfilguia_changelist' %}">Cancelar</a>
+    </div>
+  {% else %}
+    <div class="nd-guia-botoes"><button type="submit" class="button default">Ver quem será pausado</button></div>
+  {% endif %}
+</form>
+{% endblock %}

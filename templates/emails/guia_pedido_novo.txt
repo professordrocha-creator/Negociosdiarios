@@ -1,0 +1,9 @@
+{% autoescape off %}Olá,
+
+Chegou um pedido do titular no guia: {{ pedido.get_tipo_display }} · {{ pedido.perfil.nome_publico }} ({{ pedido.perfil.cidade }}).
+Prazo para responder: {{ pedido.prazo_ate|date:"d/m/Y" }}.
+
+O contato e a descrição estão no admin:
+{{ link_admin }}
+
+{{ site_nome }}{% endautoescape %}

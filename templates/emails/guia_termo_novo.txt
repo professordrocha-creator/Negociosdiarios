@@ -1,0 +1,10 @@
+{% autoescape off %}Olá!
+
+Atualizamos o termo de autorização de publicação do {{ nome_guia }} ({{ site_nome }}): versão {{ termo.versao }}.
+Para {{ perfil.nome_publico }} continuar no guia, confira e autorize de novo até {{ prazo|date:"d/m/Y" }}:
+{{ link }}
+
+Sem a nova autorização até essa data, a ficha é pausada (nada é apagado). A publicação continua gratuita.
+Se preferir sair do guia, é só não autorizar ou responder este e-mail.
+
+{{ site_nome }} · {{ site_url }}{% endautoescape %}

@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Estatísticas do guia (G3): por perfil e por categoria, 7 ou 30 dias, sem dado pessoal. CSV na mesma URL (?csv=1). #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_perfilguia_changelist' %}">Perfis do guia</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+{% if ajuda_itens %}<details class="nd-guia-ajuda module"><summary>Sobre esta tela</summary><ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+<div class="nd-guia-botoes">
+  <a class="button{% if dados.dias == 7 %} default{% endif %}" href="?dias=7">7 dias</a>
+  <a class="button{% if dados.dias == 30 %} default{% endif %}" href="?dias=30">30 dias</a>
+  <a class="button" href="?dias={{ dados.dias }}&amp;csv=1">Exportar CSV</a>
+</div>
+<p>Desde {{ dados.inicio|date:"d/m/Y" }}: <b>{{ dados.total.visualizacoes|default:0 }}</b> visualizações, <b>{{ dados.total.cliques_whatsapp|default:0 }}</b> cliques no WhatsApp e <b>{{ dados.total.cliques_telefone|default:0 }}</b> no telefone.</p>
+<div class="module">
+  <h2>Por categoria</h2>
+  <table class="nd-guia-tabela">
+    <thead><tr><th>Categoria</th><th class="num">Visualizações</th><th class="num">WhatsApp</th><th class="num">Telefone</th></tr></thead>
+    <tbody>{% for d in dados.por_categoria %}<tr><td>{{ d.perfil__categorias__nome|default:"(sem categoria)" }}</td><td class="num">{{ d.visualizacoes|default:0 }}</td><td class="num">{{ d.cliques_whatsapp|default:0 }}</td><td class="num">{{ d.cliques_telefone|default:0 }}</td></tr>{% empty %}<tr><td colspan="4">Sem dados no período.</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+<div class="module">
+  <h2>Por perfil</h2>
+  <table class="nd-guia-tabela">
+    <thead><tr><th>Perfil</th><th>Cidade</th><th class="num">Visualizações</th><th class="num">WhatsApp</th><th class="num">Telefone</th></tr></thead>
+    <tbody>{% for d in dados.por_perfil %}<tr><td><a href="{% url 'admin:guia_perfilguia_change' d.perfil_id %}">{{ d.perfil__nome_publico }}</a></td><td>{{ d.perfil__cidade__nome }}</td><td class="num">{{ d.visualizacoes|default:0 }}</td><td class="num">{{ d.cliques_whatsapp|default:0 }}</td><td class="num">{{ d.cliques_telefone|default:0 }}</td></tr>{% empty %}<tr><td colspan="5">Sem dados no período.</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

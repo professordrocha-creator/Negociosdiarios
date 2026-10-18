@@ -55,7 +55,7 @@ com amigos e as lojas fundadoras pedirem). Cada etapa termina com testes, TextoA
 |---|---|
 | **G1 — Base** (feita) | Modelos e migrações, carga de categorias (`carregar_categorias_guia`), admin do guia (celular), cadastro assistido, termo, convite e aceite (`/guia/aceite/<token>/`), regras de publicação, grupo **Guia**, demo mínima |
 | **G2 — Público** (feita) | Páginas de cidade, categoria e ficha, lista + mapa, busca (`unaccent`/`pg_trgm`), "aberto agora", SEO e sitemap, contagem de cliques |
-| **G3 — LGPD e operação** | Pedidos do titular ("Esta é minha empresa"), revogação, termo novo (prazo de 30 dias), lista de convites e "não contatar", fila e ações em lote, demo completa (~60 perfis) |
+| **G3 — LGPD e operação** (feita) | Pedidos do titular ("Esta é minha empresa"), revogação, termo novo (prazo de 30 dias), lista de convites e "não contatar", fila e ações em lote, demo completa (~60 perfis) |
 | **G4 — Opcional** | Autocadastro com aprovação, selo de verificação, ajustes de uso (depois das primeiras 50 a 100 empresas) |
 
 Depois do guia: revisão geral e correções em lote, servidor de teste (subdomínio, `noindex`) com amigos,

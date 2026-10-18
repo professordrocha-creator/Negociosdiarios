@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Convidar um contato (G3; um por vez, sem envio automático): confere a mensagem, marca "convidado" e abre o wa.me. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_contatoconvite_changelist' %}">Lista de convites</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+<div class="module nd-guia-painel">
+  <p><b>{{ contato.nome }}</b> · {{ contato.cidade }}{% if contato.categoria %} · {{ contato.categoria }}{% endif %}{% if contato.convidado_em %} · já convidado em {{ contato.convidado_em|date:"d/m/Y" }}{% endif %}</p>
+  {% if bloqueado %}
+    <p class="nd-guia-erro"><b>Este número recusou ou pediu para não ser contatado.</b> Não envie convite.</p>
+  {% else %}
+    <p><b>Mensagem:</b></p>
+    <div class="nd-guia-mensagem">{{ mensagem }}</div>
+    {% if url_whatsapp %}
+      <p>Marcado como convidado. Agora envie:</p>
+      <div class="nd-guia-botoes"><a class="button default" href="{{ url_whatsapp }}" target="_blank" rel="noopener noreferrer">Abrir o WhatsApp com a mensagem</a>
+        <a class="button" href="{% url 'admin:guia_contatoconvite_changelist' %}">Voltar à lista</a></div>
+    {% else %}
+      <form method="post" class="nd-guia-botoes">{% csrf_token %}
+        <button type="submit" class="button default">Marcar como convidado e abrir o WhatsApp</button>
+        <a class="button" href="{% url 'admin:guia_contatoconvite_changelist' %}">Cancelar</a>
+      </form>
+    {% endif %}
+    <p class="help">Se a pessoa disser "sim", use "criar perfil". Se disser "não", marque "não contatar" na lista.</p>
+  {% endif %}
+</div>
+{% endblock %}

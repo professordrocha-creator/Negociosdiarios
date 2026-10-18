@@ -682,3 +682,20 @@ def enviar_email_modelo(modelo: str, assunto: str, para: list[str], contexto: di
         {"site_nome": configuracao().nome, "site_url": settings.SITE_URL, **(contexto or {})},
     )
     return send_mail(f"{assunto} · {configuracao().nome}", corpo, None, destinatarios)
+
+
+# --- Manual da equipe (/painel/ajuda/) ----------------------------------------------------------------
+
+ARQUIVO_MANUAL = Path(settings.BASE_DIR) / "docs" / "MANUAL_ADMIN.md"
+
+
+def manual_da_equipe(arquivo: Path = ARQUIVO_MANUAL):
+    """O docs/MANUAL_ADMIN.md em HTML seguro (tudo escapado; ver core.markdown_seguro). Lido a cada pedido:
+    o manual muda junto com o código e é pequeno. Sem o arquivo, uma mensagem no lugar."""
+    from core.markdown_seguro import markdown_para_html
+
+    try:
+        texto = arquivo.read_text(encoding="utf-8")
+    except OSError:
+        texto = "# Manual indisponível\n\nO arquivo docs/MANUAL_ADMIN.md não foi encontrado no servidor."
+    return markdown_para_html(texto)

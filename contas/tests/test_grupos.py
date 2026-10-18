@@ -68,9 +68,12 @@ GUIA_CADASTRO = {
     "guia.view_aceitepublicacao",
     "guia.view_conviteaceite",
 }
-GUIA_PEDIDOS = {"guia.view_pedidodoperfil", "guia.change_pedidodoperfil"}
+GUIA_PEDIDOS = {"guia.view_pedidodoperfil", "guia.change_pedidodoperfil", "guia.add_pedidodoperfil"}
+# G3 (guia/0006): lista de convites para o grupo Guia e o Administrador.
+GUIA_CONVITES = {"guia.view_contatoconvite", "guia.add_contatoconvite", "guia.change_contatoconvite"}
 GUIA_ADMIN = (
-    GUIA_CATEGORIAS_VER
+    GUIA_CONVITES
+    | GUIA_CATEGORIAS_VER
     | GUIA_CADASTRO
     | GUIA_PEDIDOS
     | {
@@ -160,7 +163,7 @@ ESPERADO = {
     | ANUNCIOS_VER
     | CATALOGO_VER
     | PUBLICIDADE_TUDO,
-    "Guia": GUIA_CATEGORIAS_VER | GUIA_CADASTRO,
+    "Guia": GUIA_CATEGORIAS_VER | GUIA_CADASTRO | GUIA_CONVITES,
 }
 
 

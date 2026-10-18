@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Termo novo (G3): publicados sem aceite da versão vigente, com os dias que faltam e o link do perfil. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_termoguia_changelist' %}">Termos do guia</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+{% if ajuda_itens %}<details class="nd-guia-ajuda module"><summary>Sobre esta tela</summary><ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+{% if termo %}
+<p>Versão vigente: <b>v{{ termo.versao }}</b>, desde {{ termo.vigente_desde|date:"d/m/Y" }}. Prazo para aceitar: <b>{{ prazo|date:"d/m/Y" }}</b>. Depois, a rotina diária pausa quem não aceitou.</p>
+<div class="module">
+  <table class="nd-guia-tabela">
+    <thead><tr><th>Perfil</th><th>Cidade</th><th class="num">Dias que faltam</th><th>Link de aceite</th></tr></thead>
+    <tbody>
+    {% for item in pendentes %}
+      <tr>
+        <td><a href="{% url 'admin:guia_perfilguia_change' item.perfil.pk %}">{{ item.perfil.nome_publico }}</a></td>
+        <td>{{ item.perfil.cidade }}</td>
+        <td class="num{% if item.dias_restantes < 0 %} nd-guia-vencido{% endif %}">{% if item.dias_restantes < 0 %}prazo passou{% else %}{{ item.dias_restantes }}{% endif %}</td>
+        <td>{% if item.convite_ate %}vale até {{ item.convite_ate|date:"d/m/Y" }}{% else %}<span class="nd-guia-vencido">sem link</span> · enviar na ficha{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">Todos os publicados já aceitaram a versão vigente.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p>Não há termo em vigor.</p>
+{% endif %}
+{% endblock %}

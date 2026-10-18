@@ -75,6 +75,12 @@ class CategoriaServico(models.Model):
         blank=True,
         help_text="Outras palavras para achar a categoria na busca, separadas por ponto e vírgula.",
     )
+    estabelecimento = models.BooleanField(
+        "estabelecimento (mostra horário)",
+        default=False,
+        help_text="Regulamentada que é lugar aberto ao público (farmácia, clínica, hospital, veterinário): "
+        'mostra horário e "aberto agora" (informação factual). Continua sem frase e sem logo.',
+    )
 
     history = HistoricalRecords(verbose_name="histórico da categoria")
 
@@ -200,6 +206,13 @@ class PerfilGuia(MarcaDemo):
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
     publicado_em = models.DateTimeField("publicado em", null=True, blank=True, editable=False)
+    removido_em = models.DateTimeField(
+        "removido em",
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Contatos e logo apagados nesta data; o resto sai na limpeza depois do prazo de prova.",
+    )
 
     history = HistoricalRecords(verbose_name="histórico do perfil")
 
@@ -255,8 +268,16 @@ class PerfilGuia(MarcaDemo):
             return True
         return bool(self.pk) and self.categorias.filter(regulamentada=True).exists()
 
+    @property
+    def mostra_horario(self) -> bool:
+        """Horário e "aberto agora" na ficha: todos, menos o profissional regulamentado individual (médico,
+        dentista, advogado...). Estabelecimento regulado (farmácia, clínica, hospital, veterinário) mostra."""
+        if not self.regulamentado:
+            return True
+        return bool(self.pk) and self.categorias.filter(regulamentada=True, estabelecimento=True).exists()
 
-class TermoGuia(models.Model):
+
+class TermoGuia(MarcaDemo):
     """Termo de autorização de publicação, com versão (mesmo padrão dos Termos de Uso).
 
     Vale a versão com o `vigente_desde` mais recente que já começou. Em vigor, o texto fica travado (é o
@@ -432,10 +453,15 @@ class EstatisticaGuiaDia(models.Model):
 
 
 class PedidoDoPerfil(MarcaDemo):
-    """Pedido de alteração, remoção ou outro, feito pelo titular na ficha pública (formulário: etapa G3).
-
-    Prazo padrão: recebido + `Configuracao.prazo_titular_dias` (15 dias), como os pedidos de `privacidade`.
+    """Pedido de alteração, remoção ou outro do titular: pela ficha pública ("Esta é minha empresa") ou
+    registrado pela equipe (e-mail, WhatsApp). Prazo padrão: recebido + `Configuracao.prazo_titular_dias`
+    (15 dias), como os pedidos de `privacidade`. Guardado pelo prazo de prova depois de decidido.
     """
+
+    class Origem(models.TextChoices):
+        FICHA = "ficha", "Formulário da ficha"
+        EMAIL = "email", "E-mail"
+        OUTRO = "outro", "Outro canal (WhatsApp, telefone...)"
 
     class Tipo(models.TextChoices):
         ALTERAR = "alterar", "Alterar dados"
@@ -452,6 +478,7 @@ class PedidoDoPerfil(MarcaDemo):
         PerfilGuia, on_delete=models.PROTECT, related_name="pedidos", verbose_name="perfil"
     )
     tipo = models.CharField("tipo", max_length=10, choices=Tipo.choices)
+    origem = models.CharField("origem", max_length=8, choices=Origem.choices, default=Origem.FICHA)
     descricao = models.TextField("o que foi pedido", max_length=1000, blank=True)
     contato = models.CharField("contato para resposta", max_length=200, blank=True)
     criado_em = models.DateTimeField("recebido em", default=timezone.now, editable=False)
@@ -526,6 +553,17 @@ class ConfiguracaoGuia(models.Model):
     dias_validade_convite = models.PositiveSmallIntegerField(
         "validade do link de aceite (dias)", default=15, validators=[MinValueValidator(1)]
     )
+    dias_aceite_termo_novo = models.PositiveSmallIntegerField(
+        "prazo para aceitar um termo novo (dias)",
+        default=30,
+        validators=[MinValueValidator(1)],
+        help_text="Contado do início da vigência. Sem aceite no prazo, o perfil é pausado (nunca apagado).",
+    )
+    pedidos_por_hora = models.PositiveSmallIntegerField(
+        'pedidos "Esta é minha empresa" por hora (por visitante)',
+        default=5,
+        validators=[MinValueValidator(1)],
+    )
     minimo_empresas_indexar = models.PositiveSmallIntegerField(
         "mínimo de empresas para o Google indexar",
         default=3,
@@ -569,3 +607,70 @@ class ConfiguracaoGuia(models.Model):
     def delete(self, *args, **kwargs):
         """O registro único nunca é apagado."""
         raise PermissionError("A configuração do guia não pode ser apagada.")
+
+
+class ContatoConvite(MarcaDemo):
+    """Contato da lista de convites (projeto antigo, indicação): só para a equipe convidar, um por vez.
+
+    Sem página pública. "Recusou" e "não contatar" bloqueiam novos convites para o número (também no convite
+    de aceite de um perfil). Quem aceita vira `PerfilGuia` com origem `lista_antiga` (docs/GUIA.md §9).
+    """
+
+    class Origem(models.TextChoices):
+        LISTA_ANTIGA = "lista_antiga", "Lista do projeto antigo"
+        INDICACAO = "indicacao", "Indicação"
+        OUTRO = "outro", "Outro"
+
+    class Situacao(models.TextChoices):
+        NOVO = "novo", "Novo"
+        CONVIDADO = "convidado", "Convidado"
+        ACEITOU = "aceitou", "Aceitou"
+        RECUSOU = "recusou", "Recusou"
+        NAO_CONTATAR = "nao_contatar", "Não contatar"
+
+    BLOQUEADOS = (Situacao.RECUSOU, Situacao.NAO_CONTATAR)
+
+    nome = models.CharField("nome", max_length=120)
+    whatsapp = models.CharField(
+        "WhatsApp", max_length=16, db_index=True, help_text="Com DDD; guardado em E.164."
+    )
+    cidade = models.ForeignKey(Cidade, on_delete=models.PROTECT, related_name="+", verbose_name="cidade")
+    categoria = models.ForeignKey(
+        CategoriaServico,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="categoria",
+    )
+    origem = models.CharField("origem", max_length=14, choices=Origem.choices, default=Origem.LISTA_ANTIGA)
+    situacao = models.CharField(
+        "situação", max_length=14, choices=Situacao.choices, default=Situacao.NOVO, db_index=True
+    )
+    convidado_em = models.DateTimeField("convidado em", null=True, blank=True)
+    perfil = models.ForeignKey(
+        PerfilGuia,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contatos_convite",
+        verbose_name="perfil criado",
+    )
+    observacao = models.CharField("observação", max_length=200, blank=True)
+    criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
+
+    history = HistoricalRecords(verbose_name="histórico do contato")
+
+    class Meta:
+        verbose_name = "contato para convite"
+        verbose_name_plural = "lista de convites"
+        ordering = ["situacao", "nome"]
+
+    def __str__(self) -> str:
+        """Ex.: 'João Eletricista (Tangará da Serra/MT)'."""
+        return f"{self.nome} ({self.cidade})"
+
+    @property
+    def bloqueado(self) -> bool:
+        """Recusou ou pediu para não ser contatado."""
+        return self.situacao in self.BLOQUEADOS

@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Quem disse "sim" ao convite: confirmação antes de criar o rascunho do perfil (origem lista antiga). #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_contatoconvite_changelist' %}">Lista de convites</a> › {{ title }}</div>{% endblock %}
+{% block content %}
+<form method="post" class="module nd-guia-painel">{% csrf_token %}
+  <p>Criar o rascunho do perfil de <b>{{ contato.nome }}</b> ({{ contato.cidade }}{% if contato.categoria %}, {{ contato.categoria }}{% endif %}) com o WhatsApp do contato. Depois, complete a ficha e envie o link de aceite: nada é publicado sem a autorização.</p>
+  <div class="nd-guia-botoes">
+    <button type="submit" class="button default">Criar perfil (rascunho)</button>
+    <a class="button" href="{% url 'admin:guia_contatoconvite_changelist' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

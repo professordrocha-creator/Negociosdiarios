@@ -98,12 +98,21 @@ def test_demo_cria_cerca_de_60_perfis_e_apaga_tudo(cidades_demo, termo):
     assert perfis.filter(status="pausado").count() == 1
     assert perfis.filter(tipo="profissional_regulamentado").exclude(registro_profissional="").exists()
     assert perfis.filter(tipo="empresa").exclude(cnpj_verificado_em=None).exists()
-    assert not perfis.exclude(responsavel_contato__endswith="@demo.invalid").exists()
+    assert (
+        not perfis.exclude(status="removido").exclude(responsavel_contato__endswith="@demo.invalid").exists()
+    )
     assert len({c for p in perfis for c in p.categorias.values_list("slug", flat=True)}) == 12
     status = set(perfis.values_list("status", flat=True))
     assert {"publicado", "pausado", "aguardando_aceite", "rascunho"} <= status
     for perfil in perfis.filter(status=PerfilGuia.Status.PUBLICADO):
-        assert services.aceite_vigente(perfil) is not None
+        assert perfil.aceites.filter(revogado_em__isnull=True).exists()
+    # G3: 6 pedidos (um removeu o perfil), 15 contatos de convite e o termo novo (demo) aceito por metade.
+    from guia.models import ContatoConvite, TermoGuia
+
+    assert PedidoDoPerfil.objects.count() == 6 and perfis.filter(status="removido").count() == 1
+    assert ContatoConvite.objects.filter(demo=True).count() == 15
+    assert ContatoConvite.objects.filter(situacao="nao_contatar").count() == 2
+    assert services.termo_vigente().demo and services.pendentes_do_termo()
     assert perfis.filter(tipo="autonomo").exclude(cpf_hash="").exists()
     assert perfis.filter(atendimento=PerfilGuia.Atendimento.DOMICILIO).exists()
     assert perfis.filter(horarios={}).exists()
@@ -113,3 +122,5 @@ def test_demo_cria_cerca_de_60_perfis_e_apaga_tudo(cidades_demo, termo):
     assert not PerfilGuia.objects.exists() and not AceitePublicacao.objects.exists()
     assert not ConviteAceite.objects.exists() and not PedidoDoPerfil.objects.exists()
     assert not PerfilGuia.history.exists()
+    assert not ContatoConvite.objects.exists() and not TermoGuia.objects.filter(demo=True).exists()
+    assert services.termo_vigente() == termo

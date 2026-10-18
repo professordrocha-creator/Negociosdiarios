@@ -2,7 +2,7 @@
 
 > Documento para o Claude Code seguir. Leia junto com CLAUDE.md, ARQUITETURA.md, SEGURANCA.md, LGPD.md,
 > GUIA_LGPD_E_TERMO.md e docs/guia/categorias_iniciais.csv.
-> Status: G1 (base) e G2 (páginas públicas) feitas em 2026-10-18. Ordem decidida em 2026-10-18: o guia vem antes da Sprint 8 (adiada).
+> Status: G1 (base), G2 (páginas públicas) e G3 (LGPD e operação) feitas em 2026-10-18. Ordem decidida em 2026-10-18: o guia vem antes da Sprint 8 (adiada).
 
 ## 1. O que é
 
@@ -121,7 +121,10 @@ Nomes em português, DecimalField para dinheiro (não usado aqui), telefones em 
 2. Máquina de estados: rascunho → aguardando_aceite → publicado ⇄ pausado → removido. Só o aceite leva a `publicado` (o admin não pula essa etapa; botão desabilitado com explicação).
 3. **Termo novo** não despublica ninguém: empresas publicadas recebem o convite para aceitar a nova versão e têm prazo de 30 dias. Passado o prazo sem aceite, o perfil é pausado (nunca apagado).
 4. **Categorias reguladas** (saúde, advocacia, contabilidade, engenharia, corretagem, personal): a ficha mostra só nome, especialidade, registro e contato.
-   Sem frase promocional (o campo some do formulário), sem destaque futuro e com o aviso padrão do conselho quando existir.
+   Sem frase promocional (o campo some do formulário), sem logo, sem destaque futuro e com o aviso padrão do conselho quando existir.
+   **Estabelecimentos regulados** (`CategoriaServico.estabelecimento`: farmácia, clínica e laboratório, hospital e pronto atendimento,
+   veterinário; decisão de 2026-10-18) mostram também o horário e o "aberto agora" (informação factual). Profissionais individuais
+   (médico, dentista, advogado...) seguem sem horário.
 5. **Duplicidade**: alertar o admin se o mesmo CNPJ, `cpf_hash` ou WhatsApp já existir. O alerta não bloqueia; o admin decide.
 6. **Selo "CNPJ verificado"** só aparece se o admin marcou `cnpj_verificado_em`. Autônomo recebe o selo "Profissional autônomo".
 7. **Aberto agora**: calculado no fuso do estado da cidade. Sem horário cadastrado, não mostra nada.

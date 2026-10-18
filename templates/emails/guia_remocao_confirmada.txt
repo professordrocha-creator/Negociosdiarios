@@ -1,0 +1,9 @@
+{% autoescape off %}Olá,
+
+Confirmamos a remoção de {{ perfil.nome_publico }} do {{ nome_guia }} ({{ site_nome }}). A ficha saiu do ar e os
+contatos e o logo foram apagados. Guardamos só o registro da autorização e deste pedido, pelo prazo de prova
+exigido, sem uso para outra finalidade.
+
+Se não foi você quem pediu, responda este e-mail.
+
+{{ site_nome }} · {{ site_url }}{% endautoescape %}

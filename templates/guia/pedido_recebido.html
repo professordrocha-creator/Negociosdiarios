@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# Pedido do titular recebido (guia.views.pedido). Robô no campo-armadilha também vê esta tela (nada gravado). #}
+
+{% block titulo %}Pedido recebido{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Pedido recebido</h1>
+    <p class="mb-0">Obrigado. A equipe responde pelo contato informado em até <b>15 dias</b>. Dúvidas: <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.</p>
+    <p class="mb-0"><a href="{% url 'guia:empresa' perfil.slug %}">Voltar à ficha</a></p>
+  </div>
+</main>
+{% endblock %}

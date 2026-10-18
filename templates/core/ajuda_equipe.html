@@ -1,0 +1,11 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Manual do Administrador (/painel/ajuda/, só equipe): docs/MANUAL_ADMIN.md convertido por #}
+{# core.markdown_seguro (todo o texto escapado). Visual do admin; noindex. #}
+{% block extrahead %}{{ block.super }}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/ajuda-equipe.css' %}">{% endblock %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › Ajuda</div>{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content %}
+<article class="nd-manual">{{ manual }}</article>
+{% endblock %}

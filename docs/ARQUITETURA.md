@@ -131,7 +131,7 @@ Planejado: `telefone`.
   (denúncia aceita: o anunciante corrige e reativa). `Configuracao`: `denuncias_golpe_para_pausar` (3),
   `denuncias_por_dia` (5), `retencao_denuncia_dias` (365).
 
-### Guia de Negócios — app `guia` (etapas G1 e G2; docs/GUIA.md §4 a §7)
+### Guia de Negócios — app `guia` (etapas G1 a G3; docs/GUIA.md §4 a §11)
 Isolado dos classificados (não usa `Anunciante`; vínculo opcional `PerfilGuia.anunciante`).
 - `GrupoCategoria` (nome, slug, ordem) e `CategoriaServico` (grupo PROTECT, nome, slug único, ordem, ativa,
   `regulamentada`, `rotulo_registro`, `sinonimos`; histórico). Carga: `carregar_categorias_guia` (CSV, upsert).
@@ -162,6 +162,12 @@ Isolado dos classificados (não usa `Anunciante`; vínculo opcional `PerfilGuia.
   `pg_trgm` (nome, categoria, sinônimos). Contato por `/guia/contato/<id>/whatsapp|telefone/` (o número
   nunca vai em texto ao HTML), com contagem por visitante por dia e limite por hora. Sitemap "guia" sem as
   páginas finas (cidade + categoria com menos de `minimo_empresas_indexar`).
+- G3: `PedidoDoPerfil.origem` (ficha | email | outro); `PerfilGuia.removido_em`; `CategoriaServico.estabelecimento`
+  (regulada que mostra horário: `PerfilGuia.mostra_horario`); `TermoGuia` com `MarcaDemo`; `ConfiguracaoGuia`
+  ganhou `dias_aceite_termo_novo` (30) e `pedidos_por_hora` (5); `ContatoConvite` (MarcaDemo + histórico:
+  nome, WhatsApp E.164, cidade, categoria, origem, situação novo | convidado | aceitou | recusou | nao_contatar,
+  `convidado_em`, `perfil`). Rotina diária `guia.tasks.rotina_do_guia` (4:30): links do termo novo, pausa de quem
+  passou do prazo, limpeza depois do prazo de prova.
 
 ### DocumentoLegal e PedidoTitular — app `privacidade` (Sprint 7B; docs/LGPD.md)
 - `DocumentoLegal`: `tipo` (termos | privacidade), `versao` (única por tipo), `vigencia`, `resumo` ("o que mudou"),
