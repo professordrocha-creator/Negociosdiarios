@@ -73,12 +73,12 @@ def salvar_pagina(client, anunciante: Anunciante, **mudancas):
 
 
 def test_painel_loja_so_para_anunciante_ativo(client, loja, db):
-    """Anônimo vai ao login; equipe recebe 403; o dono vê a tela com a prévia."""
+    """Anônimo vai ao login; equipe vai ao admin; o dono vê a tela com a prévia."""
     assert client.get(reverse("anunciantes:painel_loja"))["Location"].startswith(reverse("contas:entrar"))
 
     equipe = Usuario.objects.create_superuser(email="daniel@exemplo.com", password=SENHA, nome="D")
     client.force_login(equipe)
-    assert client.get(reverse("anunciantes:painel_loja")).status_code == 403
+    assert client.get(reverse("anunciantes:painel_loja"))["Location"] == reverse("admin:index")
 
     client.force_login(loja.usuario)
     html = client.get(reverse("anunciantes:painel_loja")).content.decode()

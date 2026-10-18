@@ -11,4 +11,5 @@
 - **Pendências:** aviso por e-mail de Termos novos; relatório ao patrocinador (V2); limite da pausa por denúncias;
   remoção/anonimização do perfil do guia e "não contatar" (G3); ficha diz "escreva ao e-mail" até o formulário G3.
 - **Pela metade:** nada.
-- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1002 passed, 1 skipped; ruff limpo.
+- **Bug corrigido, sem commit:** equipe já logada em /entrar/ ou /painel/ ia ao 403; agora vai ao admin.
+- **Último teste que passou:** suíte completa 1005 passed + `pytest anuncios` 130 passed (teste antigo ajustado).

@@ -62,7 +62,7 @@ def test_equipe_pelo_login_do_cliente_vai_ao_admin(client, db):
     resposta = entrar(client, "daniel@exemplo.com")
 
     assert resposta.status_code == 302 and resposta["Location"] == reverse("admin:index")
-    assert client.get(reverse("anunciantes:painel")).status_code == 403
+    assert client.get(reverse("anunciantes:painel"))["Location"] == reverse("admin:index")
 
 
 def test_usuario_sem_loja_nao_entra(client, db):
@@ -104,15 +104,58 @@ def test_painel_sem_login_vai_para_o_entrar(client, db):
     assert resposta["Location"] == f"{reverse('contas:entrar')}?next={reverse('anunciantes:painel')}"
 
 
-def test_equipe_logada_nao_entra_no_painel(client, db):
-    """Mesmo logado (pelo admin), quem é da equipe recebe 403 no painel do cliente."""
+def test_equipe_logada_vai_do_painel_ao_admin(client, db):
+    """Equipe já logada (pelo admin) que abre o painel do cliente ou o /entrar/ é levada ao admin, sem 403."""
     equipe = Usuario.objects.create_superuser(email="daniel@exemplo.com", password=SENHA, nome="Daniel")
     client.force_login(equipe)
 
-    resposta = client.get(reverse("anunciantes:painel"))
+    for url in (reverse("anunciantes:painel"), reverse("contas:entrar")):
+        resposta = client.get(url)
+        assert resposta.status_code == 302 and resposta["Location"] == reverse("admin:index"), url
 
-    assert resposta.status_code == 403
-    assert "conta da equipe" in resposta.content.decode()
+
+@pytest.mark.parametrize("codigo_ligado", [False, True])
+def test_superusuario_sem_loja_pelo_login_do_cliente_chega_ao_admin(client, db, settings, codigo_ligado):
+    """Regressão: superusuário SEM anunciante, vindo do painel (?next=/painel/), entra pela tela do cliente e
+    chega ao admin; com ADMIN_CODIGO_EMAIL ligado passa pelo código (sem atalho), nunca por "sem loja"."""
+    settings.ADMIN_CODIGO_EMAIL = codigo_ligado
+    Usuario.objects.create_superuser(email="daniel@exemplo.com", password=SENHA, nome="Daniel")
+    ida = client.get(reverse("anunciantes:painel"))
+
+    resposta = client.post(ida["Location"], {"username": "daniel@exemplo.com", "password": SENHA})
+
+    destino = reverse("admin:index")
+    if codigo_ligado:
+        assert resposta["Location"].startswith(reverse("admin:verificar"))
+        assert client.get(destino).status_code == 302  # admin ainda fechado: falta o código
+        assert client.get(reverse("anunciantes:painel"))["Location"].startswith(reverse("admin:verificar"))
+    else:
+        assert resposta["Location"] == destino
+        assert client.get(destino).status_code == 200
+        assert client.get(reverse("anunciantes:painel"))["Location"] == destino
+
+
+def test_cliente_comum_vai_ao_painel_e_nao_ao_admin(client, criar_anunciante):
+    """Cliente com loja ativa entra pela mesma tela e vai ao painel dele; o admin continua fechado."""
+    criar_anunciante("loja@exemplo.com", "Loja X", status=Anunciante.Status.ATIVO)
+
+    resposta = entrar(client, "loja@exemplo.com")
+
+    assert resposta["Location"] == reverse("anunciantes:painel")
+    assert client.get(reverse("anunciantes:painel")).status_code == 200
+    assert client.get(reverse("admin:index")).status_code == 302  # vai ao login do admin, não entra
+
+
+def test_menu_mostra_painel_administrativo_so_para_a_equipe(client, criar_anunciante, db):
+    """Topo: equipe vê "Painel administrativo"; cliente vê "Meu painel"."""
+    anunciante = criar_anunciante("loja@exemplo.com", "Loja X", status=Anunciante.Status.ATIVO)
+    client.force_login(anunciante.usuario)
+    cliente = client.get(reverse("core:inicio")).content.decode()
+    client.force_login(Usuario.objects.create_superuser(email="d@exemplo.com", password=SENHA, nome="D"))
+    equipe = client.get(reverse("core:inicio")).content.decode()
+
+    assert "Meu painel" in cliente and "Painel administrativo" not in cliente
+    assert "Painel administrativo" in equipe and "Meu painel" not in equipe
 
 
 def test_anunciante_pendente_logado_nao_entra_no_painel(client, criar_anunciante):

@@ -64,12 +64,12 @@ def test_novo_exige_login(client):
     assert resposta.status_code == 302 and reverse("contas:entrar") in resposta["Location"]
 
 
-def test_equipe_sem_loja_recebe_403(client):
-    """Conta de equipe não tem painel de anunciante."""
+def test_equipe_sem_loja_vai_ao_admin(client):
+    """Conta de equipe não tem painel de anunciante: as telas do painel levam ao admin (não criam nada)."""
     staff = Usuario.objects.create_user(email="mod@exemplo.com", password=SENHA, nome="Mod", is_staff=True)
     client.force_login(staff)
 
-    assert client.get(reverse("anuncios:novo")).status_code == 403
+    assert client.get(reverse("anuncios:novo"))["Location"] == reverse("admin:index")
 
 
 def test_novo_cria_rascunho_e_segue_para_localizacao(client, loja):

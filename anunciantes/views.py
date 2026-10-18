@@ -39,11 +39,12 @@ from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 
 
 def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True) -> Callable:
-    """Só deixa passar anunciante ativo. Anônimo vai ao /entrar/; equipe, pendente e suspenso veem 403.
+    """Só deixa passar anunciante ativo. Anônimo vai ao /entrar/; pendente e suspenso veem 403.
 
-    Equipe recebe 403 (e não o login) porque já está logada: o painel dela é o admin. Com versão nova dos
-    Termos/Política ainda não aceita, vai para o aceite (Sprint 7B), menos nas telas de "Meus dados"
-    (`exigir_aceite=False`): baixar os dados e excluir a conta valem sem aceitar nada.
+    Equipe (staff, mesmo sem loja) é levada ao admin pelo mesmo caminho do login do admin
+    (`config.admin_site.encaminhar_equipe`: código em navegador novo; sem atalho): o painel dela é o admin.
+    Com versão nova dos Termos/Política ainda não aceita, vai para o aceite (Sprint 7B), menos nas telas de
+    "Meus dados" (`exigir_aceite=False`): baixar os dados e excluir a conta valem sem aceitar nada.
     Uso: `@anunciante_ativo` ou `@anunciante_ativo(exigir_aceite=False)`.
     """
     if view is None:
@@ -54,6 +55,10 @@ def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True
         motivo = motivo_sem_painel(request.user)
         if motivo == "anonimo":
             return redirect_to_login(request.get_full_path())
+        if motivo == "equipe":
+            from config.admin_site import encaminhar_equipe  # import local: o admin importa os apps
+
+            return encaminhar_equipe(request)
         if motivo:
             contexto = {"tela": "painel", "mensagem": MENSAGENS_SEM_ACESSO[motivo], "motivo": motivo}
             return render(request, "anunciantes/sem_acesso.html", contexto, status=403)

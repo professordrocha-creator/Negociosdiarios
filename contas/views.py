@@ -23,6 +23,15 @@ class EntrarView(auth_views.LoginView):
     form_class = EntrarForm
     redirect_authenticated_user = True
 
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Equipe já logada que abre /entrar/ vai ao admin (o padrão do Django mandaria ao painel do cliente,
+        que ela não tem), pela mesma verificação do login do admin."""
+        if request.user.is_authenticated and request.user.is_staff:
+            from config.admin_site import encaminhar_equipe
+
+            return encaminhar_equipe(request)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs) -> dict:
         """Acrescenta a caixa "Sobre esta tela"."""
         contexto = super().get_context_data(**kwargs)
