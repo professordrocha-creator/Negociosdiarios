@@ -22,6 +22,7 @@ def ambiente_de_teste_previsivel(settings, tmp_path):
       sem precisar de worker (`task_always_eager`).
     """
     settings.ADMIN_CODIGO_EMAIL = False
+    settings.GUIA_CPF_CHAVE = "chave-de-teste-do-guia"  # resumo do CPF (guia) sem depender do .env
     settings.MOSTRAR_DEMO = False  # os testes da demonstração ligam quando precisam
     # Cache em memória e vazio a cada teste: os limites por IP não vazam entre testes.
     settings.CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}

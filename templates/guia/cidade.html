@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load nd %}
+{# /guia/<uf>/<cidade>/ (G2): grupos e categorias com empresas na cidade, com a contagem. #}
+
+{% block titulo %}{{ nome_guia }} em {{ cidade.nome }} - {{ cidade.uf_id }}{% endblock %}
+{% block descricao %}{{ total }} empresa{{ total|pluralize }} e profissiona{{ total|pluralize:"l,is" }} em {{ cidade.nome }}/{{ cidade.uf_id }}: serviços, comércios e saúde. Contato direto pelo WhatsApp, grátis.{% endblock %}
+{% block robots %}{% if not total or previa_equipe %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block og_titulo %}{{ nome_guia }} em {{ cidade.nome }}{% endblock %}
+{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}"><meta property="og:url" content="{{ url_canonica }}">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4 d-grid gap-4">
+  <nav aria-label="Trilha" class="small"><a href="{% url 'guia:inicio' %}">{{ nome_guia }}</a> › {{ cidade.nome }}</nav>
+  <div>
+    <h1 class="h3 mb-1">{{ nome_guia }} em {{ cidade.nome }}</h1>
+    <p class="text-suave mb-0">{{ total }} empresa{{ total|pluralize }} e profissiona{{ total|pluralize:"l,is" }} no guia.</p>
+  </div>
+  {% include "_ajuda.html" %}
+  <form class="d-flex gap-2" method="get" action="{% url 'guia:inicio' %}" role="search">
+    <input type="hidden" name="cidade" value="{{ cidade.uf_id|lower }}/{{ cidade.slug }}">
+    <label class="visually-hidden" for="g-q">Buscar em {{ cidade.nome }}</label>
+    <input id="g-q" class="form-control" type="search" name="q" maxlength="100" placeholder="Buscar em {{ cidade.nome }}">
+    <button class="btn btn-nd" type="submit">{% icone "busca" %}<span class="visually-hidden">Buscar</span></button>
+  </form>
+  {% for grupo, categorias in grupos %}
+  <section class="nd-caixa">
+    <h2 class="h6">{{ grupo.nome }}</h2>
+    <ul class="list-unstyled nd-guia-cats mb-0">
+      {% for item in categorias %}<li class="py-1"><a href="{% url 'guia:categoria' cidade.uf_id|lower cidade.slug item.categoria.slug %}">{{ item.categoria.nome }}</a> <span class="text-suave tabular">({{ item.total }})</span></li>{% endfor %}
+    </ul>
+  </section>
+  {% empty %}
+  <div class="nd-caixa text-center py-4"><p class="mb-0">Ainda não há empresas desta cidade no guia.</p></div>
+  {% endfor %}
+</main>
+{% endblock %}

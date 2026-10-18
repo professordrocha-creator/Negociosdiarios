@@ -68,9 +68,18 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
       `Configuracao.denuncias_por_dia` por visitante (resumo do dia com sal aleatório, sem IP), a mesma
       origem não repete denúncia do mesmo anúncio no dia; X denúncias de golpe de origens diferentes
       tiram o anúncio do ar "em revisão" (o anunciante não reativa) até a equipe decidir.
+      Aceite do Guia de Negócios (`/guia/aceite/<token>/`): token de 32 bytes, uso único e com validade
+      (nunca o id), `noindex`, `Referrer-Policy: no-referrer`, sem cache, CSRF, campo-armadilha, limite por
+      visitante por hora (`ConfiguracaoGuia`, IP só como resumo); usado, vencido ou inexistente dão a mesma
+      resposta sem dados. Convite de WhatsApp montado no servidor e enviado um a um pela equipe.
 - [ ] reCAPTCHA **não**. Hoje sem captcha nenhum (honeypot + limites); se o abuso aparecer, Cloudflare
       Turnstile só no cadastro e na denúncia
 - [ ] Telefone/WhatsApp do anunciante não aparece em texto no HTML (redirect contado)
+- [x] Guia de Negócios (G2): WhatsApp e telefone fora do HTML (também fora do schema.org); WhatsApp por
+      `/guia/contato/<id>/whatsapp/` (302 ao wa.me) e "Ver telefone" por HTMX ou página própria, ambos
+      `noindex`, sem cache, `rel=nofollow`, contados uma vez por visitante por dia (sem IP nem cookie; robô e
+      equipe não contam) e com limite por visitante por hora (`ConfiguracaoGuia.contatos_por_hora`, IP só
+      como resumo). Perfil fora do ar dá 404 em tudo. Popup do mapa montado com `textContent` (sem HTML)
 
 ### Pagamentos
 - [x] Link público da fatura de publicidade `/fatura/<token>/`: token de 32 bytes do `secrets` (nunca id nem código),
@@ -93,6 +102,8 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 - [ ] `SECRET_KEY`, senhas do banco e tokens do Mercado Pago diferentes em dev e produção
 - [ ] Access token de produção do Mercado Pago **só** no servidor
 - [ ] `pre-commit` com `detect-secrets` ou `gitleaks`
+- [ ] `GUIA_CPF_CHAVE` (chave do HMAC do CPF do guia) só no `.env`; obrigatória em produção (sem ela o
+      cadastro de CPF falha). Trocar a chave invalida os resumos já gravados (perde a detecção de duplicidade)
 
 ## 3. Infraestrutura (VPS)
 - [ ] Acesso SSH só por chave; `PasswordAuthentication no`; root sem login

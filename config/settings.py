@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     "publicidade",
     "privacidade",
     "moderacao",
+    "guia",
     "catalogo",
     "anuncios",
     "busca",
@@ -168,6 +169,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.site",
+                "guia.context_processors.guia",  # entrada do Guia de Negócios (menu, home, rodapé)
             ],
         },
     },
@@ -284,6 +286,10 @@ PUBLICIDADE_FORMATOS = [
 MOSTRAR_DEMO = validar_mostrar_demo(env.bool("MOSTRAR_DEMO", default=False), DEBUG)
 # Senha de todos os usuários criados pelo criar_dados_demo (sem padrão: nada de senha conhecida).
 DEMO_SENHA = env("DEMO_SENHA", default="")
+
+# Guia de Negócios (docs/GUIA.md): chave do HMAC do CPF dos autônomos (o CPF nunca é gravado em claro;
+# o resumo só serve para achar duplicidade). Obrigatória em produção; trocar a chave invalida os resumos.
+GUIA_CPF_CHAVE = env("GUIA_CPF_CHAVE", default="")
 
 # Mapa da busca (Sprint 5): máximo de pontos por resposta do JSON (desempenho do servidor e do navegador).
 MAPA_LIMITE_PONTOS = env.int("MAPA_LIMITE_PONTOS", default=500)

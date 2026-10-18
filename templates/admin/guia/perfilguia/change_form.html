@@ -1,0 +1,67 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{# Cadastro assistido do guia (docs/GUIA.md §8): uma coluna, pensado para o celular. Painel de publicação no #}
+{# topo (fora do formulário: cada botão é um formulário próprio). Scripts com defer (CSP: nada inline). #}
+
+{% block extrahead %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'js/mapa-ponto.js' %}" defer></script>
+<script src="{% static 'js/guia-admin.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+{{ centros|json_script:"centros-cidades" }}{{ reguladas|json_script:"categorias-reguladas" }}
+{% if ajuda_itens %}
+<details class="nd-guia-ajuda module">
+  <summary>Sobre esta tela</summary>
+  <ul>{% for item in ajuda_itens %}<li>{{ item }}</li>{% endfor %}</ul>
+</details>
+{% endif %}
+
+{% if original %}
+<section class="module nd-guia-painel" aria-labelledby="publicacao-titulo">
+  <h2 id="publicacao-titulo">Publicação</h2>
+  <p>Situação: <b>{{ original.get_status_display }}</b>
+    {% if aceite %} · aceite v{{ aceite.termo.versao }} em {{ aceite.aceito_em|date:"d/m/Y H:i" }} ({{ aceite.get_canal_display }}){% endif %}</p>
+
+  {% if duplicidades %}
+  <div class="nd-guia-alerta" role="status">
+    <b>Possível cadastro repetido</b> (não bloqueia; confira antes de seguir):
+    <ul>{% for aviso in duplicidades %}<li>{{ aviso }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  {% if pendencias %}
+  <p class="nd-guia-falta">Para publicar, falta:</p>
+  <ul>{% for falta in pendencias %}<li>{{ falta }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {% if pode_mudar and original.status != "removido" %}
+  <div class="nd-guia-botoes">
+    <form method="post" action="{% url 'admin:guia_perfil_convite' original.pk %}">{% csrf_token %}
+      <button type="submit" class="button default"{% if pendencias_convite %} disabled aria-describedby="explica-convite"{% endif %}>Enviar por WhatsApp</button>
+    </form>
+    {% if pendencias_convite %}
+      <span class="button nd-desabilitado" aria-disabled="true">Aceite em papel</span>
+    {% else %}
+      <a class="button" href="{% url 'admin:guia_perfil_presencial' original.pk %}">Aceite em papel</a>
+    {% endif %}
+    {% if original.status != "publicado" %}
+    <form method="post" action="{% url 'admin:guia_perfil_publicar' original.pk %}">{% csrf_token %}
+      <button type="submit" class="button"{% if pendencias %} disabled aria-describedby="explica-publicar"{% endif %}>Publicar</button>
+    </form>
+    {% else %}
+    <form method="post" action="{% url 'admin:guia_perfil_pausar' original.pk %}">{% csrf_token %}
+      <button type="submit" class="button">Pausar (tirar do ar)</button>
+    </form>
+    {% endif %}
+  </div>
+  {% if pendencias_convite %}<p class="help" id="explica-convite">O convite e o aceite em papel ficam liberados quando o cadastro estiver completo (lista acima). Salve antes.</p>{% endif %}
+  {% if pendencias and original.status != "publicado" %}<p class="help" id="explica-publicar">"Publicar" só funciona com o aceite do responsável na versão vigente do termo{% if termo %} (v{{ termo.versao }}){% endif %}: a equipe não pula essa etapa. O aceite pelo link já publica sozinho.</p>{% endif %}
+  {% endif %}
+</section>
+{% endif %}
+{{ block.super }}
+{% endblock %}

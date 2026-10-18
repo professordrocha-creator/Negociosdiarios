@@ -4,7 +4,8 @@
   "equipe": [
     {"email": "moderador@demo.invalid", "nome": "Marina Moderadora (demo)", "grupo": "Moderador"},
     {"email": "financeiro@demo.invalid", "nome": "Fábio Financeiro (demo)", "grupo": "Financeiro"},
-    {"email": "comercial@demo.invalid", "nome": "Carla Comercial (demo)", "grupo": "Comercial"}
+    {"email": "comercial@demo.invalid", "nome": "Carla Comercial (demo)", "grupo": "Comercial"},
+    {"email": "guia@demo.invalid", "nome": "Gustavo Guia (demo)", "grupo": "Guia"}
   ],
   "lojas": [
     {

@@ -1,15 +1,14 @@
 # Progresso (checkpoint — sobrescrever, sem histórico; máx. 15 linhas)
-- **Prontos, sem commit:** 7B parte 2 (denúncias), ajustes de layout/rodapé/login da equipe, cabeçalho da loja
-  (nome abaixo da capa, botão WhatsApp com ícone novo) e guias movidos para `docs/GUIA*.md` e `docs/guia/`.
-- **Feito e no GitHub:** Sprints 0 a 6, 7A e 7B parte 1.
-- **Falta, em ordem (decisão de 18/10/2026):** 1) conferir no navegador (Ctrl+F5) e commitar; 2) Guia de Negócios:
-  G1 base, G2 público, G3 LGPD e operação, G4 opcional (autocadastro); 3) revisão geral + correção em lote;
-  4) servidor de teste (subdomínio, noindex) com amigos; 5) Sprint 8 (importador, Opus) **só se pedirem**; 6) Sprint 9.
-- **Antes de abrir ao público:** VPS, domínio, HTTPS, backup testado, SEO; `ADMIN_CODIGO_EMAIL` ligado e `ADMIN_URL`
-  longa só no .env do servidor; `S3_BUCKET_PRIVADO`; SMTP; apagar dados demo; advogado (termos, política, termo do
-  Guia, convite; fatura após 5 anos); CNPJ e contador; INPI; lojas fundadoras; `ManifestStaticFilesStorage`.
-- **Pendências:** aviso por e-mail de Termos/Política novos; relatório mensal ao patrocinador (V2); nome da aba do
-  guia (padrão "Guia de Negócios", editável); limite de pausa automática por denúncias (abuso por concorrente).
+- **Prontos, sem commit: Guia de Negócios G1 (base) e G2 (páginas públicas).** G1: app `guia`, admin, aceite.
+  G2: menu (1º item + "Novo"; menu sanduíche novo no celular), cartão da home, rodapé, /guia/, cidade, categoria
+  (lista + mapa, aberto agora, bairro, rodízio), ficha, contatos WhatsApp/telefone com contagem e limite, SEO e
+  sitemap; migrations 0003/0004; demo com 64 perfis; docs (TELAS, ARQUITETURA, SEGURANCA, ADMINISTRACAO, README,
+  CHANGELOG, ROADMAP).
+- **No GitHub:** Sprints 0 a 7, ajustes de layout/rodapé/login, cabeçalho da loja, docs do Guia.
+- **Falta, em ordem:** 1) Daniel confere no navegador (ligar "guia no ar" no admin) e põe `GUIA_CPF_CHAVE` no .env;
+  commit. 2) G3 (LGPD e operação). 3) G4 opcional. 4) revisão geral; servidor de teste; Sprint 8 só se pedirem;
+  Sprint 9 (lista em docs/ROADMAP.md).
+- **Pendências:** aviso por e-mail de Termos novos; relatório ao patrocinador (V2); limite da pausa por denúncias;
+  remoção/anonimização do perfil do guia e "não contatar" (G3); ficha diz "escreva ao e-mail" até o formulário G3.
 - **Pela metade:** nada.
-- **Último teste que passou:** `pytest -n auto -q core contas anunciantes busca moderacao` → 516 passed, 1 skipped
-  (+ login: 23 passed). Suíte completa antes dos ajustes: 931 passed.
+- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1002 passed, 1 skipped; ruff limpo.

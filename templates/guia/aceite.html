@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Aceite do Guia de Negócios (docs/GUIA_LGPD_E_TERMO.md §2): prévia exata da ficha, termo com versão e data, #}
+{# nome digitado e "Autorizo". Link secreto: noindex e no-referrer (guia.views). O campo site_empresa é #}
+{# armadilha para robôs (escondido por CSS .nd-armadilha). Texto do termo em blocos escapados. #}
+
+{% block titulo %}Autorizar publicação{% endblock %}
+{% block descricao %}Confira como a ficha vai aparecer e autorize a publicação.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Confira e autorize a publicação no {{ nome_guia }}</h1>
+    {% include "_ajuda.html" %}
+
+    <section class="nd-caixa" aria-labelledby="previa-titulo">
+      <h2 class="h6" id="previa-titulo">Como a ficha vai aparecer</h2>
+      {% include "guia/_previa.html" %}
+      <p class="small text-suave mt-2 mb-0">Seu CPF, documento e endereço residencial nunca aparecem. Algo errado? Não confirme: responda a quem enviou o link.</p>
+    </section>
+
+    <section class="nd-caixa nd-guia-termo" aria-labelledby="termo-titulo">
+      <h2 class="h6 mb-1" id="termo-titulo">Termo de autorização de publicação no {{ nome_guia }}</h2>
+      <p class="small text-suave">Versão {{ termo.versao }}, em vigor desde {{ termo.vigente_desde|date:"d/m/Y" }}.</p>
+      {% for bloco in blocos %}
+        {% if bloco.tipo == "titulo" %}<h3 class="h6">{{ bloco.conteudo }}</h3>
+        {% elif bloco.tipo == "lista" %}<ul>{% for item in bloco.conteudo %}<li>{{ item }}</li>{% endfor %}</ul>
+        {% else %}<p>{{ bloco.conteudo }}</p>{% endif %}
+      {% endfor %}
+    </section>
+
+    <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "anunciantes/_campo.html" with campo=form.nome %}
+      <div class="form-check">
+        {{ form.autorizo }}
+        <label class="form-check-label" for="{{ form.autorizo.id_for_label }}"><b>{{ form.autorizo.label }}</b></label>
+        {% for erro in form.autorizo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </div>
+      <div class="nd-armadilha" aria-hidden="true">
+        <label for="{{ form.site_empresa.id_for_label }}">{{ form.site_empresa.label }}</label>{{ form.site_empresa }}
+      </div>
+      <p class="small text-suave mb-0">Ao confirmar, registramos o nome digitado, a data e a hora, a versão do termo, o IP com o último bloco zerado e o tipo de navegador, só para comprovar a autorização.</p>
+      <div><button type="submit" class="btn btn-nd">Confirmar e publicar</button></div>
+    </form>
+  </div>
+</main>
+{% endblock %}

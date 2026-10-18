@@ -71,6 +71,15 @@
 </section>
 
 <main class="container mt-4 d-grid gap-5">
+  {# Guia de Negócios (G2): cartão curto logo abaixo da busca, só com o guia no ar. #}
+  {% if guia_menu.no_ar %}
+  <a class="nd-caixa nd-cartao-guia d-flex align-items-center gap-3 text-decoration-none" href="{% url 'guia:inicio' %}">
+    <span class="nd-valor-ico flex-shrink-0">{% icone "loja" %}</span>
+    <span class="me-auto"><b class="d-block">{{ guia_menu.nome }} <span class="nd-selo-novo">Novo</span></b>
+      <span class="text-suave">Encontre eletricista, pedreiro, clínica, restaurante e mais na sua cidade</span></span>
+    <span class="btn btn-sm btn-outline-secondary flex-shrink-0">Ver o guia</span>
+  </a>
+  {% endif %}
   {% publicidade "home_topo" %}
   {# Destaques pagos (rótulo "Patrocinado"). #}
   <section>

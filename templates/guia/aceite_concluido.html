@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{# Autorização registrada (guia.views.aceite). Sem "aceite" no contexto (robô), só a mensagem genérica. #}
+
+{% block titulo %}Autorização registrada{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Pronto! Autorização registrada</h1>
+    {% if aceite %}
+    <p class="mb-0">Registramos a autorização de <b>{{ aceite.nome_digitado }}</b> em {{ aceite.aceito_em|date:"d/m/Y \à\s H:i" }} (termo versão {{ aceite.termo.versao }}). A ficha de <b>{{ perfil.nome_publico }}</b> está publicada.</p>
+    {% endif %}
+    <p class="mb-0">Para alterar ou remover a ficha, ou revogar a autorização, a qualquer momento e sem custo, escreva para <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a> ou responda a quem enviou o link. Atendemos em até 15 dias.</p>
+  </div>
+</main>
+{% endblock %}

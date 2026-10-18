@@ -1,0 +1,27 @@
+/* Admin do Guia de Negócios (cadastro assistido no celular). Sem style inline: CSP. */
+.nd-guia-mapa { height: 320px; max-width: 640px; border-radius: 6px; margin: 4px 0 8px; }
+.nd-oculto { display: none !important; }
+.nd-guia-painel { padding: 12px 16px; margin-bottom: 16px; }
+.nd-guia-painel ul { margin: 4px 0 8px 18px; padding: 0; }
+.nd-guia-painel h2 { margin-top: 0; }
+.nd-guia-ajuda { padding: 8px 16px; margin-bottom: 12px; }
+.nd-guia-ajuda summary { cursor: pointer; font-weight: 600; }
+.nd-guia-falta { margin-bottom: 0; font-weight: 600; }
+.nd-guia-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.nd-guia-botoes form { margin: 0; }
+.nd-guia-botoes button[disabled], .nd-desabilitado { opacity: .5; cursor: not-allowed; }
+.nd-guia-alerta { background: #fff4d6; border-left: 4px solid #e0a100; padding: 8px 12px; margin: 8px 0; color: #4a3b00; }
+.nd-guia-logo { width: 96px; height: 96px; border-radius: 8px; object-fit: cover; }
+.nd-guia-mensagem { white-space: pre-wrap; background: var(--darkened-bg, #f8f8f8); padding: 12px; border-radius: 6px; max-width: 640px; margin-bottom: 8px; }
+.nd-guia-previa { border: 1px solid var(--hairline-color, #ddd); border-radius: 8px; padding: 12px; max-width: 640px; }
+.nd-guia-previa-topo { display: flex; gap: 12px; align-items: center; }
+.nd-guia-previa-logo { border-radius: 8px; object-fit: cover; }
+.nd-guia-previa-nome { font-size: 1.1rem; }
+.nd-guia-previa-selo { font-size: .85rem; font-weight: 600; }
+.nd-guia-previa-dados { list-style: none; margin: 8px 0 0; padding: 0; }
+/* Celular: botões grandes, um por linha. */
+@media (max-width: 767px) {
+  .nd-guia-botoes > * { flex: 1 1 100%; }
+  .nd-guia-botoes .button, .nd-guia-botoes button { width: 100%; text-align: center; padding: 12px; box-sizing: border-box; }
+  .nd-guia-mapa { height: 260px; }
+}

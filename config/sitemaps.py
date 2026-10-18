@@ -13,6 +13,7 @@ from anunciantes.services import lojas_visiveis
 from anuncios.models import Anuncio
 from anuncios.services import anuncios_visiveis, url_publica
 from busca.services import paginas_do_sitemap
+from guia.services import paginas_do_sitemap as paginas_do_guia
 
 
 class PaginasSitemap(Sitemap):
@@ -94,9 +95,26 @@ class BuscaSitemap(Sitemap):
         return item
 
 
+class GuiaSitemap(Sitemap):
+    """Guia de Negócios (G2): /guia/, cidades com empresas, cidade + categoria com o mínimo para indexar (a
+    página fina fica fora) e as fichas publicadas. Vazio com o guia desligado."""
+
+    changefreq = "weekly"
+    priority = 0.6
+
+    def items(self) -> list[str]:
+        """Caminhos já prontos (guia.services.paginas_do_sitemap)."""
+        return paginas_do_guia()
+
+    def location(self, item: str) -> str:
+        """O próprio caminho."""
+        return item
+
+
 SITEMAPS = {
     "paginas": PaginasSitemap,
     "lojas": LojasSitemap,
     "anuncios": AnunciosSitemap,
     "busca": BuscaSitemap,
+    "guia": GuiaSitemap,
 }

@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Convite criado (guia.admin.PerfilGuiaAdmin.convite_view): mensagem pronta e o botão que abre o wa.me. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}{% include "admin/guia/perfilguia/_trilha.html" %}{% endblock %}
+{% block content %}
+<div class="module nd-guia-painel">
+  <p>Link de aceite criado para <b>{{ perfil.nome_publico }}</b>. Vale por <b>{{ validade }} dias</b> e só pode ser usado uma vez; convites anteriores ainda não usados deixaram de valer.</p>
+  <p><b>Mensagem que vai no WhatsApp</b> (para {{ perfil.whatsapp|default:perfil.telefone }}):</p>
+  <div class="nd-guia-mensagem">{{ mensagem }}</div>
+  <div class="nd-guia-botoes">
+    <a class="button default" href="{{ url_whatsapp }}" target="_blank" rel="noopener noreferrer">Abrir o WhatsApp com a mensagem</a>
+    <a class="button" href="{% url 'admin:guia_perfilguia_change' perfil.pk %}">Voltar ao perfil</a>
+  </div>
+  <p class="help">Um convite por vez, enviado por você (nada de envio automático). Se a pessoa responder "não", não insista.</p>
+</div>
+{% endblock %}

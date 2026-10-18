@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# Limite de contatos por visitante por hora (guia.views): sem o número. Com HTMX: guia/_contato_limite.html. #}
+
+{% block titulo %}Muitos contatos{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Muitos contatos na última hora</h1>
+    <p class="mb-0">Para proteger os números contra robôs, há um limite por hora. Tente de novo mais tarde.</p>
+    <p class="mb-0"><a href="{% url 'guia:empresa' perfil.slug %}">Voltar à ficha</a></p>
+  </div>
+</main>
+{% endblock %}

@@ -61,6 +61,7 @@ interna. Containers rodam com usuário não-root.
 | `estatisticas` | Visualizações e cliques no WhatsApp por anúncio (sem dado pessoal) |
 | `importacao` | Importação em massa de anúncios (XML ZAP/VivaReal, planilha CSV/Excel) |
 | `privacidade` | LGPD: consentimento de cookies, exportação e exclusão de dados |
+| `guia` | Guia de Negócios: diretório gratuito de serviços e comércios, com cadastro assistido e aceite registrado (docs/GUIA.md) |
 
 Na V2, novos verticais (máquinas agrícolas, gado, empregos) entram como **novos
 tipos de detalhe** do anúncio, sem mexer no núcleo.
@@ -129,6 +130,38 @@ Planejado: `telefone`.
 - `Anuncio.pausado_por` ganhou `denuncia` (em revisão automática: o anunciante não reativa) e `moderacao`
   (denúncia aceita: o anunciante corrige e reativa). `Configuracao`: `denuncias_golpe_para_pausar` (3),
   `denuncias_por_dia` (5), `retencao_denuncia_dias` (365).
+
+### Guia de Negócios — app `guia` (etapas G1 e G2; docs/GUIA.md §4 a §7)
+Isolado dos classificados (não usa `Anunciante`; vínculo opcional `PerfilGuia.anunciante`).
+- `GrupoCategoria` (nome, slug, ordem) e `CategoriaServico` (grupo PROTECT, nome, slug único, ordem, ativa,
+  `regulamentada`, `rotulo_registro`, `sinonimos`; histórico). Carga: `carregar_categorias_guia` (CSV, upsert).
+- `PerfilGuia` (MarcaDemo + histórico): `nome_publico`, `slug` (nome + cidade, único), `tipo` (empresa | autonomo |
+  profissional_regulamentado), `frase`; privados: `cnpj`, `cnpj_verificado_em`, `cpf_hash` (HMAC-SHA256 com
+  `GUIA_CPF_CHAVE`) e `cpf_final` (CPF nunca em claro), `registro_profissional`, `responsavel_nome`,
+  `responsavel_contato`, `anotacoes`; contato `whatsapp`/`telefone` (E.164); `cidade` (FK IBGE), `bairro` (FK),
+  `atendimento` (atende_em_endereco | atende_a_domicilio), `endereco` + `ponto` ou `area_atendimento`;
+  `ponto_publico` (o único que sai do servidor: o ponto comercial, ou o centro da cidade a domicílio);
+  `horarios` (JSON por dia, intervalos), `fuso`, `logo` (WebP 400, sem EXIF), `categorias` (M2M, máximo da
+  configuração, travado também por sinal), `status` (rascunho | aguardando_aceite | publicado | pausado | removido),
+  `origem`, `cadastrado_por`, datas.
+- `TermoGuia` (versão, texto, `vigente_desde`, `rascunho_juridico`; em vigor = travado; histórico).
+- `ConviteAceite` (perfil, `token` de 32 bytes, canal, `expira_em`, `usado_em`, criado_por; uso único).
+- `AceitePublicacao` (perfil e termo PROTECT, convite, canal, `nome_digitado`, `aceito_em`, `ip_truncado`,
+  `agente_resumido`, `foto_termo` no storage privado, `revogado_em`/`revogado_por`/`motivo_revogacao`; histórico).
+- `EstatisticaGuiaDia` (perfil, dia, visualizações e cliques no WhatsApp e no telefone; sem IP nem cookie), `PedidoDoPerfil` (MarcaDemo +
+  histórico; tipo, descrição, contato, prazo, status, decisão; formulário público na G3) e `ConfiguracaoGuia`
+  (registro único: ativo, nome da aba, máximo de categorias, limite da frase, validade do convite, mínimo para
+  indexar, guarda do aceite, tentativas de aceite por hora, contatos revelados por hora (G2), limite da foto
+  do termo). `PerfilGuia.fuso` vem do estado da cidade (`FUSO_POR_UF`) a cada gravação.
+- Regras (`guia/services.py`): publicar só com aceite vigente + categoria + cidade liberada + contato + local ou
+  área; só o aceite leva a "publicado"; revogar despublica na hora; duplicidade (CNPJ, CPF, WhatsApp) só alerta.
+- Público (G2): só com `ConfiguracaoGuia.ativo` (desligado: 404, menos para a equipe logada, que vê com a faixa
+  "Guia desligado"). `perfis_visiveis()` = publicados em cidade liberada (demo só com MOSTRAR_DEMO). Lista em
+  rodízio estável por dia (`random.Random(data + cidade + categoria)`), filtros "Aberto agora" (no fuso do
+  estado) e bairro; mapa só com o `ponto_publico` de quem tem endereço. Busca por texto com `unaccent` e
+  `pg_trgm` (nome, categoria, sinônimos). Contato por `/guia/contato/<id>/whatsapp|telefone/` (o número
+  nunca vai em texto ao HTML), com contagem por visitante por dia e limite por hora. Sitemap "guia" sem as
+  páginas finas (cidade + categoria com menos de `minimo_empresas_indexar`).
 
 ### DocumentoLegal e PedidoTitular — app `privacidade` (Sprint 7B; docs/LGPD.md)
 - `DocumentoLegal`: `tipo` (termos | privacidade), `versao` (única por tipo), `vigencia`, `resumo` ("o que mudou"),

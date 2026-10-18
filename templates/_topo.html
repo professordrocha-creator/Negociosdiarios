@@ -1,9 +1,11 @@
 {% load nd %}
 {# Cabeçalho fixo (prototipo/_gerar.py, função pagina). #}
-{# Imóveis, Veículos e Lojas levam a páginas "Em breve" até as Sprints 2 e 4. #}
-{% with atual=request.resolver_match.url_name %}
+{# Guia de Negócios (G2): primeiro item, só com o guia no ar (guia.context_processors), com o selo "Novo". #}
+{# No celular o menu fica no botão "sanduíche" (offcanvas do Bootstrap; sem script próprio). #}
+{% with atual=request.resolver_match.url_name app=request.resolver_match.app_name %}
 <header class="nd-topo">
   <div class="container d-flex align-items-center gap-3 py-2 flex-wrap">
+    <button class="btn btn-sm btn-outline-light d-md-none nd-sanduiche" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu-celular" aria-controls="menu-celular" aria-label="Abrir o menu">{% icone "lista" %}</button>
     {# Logo (context processor "site", trocável no admin): do tablet para cima, o logo horizontal completo #}
     {# (já traz o nome e o subtítulo); no celular, onde ele ficaria espremido, o símbolo + o nome. #}
     <a class="nd-logo me-auto" href="{% url 'core:inicio' %}">
@@ -12,6 +14,7 @@
     </a>
     {# Menu principal; o item da página atual ganha a classe "ativo" (sublinhado amarelo). #}
     <nav class="nd-menu d-none d-md-flex gap-3" aria-label="Principal">
+      {% if guia_menu.no_ar %}<a class="px-1 py-2 nd-menu-guia{% if app == 'guia' %} ativo{% endif %}" href="{% url 'guia:inicio' %}"{% if app == 'guia' %} aria-current="page"{% endif %}>{{ guia_menu.nome }} <span class="nd-selo-novo">Novo</span></a>{% endif %}
       <a class="px-1 py-2{% if atual == 'imoveis' or atual == 'imoveis_cidade' %} ativo{% endif %}" href="{% url 'busca:imoveis' %}"{% if atual == 'imoveis' or atual == 'imoveis_cidade' %} aria-current="page"{% endif %}>Imóveis</a>
       <a class="px-1 py-2{% if atual == 'veiculos' or atual == 'veiculos_cidade' %} ativo{% endif %}" href="{% url 'busca:veiculos' %}"{% if atual == 'veiculos' or atual == 'veiculos_cidade' %} aria-current="page"{% endif %}>Veículos</a>
       <a class="px-1 py-2{% if atual == 'lojas' %} ativo{% endif %}" href="{% url 'anunciantes:lojas' %}"{% if atual == 'lojas' %} aria-current="page"{% endif %}>Lojas</a>
@@ -29,4 +32,13 @@
     <a class="btn btn-sm btn-ipe" href="{% url 'core:planos' %}">{% icone "mais" %} Anunciar</a>
   </div>
 </header>
+<div class="offcanvas offcanvas-start nd-menu-celular" tabindex="-1" id="menu-celular" aria-labelledby="menu-celular-titulo">
+  <div class="offcanvas-header"><h2 class="h5 m-0" id="menu-celular-titulo">Menu</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button></div>
+  <nav class="offcanvas-body d-grid gap-1 align-content-start" aria-label="Principal (celular)">
+    {% if guia_menu.no_ar %}<a class="nd-menu-celular-item nd-menu-guia" href="{% url 'guia:inicio' %}">{% icone "loja" %} {{ guia_menu.nome }} <span class="nd-selo-novo">Novo</span></a>{% endif %}
+    <a class="nd-menu-celular-item" href="{% url 'busca:imoveis' %}">{% icone "casa" %} Imóveis</a>
+    <a class="nd-menu-celular-item" href="{% url 'busca:veiculos' %}">{% icone "carro" %} Veículos</a>
+    <a class="nd-menu-celular-item" href="{% url 'anunciantes:lojas' %}">{% icone "loja" %} Lojas</a>
+  </nav>
+</div>
 {% endwith %}

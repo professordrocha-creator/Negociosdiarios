@@ -1,0 +1,4 @@
+{% load nd %}
+{# Faixas do topo das páginas do guia: pré-visualização da equipe (guia desligado) e dados de demonstração. #}
+{% if previa_equipe %}<div class="nd-faixa-previa" role="note">{% icone "alerta" %} <b>Guia desligado:</b> visível só para a equipe (pré-visualização). Ligue em Admin › Configuração do guia.</div>{% endif %}
+{% if mostrar_demo %}<div class="nd-faixa-demo" role="note">{% icone "alerta" %} <b>Dados de demonstração:</b> as empresas e os profissionais desta página são fictícios.</div>{% endif %}

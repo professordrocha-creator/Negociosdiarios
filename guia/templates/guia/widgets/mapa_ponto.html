@@ -1,0 +1,6 @@
+{# Latitude (escondida) + mapa do cadastro do guia. Quem preenche é o static/js/mapa-ponto.js; quem valida é o servidor. #}
+<input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+<div id="mapa" class="nd-guia-mapa" data-titulo="Local" role="application" aria-label="Mapa: toque para marcar o endereço comercial"></div>
+<div class="help" id="mapa-situacao">Toque no mapa para marcar o endereço comercial; arraste o marcador para ajustar. Só para quem tem endereço.</div>
+<noscript><div class="errornote">O mapa precisa de JavaScript.</div></noscript>
+<button type="button" class="button" id="limpar-ponto">Tirar o ponto</button>

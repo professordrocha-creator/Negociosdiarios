@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# /guia/<uf>/<cidade>/<categoria>/ (G2): lista + mapa. Filtros num formulário GET (funciona sem JS); com HTMX #}
+{# troca só #guia-resultados e a URL vai para a barra de endereço. Lista | Mapa como na busca (só CSS). O mapa #}
+{# (mapa-guia.js) lê os pontos de #pontos-guia, que vem dentro dos resultados e é relido depois de cada troca. #}
+{# Página fina (menos empresas que o mínimo) ou filtrada: noindex, follow. #}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block descricao %}{{ descricao }}{% endblock %}
+{% block robots %}{% if not indexavel or previa_equipe %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block og_titulo %}{{ titulo }}{% endblock %}
+{% block og_descricao %}{{ descricao }}{% endblock %}
+{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}"><meta property="og:url" content="{{ url_canonica }}">
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/leaflet-markercluster/MarkerCluster.css' %}">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4">
+  <nav aria-label="Trilha" class="small mb-2"><a href="{% url 'guia:inicio' %}">{{ nome_guia }}</a> › <a href="{% url 'guia:cidade' cidade.uf_id|lower cidade.slug %}">{{ cidade.nome }}</a> › {{ categoria.nome }}</nav>
+  <h1 class="h3 mb-1">{{ categoria.nome }} em {{ cidade.nome }}</h1>
+  <p class="text-suave">{{ total }} opç{{ total|pluralize:"ão,ões" }} no guia. A ordem muda todo dia, por sorteio.</p>
+  {% include "_ajuda.html" %}
+
+  <form id="guia-filtros" class="d-flex flex-wrap gap-3 align-items-end mb-3" method="get" action="{{ request.path }}"
+        hx-get="{{ request.path }}" hx-trigger="change" hx-target="#guia-resultados" hx-select="#guia-resultados" hx-swap="outerHTML" hx-push-url="true">
+    <div class="form-check form-switch m-0">
+      <input class="form-check-input" type="checkbox" role="switch" id="f-aberto" name="aberto" value="1"{% if aberto %} checked{% endif %}>
+      <label class="form-check-label" for="f-aberto">Aberto agora</label>
+    </div>
+    {% if bairros %}
+    <div><label class="form-label small mb-0" for="f-bairro">Bairro</label>
+      <select id="f-bairro" name="bairro" class="form-select form-select-sm">
+        <option value="">Todos</option>
+        {% for slug, nome in bairros %}<option value="{{ slug }}"{% if slug == bairro %} selected{% endif %}>{{ nome }}</option>{% endfor %}
+      </select></div>
+    {% endif %}
+    <noscript><button class="btn btn-sm btn-nd" type="submit">Aplicar</button></noscript>
+  </form>
+
+  <input type="radio" class="btn-check" name="visao" id="v-lista" autocomplete="off" checked>
+  <label class="btn btn-sm nd-opcao nd-visao" for="v-lista">{% icone "lista" %} Lista</label>
+  <input type="radio" class="btn-check" name="visao" id="v-mapa" autocomplete="off">
+  <label class="btn btn-sm nd-opcao nd-visao" for="v-mapa">{% icone "pin" %} Mapa</label>
+  <div class="row g-3 mt-0">
+    <div class="col-xl-7 nd-busca-lista">
+      <div id="guia-resultados" aria-live="polite">
+        {{ pontos|json_script:"pontos-guia" }}
+        {% if itens %}
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% for perfil, aberto in itens %}<div class="col">{% include "guia/_card_perfil.html" %}</div>{% endfor %}
+          </div>
+          {% if pagina.has_other_pages %}
+          <nav class="mt-4" aria-label="Páginas"><ul class="pagination justify-content-center flex-wrap">
+            {% for numero in pagina.paginator.page_range %}
+              {% if numero == pagina.number %}<li class="page-item active" aria-current="page"><span class="page-link">{{ numero }}</span></li>
+              {% else %}<li class="page-item"><a class="page-link" href="?{% if aberto %}aberto=1&amp;{% endif %}{% if bairro %}bairro={{ bairro|urlencode }}&amp;{% endif %}pagina={{ numero }}">{{ numero }}</a></li>{% endif %}
+            {% endfor %}
+          </ul></nav>
+          {% endif %}
+        {% else %}
+          <div class="nd-caixa text-center py-4">
+            <p class="mb-2">Ninguém {% if aberto %}aberto agora {% endif %}com esses filtros.</p>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ request.path }}">Ver todos</a>
+          </div>
+        {% endif %}
+        {% if a_domicilio %}<p class="small text-suave mt-3 mb-0">{{ a_domicilio }} atende{{ a_domicilio|pluralize:"m" }} a domicílio e não aparece{{ a_domicilio|pluralize:"m" }} no mapa.</p>{% endif %}
+      </div>
+    </div>
+    <div class="col-xl-5 nd-busca-mapa">
+      <div class="nd-mapa-busca-caixa">
+        <div id="mapa-guia" class="nd-mapa nd-mapa-guia" data-lat="{{ cidade.ponto.y|stringformat:'.5f' }}" data-lng="{{ cidade.ponto.x|stringformat:'.5f' }}"
+             role="region" aria-label="Mapa de {{ categoria.nome }} em {{ cidade.nome }}"></div>
+        <noscript><p class="small text-danger mb-0">O mapa precisa de JavaScript. A lista continua funcionando.</p></noscript>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'vendor/leaflet-markercluster/leaflet.markercluster.js' %}" defer></script>
+<script src="{% static 'js/mapa-guia.js' %}" defer></script>
+{% endblock %}

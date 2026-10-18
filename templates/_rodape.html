@@ -13,6 +13,7 @@
       <div class="col-6 col-md-2">
         <h3>Buscar</h3>
         <ul class="list-unstyled d-grid gap-1 mb-0">
+          {% if guia_menu.no_ar %}<li><a href="{% url 'guia:inicio' %}">{{ guia_menu.nome }}</a></li>{% endif %}
           <li><a href="{% url 'busca:imoveis' %}">Imóveis</a></li>
           <li><a href="{% url 'busca:veiculos' %}">Carros e motos</a></li>
           <li><a href="{% url 'anunciantes:lojas' %}">Lojas</a></li>

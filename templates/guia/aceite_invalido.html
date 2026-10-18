@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{# Link de aceite usado, vencido ou inexistente: mesma tela, sem nenhum dado do perfil (guia.views). #}
+
+{% block titulo %}Link já utilizado{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Este link já foi utilizado ou expirou</h1>
+    <p class="mb-0">Cada link de autorização vale uma vez e por tempo limitado. Se ainda precisa autorizar ou quer mudar algo, responda a mensagem de quem enviou o link ou escreva para <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.</p>
+  </div>
+</main>
+{% endblock %}

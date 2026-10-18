@@ -1,0 +1,20 @@
+{# Prévia da ficha do guia (guia.services.previa): exatamente o que vai ao site, nada além. Usada na página #}
+{# de aceite e no aceite em papel do admin. Recebe "previa". Tudo escapado (texto puro). #}
+<div class="nd-guia-previa">
+  <div class="nd-guia-previa-topo">
+    {% if previa.logo %}<img src="{{ previa.logo }}" alt="" class="nd-guia-previa-logo" width="64" height="64">{% endif %}
+    <div>
+      <b class="nd-guia-previa-nome">{{ previa.nome }}</b>
+      {% if previa.categorias %}<div>{{ previa.categorias|join:" · " }}</div>{% endif %}
+      {% if previa.selo %}<div class="nd-guia-previa-selo">{{ previa.selo }}</div>{% endif %}
+    </div>
+  </div>
+  {% if previa.frase %}<p>{{ previa.frase }}</p>{% endif %}
+  <ul class="nd-guia-previa-dados">
+    {% if previa.registro %}<li><b>Registro:</b> {{ previa.registro }}</li>{% endif %}
+    {% if previa.whatsapp %}<li><b>WhatsApp:</b> {{ previa.whatsapp }} (no site, aparece como botão)</li>{% endif %}
+    {% if previa.telefone %}<li><b>Telefone:</b> {{ previa.telefone }} (no site, botão "Ver telefone")</li>{% endif %}
+    <li><b>Local:</b> {{ previa.local }}</li>
+    {% for dia, horas in previa.horarios %}<li><b>{{ dia }}:</b> {{ horas }}</li>{% endfor %}
+  </ul>
+</div>

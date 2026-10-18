@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Revogação do aceite (pedido do titular): o perfil sai do ar na hora; o registro fica como prova. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}{% include "admin/guia/perfilguia/_trilha.html" %}{% endblock %}
+{% block content %}
+<form method="post" class="module nd-guia-painel" novalidate>{% csrf_token %}
+  <p>{{ aceite }} · {{ aceite.get_canal_display }} · nome digitado: <b>{{ aceite.nome_digitado }}</b>.</p>
+  <p>Revogar tira o perfil do ar <b>agora</b>. O registro do aceite continua guardado como prova (prazo da configuração do guia).</p>
+  <div class="form-row">
+    <label for="{{ form.motivo.id_for_label }}" class="required">{{ form.motivo.label }}</label> {{ form.motivo }}
+    <div class="help">{{ form.motivo.help_text }}</div>
+    {{ form.motivo.errors }}
+  </div>
+  <div class="nd-guia-botoes">
+    <button type="submit" class="button default">Revogar e tirar do ar</button>
+    <a class="button" href="{% url 'admin:guia_perfilguia_change' perfil.pk %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

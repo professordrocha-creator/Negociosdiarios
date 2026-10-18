@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# /guia/empresa/<slug>/ (G2): ficha. Só perfil publicado chega aqui (o resto é 404). Contato sem expor dados #}
+{# (docs/GUIA.md §7): WhatsApp por /guia/contato/<id>/whatsapp/ e "Ver telefone" (HTMX; sem JS, página própria). #}
+{# Profissional regulamentado: só nome, especialidade, registro, contato e local (sem frase, logo e horário). #}
+
+{% block titulo %}{{ perfil.nome_publico }} · {% if primeira %}{{ primeira.nome }} em {% endif %}{{ perfil.cidade.nome }}{% endblock %}
+{% block descricao %}{% if perfil.frase and not regulamentado %}{{ perfil.frase }} {% endif %}{% if primeira %}{{ primeira.nome }} em {% endif %}{{ perfil.cidade.nome }}/{{ perfil.cidade.uf_id }}: contato pelo WhatsApp, local e horário no {{ nome_guia }}.{% endblock %}
+{% block robots %}{% if previa_equipe %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block og_titulo %}{{ perfil.nome_publico }} · {{ nome_guia }}{% endblock %}
+{% block og_imagem %}{% if imagem_og %}<meta property="og:image" content="{{ imagem_og }}">{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ url_canonica }}">
+  <meta property="og:type" content="business.business">
+  <meta property="og:url" content="{{ url_canonica }}">
+  {{ schema|json_ld }}
+  {% if localizacao %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}
+{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4">
+  <nav aria-label="Trilha" class="small mb-3"><a href="{% url 'guia:inicio' %}">{{ nome_guia }}</a> › <a href="{% url 'guia:cidade' perfil.cidade.uf_id|lower perfil.cidade.slug %}">{{ perfil.cidade.nome }}</a>{% if primeira %} › <a href="{% url 'guia:categoria' perfil.cidade.uf_id|lower perfil.cidade.slug primeira.slug %}">{{ primeira.nome }}</a>{% endif %}</nav>
+  <div class="row g-4">
+    <div class="col-lg-7 d-grid gap-3 align-content-start">
+      <div class="d-flex gap-3 align-items-center">
+        {% if perfil.logo and not regulamentado %}<img class="nd-guia-logo" src="{{ perfil.logo.url }}" width="96" height="96" alt="Logo de {{ perfil.nome_publico }}">{% endif %}
+        <div>
+          <h1 class="h3 m-0">{{ perfil.nome_publico }}</h1>
+          <div class="text-suave">{% for c in categorias %}{{ c.nome }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>
+          <div class="d-flex flex-wrap gap-2 mt-1">
+            {% if perfil.tipo == "empresa" and perfil.cnpj_verificado_em %}<span class="selo selo-verificado">{% icone "verificado" %} CNPJ verificado</span>{% endif %}
+            {% if perfil.tipo == "autonomo" %}<span class="selo selo-autonomo">Profissional autônomo</span>{% endif %}
+            {% if aberto is True %}<span class="nd-aberto">Aberto agora</span>{% elif aberto is False %}<span class="nd-fechado">Fechado agora</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% if regulamentado and perfil.registro_profissional %}<p class="mb-0"><b>Registro:</b> {{ perfil.registro_profissional }}</p>{% endif %}
+      {% if perfil.frase and not regulamentado %}<p class="mb-0">{{ perfil.frase }}</p>{% endif %}
+      {% include "_ajuda.html" %}
+
+      <div class="nd-caixa d-flex flex-wrap gap-2">
+        {% if perfil.whatsapp %}<a class="btn btn-zap" href="{% url 'guia:whatsapp' perfil.pk %}" rel="nofollow noopener" target="_blank">{% icone "zap" %} Chamar no WhatsApp</a>{% endif %}
+        {% if perfil.telefone %}<a class="btn btn-outline-secondary" href="{% url 'guia:telefone' perfil.pk %}" rel="nofollow" hx-get="{% url 'guia:telefone' perfil.pk %}" hx-target="this" hx-swap="outerHTML">Ver telefone</a>{% endif %}
+      </div>
+
+      <section class="nd-caixa">
+        <h2 class="h6">Onde atende</h2>
+        {% if perfil.atendimento == "atende_a_domicilio" %}
+          <p class="mb-0">{% icone "pin" %} Atende a domicílio: {{ perfil.area_atendimento }} ({{ perfil.cidade.nome }}/{{ perfil.cidade.uf_id }}).</p>
+        {% else %}
+          <p class="mb-2">{% icone "pin" %} {{ perfil.endereco }}{% if perfil.bairro %}, {{ perfil.bairro.nome }}{% endif %} · {{ perfil.cidade.nome }}/{{ perfil.cidade.uf_id }}</p>
+          {% if localizacao %}{{ localizacao|json_script:"localizacao-anuncio" }}<div id="mapa-anuncio" class="nd-mapa nd-mapa-loja" role="region" aria-label="Mapa: onde fica"></div>{% endif %}
+        {% endif %}
+      </section>
+
+      {% if semana %}
+      <section class="nd-caixa">
+        <h2 class="h6">{% icone "relogio" %} Horário <span class="small text-suave fw-normal">(hora de {{ perfil.cidade.uf_id }})</span></h2>
+        <ul class="list-unstyled mb-0 nd-guia-semana">
+          {% for dia, horas, hoje in semana %}<li class="d-flex justify-content-between{% if hoje %} hoje{% endif %}"><span>{{ dia }}{% if hoje %} (hoje){% endif %}</span><span class="tabular">{{ horas }}</span></li>{% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+    <aside class="col-lg-5 d-grid gap-3 align-content-start">
+      <div class="nd-caixa small">
+        <p class="mb-2">Os dados desta ficha foram autorizados pelo responsável. O {{ nome_guia }} não intermedia o serviço.</p>
+        <p class="mb-0">É o dono? Para alterar ou remover, escreva para <a href="mailto:{{ site.email_privacidade }}">{{ site.email_privacidade }}</a>.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}{% if localizacao %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+<script src="{% static 'js/mapa-anuncio.js' %}" defer></script>
+{% endif %}{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Aceite em papel (plano B; docs/GUIA_LGPD_E_TERMO.md §2): foto do termo assinado no storage privado. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}{% include "admin/guia/perfilguia/_trilha.html" %}{% endblock %}
+{% block content %}
+<div class="module nd-guia-painel">
+  <p>Imprima o termo {% if termo %}<b>v{{ termo.versao }}</b> (em vigor desde {{ termo.vigente_desde|date:"d/m/Y" }}){% endif %}, peça a assinatura do responsável e fotografe. Ao salvar, o perfil é publicado.</p>
+  <h2>Prévia da ficha (o que a pessoa autoriza)</h2>
+  {% include "guia/_previa.html" %}
+</div>
+<form method="post" enctype="multipart/form-data" class="module nd-guia-painel" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="errornote">{% for erro in form.non_field_errors %}{{ erro }} {% endfor %}</div>{% endif %}
+  {% for campo in form %}
+  <div class="form-row">
+    {% if campo.widget_type == "checkbox" %}{{ campo }} <label for="{{ campo.id_for_label }}" class="vCheckboxLabel">{{ campo.label }}</label>
+    {% else %}<label for="{{ campo.id_for_label }}" class="required">{{ campo.label }}</label> {{ campo }}{% endif %}
+    {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+    {{ campo.errors }}
+  </div>
+  {% endfor %}
+  <div class="nd-guia-botoes">
+    <button type="submit" class="button default">Registrar aceite e publicar</button>
+    <a class="button" href="{% url 'admin:guia_perfilguia_change' perfil.pk %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

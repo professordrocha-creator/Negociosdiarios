@@ -57,6 +57,35 @@ PRIVACIDADE = {
 }
 # Sprint 7B parte 2 (moderacao/0002): Moderador e Administrador decidem as denúncias.
 DENUNCIAS = {"moderacao.view_denuncia", "moderacao.change_denuncia"}
+# Guia de Negócios G1 (guia/0002): grupo Guia cadastra e publica; Moderador vê os perfis e decide os pedidos
+# dos titulares; Administrador cuida de tudo; Financeiro e Comercial não veem o guia.
+GUIA_CATEGORIAS_VER = {"guia.view_grupocategoria", "guia.view_categoriaservico"}
+GUIA_CADASTRO = {
+    "guia.view_perfilguia",
+    "guia.add_perfilguia",
+    "guia.change_perfilguia",
+    "guia.view_termoguia",
+    "guia.view_aceitepublicacao",
+    "guia.view_conviteaceite",
+}
+GUIA_PEDIDOS = {"guia.view_pedidodoperfil", "guia.change_pedidodoperfil"}
+GUIA_ADMIN = (
+    GUIA_CATEGORIAS_VER
+    | GUIA_CADASTRO
+    | GUIA_PEDIDOS
+    | {
+        "guia.add_grupocategoria",
+        "guia.change_grupocategoria",
+        "guia.delete_grupocategoria",
+        "guia.add_categoriaservico",
+        "guia.change_categoriaservico",
+        "guia.delete_categoriaservico",
+        "guia.add_termoguia",
+        "guia.change_termoguia",
+        "guia.view_configuracaoguia",
+        "guia.change_configuracaoguia",
+    }
+)
 
 ESPERADO = {
     "Administrador": {
@@ -99,7 +128,8 @@ ESPERADO = {
     | COBRANCA
     | PUBLICIDADE_TUDO
     | PRIVACIDADE
-    | DENUNCIAS,
+    | DENUNCIAS
+    | GUIA_ADMIN,
     # Moderador aprova e suspende anunciantes (anunciantes/0002) e vê os pedidos de cidade.
     "Moderador": SO_CIDADES
     | VER_ANUNCIANTE
@@ -112,7 +142,9 @@ ESPERADO = {
     | PLANOS_VER
     | ANUNCIOS_MODERAR
     | CATALOGO_VER
-    | DENUNCIAS,
+    | DENUNCIAS
+    | {"guia.view_perfilguia"}
+    | GUIA_PEDIDOS,
     "Financeiro": SO_CIDADES
     | VER_ANUNCIANTE
     | GEOGRAFIA
@@ -128,6 +160,7 @@ ESPERADO = {
     | ANUNCIOS_VER
     | CATALOGO_VER
     | PUBLICIDADE_TUDO,
+    "Guia": GUIA_CATEGORIAS_VER | GUIA_CADASTRO,
 }
 
 
@@ -138,8 +171,8 @@ def permissoes(grupo: Group) -> set[str]:
     }
 
 
-def test_os_quatro_grupos_existem():
-    """A migration cria exatamente os perfis do docs/ADMINISTRACAO.md."""
+def test_os_grupos_existem():
+    """As migrations criam exatamente os perfis do docs/ADMINISTRACAO.md (os 4 da Sprint 0 e o Guia)."""
     assert set(Group.objects.values_list("name", flat=True)) == set(ESPERADO)
 
 

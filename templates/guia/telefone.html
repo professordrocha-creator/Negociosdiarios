@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# "Ver telefone" sem JavaScript (guia.views.contato_telefone): página só com o número. noindex. #}
+
+{% block titulo %}Telefone de {{ perfil.nome_publico }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Telefone de {{ perfil.nome_publico }}</h1>
+    <p class="fs-4 mb-0"><a href="tel:{{ perfil.telefone }}" rel="nofollow">{{ numero }}</a></p>
+    <p class="mb-0"><a href="{% url 'guia:empresa' perfil.slug %}">Voltar à ficha</a></p>
+  </div>
+</main>
+{% endblock %}

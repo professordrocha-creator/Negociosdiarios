@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load nd %}
+{# /guia/ (G2; docs/GUIA.md §6): cidades atendidas (por estado, com 2+ liberados) e busca por texto. #}
+{# Formulário GET (funciona sem JS). Resultado de busca: noindex. #}
+
+{% block titulo %}{% if buscou %}Busca: {{ termo }} · {{ nome_guia }}{% else %}{{ nome_guia }}: serviços, profissionais e comércios{% endif %}{% endblock %}
+{% block descricao %}Encontre eletricista, pedreiro, clínica, restaurante e mais na sua cidade. Contato direto pelo WhatsApp, grátis.{% endblock %}
+{% block robots %}{% if buscou or previa_equipe %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block og_titulo %}{{ nome_guia }} · {{ site.nome }}{% endblock %}
+{% block head_extra %}<link rel="canonical" href="{{ url_canonica }}">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4 d-grid gap-4">
+  <div>
+    <h1 class="h3 mb-1">{{ nome_guia }}</h1>
+    <p class="text-suave mb-0">Serviços, profissionais e comércios da região. Grátis: fale direto pelo WhatsApp.</p>
+  </div>
+  {% include "_ajuda.html" %}
+
+  <form class="nd-caixa row g-2 align-items-end" method="get" action="{% url 'guia:inicio' %}" role="search">
+    <div class="col-12 col-md-6"><label class="form-label" for="g-q">O que você procura?</label>
+      <input id="g-q" class="form-control" type="search" name="q" value="{{ termo }}" maxlength="100" placeholder="Ex.: eletricista, padaria, dentista"></div>
+    <div class="col-12 col-md-4"><label class="form-label" for="g-cidade">Cidade</label>
+      <select id="g-cidade" name="cidade" class="form-select">
+        <option value="">Todas as cidades</option>
+        {% for grupo in estados_atendidos %}
+          {% if mostrar_estado %}<optgroup label="{{ grupo.estado.nome }}">{% endif %}
+          {% for c in grupo.cidades %}{% with valor=c.uf_id|lower|add:"/"|add:c.slug %}<option value="{{ valor }}"{% if valor == valor_cidade %} selected{% endif %}>{{ c.nome }}</option>{% endwith %}{% endfor %}
+          {% if mostrar_estado %}</optgroup>{% endif %}
+        {% endfor %}
+      </select></div>
+    <div class="col-12 col-md-2 d-grid"><button class="btn btn-nd" type="submit">{% icone "busca" %} Buscar</button></div>
+  </form>
+
+  {% if buscou %}
+  <section aria-labelledby="resultado-titulo">
+    <h2 class="h5" id="resultado-titulo">Resultados para “{{ termo }}”{% if cidade %} em {{ cidade.nome }}{% endif %}</h2>
+    {% if categorias and cidade %}
+      <p class="small mb-2">Serviços: {% for c in categorias %}<a href="{% url 'guia:categoria' cidade.uf_id|lower cidade.slug c.slug %}">{{ c.nome }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+    {% endif %}
+    {% if itens %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        {% for perfil, aberto in itens %}<div class="col">{% include "guia/_card_perfil.html" %}</div>{% endfor %}
+      </div>
+    {% else %}
+      <div class="nd-caixa text-center py-4"><p class="mb-0">Nada encontrado. Tente outra palavra ou escolha a cidade abaixo.</p></div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="cidades-titulo">
+    <h2 class="h5" id="cidades-titulo">Escolha a cidade</h2>
+    {% for grupo in estados_atendidos %}
+      {% if mostrar_estado %}<h3 class="h6 mt-3">{{ grupo.estado.nome }}</h3>{% endif %}
+      <ul class="list-unstyled nd-guia-cats mb-0">
+        {% for c in grupo.cidades %}<li class="py-1"><a href="{% url 'guia:cidade' c.uf_id|lower c.slug %}">{% icone "pin" %} {{ c.nome }}</a></li>{% endfor %}
+      </ul>
+    {% empty %}
+      <p class="text-suave">Em breve.</p>
+    {% endfor %}
+  </section>
+</main>
+{% endblock %}

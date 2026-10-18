@@ -1,0 +1,6 @@
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Início</a> ›
+  <a href="{% url 'admin:app_list' 'guia' %}">Guia de Negócios</a> ›
+  <a href="{% url 'admin:guia_perfilguia_changelist' %}">Perfis do guia</a> ›
+  <a href="{% url 'admin:guia_perfilguia_change' perfil.pk %}">{{ perfil.nome_publico }}</a> › {{ title }}
+</div>

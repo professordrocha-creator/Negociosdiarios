@@ -1,0 +1,11 @@
+{% autoescape off %}Olá, {{ aceite.nome_digitado }}!
+
+Registramos a sua autorização para publicar {{ perfil.nome_publico }} no {{ nome_guia }} ({{ site_nome }}).
+
+Data e hora: {{ aceite.aceito_em|date:"d/m/Y H:i" }}
+Versão do termo: {{ aceite.termo.versao }}
+
+A publicação é gratuita. Para alterar ou remover a ficha, ou revogar a autorização, a qualquer momento,
+responda este e-mail ou escreva para {{ email_encarregado }}. Atendemos em até 15 dias.
+
+{{ site_nome }} · {{ site_url }}{% endautoescape %}

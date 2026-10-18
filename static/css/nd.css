@@ -381,3 +381,34 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-opcao:hover { border-color: var(--nd-petroleo); color: var(--nd-petroleo); }
 .btn-check:checked + .nd-opcao { background: var(--nd-petroleo); border-color: var(--nd-petroleo); color: #fff; }
 .btn-check:focus-visible + .nd-opcao { outline: 3px solid var(--nd-ipe); outline-offset: 2px; box-shadow: none; }
+
+/* Guia de Negócios: prévia da ficha (página de aceite; o admin usa css/guia-admin.css). */
+.nd-guia-previa { border: 1px solid var(--nd-borda, #dde4e5); border-radius: 8px; padding: 12px; }
+.nd-guia-previa-topo { display: flex; gap: 12px; align-items: center; }
+.nd-guia-previa-logo { border-radius: 8px; object-fit: cover; }
+.nd-guia-previa-nome { font-size: 1.1rem; }
+.nd-guia-previa-selo { font-size: .85rem; font-weight: 600; color: var(--nd-petroleo); }
+.nd-guia-previa-dados { list-style: none; margin: 8px 0 0; padding: 0; }
+.nd-guia-termo { font-size: .95rem; }
+
+/* Guia de Negócios (G2): selo "Novo" no menu e na home, menu do celular, cartão da home e páginas. */
+.nd-selo-novo { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; background: var(--nd-ipe); color: #2b2100; border-radius: 999px; padding: 1px 6px; vertical-align: middle; }
+.nd-menu a.nd-menu-guia { opacity: 1; box-shadow: inset 0 -2px 0 rgba(242, 183, 5, .55); }
+.nd-menu-celular { max-width: 300px; }
+.nd-menu-celular-item { display: flex; align-items: center; gap: 10px; padding: 12px 8px; border-radius: 8px; color: inherit; text-decoration: none; font-weight: 600; }
+.nd-menu-celular-item:hover, .nd-menu-celular-item:focus { background: var(--nd-ipe-claro); }
+.nd-menu-celular-item.nd-menu-guia { border-left: 4px solid var(--nd-ipe); }
+.nd-cartao-guia { color: inherit; border-left: 4px solid var(--nd-ipe); }
+.nd-cartao-guia:hover { box-shadow: 0 4px 14px rgba(8, 50, 59, .12); }
+.nd-faixa-previa { background: #fde2e1; color: #6b1a14; font-size: 13px; text-align: center; padding: 6px 16px; }
+.nd-guia-cats { columns: 2 220px; column-gap: 24px; }
+.nd-guia-cats li { break-inside: avoid; }
+.nd-guia-card { display: grid; gap: 6px; }
+.nd-guia-logo-mini { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.nd-aberto { color: #136f3a; font-weight: 700; }
+.nd-fechado { color: #8a2b1c; font-weight: 700; }
+.nd-guia-semana li.hoje { font-weight: 700; }
+.nd-mapa-guia { height: 60vh; min-height: 320px; }
+.selo-autonomo { background: var(--nd-ipe-claro); color: #5c4500; }
+.min-w-0 { min-width: 0; }
+.nd-guia-logo { width: 96px; height: 96px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }

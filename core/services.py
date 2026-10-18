@@ -360,6 +360,7 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
     demo.json liberadas (marcadas com `liberada_pela_demo`, para o apagar desfazer só
     essas), as 6 lojas como anunciantes ativos com login próprio e uma assinatura
     para cada loja ativa (planos diferentes; as de `assinaturas_em_atraso` já em atraso).
+    Guia de Negócios (G1): 10 perfis fictícios com as categorias do CSV.
     Os imóveis viram anúncios publicados no banco (`anuncios.demo`), com fotos de exemplo. Faturas
     (Sprint 6): histórico pago, uma aberta, uma aguardando confirmação e as das lojas em atraso vencidas.
     Recusa sem DEBUG, sem senha, ou se um e-mail demo já for de
@@ -425,6 +426,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
 
         anuncios = criar_anuncios_demo(dados["anuncios"])
         criar_denuncias_demo()
+        from guia.services import criar_guia_demo
+
+        criar_guia_demo()  # Guia de Negócios (G1): 12 categorias usadas e 10 perfis fictícios
     return ResumoDemo(
         usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas, anuncios=anuncios
     )
@@ -439,6 +443,7 @@ def apagar_dados_demo() -> ResumoDemo:
     """
     from anunciantes.services import apagar_anunciantes_demo  # ver criar_dados_demo
     from anuncios.services import apagar_anuncios_demo
+    from guia.services import apagar_guia_demo
     from moderacao.services import apagar_denuncias_demo
     from planos.services import apagar_assinaturas_demo
     from privacidade.services import apagar_pedidos_demo
@@ -447,6 +452,7 @@ def apagar_dados_demo() -> ResumoDemo:
     Usuario = get_user_model()
     with transaction.atomic():
         apagar_denuncias_demo()  # antes dos anúncios (Denuncia.anuncio é PROTECT)
+        apagar_guia_demo()  # perfis do guia com aceites, convites e pedidos (antes dos usuários demo)
         apagar_anuncios_demo()  # anúncios, fotos e histórico (Anuncio.anunciante é PROTECT)
         apagar_assinaturas_demo()  # antes dos anunciantes (e leva o histórico junto)
         apagar_publicidade_demo()  # campanhas, peças e patrocinadores demo

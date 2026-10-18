@@ -45,15 +45,21 @@ VPS Ubuntu 24.04 endurecida (`docs/SEGURANCA.md` §3), R2 e SMTP reais, axes len
 real atrás do Nginx, `check --deploy` sem avisos, backup **restaurado em teste** e
 "olá mundo" no ar com HTTPS.
 
-### Guia de Negócios (registrado em 2026-10-12) — depois da validação local da V1
-Etapa nova, a fazer depois que a V1 estiver validada localmente. Os detalhes serão definidos
-quando chegarmos nela; por enquanto, o combinado:
-- **Aba gratuita** no site em que o visitante escolhe a **cidade** e o **tipo de serviço** e vê as empresas.
-- **Plano Gratuito**: dá a página da empresa, com **0 anúncios**.
-- **Categorias de serviço** (cadastradas no admin).
-- **Dados exibidos: só** contato, local ou área de atendimento, horário, logo e uma frase curta.
-- **Cadastro assistido pelo admin**: a equipe cadastra a empresa e o **responsável dá o aceite
-  eletrônico** antes de a página ser publicada (LGPD: registrar finalidade e base legal em `docs/LGPD.md`).
+### Guia de Negócios (registrado em 2026-10-12; ordem decidida em 2026-10-18)
+Diretório **gratuito** de serviços, profissionais e comércios (app `guia`). Especificação completa em
+`docs/GUIA.md` e `docs/GUIA_LGPD_E_TERMO.md`. Vem **antes** da Sprint 8, que ficou adiada (só volta se o teste
+com amigos e as lojas fundadoras pedirem). Cada etapa termina com testes, TextoAjuda, docs, CHANGELOG e
+`docs/PROGRESSO.md`; o commit é do Daniel.
+
+| Etapa | Entrega |
+|---|---|
+| **G1 — Base** (feita) | Modelos e migrações, carga de categorias (`carregar_categorias_guia`), admin do guia (celular), cadastro assistido, termo, convite e aceite (`/guia/aceite/<token>/`), regras de publicação, grupo **Guia**, demo mínima |
+| **G2 — Público** (feita) | Páginas de cidade, categoria e ficha, lista + mapa, busca (`unaccent`/`pg_trgm`), "aberto agora", SEO e sitemap, contagem de cliques |
+| **G3 — LGPD e operação** | Pedidos do titular ("Esta é minha empresa"), revogação, termo novo (prazo de 30 dias), lista de convites e "não contatar", fila e ações em lote, demo completa (~60 perfis) |
+| **G4 — Opcional** | Autocadastro com aprovação, selo de verificação, ajustes de uso (depois das primeiras 50 a 100 empresas) |
+
+Depois do guia: revisão geral e correções em lote, servidor de teste (subdomínio, `noindex`) com amigos,
+Sprint 8 se for necessária, e a Sprint 9.
 
 ## V2 — Monetizar e crescer
 **Pagamento integrado (Mercado Pago)**: Pix com confirmação automática por webhook e assinatura no cartão com renovação (ver `docs/PAGAMENTOS.md`, V2), destaques, estatísticas para o anunciante,

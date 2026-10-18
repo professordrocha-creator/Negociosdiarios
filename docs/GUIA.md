@@ -2,7 +2,7 @@
 
 > Documento para o Claude Code seguir. Leia junto com CLAUDE.md, ARQUITETURA.md, SEGURANCA.md, LGPD.md,
 > GUIA_LGPD_E_TERMO.md e docs/guia/categorias_iniciais.csv.
-> Status: planejado. Só implementar depois da Sprint 8 e da validação local dos classificados.
+> Status: G1 (base) e G2 (páginas públicas) feitas em 2026-10-18. Ordem decidida em 2026-10-18: o guia vem antes da Sprint 8 (adiada).
 
 ## 1. O que é
 

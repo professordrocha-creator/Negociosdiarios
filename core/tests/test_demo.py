@@ -28,7 +28,8 @@ from core.services import (
 
 DADOS = ler_demo()
 SENHA_DEMO = "Senha-Demo-Forte-123"
-USUARIOS_DEMO = 3 + 8  # equipe (3) + um login por loja (6 ativas + 2 pendentes)
+# Equipe (4: Moderador, Financeiro, Comercial e Guia) + um login por loja (6 ativas + 2 pendentes).
+USUARIOS_DEMO = 4 + 8
 SENHA_REAL = "Outra-Senha-Forte-1"
 TANGARA, BARRA_DO_BUGRES = 5107958, 5101704
 
@@ -293,7 +294,7 @@ def test_criar_dados_demo_exige_demo_senha(dev, settings):
 
 
 def test_criar_dados_demo_cria_equipe_nos_grupos(dev):
-    """3 usuários de equipe demo, um por grupo, com a senha do .env e marcados como demo."""
+    """4 usuários de equipe demo, um por grupo, com a senha do .env e marcados como demo."""
     call_command("criar_dados_demo")
 
     for pessoa in DADOS["equipe"]:
@@ -340,6 +341,9 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
     daniel = Usuario.objects.create_superuser(email="daniel@exemplo.com", password=SENHA_REAL, nome="Daniel")
     resumo = criar_dados_demo(SENHA_DEMO)
     assert resumo.cidades == 3  # Tangará já estava liberada (à mão) e não é marcada
+    from guia.models import AceitePublicacao, CategoriaServico, PerfilGuia
+
+    assert PerfilGuia.objects.filter(demo=True).count() == 64  # Guia de Negócios (G2: cerca de 60)
 
     apagado = apagar_dados_demo()
 
@@ -347,6 +351,8 @@ def test_apagar_dados_demo_remove_so_o_que_e_demo(dev):
     assert list(Usuario.objects.all()) == [daniel]
     assert list(Cidade.objects.filter(liberada=True).values_list("codigo_ibge", flat=True)) == [TANGARA]
     assert not Cidade.objects.filter(liberada_pela_demo=True).exists()
+    assert not PerfilGuia.objects.exists() and not AceitePublicacao.objects.exists()
+    assert CategoriaServico.objects.count() == 82  # categorias são dados reais, ficam
 
 
 def test_comando_apagar_pede_confirmacao(dev, monkeypatch, capsys):
