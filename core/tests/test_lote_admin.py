@@ -38,13 +38,13 @@ def test_pendencias_so_do_que_o_grupo_pode_ver(entrar_no_admin, criar_anunciante
 
 
 def test_pendencias_do_financeiro_e_do_dono(entrar_no_admin, client):
-    """Financeiro vê comprovantes (e lojas), não denúncias; o superusuário vê as cinco."""
+    """Financeiro vê comprovantes (e lojas), não denúncias; o superusuário vê os seis contadores."""
     pagina = entrar(entrar_no_admin, "Financeiro").get(reverse("admin:index")).content.decode()
     assert "Comprovantes aguardando confirmação" in pagina and "Denúncias pendentes" not in pagina
 
     dono = Usuario.objects.create_superuser(email="dono@exemplo.com", password=SENHA, nome="Dono")
     pagina = entrar_no_admin(dono).get(reverse("admin:index")).content.decode()
-    assert pagina.count('class="nd-pendencia-numero"') == 5
+    assert pagina.count('class="nd-pendencia-numero"') == 6  # + "Interessados no Guia"
 
 
 def test_menus_com_nomes_novos(entrar_no_admin):

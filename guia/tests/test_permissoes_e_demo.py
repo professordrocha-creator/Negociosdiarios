@@ -110,7 +110,8 @@ def test_demo_cria_cerca_de_60_perfis_e_apaga_tudo(cidades_demo, termo):
     from guia.models import ContatoConvite, TermoGuia
 
     assert PedidoDoPerfil.objects.count() == 6 and perfis.filter(status="removido").count() == 1
-    assert ContatoConvite.objects.filter(demo=True).count() == 15
+    assert ContatoConvite.objects.filter(demo=True).count() == 18  # 15 da lista + 3 do "Quero ser listado"
+    assert ContatoConvite.objects.filter(origem="formulario").count() == 3
     assert ContatoConvite.objects.filter(situacao="nao_contatar").count() == 2
     assert services.termo_vigente().demo and services.pendentes_do_termo()
     assert perfis.filter(tipo="autonomo").exclude(cpf_hash="").exists()

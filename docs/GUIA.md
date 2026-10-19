@@ -177,6 +177,25 @@ Ações em lote: pausar por cidade ou categoria. Exportar CSV (neutralizar fórm
 - Quem aceitar vira `PerfilGuia` com `origem = lista_antiga`. Quem pedir para sair vai para uma lista de "não contatar" que bloqueia novos convites.
 - Não copiar dados do Google Maps, de outros sites ou por robô.
 
+## 9a. Captação: cartão da home e "Quero ser listado" (2026-10-18)
+
+- **Home:** com o guia no ar, um cartão logo abaixo da caixa de busca ("Encontre serviços e comércios da sua
+  cidade. Grátis.", botão para `/guia/`) e uma linha rolável com 4 atalhos: as categorias com mais fichas
+  publicadas (sem fichas: farmácia, eletricista, mecânica, salão). Cada atalho abre a busca do guia.
+- **Faixa para empresas** no início, na cidade e na categoria do guia (também quando a lista está vazia), com o
+  texto editável `ConfiguracaoGuia.texto_quero_ser_listado` e o botão "Quero ser listado". Nunca "Anuncie" (o guia
+  é grátis e não se confunde com os classificados pagos).
+- **`/guia/quero-ser-listado/`:** nome, categoria, cidade (liberadas), WhatsApp, nome da pessoa de contato e a
+  caixa obrigatória "Autorizo o Negócios Diários a entrar em contato comigo por este número para montar a ficha".
+  Não publica nada: vira `ContatoConvite` (origem "formulário do site", situação "novo", com a data da
+  autorização). CSRF, campo-armadilha, limite por hora pelo resumo anônimo do visitante (como nas denúncias, sem
+  IP), WhatsApp validado; sem CPF e sem endereço. Número na lista "não contatar": registrado sem ação, com alerta,
+  e a equipe recebe e-mail. Sucesso sem prometer prazo.
+- **Admin:** contador "Interessados no Guia" nas pendências; na lista de convites, "Criar ficha a partir deste
+  contato" (rascunho já preenchido, origem cadastro assistido) e "Marcar como contatado".
+- **LGPD:** interessado que não vira ficha é apagado depois de `dias_guarda_interessados` (180) pela rotina
+  diária do guia (ver GUIA_LGPD_E_TERMO.md §7).
+
 ## 10. Segurança
 
 - Token de aceite: 32 bytes aleatórios, uso único, expira, nunca o id. Página com `noindex` e `Referrer-Policy: no-referrer`.

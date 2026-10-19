@@ -52,7 +52,7 @@ def test_menu_cartao_e_rodape_so_com_o_guia_no_ar(client, tangara):
     menu = ligado.split('aria-label="Principal"')[1].split("</nav>")[0]
     assert menu.index("Guia da Região") < menu.index("Imóveis")
     assert "Novo" in menu
-    assert "Encontre eletricista, pedreiro, clínica, restaurante e mais na sua cidade" in ligado
+    assert "Encontre serviços e comércios da sua cidade. Grátis." in ligado
     assert ligado.count('href="/guia/"') >= 4  # menu, menu do celular, cartão e rodapé
 
 

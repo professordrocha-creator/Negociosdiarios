@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load nd %}
+{# "Quero ser listado" (captação do guia): formulário curto, mobile primeiro. Não publica nada: vai para a #}
+{# lista de convites do admin. Campo site_empresa = armadilha para robôs (.nd-armadilha). Sem CPF e sem endereço. #}
+
+{% block titulo %}Quero ser listado · {{ nome_guia }}{% endblock %}
+{% block descricao %}Peça para entrar no {{ nome_guia }}: grátis. A equipe monta a ficha e você autoriza antes de publicar.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, follow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+{% include "guia/_faixas.html" %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <nav aria-label="Trilha" class="small"><a href="{% url 'guia:inicio' %}">{{ nome_guia }}</a> › Quero ser listado</nav>
+    <h1 class="h4 m-0">Quero ser listado no {{ nome_guia }}</h1>
+    <ol class="nd-caixa small mb-0 ps-4">
+      <li><b>Agora nada é publicado.</b> Você só manda os dados abaixo.</li>
+      <li>A equipe fala com você pelo WhatsApp e monta a ficha.</li>
+      <li>Você recebe um link, confere a ficha e <b>autoriza</b>. Só então ela vai ao ar. É grátis.</li>
+    </ol>
+    {% include "_ajuda.html" %}
+    <form method="post" class="nd-caixa d-grid gap-3" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% include "anunciantes/_campo.html" with campo=form.nome %}
+      {% include "anunciantes/_campo.html" with campo=form.categoria %}
+      {% include "anunciantes/_campo.html" with campo=form.cidade %}
+      {% include "anunciantes/_campo.html" with campo=form.whatsapp %}
+      {% include "anunciantes/_campo.html" with campo=form.responsavel_nome %}
+      <div class="form-check">
+        {{ form.autorizo }}
+        <label class="form-check-label" for="{{ form.autorizo.id_for_label }}">{{ form.autorizo.label }}</label>
+        {% for erro in form.autorizo.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+      </div>
+      <div class="nd-armadilha" aria-hidden="true">
+        <label for="{{ form.site_empresa.id_for_label }}">{{ form.site_empresa.label }}</label>{{ form.site_empresa }}
+      </div>
+      <p class="small text-suave mb-0">Não pedimos CPF nem endereço de casa. Seus dados servem só para a equipe falar com você sobre a ficha; quem não entrar no guia tem os dados apagados depois de alguns meses.</p>
+      <div class="d-grid d-sm-block"><button type="submit" class="btn btn-nd">Enviar</button></div>
+    </form>
+  </div>
+</main>
+{% endblock %}

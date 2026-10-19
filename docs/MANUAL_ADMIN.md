@@ -514,6 +514,26 @@ registrada.
 3. **O que acontece depois:** a prévia mostra os erros com o número da linha e o que fica de fora (repetidos e
    "não contatar"). Clique em "Importar N contato(s)": só as linhas certas entram.
 
+### Interessados ("Quero ser listado")
+
+Empresas e profissionais pedem para entrar no guia pelo botão "Quero ser listado" do site. Nada é publicado: o
+pedido cai na "Lista de convites", com origem "Formulário do site (Quero ser listado)", e a caixa "Pendências" do
+painel mostra "Interessados no Guia".
+
+1. **Onde clicar:** "Pendências" › "Interessados no Guia" (ou "Guia de Negócios" › "Lista de convites", filtros
+   origem "Formulário do site" e situação "Novo").
+2. **O que preencher:** fale com a pessoa pelo WhatsApp informado (ela autorizou o contato). Depois, marque o
+   contato e use "Marcar como contatado (já falei com a pessoa)". Se ela quiser seguir, marque só esse contato e use
+   "Criar ficha a partir deste contato (marque um)": abre o cadastro assistido já preenchido (nome, WhatsApp,
+   cidade, categoria e pessoa de contato) para completar e mandar o link de aceite. Se não quiser: "Marcar: não
+   contatar".
+3. **O que acontece depois:** a ficha só vai ao ar com a autorização pelo link. Pedido de número que já estava em
+   "não contatar" chega com um alerta na observação e um e-mail para a equipe: não contate sem conferir. Quem
+   não vira ficha é apagado sozinho depois de 180 dias (LGPD).
+
+O texto da faixa "Quero ser listado" fica em "Configuração do guia" › "texto do aviso "Quero ser listado"" (evite
+"Anuncie": o guia é grátis e não se confunde com os classificados).
+
 ### Convidar e a lista "não contatar"
 
 1. **Onde clicar:** na "Lista de convites", link "convidar" da linha.
@@ -589,7 +609,7 @@ Rodam sozinhas no servidor (Celery), no horário de Cuiabá:
 | 3h00 | Expira os anúncios que passaram da validade (saem do ar; nunca são apagados) |
 | 4h00 | LGPD: apaga comprovantes e anotações de faturas que passaram da guarda fiscal |
 | 4h15 | Apaga o e-mail e os detalhes das denúncias decididas há mais que a guarda |
-| 4h30 | **Guia de Negócios:** links do termo novo, pausa de quem não aceitou no prazo e limpeza dos perfis removidos depois de 5 anos |
+| 4h30 | **Guia de Negócios:** links do termo novo, pausa de quem não aceitou no prazo, limpeza dos perfis removidos depois de 5 anos e dos interessados sem ficha depois de 180 dias |
 | 5h00 | Publicidade: campanhas que passaram do fim saem do ar; aviso à equipe antes do fim |
 | 6h00 | Cobrança: gera as faturas, marca as vencidas, põe em atraso quem passou da carência e manda os lembretes |
 

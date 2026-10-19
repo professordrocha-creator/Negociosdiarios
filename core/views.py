@@ -33,6 +33,8 @@ def inicio(request: HttpRequest) -> HttpResponse:
     Os anúncios e as lojas vêm de core.services (hoje do demo.json com MOSTRAR_DEMO; da
     Sprint 3 em diante, do banco, sem mudar esta view). Sem dados, a página mostra "em breve".
     """
+    from guia.services import categorias_populares, guia_no_ar
+
     estados = cidades_atendidas()
     return render(
         request,
@@ -49,6 +51,8 @@ def inicio(request: HttpRequest) -> HttpResponse:
             "tipos_imovel": DetalheImovel.Tipo.choices,
             "tipos_veiculo": TipoVeiculo.choices,
             "marcas_veiculo": opcoes_busca("veiculos", None)["marca"],
+            # Cartão do Guia de Negócios logo abaixo da busca: 4 atalhos (as categorias com mais fichas).
+            "guia_atalhos": categorias_populares(4) if guia_no_ar() else [],
         },
     )
 

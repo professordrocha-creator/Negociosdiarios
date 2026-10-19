@@ -1241,6 +1241,7 @@ def rotina_do_guia(hoje=None) -> dict[str, int]:
         "convites_termo": convidar_para_termo_novo(hoje),
         "pausados_termo": pausar_sem_aceite_do_termo(hoje),
         "removidos_de_vez": limpar_guia_vencido(hoje),
+        "interessados_apagados": limpar_interessados_antigos(hoje),
     }
 
 
@@ -1396,19 +1397,22 @@ def marcar_contato(contato, situacao: str) -> None:
 
 
 def criar_perfil_do_contato(contato, por=None) -> PerfilGuia:
-    """Quem disse "sim": vira rascunho de `PerfilGuia` (origem lista antiga), que a equipe completa e envia o
-    link de aceite. Reaproveita o perfil já criado para o contato."""
+    """Quem disse "sim" (ou pediu pelo "Quero ser listado"): vira rascunho de `PerfilGuia`, que a equipe
+    completa e envia o link de aceite. Origem: lista antiga (lista/indicação) ou cadastro assistido
+    (formulário do site). Reaproveita o perfil já criado para o contato. Número bloqueado ("não contatar") não
+    vira ficha."""
     if contato.perfil_id:
         return contato.perfil
-    if contato.bloqueado:
+    if contato.bloqueado or numero_bloqueado(contato.whatsapp):
         raise ValueError("Este número recusou ou pediu para não ser contatado.")
+    do_site = contato.origem == contato.Origem.FORMULARIO
     perfil = PerfilGuia.objects.create(
         nome_publico=contato.nome,
         tipo=PerfilGuia.Tipo.AUTONOMO,
-        responsavel_nome=contato.nome,
+        responsavel_nome=contato.responsavel_nome or contato.nome,
         whatsapp=contato.whatsapp,
         cidade=contato.cidade,
-        origem=PerfilGuia.Origem.LISTA_ANTIGA,
+        origem=PerfilGuia.Origem.CADASTRO_ASSISTIDO if do_site else PerfilGuia.Origem.LISTA_ANTIGA,
         cadastrado_por=por,
         demo=contato.demo,
     )
@@ -1541,6 +1545,127 @@ def csv_estatisticas(dias: int = 30) -> str:
         for d in dados["por_perfil"]
     )
     return _csv(["perfil", "cidade", "visualizacoes", "cliques_whatsapp", "cliques_telefone"], linhas)
+
+
+# --- Captação: home e "Quero ser listado" -----------------------------------------------------------------
+
+# Atalhos da home quando ainda não há fichas publicadas (farmácia, eletricista, mecânica, salão).
+CATEGORIAS_PADRAO_HOME = ["farmacia", "eletricista", "mecanica", "cabeleireiro"]
+
+
+def categorias_populares(limite: int = 4) -> list[CategoriaServico]:
+    """As categorias com mais fichas publicadas (atalhos da home); completa com as padrão."""
+    from django.db.models import Count
+
+    contagem = (
+        CategoriaServico.objects.filter(ativa=True, perfis__in=perfis_visiveis())
+        .annotate(total=Count("perfis", distinct=True))
+        .order_by("-total", "nome")
+    )
+    escolhidas = list(contagem[:limite])
+    if len(escolhidas) < limite:
+        ja = {c.pk for c in escolhidas}
+        padrao = {
+            c.slug: c for c in CategoriaServico.objects.filter(slug__in=CATEGORIAS_PADRAO_HOME, ativa=True)
+        }
+        escolhidas += [padrao[s] for s in CATEGORIAS_PADRAO_HOME if s in padrao and padrao[s].pk not in ja]
+    return escolhidas[:limite]
+
+
+def limite_interessados_excedido(request) -> bool:
+    """Conta mais um envio do "Quero ser listado" deste visitante e diz se passou do limite por hora.
+
+    Mesmo método anônimo das denúncias: só o resumo do visitante no dia (IP + navegador + sal do dia, que fica
+    só no cache), nunca o IP. Contador no cache por 1 hora.
+    """
+    from moderacao.services import origem_do_visitante
+
+    chave = f"guia:interessado:{origem_do_visitante(request)}"
+    cache.add(chave, 0, timeout=3600)
+    try:
+        envios = cache.incr(chave)
+    except ValueError:  # a chave venceu entre o add e o incr
+        cache.set(chave, 1, timeout=3600)
+        envios = 1
+    return envios > configuracao_guia().interessados_por_hora
+
+
+def _equipe_do_guia() -> list[str]:
+    """E-mails de quem cuida do guia: grupos Guia e Administrador e o superusuário."""
+    from django.contrib.auth import get_user_model
+
+    Usuario = get_user_model()
+    return list(
+        Usuario.objects.filter(is_active=True, is_staff=True)
+        .filter(Q(is_superuser=True) | Q(groups__name__in=["Guia", "Administrador"]))
+        .values_list("email", flat=True)
+        .distinct()
+    )
+
+
+def registrar_interessado(nome: str, categoria, cidade: Cidade, whatsapp: str, responsavel_nome: str):
+    """ "Quero ser listado": entra na lista de convites (origem formulário do site, situação "novo") com a
+    data em que a pessoa autorizou o contato. Não publica nada.
+
+    Número que está na lista "não contatar": registra sem ação (observação de alerta; o convite continua
+    bloqueado) e avisa a equipe por e-mail para decidir com cuidado."""
+    from core.services import enviar_email_modelo
+    from guia.models import ContatoConvite
+
+    bloqueado = numero_bloqueado(whatsapp)
+    contato = ContatoConvite.objects.create(
+        nome=nome.strip()[:120],
+        whatsapp=whatsapp,
+        cidade=cidade,
+        categoria=categoria,
+        responsavel_nome=responsavel_nome.strip()[:120],
+        origem=ContatoConvite.Origem.FORMULARIO,
+        autorizou_contato_em=timezone.now(),
+        observacao='ATENÇÃO: número na lista "não contatar"; pediu de novo pelo site. '
+        "Não contatar sem conferir."
+        if bloqueado
+        else "",
+    )
+    if bloqueado:
+        enviar_email_modelo(
+            "guia_interessado_bloqueado",
+            'Pedido "Quero ser listado" de número bloqueado',
+            _equipe_do_guia(),
+            {
+                "link_admin": settings.SITE_URL
+                + reverse("admin:guia_contatoconvite_change", args=[contato.pk])
+            },
+        )
+    return contato
+
+
+def marcar_contatado(contato) -> None:
+    """A equipe já falou com o interessado (situação "contatado", com a data)."""
+    contato.situacao = contato.Situacao.CONTATADO
+    contato.convidado_em = timezone.now()
+    contato._change_reason = "Marcado como contatado."
+    contato.save(update_fields=["situacao", "convidado_em"])
+
+
+def limpar_interessados_antigos(hoje=None) -> int:
+    """Rotina diária (LGPD): interessados do "Quero ser listado" que não viraram ficha somem depois de
+    `dias_guarda_interessados` (180), também do histórico. "Recusou"/"não contatar" ficam (são o bloqueio)."""
+    from datetime import datetime, time
+
+    from guia.models import ContatoConvite
+
+    hoje = hoje or timezone.localdate()
+    limite = timezone.make_aware(datetime.combine(hoje, time.min)) - timedelta(
+        days=configuracao_guia().dias_guarda_interessados
+    )
+    antigos = ContatoConvite.objects.filter(
+        origem=ContatoConvite.Origem.FORMULARIO, perfil__isnull=True, criado_em__lt=limite
+    ).exclude(situacao__in=ContatoConvite.BLOQUEADOS)
+    ids = list(antigos.values_list("pk", flat=True))
+    antigos.delete()
+    # Depois de apagar: o próprio delete grava um último registro no histórico, que também precisa sair.
+    ContatoConvite.history.filter(id__in=ids).delete()
+    return len(ids)
 
 
 # --- Demonstração ------------------------------------------------------------------------------------
@@ -1762,6 +1887,20 @@ def _criar_operacao_demo(termo: TermoGuia | None) -> None:
             situacao=situacao,
             convidado_em=agora - timedelta(days=i) if situacao != S.NOVO else None,
             perfil=publicados[6 + i % 2] if situacao == S.ACEITOU else None,
+        )
+    # "Quero ser listado": 3 interessados do formulário do site (2 novos e 1 já contatado).
+    for i, situacao in enumerate([S.NOVO, S.NOVO, S.CONTATADO], 1):
+        ContatoConvite.objects.create(
+            demo=True,
+            nome=f"Interessado {i} (demo)",
+            whatsapp=f"+5565920{i:06d}",
+            cidade=cidades[i % len(cidades)],
+            categoria=categorias[(i + 3) % len(categorias)],
+            responsavel_nome=f"Pessoa de contato {i} (demo)",
+            origem=ContatoConvite.Origem.FORMULARIO,
+            situacao=situacao,
+            autorizou_contato_em=agora - timedelta(days=i),
+            convidado_em=agora if situacao == S.CONTATADO else None,
         )
 
     if termo is None:

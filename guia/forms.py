@@ -443,3 +443,64 @@ class ImportarConvitesForm(forms.Form):
         if not dados.get("texto"):
             raise ValidationError("Escolha o arquivo CSV.")
         return dados
+
+
+class QueroSerListadoForm(forms.Form):
+    """ "Quero ser listado" (/guia/quero-ser-listado/): o mínimo para a equipe montar a ficha. Sem CPF e sem
+    endereço (de casa ou não): a equipe pede o resto no contato. Campo-armadilha contra robôs."""
+
+    nome = forms.CharField(
+        label="Nome da empresa ou do serviço",
+        max_length=120,
+        widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "organization"}),
+        help_text="Como os clientes conhecem você. Até 120 caracteres.",
+    )
+    categoria = forms.ModelChoiceField(
+        queryset=CategoriaServico.objects.none(),
+        label="O que você faz",
+        empty_label="Escolha a categoria",
+        widget=forms.Select(attrs={"class": "form-select"}),
+        help_text="Escolha a mais próxima; a equipe ajusta depois.",
+    )
+    cidade = forms.ModelChoiceField(
+        queryset=Cidade.objects.none(),
+        label="Cidade",
+        empty_label="Escolha a cidade",
+        widget=forms.Select(attrs={"class": "form-select"}),
+        help_text="Só as cidades atendidas pelo site.",
+    )
+    whatsapp = forms.CharField(
+        label="WhatsApp para contato",
+        max_length=20,
+        widget=forms.TextInput(attrs={"class": "form-control", "inputmode": "tel", "autocomplete": "tel"}),
+        help_text="Com DDD, ex.: (65) 99999-0000.",
+    )
+    responsavel_nome = forms.CharField(
+        label="Seu nome",
+        max_length=120,
+        widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "name"}),
+        help_text="Quem a equipe deve procurar. Até 120 caracteres.",
+    )
+    autorizo = forms.BooleanField(
+        label="Autorizo o Negócios Diários a entrar em contato comigo por este número para montar a ficha.",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        error_messages={"required": "Marque a caixa para a equipe poder falar com você."},
+    )
+    # Campo-armadilha: invisível para pessoas (CSS), robôs costumam preencher.
+    site_empresa = forms.CharField(
+        required=False,
+        label="Deixe em branco",
+        widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Categorias ativas (por grupo e nome) e só as cidades liberadas."""
+        super().__init__(*args, **kwargs)
+        self.fields["categoria"].queryset = CategoriaServico.objects.filter(ativa=True).order_by("nome")
+        self.fields["cidade"].queryset = Cidade.objects.filter(liberada=True, uf__liberado=True).order_by(
+            "nome"
+        )
+
+    def clean_whatsapp(self) -> str:
+        """WhatsApp brasileiro em E.164 (+55...)."""
+        return normalizar_whatsapp(self.cleaned_data["whatsapp"])

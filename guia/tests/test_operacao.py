@@ -406,9 +406,14 @@ def test_permissoes_moderador_guia_financeiro(perfil_publicado, membro, entrar_n
         assert financeiro.get(reverse(f"admin:{nome}")).status_code == 403, nome
 
 
-def test_rotina_do_guia_roda_as_tres_partes(perfil_publicado):
-    """A tarefa diária devolve o resumo das três rotinas."""
+def test_rotina_do_guia_roda_todas_as_partes(perfil_publicado):
+    """A tarefa diária devolve o resumo das quatro rotinas (com a limpeza dos interessados)."""
     from guia.tasks import rotina_do_guia
 
     perfil_publicado()
-    assert set(rotina_do_guia()) == {"convites_termo", "pausados_termo", "removidos_de_vez"}
+    assert set(rotina_do_guia()) == {
+        "convites_termo",
+        "pausados_termo",
+        "removidos_de_vez",
+        "interessados_apagados",
+    }

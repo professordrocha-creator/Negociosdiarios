@@ -34,5 +34,7 @@
   {% empty %}
   <div class="nd-caixa text-center py-4"><p class="mb-0">Ainda não há empresas desta cidade no guia.</p></div>
   {% endfor %}
+  {# Faixa para empresas (também quando a cidade ainda não tem ninguém). #}
+  {% include "guia/_faixa_listado.html" %}
 </main>
 {% endblock %}

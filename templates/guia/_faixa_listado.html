@@ -1,0 +1,6 @@
+{# Faixa "Quero ser listado" (captação de empresas; texto editável em ConfiguracaoGuia). Nunca "Anuncie": #}
+{# o guia é grátis e não se confunde com os classificados pagos. Recebe "texto_quero_ser_listado". #}
+<aside class="nd-faixa-listado d-flex flex-column flex-sm-row align-items-sm-center gap-2" aria-label="Para empresas e profissionais">
+  <p class="m-0 me-sm-auto">{{ texto_quero_ser_listado }}</p>
+  <a class="btn btn-sm btn-ipe flex-shrink-0" href="{% url 'guia:quero_ser_listado' %}">Quero ser listado</a>
+</aside>

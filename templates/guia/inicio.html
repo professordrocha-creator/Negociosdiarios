@@ -46,6 +46,7 @@
       </div>
     {% else %}
       <div class="nd-caixa text-center py-4"><p class="mb-0">Nada encontrado. Tente outra palavra ou escolha a cidade abaixo.</p></div>
+      <div class="mt-3">{% include "guia/_faixa_listado.html" %}</div>
     {% endif %}
   </section>
   {% endif %}
@@ -61,5 +62,7 @@
       <p class="text-suave">Em breve.</p>
     {% endfor %}
   </section>
+  {# Faixa para empresas (uma por página: na busca sem resultado ela já aparece acima). #}
+  {% if not buscou or itens %}{% include "guia/_faixa_listado.html" %}{% endif %}
 </main>
 {% endblock %}

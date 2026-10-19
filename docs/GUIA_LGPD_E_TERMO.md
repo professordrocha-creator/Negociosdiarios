@@ -82,6 +82,18 @@ Formulário simples na ficha (`/guia/pedido/<slug>/`): tipo (alterar, remover, o
 Mostra o prazo e o canal alternativo (e-mail do Encarregado). Honeypot e limite por hora. Entra na fila do admin com prazo de 15 dias.
 Para pedidos de **remoção** feitos pelo e-mail cadastrado do responsável, a equipe pode despublicar de imediato e confirmar depois.
 
+## 7. Interessados pelo site ("Quero ser listado")
+
+| Item | Definição |
+|---|---|
+| Quem | Empresa ou profissional que pede para entrar no guia em `/guia/quero-ser-listado/` |
+| Dados | Nome da empresa ou do serviço, categoria, cidade, WhatsApp, nome da pessoa de contato e a data em que marcou a autorização. **Sem CPF e sem endereço** |
+| Finalidade | A equipe entrar em contato para montar a ficha. Nada é publicado: a ficha só vai ao ar com o aceite do termo pelo link |
+| Base legal | Consentimento (art. 7º, I): caixa obrigatória "Autorizo o Negócios Diários a entrar em contato comigo por este número para montar a ficha" |
+| Quem acessa | Grupo Guia e Administrador (lista de convites no admin) |
+| Retenção | Virou ficha: segue as regras do perfil. **Não virou ficha: apagado depois de 180 dias** (`ConfiguracaoGuia.dias_guarda_interessados`) pela rotina diária do guia (4h30), também no histórico. Quem pediu para não ser contatado continua na lista "não contatar" |
+| Número já na lista "não contatar" | O pedido fica registrado sem nenhuma ação (alerta na observação) e a equipe é avisada por e-mail; o convite continua bloqueado |
+
 ## 6. Pendências para o advogado
 
 - Validar consentimento como base legal única, ou se há base mais adequada para empresas com CNPJ (dados de pessoa jurídica).
@@ -89,3 +101,4 @@ Para pedidos de **remoção** feitos pelo e-mail cadastrado do responsável, a e
 - Regras de propaganda dos conselhos (CFM, CRO, OAB, CRC, CRECI, CREF etc.) para as fichas restritas.
 - Texto final do termo, da política e do convite.
 - Alterar a Política de Privacidade para incluir o tratamento do Guia.
+- Validar o texto da autorização do "Quero ser listado" e a guarda de 180 dias dos interessados.

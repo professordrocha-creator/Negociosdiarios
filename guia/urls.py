@@ -12,6 +12,7 @@ app_name = "guia"
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("aceite/<str:token>/", views.aceite, name="aceite"),
+    path("quero-ser-listado/", views.quero_ser_listado, name="quero_ser_listado"),
     path("empresa/<slug:slug>/", views.empresa, name="empresa"),
     path("pedido/<slug:slug>/", views.pedido, name="pedido"),
     path("contato/<int:pk>/whatsapp/", views.contato_whatsapp, name="whatsapp"),

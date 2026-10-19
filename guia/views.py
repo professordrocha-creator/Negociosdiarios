@@ -20,7 +20,7 @@ from django.views.decorators.vary import vary_on_headers
 from busca.services import cidade_escolhida
 from core.services import cidades_atendidas, limite_por_ip_excedido, textos_ajuda
 from guia import services
-from guia.forms import AceiteForm, PedidoForm
+from guia.forms import AceiteForm, PedidoForm, QueroSerListadoForm
 from guia.models import CategoriaServico, PerfilGuia
 
 
@@ -107,6 +107,7 @@ def _contexto(request: HttpRequest, tela: str, previa: bool, **extra) -> dict:
         "tela": tela,
         "ajuda_itens": textos_ajuda(tela),
         "nome_guia": services.configuracao_guia().nome_guia,
+        "texto_quero_ser_listado": services.configuracao_guia().texto_quero_ser_listado,
         "previa_equipe": previa,
         "mostrar_demo": settings.MOSTRAR_DEMO,
         **extra,
@@ -329,3 +330,32 @@ def pedido(request: HttpRequest, slug: str) -> HttpResponse:
             return _noindex(render(request, "guia/pedido_recebido.html", contexto))
         return _noindex(render(request, "guia/pedido.html", contexto, status=400))
     return _noindex(render(request, "guia/pedido.html", contexto))
+
+
+@require_http_methods(["GET", "POST"])
+def quero_ser_listado(request: HttpRequest) -> HttpResponse:
+    """ "Quero ser listado" (/guia/quero-ser-listado/): empresa ou profissional pede para entrar no guia.
+
+    Não publica nada: vai para a lista de convites do admin (origem "formulário do site"); a equipe monta a
+    ficha e ela só vai ao ar depois do aceite do responsável pelo link. CSRF, campo-armadilha (robô vê sucesso
+    e nada é gravado) e limite por visitante por hora (resumo anônimo do dia, sem IP). noindex."""
+    previa = _liberar(request)
+    form = QueroSerListadoForm(request.POST or None)
+    contexto = _contexto(request, "guia_quero_ser_listado", previa, form=form)
+    if request.method == "POST":
+        if services.limite_interessados_excedido(request):
+            form.add_error(None, "Muitos pedidos na última hora. Aguarde um pouco e tente de novo.")
+            return _noindex(render(request, "guia/quero_ser_listado.html", contexto, status=429))
+        if form.is_valid():
+            if not form.cleaned_data["site_empresa"]:
+                dados = form.cleaned_data
+                services.registrar_interessado(
+                    dados["nome"],
+                    dados["categoria"],
+                    dados["cidade"],
+                    dados["whatsapp"],
+                    dados["responsavel_nome"],
+                )
+            return _noindex(render(request, "guia/quero_ser_listado_recebido.html", contexto))
+        return _noindex(render(request, "guia/quero_ser_listado.html", contexto, status=400))
+    return _noindex(render(request, "guia/quero_ser_listado.html", contexto))

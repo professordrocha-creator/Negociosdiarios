@@ -577,6 +577,22 @@ class ConfiguracaoGuia(models.Model):
     tentativas_aceite_por_hora = models.PositiveSmallIntegerField(
         "tentativas de aceite por hora (por visitante)", default=10, validators=[MinValueValidator(1)]
     )
+    texto_quero_ser_listado = models.TextField(
+        'texto do aviso "Quero ser listado"',
+        default="Sua empresa ou serviço ainda não está no Guia? Entrar é grátis. Você manda os dados, nós "
+        "montamos a ficha e você confere e autoriza antes de publicar.",
+        help_text='Faixa nas páginas do guia, com o botão "Quero ser listado". Texto puro. Evite "Anuncie" '
+        "(confunde com os classificados pagos).",
+    )
+    interessados_por_hora = models.PositiveSmallIntegerField(
+        'pedidos "Quero ser listado" por hora (por visitante)', default=3, validators=[MinValueValidator(1)]
+    )
+    dias_guarda_interessados = models.PositiveSmallIntegerField(
+        "guarda dos interessados que não viraram ficha (dias)",
+        default=180,
+        validators=[MinValueValidator(1)],
+        help_text='Depois disso a rotina diária apaga os pedidos "Quero ser listado" sem ficha (LGPD).',
+    )
     contatos_por_hora = models.PositiveSmallIntegerField(
         "contatos revelados por hora (por visitante)",
         default=30,
@@ -610,19 +626,23 @@ class ConfiguracaoGuia(models.Model):
 
 
 class ContatoConvite(MarcaDemo):
-    """Contato da lista de convites (projeto antigo, indicação): só para a equipe convidar, um por vez.
+    """Contato da lista de convites (projeto antigo, indicação) ou interessado que pediu pelo site ("Quero ser
+    listado", origem `formulario`): só para a equipe contatar, um por vez.
 
     Sem página pública. "Recusou" e "não contatar" bloqueiam novos convites para o número (também no convite
     de aceite de um perfil). Quem aceita vira `PerfilGuia` com origem `lista_antiga` (docs/GUIA.md §9).
+    Interessado do site que não vira ficha sai depois de `ConfiguracaoGuia.dias_guarda_interessados` (180).
     """
 
     class Origem(models.TextChoices):
         LISTA_ANTIGA = "lista_antiga", "Lista do projeto antigo"
         INDICACAO = "indicacao", "Indicação"
+        FORMULARIO = "formulario", "Formulário do site (Quero ser listado)"
         OUTRO = "outro", "Outro"
 
     class Situacao(models.TextChoices):
         NOVO = "novo", "Novo"
+        CONTATADO = "contatado", "Contatado"
         CONVIDADO = "convidado", "Convidado"
         ACEITOU = "aceitou", "Aceitou"
         RECUSOU = "recusou", "Recusou"
@@ -657,6 +677,15 @@ class ContatoConvite(MarcaDemo):
         verbose_name="perfil criado",
     )
     observacao = models.CharField("observação", max_length=200, blank=True)
+    # Só no "Quero ser listado": quem pediu e quando autorizou o contato (base legal do contato).
+    responsavel_nome = models.CharField("pessoa de contato", max_length=120, blank=True)
+    autorizou_contato_em = models.DateTimeField(
+        "autorizou o contato em",
+        null=True,
+        blank=True,
+        editable=False,
+        help_text='Marcou "Autorizo o Negócios Diários a entrar em contato comigo por este número".',
+    )
     criado_em = models.DateTimeField("criado em", default=timezone.now, editable=False)
 
     history = HistoricalRecords(verbose_name="histórico do contato")

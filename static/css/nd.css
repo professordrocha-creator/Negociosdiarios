@@ -412,3 +412,11 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .selo-autonomo { background: var(--nd-ipe-claro); color: #5c4500; }
 .min-w-0 { min-width: 0; }
 .nd-guia-logo { width: 96px; height: 96px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+
+/* Guia: cartão da home (logo abaixo da busca, compacto para o celular) e faixa "Quero ser listado". */
+.nd-cartao-guia-home { background: var(--nd-papel); color: var(--nd-texto); border-radius: var(--nd-raio); border-left: 4px solid var(--nd-ipe); box-shadow: 0 6px 18px rgba(8, 50, 59, .14); padding: 10px 12px; margin-top: 12px; }
+.nd-guia-home-ico { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--nd-ipe-claro); color: var(--nd-petroleo); }
+.nd-guia-home-atalhos { display: flex; gap: 8px; overflow-x: auto; padding-top: 8px; scrollbar-width: none; }
+.nd-guia-home-atalhos::-webkit-scrollbar { display: none; }
+.nd-guia-home-atalhos .nd-atalho { cursor: pointer; padding: 5px 12px; font-size: 13px; }
+.nd-faixa-listado { background: var(--nd-ipe-claro); border: 1px solid var(--nd-ipe); border-radius: var(--nd-raio); padding: 10px 14px; color: #4a3b00; font-size: 14px; }

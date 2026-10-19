@@ -720,13 +720,13 @@ class Pendencia:
 def pendencias_da_equipe(usuario) -> list[Pendencia]:
     """Contadores do que espera a equipe, só do que o usuário tem permissão de ver (grupos do Django).
 
-    Denúncias pendentes, pedidos de privacidade do site e do guia em aberto, comprovantes aguardando
-    confirmação e lojas pendentes de aprovação. Cada link abre a lista do admin já filtrada.
-    """
+    Denúncias pendentes, pedidos de privacidade do site e do guia em aberto, interessados do "Quero ser
+    listado" ainda novos, comprovantes aguardando confirmação e lojas pendentes de aprovação. Cada link abre a
+    lista do admin já filtrada."""
     from django.urls import reverse
 
     from anunciantes.models import Anunciante
-    from guia.models import PedidoDoPerfil
+    from guia.models import ContatoConvite, PedidoDoPerfil
     from moderacao.models import Denuncia
     from pagamentos.models import Fatura
     from privacidade.models import PedidoTitular
@@ -743,6 +743,11 @@ def pendencias_da_equipe(usuario) -> list[Pendencia]:
         ("guia.view_pedidodoperfil", "Pedidos do Guia de Negócios",
          PedidoDoPerfil.objects.filter(status__in=abertos_guia),
          "admin:guia_pedidodoperfil_changelist", "status__in=" + ",".join(abertos_guia)),
+        ("guia.view_contatoconvite", "Interessados no Guia",
+         ContatoConvite.objects.filter(
+             origem=ContatoConvite.Origem.FORMULARIO, situacao=ContatoConvite.Situacao.NOVO
+         ),
+         "admin:guia_contatoconvite_changelist", "origem__exact=formulario&situacao__exact=novo"),
         ("pagamentos.view_fatura", "Comprovantes aguardando confirmação",
          Fatura.objects.filter(situacao=Fatura.Situacao.AGUARDANDO),
          "admin:pagamentos_fatura_changelist", f"situacao__exact={Fatura.Situacao.AGUARDANDO}"),

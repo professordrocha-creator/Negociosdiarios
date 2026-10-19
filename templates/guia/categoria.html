@@ -64,6 +64,7 @@
             <p class="mb-2">Ninguém {% if aberto %}aberto agora {% endif %}com esses filtros.</p>
             <a class="btn btn-sm btn-outline-secondary" href="{{ request.path }}">Ver todos</a>
           </div>
+          {% if not total %}<div class="mt-3">{% include "guia/_faixa_listado.html" %}</div>{% endif %}
         {% endif %}
         {% if a_domicilio %}<p class="small text-suave mt-3 mb-0">{{ a_domicilio }} atende{{ a_domicilio|pluralize:"m" }} a domicílio e não aparece{{ a_domicilio|pluralize:"m" }} no mapa.</p>{% endif %}
       </div>
@@ -76,6 +77,8 @@
       </div>
     </div>
   </div>
+  {# Faixa para empresas (na lista vazia ela já aparece junto da mensagem). #}
+  {% if total %}<div class="mt-4">{% include "guia/_faixa_listado.html" %}</div>{% endif %}
 </main>
 {% endblock %}
 

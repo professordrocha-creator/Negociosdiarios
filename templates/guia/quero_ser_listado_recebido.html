@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{# "Quero ser listado" recebido. Sem prometer prazo. Robô no campo-armadilha também vê esta tela (nada gravado). #}
+
+{% block titulo %}Pedido recebido · {{ nome_guia }}{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-3 nd-fatura-publica">
+    <h1 class="h4 m-0">Recebemos o seu pedido</h1>
+    <p class="mb-0">Obrigado! A equipe vai falar com você pelo WhatsApp informado para montar a ficha. Nada é publicado antes de você conferir e autorizar pelo link que vamos mandar.</p>
+    <p class="mb-0"><a href="{% url 'guia:inicio' %}">Voltar ao {{ nome_guia }}</a></p>
+  </div>
+</main>
+{% endblock %}

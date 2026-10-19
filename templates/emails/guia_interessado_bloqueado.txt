@@ -1,0 +1,9 @@
+{% autoescape off %}Olá,
+
+Chegou um pedido "Quero ser listado" pelo site de um número que está na lista "não contatar" do Guia.
+O pedido foi registrado sem nenhuma ação: o convite continua bloqueado para esse número.
+
+Confira antes de qualquer contato:
+{{ link_admin }}
+
+{{ site_nome }}{% endautoescape %}

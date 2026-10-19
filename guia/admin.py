@@ -833,6 +833,7 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
         "whatsapp_legivel",
         "cidade",
         "categoria",
+        "origem",
         "situacao",
         "convidado_em",
         "acoes",
@@ -851,9 +852,11 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
         "convidado_em",
         "perfil",
         "observacao",
+        "responsavel_nome",
+        "autorizou_contato_em",
     )
-    readonly_fields = ("convidado_em", "perfil")
-    actions = ["marcar_recusou", "marcar_nao_contatar", "marcar_novo"]
+    readonly_fields = ("convidado_em", "perfil", "autorizou_contato_em")
+    actions = ["criar_ficha", "marcar_contatado", "marcar_recusou", "marcar_nao_contatar", "marcar_novo"]
 
     @admin.display(description="WhatsApp", ordering="whatsapp")
     def whatsapp_legivel(self, contato: ContatoConvite) -> str:
@@ -914,6 +917,36 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
     def marcar_novo(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]) -> None:
         """Desfaz uma marcação feita por engano."""
         self._marcar(request, queryset, ContatoConvite.Situacao.NOVO, "{n} contato(s) de volta para novo.")
+
+    @admin.action(description="Marcar como contatado (já falei com a pessoa)", permissions=["change"])
+    def marcar_contatado(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]) -> None:
+        """Interessado (ou contato) com quem a equipe já falou: situação "contatado", com a data."""
+        for contato in queryset:
+            services.marcar_contatado(contato)
+        self.message_user(
+            request, f"{queryset.count()} contato(s) marcado(s) como contatado.", messages.SUCCESS
+        )
+
+    @admin.action(description="Criar ficha a partir deste contato (marque um)", permissions=["change"])
+    def criar_ficha(self, request: HttpRequest, queryset: QuerySet[ContatoConvite]):
+        """Cria o rascunho do perfil com os dados do contato e abre o cadastro assistido para completar.
+
+        Um por vez (a equipe completa e manda o link de aceite de cada ficha). Número bloqueado não vira
+        ficha."""
+        if not request.user.has_perm("guia.add_perfilguia"):
+            raise PermissionDenied
+        if queryset.count() != 1:
+            self.message_user(
+                request, "Marque um contato só: a ficha abre para você completar.", messages.WARNING
+            )
+            return None
+        try:
+            perfil = services.criar_perfil_do_contato(queryset.get(), request.user)
+        except ValueError as erro:
+            self.message_user(request, str(erro), messages.ERROR)
+            return None
+        self.message_user(request, "Ficha criada como rascunho. Complete os dados e envie o link de aceite.")
+        return redirect("admin:guia_perfilguia_change", perfil.pk)
 
     def get_urls(self):
         """Importar CSV, convidar e criar perfil."""
