@@ -7,6 +7,7 @@
 - **Falta, em ordem:** 1) Daniel confere e faz o commit; 2) subir no servidor (docs/DEPLOY.md); 3) amigos
   testando; 4) revisão geral; G4 opcional; Sprint 8 só se pedirem; 5) lançamento (docs/DEPLOY.md §12).
 - **Pendências:** aviso por e-mail de Termos novos do site; relatório ao patrocinador (V2); limite da pausa por
-  denúncias; advogado (termos, guia, convites, "Quero ser listado"); ordem histórico/delete na limpeza da G3.
+  denúncias; advogado (termos, guia, convites, "Quero ser listado"); demo de outros apps deixa histórico de itens não marcados como demo.
+- **Corrigido, sem commit:** ordem histórico/delete na limpeza e no apagar demo do guia (LGPD) + teste.
 - **Pela metade:** nada.
-- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1063 passed, 1 skipped; ruff limpo.
+- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1066 passed, 1 skipped; ruff limpo.

@@ -1101,6 +1101,22 @@ def remover_perfil(
     return perfil
 
 
+def _apagar_com_historico(registros) -> int:
+    """Apaga os registros e, DEPOIS, todo o histórico deles (django-simple-history). Devolve quantos saíram.
+
+    A ordem importa (LGPD): o próprio delete grava uma última linha no histórico, com a cópia dos campos
+    (contato, nome digitado, IP truncado...). Apagar o histórico antes deixava essa linha sobrando depois do
+    prazo de guarda. Aqui os ids são guardados primeiro e o histórico sai por id, por último.
+    """
+    modelo = registros.model
+    ids = list(registros.values_list("pk", flat=True))
+    if not ids:
+        return 0
+    modelo.objects.filter(pk__in=ids).delete()
+    modelo.history.filter(id__in=ids).delete()
+    return len(ids)
+
+
 def limpar_guia_vencido(hoje=None) -> int:
     """Rotina diária: passado o prazo de prova, apaga de vez o perfil removido com aceites (e fotos do termo),
     convites, pedidos, estatísticas e histórico; e os pedidos já decididos de qualquer perfil. Devolve
@@ -1122,21 +1138,17 @@ def limpar_guia_vencido(hoje=None) -> int:
             status__in=(PedidoDoPerfil.Status.ATENDIDO, PedidoDoPerfil.Status.RECUSADO),
             decidido_em__lt=limite,
         )
-        PedidoDoPerfil.history.filter(id__in=list(antigos.values_list("pk", flat=True))).delete()
-        antigos.delete()
+        _apagar_com_historico(antigos)
         if not vencidos:
             return 0
         for aceite in AceitePublicacao.objects.filter(perfil_id__in=vencidos).exclude(foto_termo=""):
             aceite.foto_termo.delete(save=False)
-        PedidoDoPerfil.history.filter(perfil_id__in=vencidos).delete()
-        PedidoDoPerfil.objects.filter(perfil_id__in=vencidos).delete()
-        AceitePublicacao.history.filter(perfil_id__in=vencidos).delete()
-        AceitePublicacao.objects.filter(perfil_id__in=vencidos).delete()
-        ConviteAceite.objects.filter(perfil_id__in=vencidos).delete()
-        EstatisticaGuiaDia.objects.filter(perfil_id__in=vencidos).delete()
+        _apagar_com_historico(PedidoDoPerfil.objects.filter(perfil_id__in=vencidos))
+        _apagar_com_historico(AceitePublicacao.objects.filter(perfil_id__in=vencidos))
+        ConviteAceite.objects.filter(perfil_id__in=vencidos).delete()  # sem histórico
+        EstatisticaGuiaDia.objects.filter(perfil_id__in=vencidos).delete()  # sem histórico nem dado pessoal
         ContatoConvite.objects.filter(perfil_id__in=vencidos).update(perfil=None)
-        PerfilGuia.objects.filter(pk__in=vencidos).delete()
-        PerfilGuia.history.filter(id__in=vencidos).delete()
+        _apagar_com_historico(PerfilGuia.objects.filter(pk__in=vencidos))
     return len(vencidos)
 
 
@@ -1954,20 +1966,15 @@ def apagar_guia_demo() -> int:
             aceite.foto_termo.delete(save=False)
         for perfil in perfis.exclude(logo=""):
             perfil.logo.delete(save=False)
-        PedidoDoPerfil.objects.filter(Q(demo=True) | Q(perfil_id__in=ids)).delete()
-        PedidoDoPerfil.history.filter(Q(demo=True) | Q(perfil_id__in=ids)).delete()
-        AceitePublicacao.objects.filter(perfil_id__in=ids).delete()
-        AceitePublicacao.history.filter(perfil_id__in=ids).delete()
-        ConviteAceite.objects.filter(perfil_id__in=ids).delete()
+        # Sempre registro primeiro e histórico depois (`_apagar_com_historico`): nada com contato sobra.
+        _apagar_com_historico(PedidoDoPerfil.objects.filter(Q(demo=True) | Q(perfil_id__in=ids)))
+        termos = TermoGuia.objects.filter(demo=True)
+        # Aceites dos perfis demo e, só em dev, os aceites do termo demo (que protegem o termo).
+        _apagar_com_historico(AceitePublicacao.objects.filter(Q(perfil_id__in=ids) | Q(termo__in=termos)))
+        ConviteAceite.objects.filter(perfil_id__in=ids).delete()  # sem histórico
         from guia.models import ContatoConvite
 
-        contatos = ContatoConvite.objects.filter(Q(demo=True) | Q(perfil_id__in=ids))
-        ContatoConvite.history.filter(id__in=list(contatos.values_list("pk", flat=True))).delete()
-        contatos.delete()
-        total, _ = perfis.delete()
-        PerfilGuia.history.filter(id__in=ids).delete()
-        termos = TermoGuia.objects.filter(demo=True)
-        AceitePublicacao.objects.filter(termo__in=termos).delete()  # só em dev: aceites do termo demo
-        TermoGuia.history.filter(demo=True).delete()
-        termos.delete()
+        _apagar_com_historico(ContatoConvite.objects.filter(Q(demo=True) | Q(perfil_id__in=ids)))
+        total = _apagar_com_historico(PerfilGuia.objects.filter(pk__in=ids))
+        _apagar_com_historico(termos)
     return len(ids) if total else 0
