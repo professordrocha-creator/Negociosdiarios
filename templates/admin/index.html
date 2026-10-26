@@ -1,17 +1,63 @@
 {% extends "admin/index.html" %}
 {% load static %}
-{# Página inicial do admin + caixa "Pendências" (core.services.pendencias_da_equipe: só o que o grupo pode ver). #}
+{# Página inicial do admin (lote 3C): "Painel de hoje" (cartões de core.services.pendencias_da_equipe, só o que o #}
+{# grupo pode ver; "Fazer agora" com os mais antigos e o botão Aprovar), o menu enxuto do grupo (config.menu_admin) #}
+{# e, só para o Administrador, o bloco recolhido "Mais opções". #}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/admin-nd.css' %}">{% endblock %}
 {% block content %}
-{% if pendencias %}
-<div class="module nd-pendencias" aria-labelledby="pendencias-titulo">
-  <h2 id="pendencias-titulo">Pendências</h2>
-  <ul>
-    {% for item in pendencias %}
-    <li><a href="{{ item.url }}" class="{% if item.total %}nd-pendencia-ativa{% endif %}"><b class="nd-pendencia-numero">{{ item.total }}</b> {{ item.rotulo }}</a></li>
+<div id="content-main">
+  {% if pendencias %}
+  <section class="nd-painel" aria-labelledby="painel-titulo">
+    <h2 id="painel-titulo">Painel de hoje</h2>
+    {% if not algo_pendente %}<p class="nd-painel-vazio">Tudo em dia: nada pendente por aqui.</p>{% endif %}
+    <ul class="nd-cartoes">
+      {% for item in pendencias %}
+      <li class="nd-cartao{% if item.nivel %} nd-cartao-{{ item.nivel }}{% endif %}" data-cartao="{{ item.chave }}">
+        <a href="{{ item.url }}">
+          <span class="nd-cartao-rotulo">{{ item.rotulo }}</span>
+          {% if item.total %}
+            <b class="nd-pendencia-numero">{{ item.total }}</b>
+            {% if item.detalhe %}<span class="nd-cartao-detalhe">{{ item.detalhe }}</span>{% endif %}
+          {% else %}
+            <span class="nd-cartao-zero">Nada pendente por aqui</span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% if fazer_agora %}
+    <h2 class="nd-fazer-agora-titulo">Fazer agora</h2>
+    {% for grupo in fazer_agora %}
+    <div class="module nd-fazer-agora">
+      <h3>{{ grupo.titulo }} <a href="{{ grupo.url_lista }}">ver todos</a></h3>
+      <ul>
+        {% for item in grupo.itens %}
+        <li>
+          <span class="nd-fazer-texto"><a href="{{ item.url_abrir }}">{{ item.texto }}</a>{% if item.desde %} <small>desde {{ item.desde|date:"d/m/Y" }}</small>{% endif %}</span>
+          {% if item.aprovar_agora %}
+            <form method="post" action="{% url 'admin:aprovar_agora' item.aprovar_agora item.pk %}">{% csrf_token %}<button type="submit" class="button default">Aprovar</button></form>
+          {% elif item.url_aprovar %}
+            <a class="button default" href="{{ item.url_aprovar }}">Aprovar</a>
+          {% else %}
+            <a class="button" href="{{ item.url_abrir }}">Abrir</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
     {% endfor %}
-  </ul>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+
+  {% if mais_opcoes %}
+  <details class="nd-mais-opcoes">
+    <summary>Mais opções (técnico e configurações raras)</summary>
+    {% include "admin/app_list.html" with app_list=mais_opcoes show_changelinks=True %}
+  </details>
+  {% endif %}
 </div>
-{% endif %}
-{{ block.super }}
 {% endblock %}

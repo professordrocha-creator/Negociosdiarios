@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{# Cadastros aguardando › Aprovar (lote 3B): confere o pedido e a vigência e aprova tudo de uma vez. #}
+
+{% block extrahead %}{{ block.super }}<script src="{% url 'admin:jsi18n' %}"></script>{{ form.media }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{{ url_voltar }}">{{ opts.verbose_name_plural|capfirst }}</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+  <fieldset class="module aligned">
+    <h2>Pedido</h2>
+    <div class="form-row"><label>Loja</label> {{ anunciante.nome_publico }} ({{ anunciante.get_status_display|lower }}) · {{ anunciante.cidade }}</div>
+    <div class="form-row"><label>Documento</label> {{ documento }}</div>
+    <div class="form-row"><label>Plano</label> {{ fatura.descricao }} · {{ dias }} dias de vigência</div>
+    <div class="form-row"><label>Valor</label> R$ {{ fatura.valor }}</div>
+    <div class="form-row"><label>Identificador no extrato</label> <b>{{ fatura.identificador_pix }}</b></div>
+    <div class="form-row"><label>Situação</label> {{ situacao }}</div>
+    {% if fatura.comprovante %}<div class="form-row"><label>Comprovante</label> {% if ve_comprovante %}<a href="{% url 'admin:pagamentos_fatura_comprovante' fatura.pk %}" target="_blank" rel="noopener">abrir</a>{% else %}enviado (só o Financeiro abre){% endif %}</div>{% endif %}
+    {% if fatura.observacao %}<div class="form-row"><label>Observação</label> {{ fatura.observacao|linebreaksbr }}</div>{% endif %}
+  </fieldset>
+
+  <p>Antes de aprovar, confira no extrato do banco o Pix com o valor e o identificador acima{% if anunciante.status == "pendente" %} e o documento da loja (CRECI/CNPJ){% endif %}.
+  Aprovar faz tudo de uma vez: a fatura fica paga, o plano ativo de início a fim{% if anunciante.status == "pendente" %} e a loja aprovada{% endif %}; o cliente recebe e-mail.</p>
+
+  {% if form.non_field_errors %}<ul class="errorlist nonfield">{% for erro in form.non_field_errors %}<li>{{ erro }}</li>{% endfor %}</ul>{% endif %}
+  <fieldset class="module aligned">
+    <h2>Vigência</h2>
+    {% for campo in form %}
+    <div class="form-row">
+      {{ campo.errors }}
+      {{ campo.label_tag }} {{ campo }}
+      {% if campo.help_text %}<div class="help">{{ campo.help_text }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="Aprovar">
+    <a href="{{ url_voltar }}" class="button cancel-link">Voltar</a>
+  </div>
+</form>
+{% endblock %}

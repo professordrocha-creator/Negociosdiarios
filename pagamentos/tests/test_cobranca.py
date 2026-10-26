@@ -17,7 +17,7 @@ from pagamentos import services
 from pagamentos.models import Fatura, ModeloEmailCobranca
 from pagamentos.tests.conftest import PDF_SIMPLES, envio, imagem
 from planos.models import Assinatura, Periodicidade, Plano
-from planos.services import aprovar_pedido, assinatura_de, pedir_troca, proximo_vencimento
+from planos.services import aprovar_pedido, assinatura_de, pedir_troca
 
 pytestmark = pytest.mark.django_db
 
@@ -49,9 +49,7 @@ def test_gera_a_fatura_x_dias_antes_e_avisa(loja):
         "aberta",
     )
     assert fatura.competencia == fatura.vencimento == assinatura.vencimento
-    assert fatura.periodo_fim == proximo_vencimento(fatura.competencia, Periodicidade.MENSAL) - timedelta(
-        days=1
-    )
+    assert fatura.periodo_fim == fatura.competencia + timedelta(days=30)  # lote 3C: dias de vigência
     (email,) = mail.outbox
     assert email.to == ["loja@exemplo.com"]
     assert fatura.codigo in email.subject and "R$ 49,90" in email.body and "/painel/faturas/" in email.body
@@ -191,7 +189,9 @@ def test_comprovante_imagem_sem_exif_privado_e_financeiro_avisado(com_fatura, se
     (email,) = mail.outbox
     assert email.to == [configuracao().email_contato]  # sem Financeiro cadastrado, o e-mail de contato
     assert (
-        fatura.codigo in email.body and "Pix da empresa" in email.body and "/pagamentos/fatura/" in email.body
+        fatura.codigo in email.body
+        and "Pix da empresa" in email.body
+        and "/pagamentos/pedidoaguardando/" in email.body
     )
 
 
@@ -272,7 +272,7 @@ def test_confirmar_renova_uma_vez_e_avisa(com_fatura, equipe):
 
     assinatura = assinatura_de(fatura.assinatura.anunciante)
     assert (fatura.situacao, fatura.forma, fatura.confirmado_por) == ("paga", "pix", financeiro)
-    assert assinatura.vencimento == proximo_vencimento(vencimento, Periodicidade.MENSAL)
+    assert assinatura.vencimento == vencimento + timedelta(days=30)  # lote 3C: dias de vigência
     assert assinatura.history.order_by("-history_id").first().history_user == financeiro
     assert "Confirmamos o pagamento" in mail.outbox[-1].body
     with pytest.raises(ValueError, match="paga"):
@@ -309,7 +309,7 @@ def test_atraso_pela_fatura_pausa_e_confirmacao_reativa(loja, publicado):
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
     # pago em atraso: o ciclo conta do vencimento original (o dia de cobrança da loja não muda)
     original = HOJE() - timedelta(days=6)
-    assert assinatura.vencimento == proximo_vencimento(original, Periodicidade.MENSAL)
+    assert assinatura.vencimento == original + timedelta(days=30)
 
 
 def test_comprovante_aguardando_segura_a_pausa_ate_a_decisao(loja, publicado):
@@ -422,7 +422,7 @@ def test_renovacao_conta_do_vencimento_original_mesmo_pagando_depois(com_fatura)
     services.confirmar_pagamento(fatura, None)
 
     assinatura = assinatura_de(fatura.assinatura.anunciante)
-    assert assinatura.vencimento == proximo_vencimento(fatura.vencimento, Periodicidade.MENSAL)
+    assert assinatura.vencimento == fatura.vencimento + timedelta(days=30)
 
 
 def test_primeiro_plano_aprovado_gera_a_primeira_fatura(criar_anunciante):
@@ -438,7 +438,7 @@ def test_primeiro_plano_aprovado_gera_a_primeira_fatura(criar_anunciante):
     assert fatura.valor == Decimal("49.90") and assinatura.vencimento == HOJE()
     assert any(fatura.codigo in email.subject for email in mail.outbox)  # "fatura disponível"
     services.confirmar_pagamento(fatura, None)
-    assert assinatura_de(anunciante).vencimento == proximo_vencimento(HOJE(), Periodicidade.MENSAL)
+    assert assinatura_de(anunciante).vencimento == HOJE() + timedelta(days=30)
 
 
 def test_beat_parado_o_lembrete_sai_no_dia_seguinte(com_fatura):

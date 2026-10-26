@@ -213,7 +213,7 @@ def test_outra_loja_nao_edita_o_veiculo(client, loja, veiculo):
 # --- Regras (as mesmas do imóvel) -----------------------------------------------------------
 
 
-def test_veiculo_segue_moderacao_e_limite(loja, veiculo):
+def test_veiculo_segue_moderacao_e_limite(regra_antiga, loja, veiculo):
     """Primeiro vai para análise; o segundo no plano de 1 vaga é barrado."""
     anunciante = loja(limite=1)
     primeiro = veiculo(anunciante)

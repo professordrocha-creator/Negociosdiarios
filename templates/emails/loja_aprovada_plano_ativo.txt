@@ -1,0 +1,13 @@
+{% autoescape off %}Boa notícia!
+
+A loja "{{ anunciante.nome_publico }}" foi aprovada no {{ site_nome }} e o pagamento foi confirmado.
+
+Plano: {{ fatura.descricao }}
+Valor pago: R$ {{ fatura.valor }} (pedido {{ fatura.codigo }})
+Plano ativo até: {{ assinatura.vencimento|date:"d/m/Y" }}
+
+Entre com seu e-mail e senha para acessar o painel e publicar seus anúncios:
+{{ link_entrar }}
+
+Bons negócios!
+{% endautoescape %}

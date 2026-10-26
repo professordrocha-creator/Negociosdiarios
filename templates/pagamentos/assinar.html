@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load nd %}
+{# Escolher plano (lote 3B; docs/TELAS.md). Sempre a loja de quem está logado (ativa ou pendente). Cria o pedido #}
+{# (fatura "aguardando pagamento") e leva à tela Pagar. Documento e cidade são conferidos pela equipe. #}
+
+{% block titulo %}Escolher plano · {{ anunciante.nome_publico }}{% endblock %}
+{% block descricao %}Escolha seu plano, confira os dados da loja e pague pelo Pix.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-4 nd-assinar">
+    <h1 class="h4 m-0">Escolher plano</h1>
+    {% include "_ajuda.html" %}
+    {% if messages %}{% for m in messages %}<div class="alert alert-info py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+    {% if aberto %}
+      <div class="alert alert-info py-2 mb-0" role="status">
+        Você já tem um pedido aguardando pagamento ({{ aberto.descricao }}, <span class="tabular">{{ aberto.valor|moeda }}</span>).
+        <a href="{% url 'pagamentos:pagar' aberto.codigo %}">Ir para o pagamento</a>. Um pedido novo substitui este.
+      </div>
+    {% endif %}
+
+    <form method="post" class="d-grid gap-4" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0" role="alert">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+
+      <section class="nd-caixa d-grid gap-3">
+        <h2 class="h5 m-0">1. Plano</h2>
+        <fieldset>
+          <legend class="form-label">{{ form.plano.label }}</legend>
+          {% for erro in form.plano.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+          <div class="row row-cols-1 row-cols-md-3 g-2">
+            {% for opcao in form.plano %}{% with plano=opcao.data.value.instance %}
+            <div class="col">
+              <label class="nd-caixa h-100 d-block" for="{{ opcao.id_for_label }}">
+                {{ opcao.tag }} <b>{{ plano.nome }}</b>
+                <span class="d-block small text-suave">Até {{ plano.limite_anuncios }} anúncios no ar</span>
+                <span class="d-block small"><span class="tabular">{{ plano.preco_mensal|moeda }}</span>/mês ({{ plano.dias_vigencia }} dias)</span>
+                <span class="d-block small"><span class="tabular">{{ plano.preco_anual|moeda }}</span>/ano ({{ plano.dias_vigencia_anual }} dias)</span>
+              </label>
+            </div>
+            {% endwith %}{% endfor %}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="form-label">{{ form.periodicidade.label }}</legend>
+          {% for erro in form.periodicidade.errors %}<div class="text-danger small">{{ erro }}</div>{% endfor %}
+          {% for opcao in form.periodicidade %}<label class="me-3">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+        </fieldset>
+      </section>
+
+      <section class="nd-caixa d-grid gap-3">
+        <h2 class="h5 m-0">2. Confira os dados da loja</h2>
+        {% include "anunciantes/_campo.html" with campo=form.nome_publico %}
+        {% include "anunciantes/_campo.html" with campo=form.whatsapp %}
+        <p class="small text-suave mb-0">
+          {{ anunciante.get_documento_tipo_display }}: {% if anunciante.documento_tipo == "cnpj" %}{{ anunciante.documento_numero|cnpj }}{% else %}{{ anunciante.documento_numero }}{% endif %}
+          · Cidade: {{ anunciante.cidade }}. Para corrigir o documento ou a cidade, <a href="{% url 'core:contato' %}">fale com a gente</a>.
+        </p>
+      </section>
+
+      <div class="d-grid gap-2">
+        <div><button type="submit" class="btn btn-ipe">Continuar para o pagamento</button></div>
+        <span class="small text-suave">Na próxima tela aparecem o QR Code e o Pix copia e cola. O acesso é liberado depois que a equipe conferir o pagamento.</span>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

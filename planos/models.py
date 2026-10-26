@@ -35,6 +35,19 @@ class Plano(models.Model):
         "à venda", default=True, help_text="Desmarcado, some de /planos/ (quem já tem, continua)."
     )
     ordem = models.PositiveSmallIntegerField("ordem", default=0, help_text="Menor aparece primeiro.")
+    dias_vigencia = models.PositiveSmallIntegerField(
+        "dias de vigência (mensal)",
+        default=30,
+        validators=[MinValueValidator(1)],
+        help_text="Quantos dias o plano mensal vale depois de aprovado o pagamento (a equipe pode ajustar as "
+        "datas ao aprovar).",
+    )
+    dias_vigencia_anual = models.PositiveSmallIntegerField(
+        "dias de vigência (anual)",
+        default=365,
+        validators=[MinValueValidator(1)],
+        help_text="Quantos dias o plano anual vale depois de aprovado o pagamento.",
+    )
 
     history = HistoricalRecords(verbose_name="histórico do plano")
 
@@ -46,6 +59,10 @@ class Plano(models.Model):
     def __str__(self) -> str:
         """Ex.: 'Profissional (25 anúncios)'."""
         return f"{self.nome} ({self.limite_anuncios} anúncios)"
+
+    def dias(self, periodicidade: str) -> int:
+        """Dias de vigência da periodicidade (mensal ou anual), vindos do admin."""
+        return self.dias_vigencia_anual if periodicidade == Periodicidade.ANUAL else self.dias_vigencia
 
     @property
     def economia_anual(self) -> Decimal:
@@ -75,11 +92,13 @@ class Assinatura(MarcaDemo):
 
     `ativa`: anúncios no ar dentro do limite. `em_atraso`: venceu e passou a carência
     (Configuracao.carencia_dias): anúncios pausados, nunca apagados, até o pagamento.
-    `cancelada`: sem plano. As trocas de situação disparam sinais (planos.sinais) que o app
-    de anúncios usa para pausar e reativar (Sprint 3).
+    `cancelada`: sem plano. `pendente` (lote 3B): pedido feito pelo site, aguardando o pagamento ser
+    conferido (não publica; a aprovação em "Cadastros aguardando" ativa). As trocas de situação disparam
+    sinais (planos.sinais) que o app de anúncios usa para pausar e reativar (Sprint 3).
     """
 
     class Situacao(models.TextChoices):
+        PENDENTE = "pendente", "Aguardando pagamento"
         ATIVA = "ativa", "Ativa"
         EM_ATRASO = "em_atraso", "Em atraso"
         CANCELADA = "cancelada", "Cancelada"
@@ -95,7 +114,9 @@ class Assinatura(MarcaDemo):
     )
     inicio = models.DateField("início", default=timezone.localdate)
     vencimento = models.DateField(
-        "vencimento", help_text="Próximo pagamento. Depois da carência, vira atraso."
+        "vencimento",
+        help_text="Fim da vigência: até este dia a loja publica anúncios novos. Também é a data do próximo "
+        "pagamento; depois da carência, vira atraso.",
     )
     situacao = models.CharField(
         "situação", max_length=10, choices=Situacao.choices, default=Situacao.ATIVA, db_index=True
@@ -113,6 +134,11 @@ class Assinatura(MarcaDemo):
     def __str__(self) -> str:
         """Ex.: 'Loja X · Profissional (mensal)'."""
         return f"{self.anunciante} · {self.plano.nome} ({self.get_periodicidade_display().lower()})"
+
+    @property
+    def vigencia_encerrada(self) -> bool:
+        """Ativa, mas passou do vencimento: sem anúncios novos até o pagamento ser conferido (lote 3B)."""
+        return self.situacao == self.Situacao.ATIVA and self.vencimento < timezone.localdate()
 
     @property
     def valor(self) -> Decimal:

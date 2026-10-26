@@ -84,7 +84,7 @@ def test_incompleto_nao_e_enviado(loja, imovel):
 # --- Moderação ------------------------------------------------------------------------------
 
 
-def test_primeiro_anuncio_vai_para_moderacao_e_avisa_a_equipe(loja, imovel):
+def test_primeiro_anuncio_vai_para_moderacao_e_avisa_a_equipe(regra_antiga, loja, imovel):
     """Padrão "só o primeiro": em análise (conta no plano) e e-mail para a equipe."""
     anunciante = loja()
     anuncio = imovel(anunciante)
@@ -94,7 +94,7 @@ def test_primeiro_anuncio_vai_para_moderacao_e_avisa_a_equipe(loja, imovel):
     assert "moderação" in mail.outbox[0].subject.lower() and anuncio.codigo in mail.outbox[0].body
 
 
-def test_depois_do_primeiro_aprovado_publica_direto_por_60_dias(loja, imovel):
+def test_depois_do_primeiro_aprovado_publica_direto_por_60_dias(regra_antiga, loja, imovel):
     """Depois do primeiro aprovado, publicação direta com prazo da Configuracao (60 dias)."""
     anunciante = loja()
     primeiro = imovel(anunciante)
@@ -116,7 +116,7 @@ def test_moderacao_configuravel(loja, imovel, regra, esperado):
     assert services.enviar_para_publicacao(imovel(loja())) == esperado
 
 
-def test_aprovar_publica_e_avisa(loja, imovel):
+def test_aprovar_publica_e_avisa(regra_antiga, loja, imovel):
     """Aprovado: publicado, prazo contando e e-mail para o anunciante."""
     anuncio = imovel(loja())
     services.enviar_para_publicacao(anuncio)
@@ -128,7 +128,7 @@ def test_aprovar_publica_e_avisa(loja, imovel):
     assert mail.outbox[0].to == ["loja@exemplo.com"] and "aprovado" in mail.outbox[0].body
 
 
-def test_aprovar_com_assinatura_em_atraso_deixa_pausado(loja, imovel):
+def test_aprovar_com_assinatura_em_atraso_deixa_pausado(regra_antiga, loja, imovel):
     """Aprovado durante o atraso: fica pausado por atraso (volta com o pagamento)."""
     anunciante = loja()
     anuncio = imovel(anunciante)
@@ -140,7 +140,7 @@ def test_aprovar_com_assinatura_em_atraso_deixa_pausado(loja, imovel):
     assert (anuncio.situacao, anuncio.pausado_por) == (Situacao.PAUSADO, "atraso")
 
 
-def test_recusar_volta_para_rascunho_com_motivo(loja, imovel):
+def test_recusar_volta_para_rascunho_com_motivo(regra_antiga, loja, imovel):
     """Recusa com motivo obrigatório: rascunho, motivo guardado e e-mail com o motivo."""
     anuncio = imovel(loja())
     services.enviar_para_publicacao(anuncio)
@@ -198,7 +198,7 @@ def test_sem_assinatura_nao_envia(criar_anunciante, imovel):
 
 
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
-def test_dois_envios_ao_mesmo_tempo_nao_passam_do_limite(loja, imovel):
+def test_dois_envios_ao_mesmo_tempo_nao_passam_do_limite(regra_antiga, loja, imovel):
     """Concorrência real: limite 1 e dois anúncios enviados ao mesmo tempo; só um entra."""
     anunciante = loja(limite=1)
     anuncios = [imovel(anunciante, f"Casa número {i} com quintal") for i in (1, 2)]

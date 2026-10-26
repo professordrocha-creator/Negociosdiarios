@@ -532,12 +532,28 @@ def test_criar_dados_demo_da_planos_diferentes_e_1_em_atraso(dev):
     criar_dados_demo(SENHA_DEMO)
     criar_dados_demo(SENHA_DEMO)  # idempotente
 
-    assinaturas = Assinatura.objects.filter(demo=True)
-    assert assinaturas.count() == 6  # só as ativas; as pendentes ainda não têm plano
+    assinaturas = Assinatura.objects.filter(demo=True).exclude(situacao="pendente")
+    assert assinaturas.count() == 6  # as ativas; as 2 pendentes só têm o pedido (lote 3B)
     assert set(assinaturas.values_list("plano__slug", flat=True)) == {"basico", "profissional", "premium"}
     assert set(assinaturas.values_list("periodicidade", flat=True)) == {"mensal", "anual"}
     atrasadas = assinaturas.filter(situacao="em_atraso")
     assert list(atrasadas.values_list("anunciante__slug", flat=True)) == DADOS["assinaturas_em_atraso"]
+
+
+def test_criar_dados_demo_tem_cadastros_aguardando(dev):
+    """Lote 3B: as 2 lojas pendentes com pedido pelo Pix (1 aguardando conferência, 1 aguardando pagamento);
+    idempotente e apagado junto com o resto."""
+    from pagamentos.models import Fatura
+    from pagamentos.services import pedidos_aguardando
+
+    criar_dados_demo(SENHA_DEMO)
+    criar_dados_demo(SENHA_DEMO)
+
+    pedidos = pedidos_aguardando().filter(assinatura__anunciante__status="pendente")
+    assert sorted(pedidos.values_list("situacao", flat=True)) == ["aberta", "aguardando_confirmacao"]
+    assert pedidos_aguardando().filter(assinatura__anunciante__status="ativo").count() == 1  # renovação demo
+    apagar_dados_demo()
+    assert not Fatura.objects.exists()
 
 
 def test_apagar_dados_demo_remove_assinaturas_pedidos_e_historico(dev):

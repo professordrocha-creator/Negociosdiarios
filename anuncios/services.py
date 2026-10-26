@@ -73,18 +73,45 @@ def ids_no_plano(anunciante: Anunciante) -> list[int]:
     )
 
 
-def precisa_moderacao(anunciante: Anunciante) -> bool:
-    """O envio vai para a fila de moderação? Regra em Configuracao.moderacao (padrão: só o primeiro).
+def anuncios_aprovados(anunciante: Anunciante) -> int:
+    """Quantos anúncios da loja já foram ao ar alguma vez (publicado_em fica gravado mesmo depois de pausar,
+    expirar ou excluir)."""
+    return Anuncio.objects.filter(anunciante=anunciante, publicado_em__isnull=False).count()
 
-    "Primeiro" = a loja nunca teve anúncio publicado (publicado_em fica gravado mesmo depois de
-    pausar, expirar ou excluir, então excluir o primeiro não reabre a moderação).
+
+def tem_confianca(anunciante: Anunciante) -> bool:
+    """Publicação por confiança (lote 3A): pode publicar sem passar pela fila?
+
+    Só loja aprovada (CRECI/CNPJ conferido = situação "ativo"), que não perdeu a confiança (anúncio removido
+    por golpe ou suspensão) e está em dia (plano ativo, sem fatura vencida). Corretor autônomo (pessoa física)
+    precisa ainda de `Configuracao.confianca_aprovados_pessoa_fisica` anúncios já aprovados (padrão 1).
     """
-    regra = configuracao().moderacao
-    if regra == Configuracao.Moderacao.TODOS:
-        return True
-    if regra == Configuracao.Moderacao.NENHUM:
+    from anunciantes.services import em_dia, pessoa_fisica
+
+    if anunciante.status != Anunciante.Status.ATIVO or anunciante.confianca_retirada_em is not None:
         return False
-    return not Anuncio.objects.filter(anunciante=anunciante, publicado_em__isnull=False).exists()
+    if not em_dia(anunciante):
+        return False
+    if pessoa_fisica(anunciante):
+        return anuncios_aprovados(anunciante) >= configuracao().confianca_aprovados_pessoa_fisica
+    return True
+
+
+def precisa_moderacao(anunciante: Anunciante) -> bool:
+    """O envio vai para a fila de moderação?
+
+    "Todos" e "Nenhum" (Configuracao.moderacao) valem sempre: são a escolha explícita da equipe. Com "Só o
+    primeiro" (padrão): se a publicação por confiança estiver ligada (padrão), quem tem confiança publica
+    direto (`tem_confianca`); desligada, vale a regra antiga (a fila só para quem nunca teve anúncio no ar).
+    """
+    config = configuracao()
+    if config.moderacao == Configuracao.Moderacao.TODOS:
+        return True
+    if config.moderacao == Configuracao.Moderacao.NENHUM:
+        return False
+    if config.confianca_ativa:
+        return not tem_confianca(anunciante)
+    return anuncios_aprovados(anunciante) == 0
 
 
 def pendencias(anuncio: Anuncio) -> list[str]:
@@ -194,28 +221,62 @@ def criar_anuncio_veiculo(anunciante: Anunciante, dados: dict, ficha: dict) -> A
 def atualizar_anuncio(anuncio: Anuncio, dados: dict, ficha: dict | None = None, motivo: str = "") -> Anuncio:
     """Grava as mudanças do formulário (dados ou localização) no anúncio e na ficha.
 
-    Com a moderação de "todos os anúncios", editar um anúncio publicado o devolve para a
-    análise (o conteúdo mudou). Com "só o primeiro", a edição vale na hora.
+    Com a moderação de "todos os anúncios", editar um anúncio publicado o devolve para a análise (o conteúdo
+    mudou). Campos sensíveis (preço, cidade, tipo do imóvel ou versão do veículo) num anúncio publicado: quem
+    tem confiança continua no ar e a mudança fica registrada no histórico (com os campos); quem não tem
+    (publicação por confiança ligada) volta para a fila. As outras edições valem na hora.
     """
+    sensiveis = campos_sensiveis_alterados(anuncio, dados, ficha)
+    voltar_para_fila = False
     with transaction.atomic():
         for campo, valor in dados.items():
             setattr(anuncio, campo, valor)
         if anuncio.e_veiculo and not anuncio.titulo and ficha:
             anuncio.titulo = titulo_do_veiculo(ficha["versao"], ficha["ano_modelo"])
         anuncio.slug = slugify(anuncio.titulo)[:140]
-        if (
-            anuncio.situacao == Situacao.PUBLICADO
-            and configuracao().moderacao == Configuracao.Moderacao.TODOS
-        ):
-            anuncio.situacao = Situacao.EM_MODERACAO
-        anuncio._change_reason = motivo or "Editado pelo anunciante."
+        config = configuracao()
+        if anuncio.situacao == Situacao.PUBLICADO:
+            if config.moderacao == Configuracao.Moderacao.TODOS:
+                anuncio.situacao = Situacao.EM_MODERACAO
+            elif sensiveis and precisa_moderacao(anuncio.anunciante):
+                anuncio.situacao = Situacao.EM_MODERACAO  # sem confiança: mudança sensível volta à fila
+                voltar_para_fila = True
+        razao = motivo or "Editado pelo anunciante."
+        if sensiveis:
+            razao = f"{razao} Campos sensíveis: {', '.join(sensiveis)}."
+        anuncio._change_reason = razao[:100]
         anuncio.save()
         if ficha:
             detalhe = anuncio.detalhe
             for campo, valor in ficha.items():
                 setattr(detalhe, campo, valor)
             detalhe.save()
+    if voltar_para_fila:
+        _avisar_moderacao(anuncio)
     return anuncio
+
+
+def campos_sensiveis_alterados(anuncio: Anuncio, dados: dict, ficha: dict | None = None) -> list[str]:
+    """Quais campos sensíveis a edição muda: preço, cidade e o tipo (tipo do imóvel ou versão do veículo).
+
+    São os que mudam o que o anúncio "é" (golpe comum: anúncio aprovado vira outro). Antes de gravar.
+    """
+    mudou = []
+    if "preco" in dados and dados["preco"] != anuncio.preco:
+        mudou.append("preço")
+    if "cidade" in dados and getattr(dados["cidade"], "pk", dados["cidade"]) != anuncio.cidade_id:
+        mudou.append("cidade")
+    detalhe = anuncio.detalhe if anuncio.pk else None
+    for campo in ("tipo", "versao"):
+        if ficha and campo in ficha and detalhe is not None:
+            atual = (
+                getattr(detalhe, f"{campo}_id", None) if campo == "versao" else getattr(detalhe, campo, None)
+            )
+            novo = getattr(ficha[campo], "pk", ficha[campo])
+            if novo != atual:
+                mudou.append("tipo")
+                break
+    return mudou
 
 
 def ponto(latitude: float | None, longitude: float | None) -> Point | None:

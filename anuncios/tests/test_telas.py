@@ -169,7 +169,7 @@ def test_localizacao_so_mostra_cidades_liberadas(client, loja, imovel, tangara):
     assert client.post(url, {"cidade": fechada.pk, "exibir_localizacao": "so_bairro"}).status_code == 200
 
 
-def test_revisao_envia_para_publicacao(client, loja, imovel):
+def test_revisao_envia_para_publicacao(regra_antiga, client, loja, imovel):
     """Etapa 4: enviar leva para a análise (primeiro anúncio) e volta ao painel."""
     anunciante = loja()
     anuncio = imovel(anunciante)
@@ -200,7 +200,7 @@ def test_revisao_no_limite_bloqueia_e_oferece_upgrade(client, loja, imovel, publ
     assert anuncio.situacao == Situacao.RASCUNHO
 
 
-def test_rascunho_recusado_mostra_o_motivo(client, loja, imovel):
+def test_rascunho_recusado_mostra_o_motivo(regra_antiga, client, loja, imovel):
     """Depois da recusa, as etapas mostram o que a equipe pediu."""
     anunciante = loja()
     anuncio = imovel(anunciante)
@@ -291,7 +291,9 @@ def em_analise(loja, imovel, titulo="Casa 3 quartos com área gourmet", email="l
     return anuncio
 
 
-def test_fila_mostra_so_em_analise_com_fotos_grandes(client, moderador, loja, imovel, publicado):
+def test_fila_mostra_so_em_analise_com_fotos_grandes(
+    regra_antiga, client, moderador, loja, imovel, publicado
+):
     """Fila: só em análise; a tela do anúncio mostra as fotos grandes e o endereço privado."""
     anuncio = em_analise(loja, imovel)
     publicado(loja("c@exemplo.com", "Loja Publicada"), "Casa publicada fora da fila")
@@ -303,7 +305,7 @@ def test_fila_mostra_so_em_analise_com_fotos_grandes(client, moderador, loja, im
     assert anuncio.fotos.first().imagem.url in tela and 'class="nd-adm-foto"' in tela
 
 
-def test_fila_aprova_e_recusa(client, moderador, loja, imovel):
+def test_fila_aprova_e_recusa(regra_antiga, client, moderador, loja, imovel):
     """Aprovar publica; recusar pede motivo, volta a rascunho e avisa por e-mail."""
     aprovar = em_analise(loja, imovel)
     recusar = em_analise(loja, imovel, "Apartamento 2 quartos no Centro", "b@exemplo.com")

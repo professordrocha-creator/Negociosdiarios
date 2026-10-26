@@ -14,7 +14,14 @@ pela equipe, régua de e-mails e o atraso ligado à fatura vencida. Sem gateway 
   `{loja}`, `{valor}`, `{vencimento}`, `{competencia}`, `{codigo}`, `{link}`, `{motivo}`, `{site}`).
 
 **Pix (`pix.py`):** `br_code(chave, nome, cidade, valor, identificador)` (EMV do Banco Central + CRC16),
-`qr_code_svg(codigo)` (segno, data URI). Chave, nome e cidade vêm de `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE`.
+`qr_code_svg(codigo)` (segno, data URI), `validar_chave(texto)` (e-mail, CPF, CNPJ, celular +55, aleatória).
+Chave, nome e cidade vêm da "Configuração do Pix" (`Configuracao.pix_*`) ou, vazia, de `PIX_*` no `.env`.
+
+**Lote 3B (pedido pelo site):** proxies `PedidoAguardando` ("Cadastros aguardando") e `ConfiguracaoPix`.
+Serviços `fazer_pedido`, `pedido_em_aberto`, `motivo_sem_pedido`, `pedidos_aguardando`, `datas_sugeridas`,
+`aprovar_pedido_pago`, `recusar_pedido_pago`, `marcar_nao_pago`, `credenciais_pix`, `gerar_pix`,
+`criar_pedidos_demo`. Telas `/painel/assinar/`, `/painel/pagar/<codigo>/` e `.../ja-paguei/` (comprovante
+opcional; também para a loja pendente). Testes em `tests/test_pedido_pix.py`.
 
 **Serviços (`services.py`):**
 - Rotina diária `rotina_de_cobranca(hoje)` (tarefa `tasks.rotina_de_cobranca`, Celery beat às 6h):

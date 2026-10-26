@@ -106,6 +106,9 @@ def postar_config(client, **mudancas):
             "expiracao_dias",
             "aviso_expiracao_dias",
             "moderacao",
+            "confianca_ativa",
+            "confianca_aprovados_pessoa_fisica",
+            "pedidos_por_hora",
         ]
     }
     dados.update(mudancas)

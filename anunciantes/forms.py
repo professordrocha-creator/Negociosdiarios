@@ -265,3 +265,58 @@ class PaginaLojaForm(forms.ModelForm):
             if valor.lower().startswith(prefixo):
                 valor = valor[len(prefixo) :]
         return valor.strip("/")
+
+
+class AnuncianteAdminForm(forms.ModelForm):
+    """Ficha do Anunciante no admin com o envio do logo e da capa (lote 3A): mesma validação do painel da loja
+    (tipo real da imagem, peso e dimensões mínimas da Configuracao); o processamento (recorte, WebP, sem EXIF)
+    é o mesmo caminho do painel (`anunciantes.services.enviar_imagem_loja`)."""
+
+    logo_envio = forms.FileField(
+        label="Trocar o logo",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg,image/webp"}),
+    )
+    capa_envio = forms.FileField(
+        label="Trocar a capa",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg,image/webp"}),
+    )
+
+    class Meta:
+        model = Anunciante
+        # Os campos mostrados são os dos fieldsets do AnuncianteAdmin (o admin monta o form com eles).
+        fields = "__all__"  # noqa: DJ007
+
+    def __init__(self, *args, **kwargs):
+        """Ajuda com os limites atuais (os mesmos do painel)."""
+        super().__init__(*args, **kwargs)
+        config = configuracao()
+        self.fields["logo_envio"].help_text = (
+            f"Quadrada, mínimo {config.logo_min_px}×{config.logo_min_px} px, "
+            f"até {config.limite_logo_kb // 1024} "
+            "MB. PNG, JPG ou WebP. Recortado e reduzido sozinho, sem os dados da foto."
+        )
+        self.fields["capa_envio"].help_text = (
+            f"Ideal 1600×400 px (4:1); mínimo {config.capa_min_largura_px}×{config.capa_min_altura_px} px, "
+            "até "
+            f"{config.limite_capa_kb // 1024} MB. Recortada e reduzida sozinha, sem os dados da foto."
+        )
+
+    def clean_logo_envio(self):
+        """JPG/PNG/WebP de verdade, no limite de tamanho e com o lado mínimo (igual ao painel)."""
+        arquivo = self.cleaned_data.get("logo_envio")
+        if arquivo:
+            config = configuracao()
+            imagens.validar_foto(arquivo, config.limite_logo_kb, config.logo_min_px, config.logo_min_px)
+        return arquivo
+
+    def clean_capa_envio(self):
+        """JPG/PNG/WebP de verdade, no limite de tamanho e com as dimensões mínimas (igual ao painel)."""
+        arquivo = self.cleaned_data.get("capa_envio")
+        if arquivo:
+            config = configuracao()
+            imagens.validar_foto(
+                arquivo, config.limite_capa_kb, config.capa_min_largura_px, config.capa_min_altura_px
+            )
+        return arquivo

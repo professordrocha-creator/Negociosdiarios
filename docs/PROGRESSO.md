@@ -1,13 +1,19 @@
-# Progresso (checkpoint — sobrescrever, sem histórico; máx. 15 linhas)
-- **Pronto, sem commit: captação do Guia.** Cartão do guia abaixo da busca na home (4 atalhos); faixa "Quero ser
-  listado" (texto na Configuração do guia); /guia/quero-ser-listado/ → lista de convites (origem formulário do site);
-  admin "Criar ficha a partir deste contato" e "Marcar como contatado"; pendência "Interessados no Guia"; limpeza
-  dos interessados sem ficha após 180 dias; migrations guia 0007/0008; demo com 3 interessados; docs.
-- **No GitHub:** Sprints 0 a 7, Guia G1 a G3, Manual, preparação do servidor e o lote de correções do admin.
-- **Falta, em ordem:** 1) Daniel confere e faz o commit; 2) subir no servidor (docs/DEPLOY.md); 3) amigos
-  testando; 4) revisão geral; G4 opcional; Sprint 8 só se pedirem; 5) lançamento (docs/DEPLOY.md §12).
-- **Pendências:** aviso por e-mail de Termos novos do site; relatório ao patrocinador (V2); limite da pausa por
-  denúncias; advogado (termos, guia, convites, "Quero ser listado"); demo de outros apps deixa histórico de itens não marcados como demo.
-- **Corrigido, sem commit:** ordem histórico/delete na limpeza e no apagar demo do guia (LGPD) + teste.
-- **Pela metade:** nada.
-- **Último teste que passou:** suíte completa `pytest -n auto -q` → 1066 passed, 1 skipped; ruff limpo.
+# Progresso (checkpoint)
+
+**Em andamento:** Lote 3 (A, B e C) CONCLUÍDO, aguardando conferência e commit do Daniel.
+
+**Feito 3C:** "Painel de hoje" na home do admin (core.services.pendencias_da_equipe = cartões com urgência;
+fazer_agora = 5 mais antigos com Aprovar); menu enxuto por grupo (config/menu_admin.py; "Mais opções" só para
+Administrador/superusuário; AdminSiteND.get_app_list/index/aprovar_agora); filtro "tipo" em Cadastros
+aguardando; renovação única por dias de vigência (planos.services.fim_da_vigencia); e-mail único na aprovação
+de loja nova (templates/emails/loja_aprovada_plano_ativo.txt). Docs: MANUAL_ADMIN ("Minha rotina de todo dia"),
+ARQUITETURA, RUNBOOK, CHANGELOG.
+
+**Testes:** core/tests/test_painel_hoje.py (18), +2 em pagamentos/tests/test_pedido_pix.py; ajustes em
+test_lote_admin, test_cobranca, planos/test_regras.
+
+**Falta:** nada do lote 3. Próximo: a definir pelo Daniel.
+
+**Último comando que passou:** `pytest -n auto core pagamentos planos anunciantes contas` → 623 passed; ruff limpo;
+makemigrations --check sem mudanças. Suíte completa: 1148 passed + 1 do guia corrigido
+(`pytest guia/tests/test_captacao.py` → 12 passed).

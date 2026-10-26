@@ -26,6 +26,7 @@ from anunciantes.services import (
     cadastrar_anunciante,
     cidades_com_lojas,
     confirmar_email,
+    enviar_imagem_loja,
     listar_lojas,
     localizacao_da_loja,
     loja_para_vitrine,
@@ -33,13 +34,17 @@ from anunciantes.services import (
     motivo_sem_painel,
     reenviar_confirmacao,
 )
-from anunciantes.tasks import processar_imagem_loja as processar_imagem_loja_tarefa
 from anuncios.services import ponto
 from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
 
 
-def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True) -> Callable:
+def anunciante_ativo(
+    view: Callable | None = None, *, exigir_aceite: bool = True, aceitar_pendente: bool = False
+) -> Callable:
     """Só deixa passar anunciante ativo. Anônimo vai ao /entrar/; pendente e suspenso veem 403.
+
+    Com `aceitar_pendente` (lote 3B: Escolher plano e Pagar), passa também a loja pendente que já confirmou o
+    e-mail: ela escolhe o plano e paga antes da aprovação. Na tela 403 do pendente aparece o botão para isso.
 
     Equipe (staff, mesmo sem loja) é levada ao admin pelo mesmo caminho do login do admin
     (`config.admin_site.encaminhar_equipe`: código em navegador novo; sem atalho): o painel dela é o admin.
@@ -48,7 +53,7 @@ def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True
     Uso: `@anunciante_ativo` ou `@anunciante_ativo(exigir_aceite=False)`.
     """
     if view is None:
-        return lambda v: anunciante_ativo(v, exigir_aceite=exigir_aceite)
+        return lambda v: anunciante_ativo(v, exigir_aceite=exigir_aceite, aceitar_pendente=aceitar_pendente)
 
     @wraps(view)
     def _view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -59,8 +64,14 @@ def anunciante_ativo(view: Callable | None = None, *, exigir_aceite: bool = True
             from config.admin_site import encaminhar_equipe  # import local: o admin importa os apps
 
             return encaminhar_equipe(request)
+        if motivo == Anunciante.Status.PENDENTE and aceitar_pendente:
+            motivo = None
         if motivo:
             contexto = {"tela": "painel", "mensagem": MENSAGENS_SEM_ACESSO[motivo], "motivo": motivo}
+            if motivo == Anunciante.Status.PENDENTE:  # botão "Escolher plano e pagar" ou "Ver pagamento"
+                from pagamentos.services import pedido_em_aberto  # import local: pagamentos usa este módulo
+
+                contexto["pedido"] = pedido_em_aberto(request.user.anunciante)
             return render(request, "anunciantes/sem_acesso.html", contexto, status=403)
         if exigir_aceite:
             from privacidade.services import pendencias_de_aceite  # import local: privacidade usa este módulo
@@ -207,8 +218,7 @@ def painel_loja(request: HttpRequest) -> HttpResponse:
         for tipo in ("logo", "capa"):
             envio = form.cleaned_data.get(f"{tipo}_envio")
             if envio:
-                getattr(anunciante, f"{tipo}_original").save(envio.name, envio, save=True)
-                processar_imagem_loja_tarefa.delay(anunciante.pk, tipo)
+                enviar_imagem_loja(anunciante, tipo, envio)  # mesmo caminho da ficha do admin
         messages.success(request, "Alterações salvas. Sua página já está atualizada.")
         return redirect("anunciantes:painel_loja")
     return render(

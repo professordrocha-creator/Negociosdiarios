@@ -7,22 +7,28 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from anunciantes.models import Anunciante
+from anunciantes.services import conferir_dados_da_loja
 from anunciantes.views import anunciante_ativo
 from core.services import configuracao, limite_por_ip_excedido, textos_ajuda
-from pagamentos.forms import ComprovanteForm
+from pagamentos.forms import AssinarForm, ComprovanteForm, JaPagueiForm
 from pagamentos.models import Fatura
 from pagamentos.services import (
+    LimiteDePedidos,
     dados_pix,
     enviar_comprovante,
     faturas_da_loja,
     faturas_em_aberto,
+    fazer_pedido,
+    motivo_sem_pedido,
+    pedido_em_aberto,
 )
 from pagamentos.services import (
     fatura_publica as buscar_fatura_publica,
 )
-from planos.services import assinatura_de
+from planos.services import assinatura_de, planos_a_venda
 
 TIPOS_COMPROVANTE = {
     ".pdf": "application/pdf",
@@ -119,6 +125,118 @@ def ja_paguei(request: HttpRequest, codigo: str) -> HttpResponse:
 def comprovante(request: HttpRequest, codigo: str) -> HttpResponse:
     """O comprovante que a própria loja enviou."""
     return resposta_do_comprovante(_fatura_da_loja(request, codigo))
+
+
+# --- Lote 3B: escolher o plano e pagar pelo Pix (loja ativa ou pendente) -----------------------------
+
+
+@require_http_methods(["GET", "POST"])
+@anunciante_ativo(aceitar_pendente=True)
+def assinar(request: HttpRequest) -> HttpResponse:
+    """Escolher plano: plano, periodicidade e a conferência do nome e do WhatsApp; cria o pedido (fatura
+    "aguardando pagamento") e leva à tela Pagar. Quem já tem plano vai para Meu plano; quem já informou o
+    pagamento, para a tela Pagar (em conferência)."""
+    anunciante = request.user.anunciante
+    motivo = motivo_sem_pedido(anunciante)
+    if motivo:
+        messages.info(request, motivo)
+        aberto = pedido_em_aberto(anunciante)
+        if aberto:
+            return redirect("pagamentos:pagar", aberto.codigo)
+        return redirect(
+            "planos:meu_plano" if anunciante.status == Anunciante.Status.ATIVO else "anunciantes:painel"
+        )
+    planos = planos_a_venda()
+    aberto = pedido_em_aberto(anunciante)
+    assinatura = assinatura_de(anunciante)
+    sugerido = planos.filter(slug=request.GET.get("plano", "")).first() or (
+        assinatura.plano if assinatura else None
+    )
+    form = AssinarForm(
+        request.POST or None,
+        planos=planos,
+        initial={
+            "plano": sugerido,
+            "periodicidade": assinatura.periodicidade if assinatura else None,
+            "nome_publico": anunciante.nome_publico,
+            "whatsapp": anunciante.whatsapp,
+        },
+    )
+    status = 200
+    if request.method == "POST" and form.is_valid():
+        try:
+            conferir_dados_da_loja(
+                anunciante, form.cleaned_data["nome_publico"], form.cleaned_data["whatsapp"]
+            )
+            fatura = fazer_pedido(anunciante, form.cleaned_data["plano"], form.cleaned_data["periodicidade"])
+        except LimiteDePedidos as erro:
+            form.add_error(None, str(erro))
+            status = 429
+        except ValueError as erro:
+            form.add_error(None, str(erro))
+        else:
+            return redirect("pagamentos:pagar", fatura.codigo)
+    elif request.method == "POST":
+        status = 400
+    return render(
+        request,
+        "pagamentos/assinar.html",
+        {
+            "tela": "assinar",
+            "ajuda_itens": textos_ajuda("assinar"),
+            "anunciante": anunciante,
+            "form": form,
+            "aberto": aberto,
+        },
+        status=status,
+    )
+
+
+def _tela_pagar(request: HttpRequest, fatura: Fatura, form: JaPagueiForm, status: int = 200) -> HttpResponse:
+    """Valor, QR Code, Pix copia e cola, instrução e "Já paguei" (ou a situação, se já informado/pago)."""
+    return render(
+        request,
+        "pagamentos/pagar.html",
+        {
+            "tela": "pagar",
+            "ajuda_itens": textos_ajuda("pagar"),
+            "anunciante": request.user.anunciante,
+            "fatura": fatura,
+            "pix": dados_pix(fatura) if fatura.a_pagar else None,
+            "form": form,
+        },
+        status=status,
+    )
+
+
+@require_GET
+@anunciante_ativo(aceitar_pendente=True)
+def pagar(request: HttpRequest, codigo: str) -> HttpResponse:
+    """Tela Pagar de uma fatura da loja logada (outra loja: 404)."""
+    return _tela_pagar(request, _fatura_da_loja(request, codigo), JaPagueiForm())
+
+
+@require_POST
+@anunciante_ativo(aceitar_pendente=True)
+def pagar_ja_paguei(request: HttpRequest, codigo: str) -> HttpResponse:
+    """ "Já paguei" da tela Pagar: comprovante opcional; a fatura fica aguardando conferência e a equipe é
+    avisada (e-mail e caixa Pendências)."""
+    fatura = _fatura_da_loja(request, codigo)
+    form = JaPagueiForm(request.POST, request.FILES)
+    if form.is_valid():
+        try:
+            enviar_comprovante(fatura, form.cleaned_data["comprovante"], form.cleaned_data["recado"])
+        except ValidationError as erro:
+            form.add_error("comprovante", erro)
+        except ValueError as erro:
+            messages.warning(request, str(erro))
+            return redirect("pagamentos:pagar", codigo)
+        else:
+            messages.success(
+                request, "Recebemos o aviso de pagamento. O acesso é liberado assim que a equipe conferir."
+            )
+            return redirect("pagamentos:pagar", codigo)
+    return _tela_pagar(request, fatura, form, status=400)
 
 
 # --- Fatura de publicidade: página pública com token (patrocinador não tem login) ------------------

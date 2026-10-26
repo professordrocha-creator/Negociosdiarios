@@ -6,12 +6,17 @@ confiável cai numa segunda tela que pede o código de 6 dígitos enviado por
 e-mail; acertando, o navegador fica confiável por 30 dias. Em dev nada disso
 acontece. As regras ficam em `contas/services.py`; aqui só se orquestra.
 Ligado como site padrão por `config.apps.AdminConfigND` (INSTALLED_APPS).
+
+Lote 3C: página inicial com o "Painel de hoje" (cartões e "Fazer agora", `core.services`) e menu enxuto por
+grupo (`config.menu_admin`), com o resto em "Mais opções" só para o Administrador.
 """
 
 from urllib.parse import urlencode
 
+from django.apps import apps
 from django.contrib import admin, messages
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -19,7 +24,9 @@ from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 
+from config.menu_admin import separar_menu
 from contas.forms import CodigoAcessoForm
 from contas.services import (
     acesso_verificado,
@@ -30,6 +37,10 @@ from contas.services import (
     navegador_confiavel,
     verificar_codigo,
 )
+
+# Botão "Aprovar" direto no "Fazer agora": tipo → (modelo do admin, ação). É a MESMA ação da lista do admin
+# (mesma permissão, mesmo serviço e mesmo histórico); só a volta é para a página inicial.
+APROVAR_AGORA = {"anuncio": ("anuncios.AnuncioEmModeracao", "aprovar_selecionados")}
 
 AVISOS_ENVIO = {
     "enviado": (messages.SUCCESS, "Enviamos um código de 6 dígitos para {email}."),
@@ -70,16 +81,59 @@ class AdminSiteND(admin.AdminSite):
         """Além de ser da equipe, a sessão precisa ter passado pela verificação (se exigida)."""
         return super().has_permission(request) and acesso_verificado(request)
 
-    def index(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
-        """Página inicial do admin com a caixa "Pendências" (só o que o usuário pode ver)."""
-        from core.services import pendencias_da_equipe
+    def get_app_list(self, request: HttpRequest, app_label: str | None = None) -> list[dict]:
+        """Menu enxuto por grupo (`config.menu_admin`). A página de um app (`app_label`) continua completa:
+        nada some de verdade, só sai do menu do dia a dia."""
+        completo = super().get_app_list(request, app_label)
+        if app_label:
+            return completo
+        return separar_menu(request.user, completo)[0]
 
-        contexto = {"pendencias": pendencias_da_equipe(request.user), **(extra_context or {})}
+    def index(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
+        """Página inicial: "Painel de hoje" (cartões só do que o usuário pode ver e "Fazer agora"), o menu do
+        grupo e, para o Administrador, o bloco recolhido "Mais opções"."""
+        from core.services import fazer_agora, pendencias_da_equipe
+
+        cartoes = pendencias_da_equipe(request.user)
+        contexto = {
+            "pendencias": cartoes,
+            "algo_pendente": any(cartao.total for cartao in cartoes),
+            "fazer_agora": fazer_agora(request.user),
+            "mais_opcoes": separar_menu(request.user, super().get_app_list(request))[1],
+            **(extra_context or {}),
+        }
         return super().index(request, contexto)
 
     def get_urls(self):
-        """Acrescenta a tela de verificação (fora do `admin_view`, que exigiria já estar verificado)."""
-        return [path("verificar/", self.verificar, name="verificar"), *super().get_urls()]
+        """Acrescenta a tela de verificação (fora do `admin_view`, que exigiria já estar verificado) e o botão
+        "Aprovar" do "Fazer agora"."""
+        return [
+            path("verificar/", self.verificar, name="verificar"),
+            path(
+                "fazer-agora/<str:tipo>/<int:pk>/aprovar/",
+                self.admin_view(self.aprovar_agora),
+                name="aprovar_agora",
+            ),
+            *super().get_urls(),
+        ]
+
+    @method_decorator(require_POST)
+    def aprovar_agora(self, request: HttpRequest, tipo: str, pk: int) -> HttpResponse:
+        """ "Aprovar" na linha do "Fazer agora": chama a ação "Aprovar" da lista do admin para este item (a
+        ação só existe para quem tem a permissão dela) e volta para a página inicial com a mensagem."""
+        if tipo not in APROVAR_AGORA:
+            raise Http404("Tipo desconhecido.")
+        rotulo, nome_da_acao = APROVAR_AGORA[tipo]
+        modeladmin = self._registry[apps.get_model(rotulo)]
+        acoes = modeladmin.get_actions(request)
+        if nome_da_acao not in acoes:
+            raise PermissionDenied
+        queryset = modeladmin.get_queryset(request).filter(pk=pk)
+        if not queryset.exists():
+            messages.warning(request, "Este item já foi decidido por outra pessoa.")
+            return redirect("admin:index")
+        acao = acoes[nome_da_acao][0]
+        return acao(modeladmin, request, queryset) or redirect("admin:index")
 
     def login(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
         """Login com e-mail e senha; navegador novo segue para a tela do código."""

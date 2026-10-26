@@ -167,7 +167,13 @@ def aceitar(denuncia: Denuncia, por: Usuario | None, acao: str, motivo: str) -> 
         anuncio._history_user = por
         anuncio._change_reason = f"Denúncia aceita ({Denuncia.Acao(acao).label.lower()})."
         anuncio.save()
-        _registrar_decisao(_pendentes(denuncia), por, Denuncia.Situacao.ACEITA, acao, motivo)
+        pendentes = _pendentes(denuncia)
+        # Publicação por confiança: anúncio removido por GOLPE tira a confiança da loja (fila para tudo).
+        if acao == Denuncia.Acao.REMOVER and pendentes.filter(motivo=Denuncia.Motivo.GOLPE).exists():
+            from anunciantes.services import retirar_confianca
+
+            retirar_confianca(anuncio.anunciante, f"Anúncio {anuncio.codigo} removido por golpe.", por)
+        _registrar_decisao(pendentes, por, Denuncia.Situacao.ACEITA, acao, motivo)
     enviar_email_modelo(
         "denuncia_aceita",
         f"Seu anúncio {anuncio.codigo} foi {'removido' if acao == Denuncia.Acao.REMOVER else 'pausado'}",

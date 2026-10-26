@@ -401,7 +401,58 @@ class Configuracao(models.Model):
         max_length=10,
         choices=Moderacao.choices,
         default=Moderacao.PRIMEIRO,
-        help_text="Os que não passam são publicados direto ao enviar.",
+        help_text='Os que não passam são publicados direto ao enviar. "Todos" e "Nenhum" valem sempre; com '
+        '"Só o primeiro", quem decide é a publicação por confiança (abaixo), se estiver ligada.',
+    )
+    # Publicação por confiança (lote 3A): a equipe não precisa aprovar todo anúncio à mão.
+    confianca_ativa = models.BooleanField(
+        "publicação por confiança",
+        default=True,
+        help_text="Ligada: loja aprovada e em dia (plano ativo, sem fatura vencida) publica direto; corretor "
+        "autônomo (pessoa física) passa pela fila até ter anúncios aprovados (número abaixo). Quem perdeu a "
+        "confiança (anúncio removido por golpe ou loja suspensa) sempre passa pela fila. "
+        'Desligada: vale só a regra "anúncios que passam por moderação".',
+    )
+    confianca_aprovados_pessoa_fisica = models.PositiveSmallIntegerField(
+        "anúncios aprovados para o corretor autônomo publicar direto",
+        default=1,
+        help_text="Corretor autônomo (pessoa física): os primeiros anúncios passam pela fila até este número "
+        "ter sido aprovado; depois publica direto. 0 = publica direto desde o primeiro.",
+    )
+    pedidos_por_hora = models.PositiveSmallIntegerField(
+        "pedidos de plano por hora (por loja)",
+        default=5,
+        validators=[MinValueValidator(1)],
+        help_text="Quantos pedidos de plano (com Pix) a mesma loja pode abrir em uma hora. Protege contra "
+        "cliques repetidos e abuso.",
+    )
+    # Pix da empresa (lote 3B): editado em "Pagamentos › Configuração do Pix" (só Administrador e Financeiro);
+    # fica fora da tela geral de Configurações do site. Nunca no código nem no Git.
+    pix_chave = models.CharField(
+        "chave Pix",
+        max_length=77,
+        blank=True,
+        help_text="E-mail, CPF, CNPJ, celular com DDD (vira +55...) ou chave aleatória. Conferida ao salvar.",
+    )
+    pix_nome = models.CharField(
+        "nome do recebedor",
+        max_length=25,
+        blank=True,
+        help_text="Até 25 caracteres, como aparece no banco (sem acento no código Pix).",
+    )
+    pix_cidade = models.CharField(
+        "cidade do recebedor",
+        max_length=15,
+        blank=True,
+        help_text="Até 15 caracteres. Ex.: Tangara da Serra.",
+    )
+    pix_instrucao = models.TextField(
+        "instrução para o cliente",
+        blank=True,
+        max_length=500,
+        default='Pague pelo app do seu banco (Pix copia e cola ou QR Code) e toque em "Já paguei". '
+        "A equipe confere o pagamento e libera o acesso em seguida.",
+        help_text="Aparece na tela Pagar, abaixo do QR Code. Até 500 caracteres, texto puro.",
     )
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
 

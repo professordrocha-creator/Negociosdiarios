@@ -26,8 +26,15 @@
         </div>
       {% endif %}
 
+      {% if not assinatura or assinatura.situacao == "pendente" or assinatura.situacao == "cancelada" %}
       <section class="nd-caixa">
-        <h2 class="h5">{% if assinatura %}Trocar de plano{% else %}Escolher um plano{% endif %}</h2>
+        <h2 class="h5">Escolher um plano</h2>
+        <p class="small text-suave">Escolha o plano, pague pelo Pix (QR Code ou copia e cola) e toque em "Já paguei". O plano fica ativo assim que a equipe conferir o pagamento.</p>
+        <a class="btn btn-ipe" href="{% url 'pagamentos:assinar' %}">Escolher plano e pagar</a>
+      </section>
+      {% else %}
+      <section class="nd-caixa">
+        <h2 class="h5">Trocar de plano</h2>
         <p class="small text-suave">A equipe confere o pedido e avisa por e-mail; o pagamento é feito pelas <a href="{% url 'pagamentos:faturas' %}">faturas</a> (Pix). Ao mudar para um plano menor, você escolhe quais anúncios manter; os demais ficam pausados. Com o pagamento atrasado mais de {{ carencia_dias }} dia{{ carencia_dias|pluralize }}, os anúncios ficam pausados até a regularização.</p>
         <form method="post" class="d-grid gap-3" novalidate>
           {% csrf_token %}
@@ -54,6 +61,7 @@
           <div><button type="submit" class="btn btn-ipe">Enviar pedido</button></div>
         </form>
       </section>
+      {% endif %}
     </div>
   </div>
 </main>

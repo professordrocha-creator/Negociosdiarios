@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load nd static %}
+{# Pagar (lote 3B; docs/TELAS.md): valor, QR Code e Pix copia e cola (gerados no servidor, sem serviço externo) e #}
+{# "Já paguei" (comprovante opcional). Sempre uma fatura da loja logada. Botão Copiar em static/js/copiar.js. #}
+
+{% block titulo %}Pagar · {{ fatura.codigo }}{% endblock %}
+{% block descricao %}Pague seu plano pelo Pix.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block ajuda %}{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-4">
+  <div class="mx-auto d-grid gap-4 nd-assinar">
+    <h1 class="h4 m-0">Pagar</h1>
+    {% include "_ajuda.html" %}
+    {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
+
+    <section class="nd-caixa d-grid gap-3" aria-labelledby="titulo-fatura">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <h2 class="h5 m-0 me-auto" id="titulo-fatura">{{ fatura.descricao }}</h2>
+        <span class="selo {% if fatura.situacao == 'paga' %}selo-verificado{% else %}selo-aluguel{% endif %}">
+          {% if fatura.situacao == "aberta" or fatura.situacao == "vencida" %}Aguardando pagamento{% elif fatura.situacao == "aguardando_confirmacao" %}Aguardando conferência{% else %}{{ fatura.get_situacao_display }}{% endif %}
+        </span>
+      </div>
+      <div>
+        <span class="d-block small text-suave">Pedido {{ fatura.codigo }}</span>
+        <span class="nd-preco-grande tabular">{{ fatura.valor|moeda }}</span>
+      </div>
+
+      {% if fatura.situacao == "paga" %}
+        <div class="alert alert-success py-2 mb-0" role="status">{% icone "verificado" %} Pagamento conferido. Seu plano está ativo.{% if anunciante.status == "ativo" %} <a href="{% url 'anunciantes:painel' %}">Ir para o painel</a>.{% endif %}</div>
+      {% elif fatura.situacao == "cancelada" %}
+        <div class="alert alert-warning py-2 mb-0" role="status">Este pedido foi cancelado. <a href="{% url 'pagamentos:assinar' %}">Escolher o plano de novo</a>.</div>
+      {% elif fatura.situacao == "aguardando_confirmacao" %}
+        <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} Recebemos o aviso de pagamento em {{ fatura.comprovante_enviado_em|date:"d/m/Y \à\s H:i" }}. <b>O acesso é liberado assim que a equipe conferir o pagamento</b>; avisaremos por e-mail.</div>
+      {% else %}
+        {% if fatura.motivo_recusa %}
+          <div class="alert alert-warning py-2 mb-0" role="status"><b>Não encontramos o pagamento:</b> {{ fatura.motivo_recusa }}</div>
+        {% endif %}
+        {% if pix %}
+          <div class="row g-3 align-items-center">
+            <div class="col-md-5 text-center">
+              <img class="nd-qr-pix" src="{{ pix.qr_code }}" width="220" height="220" alt="QR Code Pix do pedido {{ fatura.codigo }}, valor {{ fatura.valor|moeda }}">
+            </div>
+            <div class="col-md-7 d-grid gap-2">
+              <label class="form-label m-0" for="pix-copia-e-cola">Pix copia e cola</label>
+              <textarea class="form-control font-monospace small" id="pix-copia-e-cola" rows="3" readonly>{{ pix.copia_e_cola }}</textarea>
+              <div><button type="button" class="btn btn-nd" data-copiar="pix-copia-e-cola"><span>Copiar código Pix</span></button></div>
+              <span class="small text-suave">O valor e o identificador <b>{{ fatura.identificador_pix }}</b> já vão preenchidos.</span>
+            </div>
+          </div>
+          {% if pix.instrucao %}<p class="mb-0 nd-instrucao-pix">{{ pix.instrucao|linebreaksbr }}</p>{% endif %}
+        {% else %}
+          <div class="alert alert-info py-2 mb-0" role="status">O Pix ainda não está disponível aqui. <a href="{% url 'core:contato' %}">Fale com a gente</a> para pagar.</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'pagamentos:pagar_ja_paguei' fatura.codigo %}" enctype="multipart/form-data" class="d-grid gap-3" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+          {% include "anunciantes/_campo.html" with campo=form.comprovante %}
+          {% include "anunciantes/_campo.html" with campo=form.recado %}
+          <div><button type="submit" class="btn btn-ipe">Já paguei</button></div>
+          <span class="small text-suave">O acesso é liberado depois que a equipe conferir o pagamento no banco.</span>
+        </form>
+        {% if anunciante.status == "pendente" %}<p class="small mb-0"><a href="{% url 'pagamentos:assinar' %}">Trocar de plano</a></p>{% endif %}
+      {% endif %}
+    </section>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/copiar.js' %}" defer></script>{% endblock %}

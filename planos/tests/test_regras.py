@@ -321,7 +321,7 @@ def test_pagamento_em_dia_empurra_o_vencimento(assinante):
     fatura = registrar_pagamento_manual(assinatura, None, "Pix 123")
 
     assinatura.refresh_from_db()
-    assert assinatura.vencimento == proximo_vencimento(vencimento, Periodicidade.MENSAL)
+    assert assinatura.vencimento == vencimento + timedelta(days=30)  # lote 3C: dias de vigência
     assert (
         assinatura.history.order_by("-history_id").first().history_change_reason
         == f"Pagamento registrado: {fatura.codigo} (Pix 123)"
@@ -351,7 +351,7 @@ def test_pagamento_em_atraso_reativa_e_dispara_sinal(assinante):
 
     assert assinatura.situacao == Assinatura.Situacao.ATIVA
     original = timezone.localdate() - timedelta(days=20)
-    assert assinatura.vencimento == proximo_vencimento(original, Periodicidade.MENSAL)
+    assert assinatura.vencimento == original + timedelta(days=30)
     assert recebidos == [assinatura.pk]
 
 

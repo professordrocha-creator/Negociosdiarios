@@ -112,15 +112,53 @@ Planejado: `telefone`.
 
 ### Plano, Assinatura e PedidoTrocaPlano — app `planos` (Sprint 2, parte B)
 - `Plano`: `nome`, `slug` (únicos), `limite_anuncios`, `preco_mensal`, `preco_anual` (Decimal), `ativo` (à venda),
-  `ordem`, histórico. Os 3 planos iniciais vêm da migration `planos/0002` (valores que estavam no settings);
-  daí em diante só mudam no admin. Não se apaga plano: desmarca "à venda".
+  `ordem`, `dias_vigencia` (30) e `dias_vigencia_anual` (365; lote 3B), histórico. Os 3 planos iniciais vêm da
+  migration `planos/0002` (valores que estavam no settings); daí em diante só mudam no admin. Não se apaga
+  plano: desmarca "à venda".
 - `Assinatura` (1:1 com `Anunciante`): `plano` (PROTECT), `periodicidade` (mensal | anual), `inicio`,
-  `vencimento`, `situacao` (ativa | em_atraso | cancelada), `demo`, histórico (quem mudou e por quê).
+  `vencimento` (fim da vigência: até este dia publica anúncios novos), `situacao` (pendente | ativa | em_atraso |
+  cancelada; `pendente` = pedido pelo site aguardando o pagamento ser conferido), `demo`, histórico.
 - `PedidoTrocaPlano`: `anunciante`, `plano_atual`, `plano_novo`, `periodicidade`, `status`
   (pendente | aprovado | recusado), `motivo`, `decidido_por`, `decidido_em`, `demo`. Um pendente por loja.
 - `Configuracao.carencia_dias` (padrão 5): dias depois do vencimento até a assinatura virar em_atraso.
 - Sinais `planos.sinais.assinatura_em_atraso` / `assinatura_regularizada`: o app de anúncios (Sprint 3)
   se conecta para pausar/reativar, sem o app planos conhecer o modelo de anúncio.
+
+### Publicação por confiança (lote 3A)
+- `Configuracao.confianca_ativa` (padrão True) e `confianca_aprovados_pessoa_fisica` (padrão 1);
+  `Anunciante.confianca_retirada_em` e `motivo_confianca` (preenchidos na suspensão, na remoção por golpe via
+  denúncia ou pela ação do admin; a ação "Devolver confiança" limpa).
+- `anuncios.services.precisa_moderacao`: "Todos"/"Nenhum" valem sempre; com "Só o primeiro" e a confiança ligada,
+  publica direto quem `tem_confianca` (ativo, sem confiança retirada, em dia: assinatura ativa e sem fatura vencida;
+  corretor autônomo também com N anúncios já aprovados). Edição de preço, cidade ou tipo de anúncio publicado:
+  histórico "Campos sensíveis"; sem confiança, volta para a fila.
+
+### Pedido de plano com Pix e "Cadastros aguardando" (lote 3B)
+- Sem modelo novo de pedido: o pedido é a `Fatura` (situação `aberta` = aguardando pagamento,
+  `aguardando_confirmacao` = aguardando conferência) de uma `Assinatura` `pendente`.
+- `Configuracao`: `pix_chave`, `pix_nome` (25), `pix_cidade` (15), `pix_instrucao` (editados pelo proxy
+  `pagamentos.ConfiguracaoPix`, permissão só de Administrador e Financeiro; fora da tela geral) e
+  `pedidos_por_hora` (5). `pagamentos.services.credenciais_pix`: admin primeiro, `.env` (`PIX_*`) se vazio.
+- Proxy `pagamentos.PedidoAguardando` (Fatura): lista "Cadastros aguardando" (Administrador, Financeiro,
+  Comercial), com "Aprovar" por linha (`aprovar_pedido_pago`: fatura paga, vigência início/fim, loja aprovada,
+  assinatura ativa; numa transação) e as ações Recusar (`recusar_pedido_pago`) e Marcar como não pago
+  (`marcar_nao_pago` = `recusar_comprovante`). Cartões no Painel de hoje (filtro `tipo`: novo/renovação).
+- Cliente: `/painel/assinar/` (`fazer_pedido`, limite por hora contado no banco), `/painel/pagar/<código>/` e
+  `/painel/pagar/<código>/ja-paguei/` (comprovante opcional); `anunciante_ativo(aceitar_pendente=True)` deixa a
+  loja pendente com e-mail confirmado usar essas três telas.
+- Vigência: `planos.services.vigente` (ativa e `vencimento >= hoje`) em `pode_publicar`, `reservar_vaga` e
+  `anunciantes.services.em_dia` (publicação por confiança). Pedido pendente fica fora da rotina de faturas e da
+  régua de cobrança.
+
+### Painel de hoje e menu por grupo (lote 3C)
+- Sem modelo novo. `core.services.pendencias_da_equipe` (cartões com `nivel` urgente/atenção, só com a
+  permissão de ver cada lista) e `fazer_agora` (5 mais antigos por tipo). `config.admin_site.AdminSiteND`:
+  `index` com o painel, `get_app_list` filtrado por `config.menu_admin.separar_menu` (menu por grupo; o resto
+  em "Mais opções" só para Administrador/superusuário; a página de cada app continua completa) e
+  `aprovar_agora` (POST que chama a MESMA ação do admin, ex.: "aprovar_selecionados" da fila).
+- Vigência única: `planos.services.fim_da_vigencia` (início + `Plano.dias_vigencia`/`_anual`) em
+  `renovar_assinatura` (Confirmar pagamento, Registrar pagamento manual), `gerar_fatura` (período) e
+  `datas_sugeridas` (Cadastros aguardando).
 
 ### Denuncia — app `moderacao` (Sprint 7B parte 2)
 - `Denuncia`: `anuncio` (PROTECT), `motivo` (golpe | vendido | falso | improprio | dados_terceiros | outro),

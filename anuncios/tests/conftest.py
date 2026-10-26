@@ -6,6 +6,7 @@ testes de estatísticas e da CSP).
 
 import io
 
+import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 
@@ -45,3 +46,18 @@ def foto_pronta(anuncio, ordem: int = 0) -> Foto:
     foto.compartilhamento.save("compartilhamento.jpg", imagens.jpeg_compartilhamento(limpa, "c"), save=False)
     foto.save()
     return foto
+
+
+@pytest.fixture
+def regra_antiga(db):
+    """Publicação por confiança desligada: vale a regra antiga "só o primeiro anúncio passa pela fila".
+
+    Para os testes da mecânica da fila (aprovar, recusar, telas, concorrência), escritos antes do lote 3A;
+    as regras de confiança têm os próprios testes (test_confianca.py).
+    """
+    from core.services import configuracao
+
+    config = configuracao()
+    config.confianca_ativa = False
+    config.save()
+    return config

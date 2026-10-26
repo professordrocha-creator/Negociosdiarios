@@ -1,11 +1,12 @@
-{% autoescape off %}Comprovante de pagamento para conferir no {{ site_nome }}.
+{% autoescape off %}Pagamento para conferir no {{ site_nome }}.
 
 Cliente: {{ fatura.cliente_nome }}
 Fatura: {{ fatura.codigo }} ({{ fatura.descricao }})
 Valor: R$ {{ fatura.valor }}
 Vencimento: {{ fatura.vencimento|date:"d/m/Y" }}
+{% if fatura.comprovante %}Comprovante: enviado (abra pelo admin).{% else %}Comprovante: não enviado (o cliente tocou em "Já paguei").{% endif %}
 {% if recado %}Recado do anunciante: {{ recado }}
 {% endif %}
-Confira no extrato (identificador {{ fatura.identificador_pix }}) e confirme ou recuse no admin:
+Confira no extrato (identificador {{ fatura.identificador_pix }}) e aprove ou recuse no admin:
 {{ link_admin }}
 {% endautoescape %}

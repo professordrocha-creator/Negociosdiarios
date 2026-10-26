@@ -1,0 +1,11 @@
+{% autoescape off %}Olá, {{ fatura.cliente_nome }}!
+
+Não conseguimos aprovar o seu pedido de plano no {{ site_nome }} ({{ fatura.descricao }}, pedido {{ fatura.codigo }}).
+
+Motivo: {{ motivo }}
+
+Se quiser, faça um pedido novo (ou fale com a gente respondendo este e-mail):
+{{ link }}
+
+Equipe {{ site_nome }}
+{% endautoescape %}

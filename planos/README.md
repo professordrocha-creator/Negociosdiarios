@@ -5,16 +5,19 @@ dependem dela (limite de anúncios, downgrade, atraso e renovação). Faturas e 
 anúncio: recebe funções de quem chama ou dispara sinais (ARQUITETURA §5).
 
 **Modelos:**
-- `Plano`: nome, slug, limite de anúncios, preço mensal e anual (Decimal), à venda, ordem,
-  histórico. Os 3 iniciais vêm da migration `0002`; depois só mudam no admin.
-- `Assinatura` (1:1 com o anunciante): plano, periodicidade (mensal | anual), início, vencimento,
-  situação (ativa | em_atraso | cancelada), `demo`, histórico.
+- `Plano`: nome, slug, limite de anúncios, preço mensal e anual (Decimal), à venda, ordem, dias de
+  vigência mensal (30) e anual (365) (lote 3B), histórico. Os 3 iniciais vêm da migration `0002`; depois só mudam no admin.
+- `Assinatura` (1:1 com o anunciante): plano, periodicidade (mensal | anual), início, vencimento (fim da
+  vigência), situação (pendente | ativa | em_atraso | cancelada; pendente = pedido pelo site aguardando a
+  conferência do Pix), `demo`, histórico.
 - `PedidoTrocaPlano`: pedido do painel (plano atual → novo, periodicidade), status
   (pendente | aprovado | recusado), motivo, quem decidiu e quando.
 
 **Serviços (`services.py`):**
 - `planos_a_venda()`, `assinatura_de(anunciante)`, `uso_do_plano(anunciante)` (publicados + em análise,
   contados por `anuncios.services.contar_no_plano`).
+- `vigente(assinatura)`: ativa e dentro da vigência (até o vencimento, inclusive); fora dela, nada de anúncio
+  novo (lote 3B).
 - `pode_publicar(anunciante)`: resposta rápida para a tela.
 - `reservar_vaga(anunciante, contar, publicar)`: a decisão que vale; trava a assinatura com
   `select_for_update` (sem corrida entre dois cliques). Levanta `SemAssinaturaAtiva` ou `LimiteDoPlano`.

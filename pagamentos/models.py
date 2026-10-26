@@ -17,7 +17,7 @@ from django.db.models import Q
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
-from core.models import MarcaDemo
+from core.models import Configuracao, MarcaDemo
 from pagamentos.armazenamento import armazenamento_privado
 from planos.models import Assinatura
 
@@ -174,6 +174,8 @@ class Fatura(MarcaDemo):
         from django.urls import reverse
 
         if self.assinatura_id:
+            if self.assinatura.situacao == Assinatura.Situacao.PENDENTE:  # pedido pelo site: ainda sem painel
+                return reverse("pagamentos:pagar", args=[self.codigo])
             return reverse("pagamentos:faturas")
         return reverse("pagamentos:fatura_publica", args=[self.token])
 
@@ -254,3 +256,29 @@ class ModeloEmailCobranca(models.Model):
                 f"Variáveis desconhecidas: {', '.join(sorted('{' + n + '}' for n in desconhecidas))}. "
                 f"Use: {', '.join('{' + v + '}' for v in self.VARIAVEIS)}."
             )
+
+
+class PedidoAguardando(Fatura):
+    """Proxy para "Cadastros aguardando" no admin (lote 3B): pedidos de plano pagos pelo Pix esperando a
+    equipe conferir no banco e aprovar numa tela só (fatura paga, vigência, loja aprovada e plano ativo).
+
+    Mostra a fatura aguardando conferência (o cliente tocou em "Já paguei") de qualquer loja e a aguardando
+    pagamento de quem fez o pedido pelo site e ainda não tem plano ativo. Permissão própria (grupos
+    Administrador, Financeiro e Comercial), separada da lista completa de faturas.
+    """
+
+    class Meta:
+        proxy = True
+        verbose_name = "cadastro aguardando"
+        verbose_name_plural = "cadastros aguardando"
+
+
+class ConfiguracaoPix(Configuracao):
+    """Proxy para "Configuração do Pix" no admin (lote 3B): chave, nome e cidade do recebedor e a instrução ao
+    cliente. Fica num registro só (o das Configurações do site), mas com permissão própria: só Administrador e
+    Financeiro veem e editam a chave."""
+
+    class Meta:
+        proxy = True
+        verbose_name = "configuração do Pix"
+        verbose_name_plural = "configuração do Pix"

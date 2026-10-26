@@ -42,7 +42,8 @@
             <li>{% icone "verificado" %} Selo de anunciante verificado</li>
             <li>{% icone "olho" %} Visualizações e cliques no WhatsApp</li>
           </ul>
-          <a class="btn btn-ipe mt-auto" href="{% url 'core:contato' %}?plano={{ plano.slug }}">Quero anunciar</a>
+          {# Lote 3B: logado escolhe o plano e paga pelo Pix; visitante faz o cadastro antes. #}
+          <a class="btn btn-ipe mt-auto" href="{% if user.is_authenticated and not user.is_staff %}{% url 'pagamentos:assinar' %}?plano={{ plano.slug }}{% else %}{% url 'anunciantes:cadastro' %}{% endif %}">Quero anunciar</a>
         </article>
       </div>
       {% endfor %}

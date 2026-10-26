@@ -108,6 +108,18 @@ class Anunciante(MarcaDemo):
         blank=True,
         help_text="Registrado pelas ações Aprovar/Suspender do admin.",
     )
+    # Publicação por confiança (lote 3A): preenchido quando a loja perde a confiança (anúncio removido por
+    # golpe ou suspensão). Enquanto preenchido, todo anúncio novo passa pela fila de moderação.
+    confianca_retirada_em = models.DateTimeField(
+        "confiança retirada em",
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Com data: todo anúncio novo da loja passa pela fila. Devolva pela ação do admin.",
+    )
+    motivo_confianca = models.CharField(
+        "motivo da perda de confiança", max_length=200, blank=True, editable=False
+    )
     # Página da loja (Sprint 2): editados pelo próprio anunciante em /painel/loja/.
     sobre = models.TextField(
         "sobre a loja", max_length=500, blank=True, help_text="Até 500 caracteres. Texto puro."

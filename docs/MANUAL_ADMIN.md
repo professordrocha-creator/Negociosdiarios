@@ -6,6 +6,8 @@ o que existe hoje no sistema. Os nomes entre aspas são exatamente os que aparec
 > Dica: este mesmo manual abre dentro do site, para quem é da equipe, no link **Ajuda** no topo do painel
 > administrativo (endereço `/painel/ajuda/`).
 
+**Começando?** Leia "Minha rotina de todo dia" (capítulo 2): três passos que resolvem quase tudo.
+
 ## Sumário
 
 1. [Primeiro acesso](#1-primeiro-acesso)
@@ -86,34 +88,53 @@ emergência** de uso único, que serve na tela do código no lugar do código po
 
 ## 2. Visão geral do painel
 
-Depois de entrar, a página "Painel" mostra no topo a caixa **"Pendências"**: denúncias pendentes, pedidos de
-privacidade do site, pedidos do Guia de Negócios, comprovantes aguardando confirmação e lojas pendentes de
-aprovação. Cada número abre a lista já filtrada, e cada pessoa vê só os contadores do que o grupo dela pode ver.
-Abaixo vêm os grupos de menus. Cada pessoa vê só o que o grupo dela permite
-(capítulo 11). No topo: "Ajuda" (este manual), "Ver o site", "Alterar senha" e "Encerrar sessão".
+### Minha rotina de todo dia
+
+1. **Olhar o "Painel de hoje"** (a primeira tela depois de entrar). Cada cartão é um tipo de trabalho, com o
+   número grande. Borda **vermelha** = urgente (denúncia, fatura em atraso, pedido de privacidade com prazo
+   legal); **amarela** = trabalho do dia; sem cor = "Nada pendente por aqui".
+2. **Aprovar** em "Fazer agora" (logo abaixo dos cartões): os 5 mais antigos de cada tipo. Anúncio da fila:
+   "Aprovar" publica na hora. Cadastro ou renovação: "Aprovar" abre a tela das datas; confira o Pix no extrato
+   (capítulo 6) e confirme. Para recusar, abra o item ("ver todos" ou o nome) e use a ação de sempre, com motivo.
+3. **Tratar as denúncias** (cartão "Denúncias abertas"): abra cada uma e decida "Aceitar" (pausar ou remover) ou
+   "Descartar" (capítulo 8).
+
+Pronto. Ao fim do dia, o painel deve mostrar "Tudo em dia: nada pendente por aqui."
+
+### O que tem no painel
+
+Depois de entrar, a página "Painel" mostra no topo o **"Painel de hoje"**: cartões de cadastros aguardando
+conferência (pedidos novos), renovações aguardando conferência, faturas vencendo em 7 dias ou em atraso, anúncios
+na fila de moderação, denúncias abertas, interessados do Guia ("Quero ser listado"), pedidos de privacidade,
+pedidos do Guia, lojas pendentes de aprovação e pagamentos de publicidade para conferir. Cada número abre a lista
+já filtrada, e cada pessoa vê só os cartões do que o grupo dela pode ver. Abaixo: "Fazer agora" e os menus.
+
+**Menu enxuto:** cada grupo vê só os menus que usa no dia a dia (capítulo 11). O Administrador vê o dia a dia e,
+recolhido no fim da página, **"Mais opções"** (bloqueios de login, catálogo de veículos, grupos, cidades,
+textos de ajuda e outras configurações raras). Nada foi tirado: quem tem permissão ainda abre essas telas pelo
+endereço ou por um link. No topo: "Ajuda" (este manual), "Ver o site", "Alterar senha" e "Encerrar sessão".
 
 | Menu | Para que serve |
 |---|---|
-| Anunciantes | Lojas e corretores ("Anunciantes") e os pedidos de cidade nova ("Solicitações de cidade") |
-| Anúncios | Todos os anúncios (só leitura) e a "Fila de moderação" (aprovar ou recusar) |
-| Catálogo de veículos | Marcas, modelos e versões da Tabela FIPE (só esconder o que não deve aparecer) |
-| Faturas e pagamentos | "Faturas" (com o "Painel de cobrança") e os "E-mails de cobrança" |
-| Contas | "Usuários": equipe e clientes |
-| Guia de Negócios | Perfis do guia, categorias, termos, pedidos dos titulares, lista de convites e configuração |
-| Moderação | "Denúncias" de anúncios |
-| Núcleo | "Configurações do site" (limites, prazos, contatos e textos), estados, cidades, regiões, bairros, textos de ajuda, valores da empresa |
-| Planos e assinaturas | Planos (preços e limites), assinaturas das lojas e pedidos de troca de plano |
-| Privacidade (LGPD) | Termos de Uso e Política de Privacidade (com versões) e pedidos dos titulares |
+| Faturas e pagamentos | "Cadastros aguardando", "Faturas" (com o "Painel de cobrança"), "Configuração do Pix" |
+| Anúncios | Todos os anúncios e a "Fila de moderação" (aprovar ou recusar) |
+| Denúncias | Denúncias de anúncios |
+| Lojas (anunciantes) | Lojas e corretores e os pedidos de cidade nova ("Solicitações de cidade") |
+| Planos e assinaturas | Planos (preços, limites e dias de vigência), assinaturas e pedidos de troca de plano |
 | Publicidade | Patrocinadores e campanhas (com as peças e o "Painel de publicidade") |
-| Autenticação e Autorização | "Grupos" (só leitura para a equipe) |
-| Axes | "Tentativas de acesso" (logins bloqueados) |
+| Guia de Negócios | Perfis do guia, "Convites e interessados" e pedidos dos titulares |
+| Privacidade (LGPD) | Pedidos dos titulares (os Termos e a Política ficam em "Mais opções") |
+| Site e configurações | "Configurações do site" (limites, prazos, contatos e textos) |
+| Equipe e usuários | "Usuários": equipe e clientes |
+| Mais opções (só Administrador) | Catálogo de veículos (FIPE), estados, cidades, regiões, bairros, textos de ajuda, valores da empresa, e-mails de cobrança, termos e documentos legais, categorias e configuração do guia, grupos, bloqueios de login e códigos de acesso |
 
 Quase nada é apagado de verdade: lojas são suspensas, faturas são canceladas, perfis são pausados ou removidos.
 Toda mudança importante tem "Histórico" (botão no canto da ficha).
 
 ### Se der errado
 
-- Um menu não aparece: seu grupo não tem permissão (capítulo 11). Peça ao Administrador.
+- Um menu não aparece: ou ele não é do dia a dia do seu grupo (o Administrador acha em "Mais opções"), ou seu
+  grupo não tem permissão (capítulo 11). Peça ao Administrador.
 - "Ajuda" não aparece no topo: recarregue com Ctrl+F5.
 
 ---
@@ -142,7 +163,10 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
      "guarda de faturas e comprovantes (anos)" (5), **"denúncias de golpe para pausar"** (3), "denúncias por
      visitante por dia" (5), "guarda do contato da denúncia (dias)" (365), "validade do anúncio (dias)" (60),
      "mostrar botão Renovar a partir de (dias antes)" (5; só mostra o botão no painel do anunciante, não manda e-mail) e "anúncios que passam por moderação" ("Só o primeiro anúncio de
-     cada loja", "Todos os anúncios" ou "Nenhum (publicação direta)").
+     cada loja", "Todos os anúncios" ou "Nenhum (publicação direta)"), **"publicação por confiança"** (ligada) e
+     **"anúncios aprovados para o corretor autônomo publicar direto"** (1) e **"pedidos de plano por hora (por
+     loja)"** (5). Ver "Publicação por confiança" no capítulo 4. A chave Pix **não** fica aqui: fica em "Faturas e
+     pagamentos" › "Configuração do Pix" (capítulo 6).
 3. **O que acontece depois:** clique em "Salvar". Vale a partir do próximo uso, para todas as lojas.
 
 ### Textos "Sobre esta tela"
@@ -177,7 +201,30 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
 3. **O que acontece depois:** aprovado vai ao ar e o anunciante recebe e-mail; recusado volta para ele corrigir,
    com o motivo.
 
-Quais anúncios passam pela fila: "Núcleo" › "Configurações do site" › "anúncios que passam por moderação".
+Quais anúncios passam pela fila: "Núcleo" › "Configurações do site" › "anúncios que passam por moderação" e
+"publicação por confiança" (veja abaixo).
+
+### Publicação por confiança (quem publica sem passar pela fila)
+
+Para a equipe não precisar aprovar todo anúncio à mão. Fica ligada por padrão.
+
+| Quem | O anúncio novo… |
+|---|---|
+| Loja aprovada (CRECI/CNPJ conferido) e em dia (plano ativo, sem fatura vencida) | vai direto ao ar |
+| Corretor autônomo (pessoa física) | vai para a fila até ter **1** anúncio aprovado (número configurável); depois vai direto |
+| Loja com fatura vencida ou plano em atraso | vai para a fila até regularizar |
+| Loja que **perdeu a confiança** (anúncio removido por golpe, loja suspensa ou decisão da equipe) | vai sempre para a fila, até a equipe devolver a confiança |
+
+1. **Onde clicar:** "Núcleo" › "Configurações do site" › "Regras do negócio".
+2. **O que preencher:** "publicação por confiança" (marcado = ligada) e "anúncios aprovados para o corretor
+   autônomo publicar direto" (0 = publica direto desde o primeiro). Em "anúncios que passam por moderação", deixe
+   "Só o primeiro anúncio de cada loja": "Todos os anúncios" manda tudo para a fila e "Nenhum" publica tudo direto,
+   passando por cima da confiança.
+3. **O que acontece depois:** vale para os próximos envios. Todo anúncio continua sujeito a denúncia, à pausa
+   automática por golpe e às ações da equipe (Pausar, Remover).
+
+**Edição de anúncio já no ar:** mudar preço, cidade ou tipo fica registrado no "Histórico" do anúncio ("Campos
+sensíveis: …"). Quem tem confiança continua no ar; quem não tem volta para a fila.
 
 ### Consultar todos os anúncios
 
@@ -205,7 +252,8 @@ expiração e quando a loja fica em atraso. Pausa por denúncia sai pela fila de
 
 1. **Onde clicar:** "Planos e assinaturas" › "Planos".
 2. **O que preencher:** direto na lista: limite de anúncios, preço mensal, preço anual, ordem e "ativo" (à venda).
-   Clique em "Salvar" no rodapé da lista.
+   Clique em "Salvar" no rodapé da lista. Abrindo o plano: **"dias de vigência (mensal)"** (30) e **"dias de
+   vigência (anual)"** (365): quanto tempo o plano vale depois que a equipe aprova o pagamento.
 3. **O que acontece depois:** a página `/planos/` mostra os valores novos. Planos não se apagam (desmarque "ativo").
 
 Pedidos de troca de plano: "Planos e assinaturas" › "Pedidos de troca de plano" › ações "Aprovar selecionados
@@ -232,6 +280,10 @@ Pedidos de troca de plano: "Planos e assinaturas" › "Pedidos de troca de plano
 
 ### Verificar (aprovar) um cadastro
 
+O caminho mais comum agora é **"Cadastros aguardando"** (capítulo 6): o cliente escolhe o plano, paga pelo Pix e
+a equipe confere o documento e o pagamento e aprova tudo numa tela só. O caminho abaixo continua valendo para
+aprovar só o documento (sem pagamento).
+
 1. **Onde clicar:** "Anunciantes" › "Anunciantes". Use o filtro de aprovação para ver quem já confirmou o e-mail
    (esses estão prontos).
 2. **O que preencher:** abra o cadastro, confira o CRECI ou o CNPJ nos sites oficiais. Volte à lista, marque e use
@@ -244,7 +296,26 @@ Pedidos de troca de plano: "Planos e assinaturas" › "Pedidos de troca de plano
 1. **Onde clicar:** "Anunciantes" › "Anunciantes", marque a loja.
 2. **O que preencher:** ação "Suspender selecionados (motivo obrigatório)" e o motivo.
 3. **O que acontece depois:** a loja some do site e o anunciante não entra no painel. Nada é apagado; para voltar,
-   aprove de novo.
+   aprove de novo. A loja suspensa **perde a confiança**: mesmo aprovada de novo, os anúncios novos passam pela
+   fila até a equipe devolver a confiança (abaixo).
+
+### Confiança da loja (retirar e devolver)
+
+1. **Onde clicar:** "Anunciantes" › "Anunciantes". A ficha mostra, em "Publicação por confiança", se os anúncios
+   novos publicam direto ou vão para a fila, e por quê.
+2. **O que preencher:** marque a loja e use "Retirar confiança (anúncios novos vão para a fila)" (motivo
+   obrigatório) ou "Devolver confiança (anúncios novos voltam a publicar direto)".
+3. **O que acontece depois:** vale para os próximos anúncios; os que já estão no ar continuam. A data e o motivo
+   ficam no histórico. A confiança também sai sozinha quando a loja é suspensa ou tem anúncio removido por golpe.
+
+### Logo, capa e plano da loja
+
+1. **Onde clicar:** "Anunciantes" › "Anunciantes" › abra a loja.
+2. **O que preencher:** em "Página da loja", "Trocar o logo" e "Trocar a capa" (os limites aparecem embaixo de cada
+   campo, os mesmos do painel da loja). "Salvar".
+3. **O que acontece depois:** a imagem é recortada, reduzida e limpa (sem os dados da foto) em instantes; a prévia
+   aparece em "logo e capa". O bloco "Plano" mostra o plano, a periodicidade, o vencimento e a situação da
+   assinatura, com o link "abrir a assinatura" (é lá que se registra pagamento manual).
 
 ### Contatar
 
@@ -273,6 +344,57 @@ As faturas das lojas **nascem sozinhas**: a rotina das 6h gera a fatura X dias a
 (dias antes do vencimento)"). A fatura de publicidade nasce na campanha (capítulo 7). Pagamento é por Pix
 (copia e cola e QR Code) ou boleto (link digitado pela equipe).
 
+**Como o cliente contrata (sozinho):** cadastra-se em `/cadastro/`, confirma o e-mail, entra e toca em "Escolher
+plano e pagar". Escolhe o plano (mensal ou anual), confere o nome da loja e o WhatsApp e cai na tela **Pagar**,
+com o valor, o QR Code e o Pix copia e cola (o identificador do pedido, ex. `NDFT00042`, vai junto). Depois de
+pagar, toca em **"Já paguei"** (o comprovante é opcional). O pedido aparece em "Cadastros aguardando" e na caixa
+"Painel de hoje", e a equipe recebe e-mail. O acesso só é liberado quando a equipe aprovar.
+
+### Configurar o Pix (uma vez)
+
+1. **Onde clicar:** "Faturas e pagamentos" › "Configuração do Pix" (só Administrador e Financeiro veem).
+2. **O que preencher:** "chave Pix" (e-mail, CPF, CNPJ, celular com DDD ou chave aleatória: o sistema confere o
+   formato e o dígito), "nome do recebedor" (até 25 letras, como aparece no banco), "cidade do recebedor" (até
+   15) e a "instrução para o cliente" (aparece embaixo do QR Code). Clique em "Salvar".
+3. **O que acontece depois:** a "prévia (R$ 1,00)" mostra um QR Code de teste. Abra o app do banco, leia o QR e
+   confira se aparece o nome certo e R$ 1,00 (não precisa pagar). Daí em diante todo pedido e toda fatura usam
+   esta chave. Os dados ficam só no banco de dados (nunca no código).
+
+### Cadastros aguardando (aprovar numa tela só)
+
+1. **Onde clicar:** "Faturas e pagamentos" › "Cadastros aguardando" (Administrador, Financeiro e Comercial), ou o
+   cartão no "Painel de hoje". Primeiro vêm os **"Aguardando conferência"** (o cliente disse que pagou), depois os
+   **"Aguardando pagamento"** (pediram o plano e ainda não pagaram). Cada linha mostra loja, documento, plano,
+   valor, data e o comprovante (se mandou; só Financeiro e Administrador abrem).
+2. **O que preencher:** confira no extrato do banco um Pix com o **valor** e o **identificador** do pedido (e, se a
+   loja ainda é nova, o CRECI/CNPJ nos sites oficiais). Clique em **"Aprovar"** na linha. A tela já traz o
+   "início da vigência" (hoje; na renovação, o vencimento anterior) e o "fim" (início + dias de vigência do
+   plano); ajuste se precisar e clique em "Aprovar".
+3. **O que acontece depois:** de uma vez só, a fatura fica paga, o plano fica ativo até o "fim", a loja é aprovada
+   (se era nova) e o cliente recebe **um** e-mail ("loja aprovada e plano ativo"; na renovação, "pagamento
+   confirmado"). Fica no histórico quem
+   aprovou e quando. Loja aprovada e em dia publica direto (publicação por confiança, capítulo 4).
+
+**Recusar ou marcar como não pago:** marque a linha e use a ação:
+- **"Marcar como não pago"**: o Pix não apareceu no banco. O pedido volta a "Aguardando pagamento" e o cliente
+  recebe o motivo (pode pagar e tocar em "Já paguei" de novo).
+- **"Recusar pedido"**: não vai aprovar (documento errado, desistência...). O pedido é cancelado, o cliente recebe
+  o motivo e pode fazer outro pedido. Nada é apagado.
+
+Se aparecer "a cidade ... ainda não é atendida": libere a cidade (capítulo 5, "Pedido de cidade nova") e aprove de
+novo. Nada mudou enquanto isso.
+
+### Vigência do plano e renovação
+
+- O plano vale do "início" ao "fim" aprovados (campo "vencimento" da assinatura). **No dia seguinte ao fim**, a
+  loja não publica anúncios novos; os que já estão no ar seguem a regra de sempre (carência e atraso).
+- **Uma regra só:** toda renovação soma os "dias de vigência" do plano (30 no mensal, 365 no anual) ao
+  vencimento anterior: em "Cadastros aguardando", em "Confirmar pagamento" (Faturas) e em "Registrar pagamento
+  manual" (Assinaturas). Pagar antes ou depois não muda a data.
+- X dias antes do fim ("fatura gerada (dias antes do vencimento)", capítulo 3), a rotina gera a fatura da
+  renovação e manda o e-mail "Fatura disponível" (texto em "E-mails de cobrança"). O cliente paga pelo Pix em
+  "Faturas" e toca em "Já paguei"; a fatura aparece em "Cadastros aguardando" e a aprovação é igual à de cima.
+
 ### Ver o panorama
 
 1. **Onde clicar:** "Faturas e pagamentos" › "Faturas" › botão "Painel de cobrança".
@@ -294,8 +416,8 @@ As faturas das lojas **nascem sozinhas**: a rotina das 6h gera a fatura X dias a
 2. **O que preencher:** confira valor e data no extrato. Na lista, marque e use "Confirmar pagamento (renova a
    assinatura e reativa os anúncios)", escolhendo a forma e uma observação. Se o comprovante não confere: "Recusar
    comprovante (motivo enviado por e-mail)".
-3. **O que acontece depois:** paga, a assinatura renova e os anúncios pausados por atraso voltam. Recusado, a
-   fatura volta a aberta ou vencida e o cliente recebe o motivo.
+3. **O que acontece depois:** paga, a assinatura renova (vencimento anterior + dias de vigência do plano) e os
+   anúncios pausados por atraso voltam. Recusado, a fatura volta a aberta ou vencida e o cliente recebe o motivo.
 
 ### Pagamento que chegou por fora (sem comprovante no site)
 
@@ -312,7 +434,10 @@ Marque na lista e use "Cancelar fatura (com motivo)". Faturas nunca são apagada
 
 - O cliente pagou e continua em atraso: confirme o pagamento da fatura **vencida** (não de outra).
 - Não vejo faturas: só Financeiro e Administrador veem cobrança.
-- O Pix não aparece: falta configurar `PIX_CHAVE`, `PIX_NOME` e `PIX_CIDADE` no `.env` do servidor.
+- O Pix não aparece: preencha "Faturas e pagamentos" › "Configuração do Pix" (instalações antigas ainda podem
+  usar `PIX_CHAVE`, `PIX_NOME` e `PIX_CIDADE` no `.env`; o que estiver no admin vale primeiro).
+- O banco diz "chave não encontrada" ao ler o QR: confira a chave na "Configuração do Pix" (celular com +55 e DDD).
+- "Muitos pedidos na última hora": a loja passou de "pedidos de plano por hora" (capítulo 3); passa sozinho.
 
 ---
 
@@ -381,7 +506,10 @@ denunciou.
 Quando um anúncio recebe **"denúncias de golpe para pausar"** (padrão 3) de visitantes diferentes, ele sai do ar
 "em revisão" sozinho e a equipe recebe e-mail. O anunciante não consegue reativar até a equipe decidir. O número
 fica em "Núcleo" › "Configurações do site" › "Regras do negócio". No começo, um número mais alto evita que um
-concorrente derrube anúncios.
+concorrente derrube anúncios. Vale também para anúncios publicados direto pela confiança.
+
+**Golpe confirmado tira a confiança:** quando a equipe aceita uma denúncia de **golpe** com "remover", a loja perde
+a confiança e os anúncios novos dela passam pela fila (capítulo 5, "Confiança da loja").
 
 ### Se der errado
 
@@ -517,10 +645,10 @@ registrada.
 ### Interessados ("Quero ser listado")
 
 Empresas e profissionais pedem para entrar no guia pelo botão "Quero ser listado" do site. Nada é publicado: o
-pedido cai na "Lista de convites", com origem "Formulário do site (Quero ser listado)", e a caixa "Pendências" do
-painel mostra "Interessados no Guia".
+pedido cai em "Convites e interessados", com origem "Formulário do site (Quero ser listado)", e o "Painel de
+hoje" mostra o cartão "Interessados do Guia (Quero ser listado)".
 
-1. **Onde clicar:** "Pendências" › "Interessados no Guia" (ou "Guia de Negócios" › "Lista de convites", filtros
+1. **Onde clicar:** o cartão "Interessados do Guia" (ou "Guia de Negócios" › "Convites e interessados", filtros
    origem "Formulário do site" e situação "Novo").
 2. **O que preencher:** fale com a pessoa pelo WhatsApp informado (ela autorizou o contato). Depois, marque o
    contato e use "Marcar como contatado (já falei com a pessoa)". Se ela quiser seguir, marque só esse contato e use
@@ -576,8 +704,8 @@ O texto da faixa "Quero ser listado" fica em "Configuração do guia" › "texto
 | Administrador | Tudo do dia a dia: usuários, configurações, anunciantes, anúncios, moderação, cobrança, publicidade, privacidade, denúncias e o Guia de Negócios inteiro (inclui categorias, termos e configuração do guia) |
 | Moderador | Aprova e suspende anunciantes, modera anúncios (inclui pausar, reativar, remover e destaque) e denúncias; no guia, vê os perfis e cuida dos pedidos dos titulares |
 | Guia | Só o Guia de Negócios: cadastra perfis, envia convites e autorizações, publica, pausa, remove, importa e convida a lista, exporta e vê estatísticas |
-| Financeiro | Faturas e pagamentos (faturas, e-mails de cobrança), planos e assinaturas; publicidade só para ver. Não vê o guia |
-| Comercial | Publicidade (patrocinadores, campanhas, peças, painel, fatura). Não vê o guia |
+| Financeiro | Faturas e pagamentos (faturas, e-mails de cobrança, **Cadastros aguardando** e **Configuração do Pix**), planos e assinaturas; publicidade só para ver. Não vê o guia |
+| Comercial | Publicidade (patrocinadores, campanhas, peças, painel, fatura) e **Cadastros aguardando** (aprova, recusa; não abre comprovantes). Não vê o guia |
 
 O superusuário (o dono) é o único que muda permissões avulsas e mexe nos códigos de acesso.
 
@@ -635,10 +763,10 @@ Todos os e-mails do site também saem por essa fila (não travam a página).
 
 **Todo dia**
 
-1. A caixa "Pendências" no topo do painel: o que estiver com número amarelo.
+1. O "Painel de hoje" no topo (veja "Minha rotina de todo dia", capítulo 2): vermelho primeiro, depois amarelo.
    "Anúncios" › "Fila de moderação": aprovar ou recusar.
 2. "Moderação" › "Denúncias": pendentes, principalmente "Em revisão (fora do ar)".
-3. "Faturas e pagamentos" › "Faturas" › "Painel de cobrança": "aguardando confirmação".
+3. "Faturas e pagamentos" › "Cadastros aguardando": conferir os Pix no extrato e aprovar.
 4. "Anunciantes" › "Anunciantes": cadastros pendentes que já confirmaram o e-mail.
 5. "Guia de Negócios" › "Pedidos dos perfis (titulares)": filtro "Prazo vencido".
 

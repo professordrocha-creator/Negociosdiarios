@@ -8,9 +8,35 @@
 
 .nd-previa-logo { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 8px; background: #0e4a57; margin-right: 8px; vertical-align: middle; }
 
-/* Página inicial do admin: caixa "Pendências" (contadores clicáveis). */
-.nd-pendencias ul { list-style: none; margin: 0; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.nd-pendencias li { list-style: none; padding: 0; }
-.nd-pendencias a { display: inline-flex; align-items: center; gap: 6px; }
-.nd-pendencia-numero { display: inline-block; min-width: 1.6em; text-align: center; border-radius: 999px; padding: 1px 6px; background: var(--darkened-bg, #eee); }
-.nd-pendencia-ativa .nd-pendencia-numero { background: #f2b705; color: #2b2100; }
+/* Página inicial do admin (lote 3C): "Painel de hoje" em cartões (grade que vira 1 coluna no celular),
+   cor só na borda conforme a urgência, "Fazer agora" e o bloco recolhido "Mais opções". */
+.nd-painel { margin: 0 0 24px; }
+.nd-painel > h2, .nd-fazer-agora-titulo { font-size: 1.1rem; margin: 0 0 10px; }
+.nd-painel-vazio { margin: 0 0 10px; color: var(--body-quiet-color, #666); }
+.nd-cartoes { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.nd-cartao { list-style: none; padding: 0; margin: 0; }
+.nd-cartao a { display: flex; flex-direction: column; gap: 4px; height: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--hairline-color, #ddd); border-left: 5px solid var(--hairline-color, #ddd); border-radius: 8px; background: var(--body-bg, #fff); color: var(--body-fg, #333); text-decoration: none; }
+.nd-cartao a:hover, .nd-cartao a:focus { border-color: var(--link-fg, #447e9b); }
+.nd-cartao-rotulo { font-weight: 600; line-height: 1.3; }
+.nd-pendencia-numero { font-size: 2rem; line-height: 1.1; font-weight: 700; }
+.nd-cartao-detalhe, .nd-cartao-zero { font-size: .85rem; color: var(--body-quiet-color, #666); }
+.nd-cartao-atencao a { border-left-color: #f2b705; }
+.nd-cartao-urgente a { border-left-color: #c0392b; }
+.nd-cartao-urgente .nd-pendencia-numero { color: #b03023; }
+.nd-fazer-agora { margin-bottom: 12px; }
+.nd-fazer-agora h3 { font-size: .95rem; margin: 0; padding: 8px 12px; }
+.nd-fazer-agora h3 a { font-weight: normal; font-size: .85rem; margin-left: 6px; }
+.nd-fazer-agora ul { list-style: none; margin: 0; padding: 0; }
+.nd-fazer-agora li { list-style: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 8px 12px; border-top: 1px solid var(--hairline-color, #eee); }
+.nd-fazer-texto { flex: 1 1 260px; overflow-wrap: anywhere; }
+.nd-fazer-texto small { color: var(--body-quiet-color, #666); white-space: nowrap; }
+.nd-fazer-agora form { margin: 0; }
+.nd-mais-opcoes { margin-top: 18px; }
+.nd-mais-opcoes summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+@media (max-width: 767px) {
+  .nd-cartoes { grid-template-columns: 1fr 1fr; }
+  .nd-pendencia-numero { font-size: 1.6rem; }
+}
+@media (max-width: 420px) {
+  .nd-cartoes { grid-template-columns: 1fr; }
+}

@@ -45,7 +45,10 @@ MENSAGENS_SEM_ACESSO = {
     "email_nao_confirmado": (
         "Falta confirmar o seu e-mail: abra o link que enviamos. Depois disso o cadastro vai para análise."
     ),
-    Anunciante.Status.PENDENTE: "Seu cadastro está em análise. Avisaremos por e-mail quando for aprovado.",
+    Anunciante.Status.PENDENTE: (
+        "Seu cadastro está em análise. Escolha seu plano e pague pelo Pix: o acesso é liberado assim que a "
+        "equipe conferir o pagamento e o documento. Avisaremos por e-mail."
+    ),
     Anunciante.Status.SUSPENSO: "Sua loja está suspensa. Fale com a gente para entender o motivo.",
     Anunciante.Status.ENCERRADO: "Esta conta foi excluída a pedido do titular.",
 }
@@ -71,20 +74,114 @@ def motivo_sem_painel(usuario: AbstractBaseUser | AnonymousUser) -> str | None:
     return None
 
 
-def _mudar_status(anunciante: Anunciante, status: str, por: Usuario | None, motivo: str) -> Anunciante:
-    """Troca o status, guarda o motivo e registra no histórico quem mudou e por quê."""
+def _mudar_status(
+    anunciante: Anunciante, status: str, por: Usuario | None, motivo: str, extras: tuple[str, ...] = ()
+) -> Anunciante:
+    """Troca o status, guarda o motivo e registra no histórico quem mudou e por quê (uma linha só, com os
+    `extras` que o chamador já mudou no objeto)."""
     anunciante.status = status
     anunciante.motivo_status = motivo
     anunciante._history_user = por  # simple_history: autor da mudança
     anunciante._change_reason = motivo[:100]  # aparece na lista de histórico do admin
-    anunciante.save(update_fields=["status", "motivo_status", "atualizado_em"])
+    anunciante.save(update_fields=["status", "motivo_status", "atualizado_em", *extras])
     return anunciante
 
 
-def aprovar(anunciante: Anunciante, por: Usuario | None, motivo: str = "") -> Anunciante:
+# --- Publicação por confiança (lote 3A) ----------------------------------------------------------
+
+
+def pessoa_fisica(anunciante: Anunciante) -> bool:
+    """Corretor autônomo (CRECI pessoa física): passa pela fila até ter anúncios aprovados."""
+    return anunciante.tipo == Anunciante.Tipo.CORRETOR_AUTONOMO
+
+
+def em_dia(anunciante: Anunciante) -> bool:
+    """Plano ativo, dentro da vigência (lote 3B) e nenhuma fatura vencida (a fatura aguardando confirmação não
+    conta como atraso)."""
+    from pagamentos.models import Fatura
+    from planos.services import assinatura_de, vigente
+
+    assinatura = assinatura_de(anunciante)
+    if not vigente(assinatura):
+        return False
+    return not Fatura.objects.filter(assinatura=assinatura, situacao=Fatura.Situacao.VENCIDA).exists()
+
+
+def retirar_confianca(anunciante: Anunciante, motivo: str, por: Usuario | None = None) -> Anunciante:
+    """A loja passa a ser moderada à mão: todo anúncio novo vai para a fila (anúncio removido por golpe,
+    suspensão ou decisão da equipe). Fica a data e o motivo (também no histórico). Já sem confiança: mantém
+    a primeira data e o primeiro motivo."""
+    if anunciante.confianca_retirada_em is None:
+        anunciante.confianca_retirada_em = timezone.now()
+        anunciante.motivo_confianca = motivo.strip()[:200]
+        anunciante._history_user = por
+        anunciante._change_reason = f"Perdeu a confiança: {motivo.strip()}"[:100]
+        anunciante.save(update_fields=["confianca_retirada_em", "motivo_confianca", "atualizado_em"])
+    return anunciante
+
+
+def devolver_confianca(anunciante: Anunciante, por: Usuario | None, motivo: str = "") -> Anunciante:
+    """A equipe devolve a confiança: os anúncios novos voltam às regras normais (podem publicar direto)."""
+    if anunciante.confianca_retirada_em is not None:
+        anunciante.confianca_retirada_em = None
+        anunciante.motivo_confianca = ""
+        anunciante._history_user = por
+        anunciante._change_reason = f"Confiança devolvida. {motivo.strip()}"[:100]
+        anunciante.save(update_fields=["confianca_retirada_em", "motivo_confianca", "atualizado_em"])
+    return anunciante
+
+
+def tem_confianca_para_o_admin(anunciante: Anunciante) -> str:
+    """Frase para a ficha do admin: os anúncios novos publicam direto ou vão para a fila, e por quê."""
+    from anuncios.services import anuncios_aprovados, tem_confianca
+    from core.services import configuracao
+
+    config = configuracao()
+    if config.moderacao != "primeiro" or not config.confianca_ativa:
+        return 'Publicação por confiança desligada (vale a regra "anúncios que passam por moderação").'
+    if anunciante.confianca_retirada_em:
+        quando = timezone.localtime(anunciante.confianca_retirada_em).strftime("%d/%m/%Y")
+        return (
+            f"SEM confiança desde {quando}: {anunciante.motivo_confianca}. Todo anúncio novo vai para a fila."
+        )
+    if tem_confianca(anunciante):
+        return "Com confiança: os anúncios novos publicam direto."
+    if anunciante.status != Anunciante.Status.ATIVO:
+        return "Loja ainda não aprovada: anúncios vão para a fila."
+    if not em_dia(anunciante):
+        return (
+            "Plano vencido, em atraso ou com fatura vencida: anúncios novos vão para a fila até regularizar."
+        )
+    faltam = config.confianca_aprovados_pessoa_fisica - anuncios_aprovados(anunciante)
+    return f"Corretor autônomo: faltam {faltam} anúncio(s) aprovado(s) para publicar direto."
+
+
+def enviar_imagem_loja(anunciante: Anunciante, tipo: str, arquivo) -> None:
+    """Guarda o envio do logo ou da capa (já validado) e manda o Celery gerar os WebP (mesmo caminho do painel
+    da loja e da ficha do admin): recorte, redimensionamento, sem EXIF e original apagado."""
+    from anunciantes.tasks import processar_imagem_loja as tarefa
+
+    getattr(anunciante, f"{tipo}_original").save(arquivo.name, arquivo, save=True)
+    tarefa.delay(anunciante.pk, tipo)
+
+
+def conferir_dados_da_loja(anunciante: Anunciante, nome_publico: str, whatsapp: str) -> Anunciante:
+    """Escolher plano (lote 3B): o cliente confere o nome da loja e o WhatsApp (já normalizado em E.164) antes
+    de pagar. Só grava se mudou, com o motivo no histórico. O endereço da loja (slug) não muda."""
+    nome_publico = nome_publico.strip()
+    if (anunciante.nome_publico, anunciante.whatsapp) == (nome_publico, whatsapp):
+        return anunciante
+    anunciante.nome_publico, anunciante.whatsapp = nome_publico, whatsapp
+    anunciante._change_reason = "Dados conferidos pelo cliente ao escolher o plano."
+    anunciante.save(update_fields=["nome_publico", "whatsapp", "atualizado_em"])
+    return anunciante
+
+
+def aprovar(anunciante: Anunciante, por: Usuario | None, motivo: str = "", avisar: bool = True) -> Anunciante:
     """Aprova o anunciante (CRECI/CNPJ conferido) e avisa por e-mail, com o link para entrar.
 
-    Só aprova quem já confirmou o e-mail (antes disso o cadastro nem aparece para aprovação).
+    Só aprova quem já confirmou o e-mail (antes disso o cadastro nem aparece para aprovação). Com
+    `avisar=False` não manda e-mail: quem chama manda um só (aprovação junto com o pagamento, lote 3C).
     """
     if not anunciante.usuario.email_confirmado_em:
         raise ValueError(f"{anunciante.nome_publico}: o e-mail ainda não foi confirmado.")
@@ -94,6 +191,8 @@ def aprovar(anunciante: Anunciante, por: Usuario | None, motivo: str = "") -> An
             "Libere a cidade (Solicitações de cidade) antes de aprovar."
         )
     _mudar_status(anunciante, Anunciante.Status.ATIVO, por, motivo.strip() or "Documento conferido.")
+    if not avisar:
+        return anunciante
     enviar_email_modelo(
         "loja_aprovada",
         "Sua loja foi aprovada",
@@ -104,10 +203,21 @@ def aprovar(anunciante: Anunciante, por: Usuario | None, motivo: str = "") -> An
 
 
 def suspender(anunciante: Anunciante, por: Usuario | None, motivo: str) -> Anunciante:
-    """Suspende o anunciante e avisa por e-mail com o motivo (obrigatório; fica no histórico)."""
+    """Suspende o anunciante e avisa por e-mail com o motivo (obrigatório; fica no histórico).
+
+    A loja também perde a confiança (publicação por confiança): se voltar a ser aprovada, os anúncios novos
+    passam pela fila até a equipe devolver a confiança.
+    """
     if not motivo.strip():
         raise ValueError("Informe o motivo da suspensão.")
-    _mudar_status(anunciante, Anunciante.Status.SUSPENSO, por, motivo.strip())
+    extras: tuple[str, ...] = ()
+    if (
+        anunciante.confianca_retirada_em is None
+    ):  # perde a confiança na mesma gravação (uma linha no histórico)
+        anunciante.confianca_retirada_em = timezone.now()
+        anunciante.motivo_confianca = f"Loja suspensa: {motivo.strip()}"[:200]
+        extras = ("confianca_retirada_em", "motivo_confianca")
+    _mudar_status(anunciante, Anunciante.Status.SUSPENSO, por, motivo.strip(), extras)
     enviar_email_modelo(
         "loja_suspensa",
         "Sua loja foi suspensa",

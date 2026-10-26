@@ -187,6 +187,23 @@ página nunca espera o servidor de e-mail. O worker também roda as tarefas agen
 3. Certificado vencido? `sudo certbot renew`
 4. VPS inteira caiu? Painel do provedor → reiniciar.
 
+## Como conferir um Pix no banco e aprovar (Cadastros aguardando)
+1. Admin → "Faturas e pagamentos" → "Cadastros aguardando" (ou o cartão no "Painel de hoje"). Comece pelos
+   "Aguardando conferência".
+2. Anote o **valor** e o **identificador** da linha (ex.: `NDFT00042`; abra "Aprovar" para vê-lo).
+3. No app/internet banking da conta da chave Pix: extrato → Pix recebidos do dia. Procure o valor exato; no
+   detalhe do Pix, o identificador aparece como "identificador", "txid" ou "descrição" (cada banco chama de um
+   jeito). Valor e identificador batendo = pago. Sem identificador (o cliente digitou o Pix à mão): confira valor,
+   data e o nome de quem pagou com o comprovante (se mandou).
+4. Loja nova (situação "pendente"): confira também o CRECI (site do CRECI-MT) ou o CNPJ (Receita).
+5. Clique em **Aprovar**, confira início e fim da vigência e confirme. A loja é aprovada, o plano ativado e o
+   cliente avisado por e-mail.
+6. Não achou o Pix: ação **"Marcar como não pago"** com o motivo (ex.: "Não encontramos o Pix de R$ 49,90 de
+   hoje"). Documento errado ou desistência: **"Recusar pedido"**.
+- **Aprovar deu "cidade ainda não é atendida":** Anunciantes → Solicitações de cidade → liberar; depois aprovar.
+- **Pix não aparece para o cliente:** Admin → "Faturas e pagamentos" → "Configuração do Pix" (a prévia de
+  R$ 1,00 tem que abrir no app do banco). Nunca registre a chave, CPF ou dados bancários em log, ticket ou chat.
+
 ## Pagamento não confirmou
 1. Ver o evento em Admin → Pagamentos → Eventos (chegou o webhook?).
 2. Consultar o pagamento no painel do Mercado Pago.

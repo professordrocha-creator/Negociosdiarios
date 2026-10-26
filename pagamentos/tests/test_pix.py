@@ -81,3 +81,58 @@ def test_qr_code_em_svg_data_uri():
 
     assert uri.startswith("data:image/svg+xml")
     assert "script" not in uri.lower()
+
+
+# --- Lote 3B: vetores conhecidos e validação da chave ---------------------------------------------------
+
+
+@pytest.mark.parametrize("texto", ["123456789", "A", "", EXEMPLO_BCB[:-4], "00020126" + "x" * 90])
+def test_crc16_confere_com_implementacao_independente(texto):
+    """CRC-16/CCITT-FALSE igual ao `binascii.crc_hqx` da biblioteca padrão (0x1021, início 0xFFFF)."""
+    import binascii
+
+    assert pix.crc16(texto) == f"{binascii.crc_hqx(texto.encode(), 0xFFFF):04X}"
+
+
+def test_payload_com_valor_vetor_conhecido():
+    """Payload completo com valor: cada campo no lugar e o CRC fechando (vetor montado à mão do manual)."""
+    esperado_sem_crc = (
+        "000201"
+        "26360014br.gov.bcb.pix0114contato@nd.com"
+        "52040000"
+        "5303986"
+        "540510.00"
+        "5802BR"
+        "5916Negocios Diarios"
+        "6007Tangara"
+        "62070503ABC"
+        "6304"
+    )
+    codigo = pix.br_code("contato@nd.com", "Negócios Diários", "Tangará", Decimal("10"), "ABC")
+    assert codigo == esperado_sem_crc + pix.crc16(esperado_sem_crc)
+
+
+@pytest.mark.parametrize(
+    ("digitado", "tipo", "normalizada"),
+    [
+        ("Financeiro@Exemplo.com", "email", "financeiro@exemplo.com"),
+        ("529.982.247-25", "cpf", "52998224725"),
+        ("12.345.678/0001-95", "cnpj", "12345678000195"),
+        ("+55 (65) 99999-0001", "celular", "+5565999990001"),
+        ("(65) 99999-0001", "celular", "+5565999990001"),
+        ("123E4567-E12B-12D1-A456-426655440000", "aleatoria", "123e4567-e12b-12d1-a456-426655440000"),
+    ],
+)
+def test_validar_chave_aceita_os_cinco_tipos(digitado, tipo, normalizada):
+    """E-mail, CPF, CNPJ, celular (vira +55...) e chave aleatória, sempre na forma que o banco espera."""
+    assert pix.validar_chave(digitado) == (tipo, normalizada)
+
+
+@pytest.mark.parametrize(
+    "digitado",
+    ["", "sem-arroba.com", "529.982.247-26", "12.345.678/0001-90", "+1 555 123 4567", "123e4567-e12b", "abc"],
+)
+def test_validar_chave_recusa_formato_errado(digitado):
+    """Dígito verificador errado, telefone fora do Brasil ou texto solto: erro com o que corrigir."""
+    with pytest.raises(ValueError):
+        pix.validar_chave(digitado)

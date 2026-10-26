@@ -168,10 +168,11 @@ def test_admin_cria_ficha_preenchida_e_marca_contatado(admin_guia, guia_ligado, 
 
 
 def test_contador_interessados_no_painel(entrar_no_admin, membro, tangara, categorias):
-    """O grupo Guia vê "Interessados no Guia" com o número dos novos; o Financeiro não vê."""
+    """O grupo Guia vê o cartão "Interessados do Guia" (Painel de hoje, lote 3C) com o número dos novos."""
     services.registrar_interessado("A", None, tangara, "+5565999990701", "Ana")
     pagina = entrar_no_admin(membro("Guia")).get(reverse("admin:index")).content.decode()
-    assert '<b class="nd-pendencia-numero">1</b> Interessados no Guia' in pagina
+    cartao = pagina[pagina.index('data-cartao="interessados"') :]
+    assert "Interessados do Guia" in cartao and '<b class="nd-pendencia-numero">1</b>' in cartao
     assert "origem__exact=formulario" in pagina
 
 

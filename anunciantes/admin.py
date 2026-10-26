@@ -10,13 +10,17 @@ from django.urls import reverse
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 
-from anunciantes.forms import MotivoStatusForm
+from anunciantes.forms import AnuncianteAdminForm, MotivoStatusForm
 from anunciantes.models import Anunciante, SolicitacaoCidade
 from anunciantes.services import (
     aprovar,
+    devolver_confianca,
+    enviar_imagem_loja,
     liberar_cidade_da_solicitacao,
     recusar_solicitacao,
+    retirar_confianca,
     suspender,
+    tem_confianca_para_o_admin,
 )
 from core.models import Cidade
 
@@ -63,15 +67,36 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
     list_select_related = ("cidade", "usuario")
     prepopulated_fields = {"slug": ("nome_publico",)}
     autocomplete_fields = ("usuario",)
-    readonly_fields = ("status", "motivo_status", "demo", "criado_em", "atualizado_em", "previa_imagens")
+    form = AnuncianteAdminForm
+    readonly_fields = (
+        "status",
+        "motivo_status",
+        "demo",
+        "criado_em",
+        "atualizado_em",
+        "previa_imagens",
+        "plano_e_assinatura",
+        "situacao_da_confianca",
+    )
     fieldsets = (
         ("Loja", {"fields": ("usuario", "tipo", "nome_publico", "slug", "sigla", "cor", "cidade")}),
         ("Verificação", {"fields": ("documento_tipo", "documento_numero", "status", "motivo_status")}),
+        ("Plano", {"fields": ("plano_e_assinatura",)}),
+        (
+            "Publicação por confiança",
+            {
+                "description": "Com confiança, os anúncios novos publicam direto (Configurações do site). "
+                'Sem confiança, todos passam pela fila. Use as ações "Retirar/Devolver confiança" da lista.',
+                "fields": ("situacao_da_confianca",),
+            },
+        ),
         (
             "Página da loja",
             {
                 "fields": (
                     "previa_imagens",
+                    "logo_envio",
+                    "capa_envio",
                     "sobre",
                     "endereco_publico",
                     "mostrar_no_mapa",
@@ -84,7 +109,80 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
         ("Contato público", {"fields": ("whatsapp", "email_publico")}),
         ("Registro", {"fields": ("demo", "criado_em", "atualizado_em")}),
     )
-    actions = ["aprovar_selecionados", "suspender_selecionados"]
+    actions = [
+        "aprovar_selecionados",
+        "suspender_selecionados",
+        "retirar_confianca_selecionados",
+        "devolver_confianca_selecionados",
+    ]
+
+    def save_model(self, request: HttpRequest, obj: Anunciante, form, change: bool) -> None:
+        """Salva a ficha e, se a equipe mandou logo ou capa, processa como o painel (Celery: WebP, sem
+        EXIF)."""
+        super().save_model(request, obj, form, change)
+        for tipo in ("logo", "capa"):
+            envio = form.cleaned_data.get(f"{tipo}_envio")
+            if envio:
+                enviar_imagem_loja(obj, tipo, envio)
+                self.message_user(request, f"{tipo.capitalize()} enviado: em instantes aparece processado.")
+
+    @admin.display(description="plano e assinatura")
+    def plano_e_assinatura(self, anunciante: Anunciante) -> str:
+        """Plano atual e situação da assinatura (só leitura), com o link para a assinatura (onde se edita)."""
+        from planos.services import assinatura_de
+
+        assinatura = assinatura_de(anunciante) if anunciante.pk else None
+        if assinatura is None:
+            return "Sem assinatura."
+        return format_html(
+            '{} · {} · vence em {} · <b>{}</b> · <a href="{}">abrir a assinatura</a>',
+            assinatura.plano.nome,
+            assinatura.get_periodicidade_display(),
+            assinatura.vencimento.strftime("%d/%m/%Y"),
+            assinatura.get_situacao_display(),
+            reverse("admin:planos_assinatura_change", args=[assinatura.pk]),
+        )
+
+    @admin.display(description="situação")
+    def situacao_da_confianca(self, anunciante: Anunciante) -> str:
+        """Se os anúncios novos publicam direto ou passam pela fila, e por quê."""
+        if not anunciante.pk:
+            return "—"
+        return tem_confianca_para_o_admin(anunciante)
+
+    @admin.action(description="Retirar confiança (anúncios novos vão para a fila)", permissions=["change"])
+    def retirar_confianca_selecionados(self, request: HttpRequest, queryset: QuerySet[Anunciante]):
+        """Tela do motivo; depois a loja passa a ser moderada à mão."""
+        from core.admin_acoes import tela_motivo
+
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            "retirar_confianca_selecionados",
+            "Retirar a confiança",
+            True,
+            lambda anunciante, por, motivo: retirar_confianca(anunciante, motivo, por),
+            "{n} loja(s) sem confiança: os anúncios novos vão para a fila.",
+        )
+
+    @admin.action(
+        description="Devolver confiança (anúncios novos voltam a publicar direto)", permissions=["change"]
+    )
+    def devolver_confianca_selecionados(self, request: HttpRequest, queryset: QuerySet[Anunciante]):
+        """Tela do motivo (opcional); depois os anúncios novos seguem as regras normais."""
+        from core.admin_acoes import tela_motivo
+
+        return tela_motivo(
+            self,
+            request,
+            queryset,
+            "devolver_confianca_selecionados",
+            "Devolver a confiança",
+            False,
+            devolver_confianca,
+            "{n} loja(s) com a confiança devolvida.",
+        )
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         """Campos de URL: endereço sem esquema vira https:// (padrão do Django 6)."""

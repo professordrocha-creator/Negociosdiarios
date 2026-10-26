@@ -33,8 +33,10 @@ admin, com motivo). Nada se apaga. O "Registrar pagamento manual" da assinatura 
   campos ID + tamanho + valor, conta `br.gov.bcb.pix` + chave, valor (campo 54), nome (até 25) e cidade
   (até 15) sem acento, identificador da fatura no campo 62-05 (ex.: `NDFT00012`) e **CRC16-CCITT** no fim.
   Teste contra o exemplo oficial do Banco Central (CRC `1D3D`).
-- Configuração no `.env`: `PIX_CHAVE` (CPF/CNPJ só dígitos, e-mail, celular com +55 ou chave aleatória),
-  `PIX_NOME` e `PIX_CIDADE`. Vazios = a tela avisa "Pix ainda não disponível" (sem QR Code).
+- Configuração no admin (lote 3B): "Faturas e pagamentos" › "Configuração do Pix" (chave conferida por
+  `pix.validar_chave`: e-mail, CPF/CNPJ com dígito, celular +55 ou aleatória; nome até 25; cidade até 15;
+  instrução ao cliente), com prévia do QR de R$ 1,00. Vazio no admin = usa `PIX_CHAVE`, `PIX_NOME` e
+  `PIX_CIDADE` do `.env` (instalações antigas). Tudo vazio = a tela avisa "Pix ainda não disponível".
 - QR Code com `segno` (SVG embutido como `data:`; a CSP libera `data:` só em imagens).
 - O Pix estático **não confirma sozinho**: o banco do recebedor mostra o identificador no extrato e a equipe
   confere antes de confirmar. Por isso o comprovante e a confirmação manual.

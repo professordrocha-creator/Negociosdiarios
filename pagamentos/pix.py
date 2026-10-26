@@ -4,7 +4,8 @@ Segue o Manual de Padrões para Iniciação do Pix do Banco Central (EMV QRCPS-M
 ID (2 dígitos) + tamanho (2 dígitos) + valor, e o código termina com o CRC16-CCITT (polinômio 0x1021,
 valor inicial 0xFFFF) de tudo, incluindo o "6304" do próprio campo do CRC.
 
-A chave, o nome e a cidade do recebedor vêm do .env (PIX_CHAVE, PIX_NOME, PIX_CIDADE). O valor e o
+A chave, o nome e a cidade do recebedor vêm da "Configuração do Pix" no admin (lote 3B; só Administrador
+e Financeiro) e, se lá estiver vazio, do .env (PIX_CHAVE, PIX_NOME, PIX_CIDADE). O valor e o
 identificador da fatura (campo 62-05, "txid") vão no código: o banco do anunciante já preenche o valor
 e o identificador aparece no extrato de quem recebe, para conferir o pagamento.
 """
@@ -22,7 +23,64 @@ TXID_SEM_IDENTIFICADOR = "***"
 
 
 class PixNaoConfigurado(Exception):
-    """PIX_CHAVE, PIX_NOME ou PIX_CIDADE vazios no .env."""
+    """Chave, nome ou cidade do recebedor vazios (Configuração do Pix e .env)."""
+
+
+# Formatos de chave do Pix (Manual do DICT do Banco Central): e-mail até 77, CPF e CNPJ só dígitos, celular em
+# E.164 (+55 + DDD + número) e chave aleatória (UUID com hífens, 36 caracteres).
+_EMAIL = re.compile(r"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
+_ALEATORIA = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+_CELULAR = re.compile(r"^\+55[1-9]{2}9?\d{8}$")
+
+
+def cpf_valido(digitos: str) -> bool:
+    """CPF com 11 dígitos e os dois verificadores certos (módulo 11)."""
+    if not re.fullmatch(r"\d{11}", digitos) or len(set(digitos)) == 1:
+        return False
+    for tamanho in (9, 10):
+        soma = sum(
+            int(n) * peso for n, peso in zip(digitos[:tamanho], range(tamanho + 1, 1, -1), strict=True)
+        )
+        if digitos[tamanho] != str(soma * 10 % 11 % 10):
+            return False
+    return True
+
+
+def validar_chave(texto: str) -> tuple[str, str]:
+    """Confere a chave Pix e devolve (tipo, chave normalizada): e-mail (minúsculo), CPF/CNPJ (só dígitos),
+    celular (+55DDDNÚMERO) ou aleatória (minúscula). Levanta ValueError dizendo o que corrigir.
+
+    Celular sem +55 (só DDD e número) também é aceito; 11 dígitos sem "+" são lidos como CPF (o Banco Central
+    exige o celular com +55, então quem digitar o celular sem ele deve pôr o +55).
+    """
+    from anunciantes.validators import cnpj_valido  # import local: este módulo não depende de apps
+
+    chave = (texto or "").strip()
+    if not chave:
+        raise ValueError("Informe a chave Pix.")
+    if "@" in chave:
+        if len(chave) > 77 or not _EMAIL.fullmatch(chave):
+            raise ValueError("E-mail inválido para chave Pix. Confira o endereço (até 77 caracteres).")
+        return "email", chave.lower()
+    if _ALEATORIA.fullmatch(chave.lower()):
+        return "aleatoria", chave.lower()
+    digitos = re.sub(r"\D", "", chave)
+    if chave.startswith("+"):
+        celular = "+" + digitos
+        if not _CELULAR.fullmatch(celular):
+            raise ValueError("Celular inválido: use +55, o DDD e o número. Ex.: +5565999990001.")
+        return "celular", celular
+    if len(digitos) == 11 and cpf_valido(digitos):
+        return "cpf", digitos
+    if len(digitos) == 14 and cnpj_valido(digitos):
+        return "cnpj", digitos
+    parece_documento = "." in chave or "/" in chave  # máscara de CPF/CNPJ: nunca é lido como telefone
+    if not parece_documento and len(digitos) in (10, 11) and _CELULAR.fullmatch("+55" + digitos):
+        return "celular", "+55" + digitos
+    raise ValueError(
+        "Chave Pix inválida. Use um e-mail, CPF ou CNPJ (com dígitos verificadores certos), celular com +55 "
+        "e DDD, ou a chave aleatória (36 caracteres, com hífens)."
+    )
 
 
 def campo(identificador: str, valor: str) -> str:
@@ -63,7 +121,7 @@ def br_code(chave: str, nome: str, cidade: str, valor: Decimal | None = None, id
     """
     chave, nome, cidade = chave.strip(), texto_ascii(nome, 25), texto_ascii(cidade, 15)
     if not (chave and nome and cidade):
-        raise PixNaoConfigurado("Configure PIX_CHAVE, PIX_NOME e PIX_CIDADE no .env.")
+        raise PixNaoConfigurado("Preencha a Configuração do Pix no admin.")
     conta = campo("00", GUI_PIX) + campo("01", chave)
     partes = [
         campo("00", "01"),  # versão do payload

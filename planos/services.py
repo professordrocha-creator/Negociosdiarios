@@ -29,7 +29,8 @@ if TYPE_CHECKING:
 
 
 class SemAssinaturaAtiva(Exception):
-    """O anunciante não tem assinatura ativa (sem plano, em atraso ou cancelada)."""
+    """O anunciante não tem assinatura ativa (sem plano, aguardando pagamento, em atraso, cancelada ou com a
+    vigência encerrada)."""
 
 
 class LimiteDoPlano(Exception):
@@ -80,7 +81,21 @@ def escolher_anuncios_para_manter(pedido: PedidoTrocaPlano, ids: Iterable[int]) 
     return pedido
 
 
-# --- Limite do plano (regra 1) -------------------------------------------------------------
+# --- Limite do plano (regra 1) e vigência (lote 3B) ---------------------------------------
+
+
+def vigente(assinatura: Assinatura | None, hoje: date | None = None) -> bool:
+    """Plano ativo e dentro da vigência: até o dia do vencimento (inclusive) a loja publica anúncios novos.
+
+    Vencido, os anúncios que já estão no ar seguem a regra de sempre (carência e atraso); só os NOVOS (e as
+    reativações, que voltam a ocupar o plano) esperam o pagamento ser conferido.
+    """
+    hoje = hoje or timezone.localdate()
+    return (
+        assinatura is not None
+        and assinatura.situacao == Assinatura.Situacao.ATIVA
+        and assinatura.vencimento >= hoje
+    )
 
 
 def pode_publicar(anunciante: Anunciante, uso: int | None = None) -> bool:
@@ -89,7 +104,7 @@ def pode_publicar(anunciante: Anunciante, uso: int | None = None) -> bool:
     A decisão que vale é a de `reservar_vaga`, que trava a assinatura.
     """
     assinatura = assinatura_de(anunciante)
-    if assinatura is None or assinatura.situacao != Assinatura.Situacao.ATIVA:
+    if not vigente(assinatura):
         return False
     return (uso_do_plano(anunciante) if uso is None else uso) < assinatura.plano.limite_anuncios
 
@@ -102,7 +117,8 @@ def reservar_vaga[T](
     Numa transação, trava a linha da assinatura (`select_for_update`): uma segunda publicação
     da mesma loja espera a primeira terminar e só então conta. `contar(assinatura)` devolve os
     anúncios que já ocupam o plano; `publicar()` grava o anúncio (Sprint 3: funções do app
-    anuncios). Levanta SemAssinaturaAtiva ou LimiteDoPlano; nesses casos nada é publicado.
+    anuncios). Levanta SemAssinaturaAtiva (também com a vigência encerrada) ou LimiteDoPlano; nesses casos
+    nada é publicado.
     """
     with transaction.atomic():
         assinatura = (
@@ -113,6 +129,11 @@ def reservar_vaga[T](
         )
         if assinatura is None or assinatura.situacao != Assinatura.Situacao.ATIVA:
             raise SemAssinaturaAtiva("Sem assinatura ativa: escolha um plano ou regularize o pagamento.")
+        if not vigente(assinatura):
+            raise SemAssinaturaAtiva(
+                f"Seu plano venceu em {assinatura.vencimento:%d/%m/%Y}. Pague a fatura pelo Pix (Painel › "
+                "Faturas): assim que a equipe conferir, você volta a publicar anúncios novos."
+            )
         if contar(assinatura) >= assinatura.plano.limite_anuncios:
             raise LimiteDoPlano(
                 f"O plano {assinatura.plano.nome} permite {assinatura.plano.limite_anuncios} "
@@ -167,6 +188,13 @@ def proximo_vencimento(data: date, periodicidade: str) -> date:
     else:
         ano, mes = (data.year + 1, 1) if data.month == 12 else (data.year, data.month + 1)
     return date(ano, mes, min(data.day, calendar.monthrange(ano, mes)[1]))
+
+
+def fim_da_vigencia(inicio: date, plano: Plano, periodicidade: str) -> date:
+    """Regra única de vigência (lote 3C): início + "dias de vigência" do plano (mensal 30, anual 365; no
+    admin). Vale para a aprovação em "Cadastros aguardando", para "Confirmar pagamento", para "Registrar
+    pagamento manual" e para o período das faturas geradas pela rotina."""
+    return inicio + timedelta(days=plano.dias(periodicidade))
 
 
 def criar_assinatura(
@@ -240,16 +268,17 @@ def renovar_assinatura(
     """Ciclo pago: chamado por `pagamentos.services.confirmar_pagamento` (fatura confirmada ou
     "Registrar pagamento manual"), nunca direto pela tela.
 
-    Empurra o vencimento um período a partir do VENCIMENTO ORIGINAL, pague antes ou depois (o dia de
-    cobrança da loja não muda com atraso). Se o novo vencimento ainda ficar no passado (mais de um ciclo
-    sem pagar), a rotina diária gera a fatura seguinte, já vencida. Se estava em atraso, volta a "ativa" e
+    Empurra o vencimento os "dias de vigência" do plano (`fim_da_vigencia`, a mesma regra de "Cadastros
+    aguardando") a partir do VENCIMENTO ORIGINAL, pague antes ou depois (o atraso não dá dias de graça).
+    Se o novo vencimento ainda ficar no passado (mais de um ciclo sem pagar), a rotina diária gera a fatura
+    seguinte, já vencida. Se estava em atraso, volta a "ativa" e
     dispara `assinatura_regularizada` (o app de anúncios reativa).
     """
     if not motivo.strip():
         raise ValueError("Informe o motivo/comprovante do pagamento.")
     hoje = hoje or timezone.localdate()
     estava_em_atraso = assinatura.situacao == Assinatura.Situacao.EM_ATRASO
-    assinatura.vencimento = proximo_vencimento(assinatura.vencimento, assinatura.periodicidade)
+    assinatura.vencimento = fim_da_vigencia(assinatura.vencimento, assinatura.plano, assinatura.periodicidade)
     assinatura.situacao = Assinatura.Situacao.ATIVA
     assinatura._history_user = por
     assinatura._change_reason = f"Pagamento registrado: {motivo.strip()}"[:100]

@@ -6,7 +6,11 @@
       {% icone "alerta" %} <b>Assinatura em atraso.</b> Seus anúncios estão pausados (nada foi apagado) e voltam assim que o pagamento for confirmado. <a href="{% url 'pagamentos:faturas' %}">Pagar a fatura</a>.
     </div>
   {% elif assinatura.situacao == "cancelada" %}
-    <div class="alert alert-secondary py-2 mb-0" role="status">{% icone "alerta" %} <b>Assinatura cancelada.</b> Peça um plano em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para voltar a anunciar.</div>
+    <div class="alert alert-secondary py-2 mb-0" role="status">{% icone "alerta" %} <b>Assinatura cancelada.</b> <a href="{% url 'pagamentos:assinar' %}">Escolha um plano e pague pelo Pix</a> para voltar a anunciar.</div>
+  {% elif assinatura.situacao == "pendente" %}
+    <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} <b>Plano aguardando pagamento.</b> O acesso é liberado assim que a equipe conferir o Pix. <a href="{% url 'pagamentos:assinar' %}">Ver pagamento</a>.</div>
+  {% elif assinatura.vigencia_encerrada %}
+    <div class="alert alert-warning py-2 mb-0" role="alert">{% icone "alerta" %} <b>Seu plano venceu em {{ assinatura.vencimento|date:"d/m/Y" }}.</b> Os anúncios no ar continuam, mas anúncios novos só depois do pagamento. <a href="{% url 'pagamentos:faturas' %}">Pagar a fatura</a>.</div>
   {% endif %}
   <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
     <div class="col"><div class="nd-kpi"><div class="rotulo">Anúncios no plano</div>
@@ -20,6 +24,6 @@
 {% else %}
   <div class="nd-aviso-rascunho" role="status">
     {% icone "alerta" %} <b>Você ainda não tem plano.</b>
-    <span>Escolha um em <a href="{% url 'planos:meu_plano' %}">Meu plano</a> para começar a anunciar.</span>
+    <span><a href="{% url 'pagamentos:assinar' %}">Escolha um plano e pague pelo Pix</a> para começar a anunciar.</span>
   </div>
 {% endif %}

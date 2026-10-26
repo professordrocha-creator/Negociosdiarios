@@ -24,27 +24,28 @@ def entrar(entrar_no_admin, grupo: str):
 
 
 def test_pendencias_so_do_que_o_grupo_pode_ver(entrar_no_admin, criar_anunciante):
-    """Moderador: denúncias, pedidos do guia e lojas pendentes; não vê faturas nem privacidade."""
+    """Moderador: fila, denúncias, pedidos do guia e lojas pendentes; não vê faturas nem privacidade."""
     from anunciantes.models import Anunciante
 
     criar_anunciante("pendente@exemplo.com", "Loja Pendente", status=Anunciante.Status.PENDENTE)
     pagina = entrar(entrar_no_admin, "Moderador").get(reverse("admin:index")).content.decode()
 
-    assert "Pendências" in pagina
-    assert "Denúncias pendentes" in pagina and "Pedidos do Guia de Negócios" in pagina
-    assert '<b class="nd-pendencia-numero">1</b> Lojas pendentes de aprovação' in pagina
+    assert "Painel de hoje" in pagina
+    assert "Denúncias abertas" in pagina and "Pedidos do Guia de Negócios" in pagina
+    assert 'data-cartao="lojas"' in pagina and '<b class="nd-pendencia-numero">1</b>' in pagina
     assert "?status__exact=pendente" in pagina
-    assert "Comprovantes aguardando" not in pagina and "Pedidos de privacidade do site" not in pagina
+    assert "Faturas vencendo" not in pagina and "Pedidos de privacidade" not in pagina
 
 
 def test_pendencias_do_financeiro_e_do_dono(entrar_no_admin, client):
-    """Financeiro vê comprovantes (e lojas), não denúncias; o superusuário vê os seis contadores."""
+    """Financeiro vê os cartões de cobrança (e lojas), não denúncias; o superusuário vê os dez cartões."""
     pagina = entrar(entrar_no_admin, "Financeiro").get(reverse("admin:index")).content.decode()
-    assert "Comprovantes aguardando confirmação" in pagina and "Denúncias pendentes" not in pagina
+    assert "Renovações aguardando conferência" in pagina and "Denúncias abertas" not in pagina
 
     dono = Usuario.objects.create_superuser(email="dono@exemplo.com", password=SENHA, nome="Dono")
     pagina = entrar_no_admin(dono).get(reverse("admin:index")).content.decode()
-    assert pagina.count('class="nd-pendencia-numero"') == 6  # + "Interessados no Guia"
+    assert pagina.count('data-cartao="') == 10
+    assert "Tudo em dia: nada pendente por aqui." in pagina
 
 
 def test_menus_com_nomes_novos(entrar_no_admin):

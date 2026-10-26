@@ -37,6 +37,10 @@ COBRANCA = {
     "pagamentos.view_modeloemailcobranca",
     "pagamentos.change_modeloemailcobranca",
 }
+# Lote 3B (pagamentos/0006): "Cadastros aguardando" (Administrador, Financeiro e Comercial) e "Configuração do
+# Pix" (só Administrador e Financeiro: a chave fica visível só a quem edita).
+PEDIDOS_PIX = {"pagamentos.view_pedidoaguardando", "pagamentos.change_pedidoaguardando"}
+CONFIG_PIX = {"pagamentos.view_configuracaopix", "pagamentos.change_configuracaopix"}
 # Sprint 7A (publicidade/0002): Comercial e Administrador vendem e cadastram; Financeiro só consulta.
 PUBLICIDADE_VER = {"publicidade.view_patrocinador", "publicidade.view_campanha"}
 PUBLICIDADE_TUDO = PUBLICIDADE_VER | {
@@ -131,6 +135,8 @@ ESPERADO = {
     | ANUNCIOS_MODERAR
     | CATALOGO_TUDO
     | COBRANCA
+    | PEDIDOS_PIX
+    | CONFIG_PIX
     | PUBLICIDADE_TUDO
     | PRIVACIDADE
     | DENUNCIAS
@@ -157,6 +163,8 @@ ESPERADO = {
     | ANUNCIOS_VER
     | CATALOGO_VER
     | COBRANCA
+    | PEDIDOS_PIX
+    | CONFIG_PIX
     | PUBLICIDADE_VER,
     "Comercial": SO_CIDADES
     | VER_ANUNCIANTE
@@ -164,6 +172,7 @@ ESPERADO = {
     | PLANOS_VER
     | ANUNCIOS_VER
     | CATALOGO_VER
+    | PEDIDOS_PIX
     | PUBLICIDADE_TUDO,
     "Guia": GUIA_CATEGORIAS_VER | GUIA_CADASTRO | GUIA_CONVITES,
 }

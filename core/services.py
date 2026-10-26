@@ -5,7 +5,7 @@ import json
 import logging
 from collections import Counter
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -415,6 +415,9 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from pagamentos.services import criar_faturas_demo
 
         criar_faturas_demo(dados.get("assinaturas_em_atraso", []))
+        from pagamentos.services import criar_pedidos_demo
+
+        criar_pedidos_demo()  # lote 3B: lojas pendentes com pedido de plano (Cadastros aguardando)
         from publicidade.services import criar_publicidade_demo
 
         criar_publicidade_demo()
@@ -431,6 +434,15 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
         from guia.services import criar_guia_demo
 
         criar_guia_demo()  # Guia de Negócios (G1): 12 categorias usadas e 10 perfis fictícios
+        # Publicação por confiança (lote 3A): uma loja demo sem confiança, para ver a ficha e a fila.
+        from anunciantes.models import Anunciante
+        from anunciantes.services import retirar_confianca
+
+        sem_confianca = Anunciante.objects.filter(slug="parecis-veiculos", demo=True).first()
+        if sem_confianca is not None:
+            retirar_confianca(
+                sem_confianca, "Demonstração: loja sem confiança (anúncios novos vão para a fila)."
+            )
     return ResumoDemo(
         usuarios=len(dados["equipe"]) + lojas, cidades=liberadas, anunciantes=lojas, anuncios=anuncios
     )
@@ -705,58 +717,229 @@ def manual_da_equipe(arquivo: Path = ARQUIVO_MANUAL):
     return markdown_para_html(texto)
 
 
-# --- Painel de pendências (página inicial do admin) ---------------------------------------------------
+# --- Painel de hoje (página inicial do admin; evolução da caixa "Pendências", lote 3C) ---------------------
 
 
 @dataclass(frozen=True)
 class Pendencia:
-    """Um contador da caixa "Pendências" do admin: rótulo, quantos e o link para a lista já filtrada."""
+    """Um cartão do "Painel de hoje": rótulo, quantos e o link para a lista do admin já filtrada.
+
+    `nivel`: "urgente" (prazo legal, golpe ou dinheiro em atraso), "atencao" (trabalho do dia) ou "" quando é
+    zero (a tela mostra "Nada pendente por aqui"). `detalhe`: texto curto embaixo do número.
+    """
 
     rotulo: str
     total: int
     url: str
+    chave: str = ""
+    nivel: str = ""
+    detalhe: str = ""
 
 
-def pendencias_da_equipe(usuario) -> list[Pendencia]:
-    """Contadores do que espera a equipe, só do que o usuário tem permissão de ver (grupos do Django).
+@dataclass(frozen=True)
+class ItemFazerAgora:
+    """Uma linha do "Fazer agora": o que é, desde quando e os botões.
 
-    Denúncias pendentes, pedidos de privacidade do site e do guia em aberto, interessados do "Quero ser
-    listado" ainda novos, comprovantes aguardando confirmação e lojas pendentes de aprovação. Cada link abre a
-    lista do admin já filtrada."""
+    `url_aprovar`: link para a tela de aprovação que já existe (ex.: datas do pedido). `aprovar_agora`: tipo
+    para o botão que aplica a ação "Aprovar" do admin direto na linha (`config.admin_site.APROVAR_AGORA`).
+    """
+
+    texto: str
+    desde: object
+    url_abrir: str
+    url_aprovar: str = ""
+    aprovar_agora: str = ""
+    pk: int = 0
+
+
+@dataclass(frozen=True)
+class GrupoFazerAgora:
+    """Um tipo de pendência no "Fazer agora": título, os mais antigos e o link para a lista completa."""
+
+    titulo: str
+    itens: list[ItemFazerAgora]
+    url_lista: str
+
+
+def _url_admin(rota: str, filtro: str = "", args: tuple = ()) -> str:
+    """Endereço de uma tela do admin, com o filtro da lista (se houver)."""
     from django.urls import reverse
 
+    return reverse(rota, args=args) + (f"?{filtro}" if filtro else "")
+
+
+def _consultas_do_painel(hoje):
+    """As consultas dos cartões e do "Fazer agora" (um lugar só, para os dois contarem igual)."""
     from anunciantes.models import Anunciante
+    from anuncios.models import Anuncio
     from guia.models import ContatoConvite, PedidoDoPerfil
     from moderacao.models import Denuncia
     from pagamentos.models import Fatura
+    from planos.models import Assinatura
     from privacidade.models import PedidoTitular
 
-    abertos_titular = (PedidoTitular.Situacao.ABERTO, PedidoTitular.Situacao.EM_ANDAMENTO)
-    abertos_guia = (PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
-    itens = [  # (permissão, rótulo, consulta, rota do admin, filtro da lista)
-        ("moderacao.view_denuncia", "Denúncias pendentes",
-         Denuncia.objects.filter(situacao=Denuncia.Situacao.PENDENTE),
+    novos = (Assinatura.Situacao.PENDENTE, Assinatura.Situacao.CANCELADA)
+    aguardando = Fatura.objects.filter(situacao=Fatura.Situacao.AGUARDANDO)
+    return {
+        "cadastros": aguardando.filter(assinatura__situacao__in=novos),
+        "renovacoes": aguardando.filter(assinatura__isnull=False).exclude(assinatura__situacao__in=novos),
+        "vencendo": Fatura.objects.filter(
+            situacao=Fatura.Situacao.ABERTA, vencimento__gte=hoje, vencimento__lte=hoje + timedelta(days=7)
+        ),
+        "atraso": Fatura.objects.filter(situacao=Fatura.Situacao.VENCIDA),
+        "fila": Anuncio.objects.filter(situacao=Anuncio.Situacao.EM_MODERACAO),
+        "denuncias": Denuncia.objects.filter(situacao=Denuncia.Situacao.PENDENTE),
+        "interessados": ContatoConvite.objects.filter(
+            origem=ContatoConvite.Origem.FORMULARIO, situacao=ContatoConvite.Situacao.NOVO
+        ),
+        "privacidade": PedidoTitular.objects.filter(
+            situacao__in=(PedidoTitular.Situacao.ABERTO, PedidoTitular.Situacao.EM_ANDAMENTO)
+        ),
+        "pedidos_guia": PedidoDoPerfil.objects.filter(
+            status__in=(PedidoDoPerfil.Status.ABERTO, PedidoDoPerfil.Status.EM_ANDAMENTO)
+        ),
+        "lojas": Anunciante.objects.filter(status=Anunciante.Status.PENDENTE),
+        "publicidade": aguardando.filter(campanha__isnull=False),
+    }
+
+
+def pendencias_da_equipe(usuario, hoje=None) -> list[Pendencia]:
+    """Cartões do "Painel de hoje", só do que o usuário tem permissão de ver (grupos do Django).
+
+    Cadastros novos e renovações aguardando conferência do Pix, faturas vencendo em 7 dias ou em atraso,
+    anúncios na fila, denúncias abertas, interessados do Guia, pedidos de privacidade e do Guia, lojas
+    pendentes e pagamentos de publicidade para conferir. Cada cartão abre a lista do admin já filtrada.
+    """
+    from pagamentos.models import Fatura
+
+    hoje = hoje or timezone.localdate()
+    q = _consultas_do_painel(hoje)
+    aguardando = f"situacao__exact={Fatura.Situacao.AGUARDANDO}"
+
+    def faturas() -> tuple[int, bool, str]:
+        vencendo, atraso = q["vencendo"].count(), q["atraso"].count()
+        return vencendo + atraso, atraso > 0, f"{vencendo} vencendo · {atraso} em atraso"
+
+    def contar(chave: str, urgente: bool = False):
+        return lambda: (q[chave].count(), urgente, "")
+
+    limite_7 = (hoje + timedelta(days=7)).isoformat()
+    itens = [  # (permissão, chave, rótulo, contagem → (total, urgente, detalhe), rota, filtro)
+        ("pagamentos.view_pedidoaguardando", "cadastros", "Cadastros aguardando conferência",
+         contar("cadastros"), "admin:pagamentos_pedidoaguardando_changelist", f"tipo=novo&{aguardando}"),
+        ("pagamentos.view_pedidoaguardando", "renovacoes", "Renovações aguardando conferência",
+         contar("renovacoes"), "admin:pagamentos_pedidoaguardando_changelist",
+         f"tipo=renovacao&{aguardando}"),
+        ("pagamentos.view_fatura", "faturas", "Faturas vencendo em 7 dias ou em atraso", faturas,
+         "admin:pagamentos_fatura_changelist", f"situacao__in=aberta,vencida&vencimento__lte={limite_7}"),
+        ("anuncios.view_anuncioemmoderacao", "fila", "Anúncios na fila de moderação", contar("fila"),
+         "admin:anuncios_anuncioemmoderacao_changelist", ""),
+        ("moderacao.view_denuncia", "denuncias", "Denúncias abertas", contar("denuncias", urgente=True),
          "admin:moderacao_denuncia_changelist", "situacao__exact=pendente"),
-        ("privacidade.view_pedidotitular", "Pedidos de privacidade do site",
-         PedidoTitular.objects.filter(situacao__in=abertos_titular),
-         "admin:privacidade_pedidotitular_changelist", "situacao__in=" + ",".join(abertos_titular)),
-        ("guia.view_pedidodoperfil", "Pedidos do Guia de Negócios",
-         PedidoDoPerfil.objects.filter(status__in=abertos_guia),
-         "admin:guia_pedidodoperfil_changelist", "status__in=" + ",".join(abertos_guia)),
-        ("guia.view_contatoconvite", "Interessados no Guia",
-         ContatoConvite.objects.filter(
-             origem=ContatoConvite.Origem.FORMULARIO, situacao=ContatoConvite.Situacao.NOVO
-         ),
-         "admin:guia_contatoconvite_changelist", "origem__exact=formulario&situacao__exact=novo"),
-        ("pagamentos.view_fatura", "Comprovantes aguardando confirmação",
-         Fatura.objects.filter(situacao=Fatura.Situacao.AGUARDANDO),
-         "admin:pagamentos_fatura_changelist", f"situacao__exact={Fatura.Situacao.AGUARDANDO}"),
-        ("anunciantes.view_anunciante", "Lojas pendentes de aprovação",
-         Anunciante.objects.filter(status=Anunciante.Status.PENDENTE),
+        ("guia.view_contatoconvite", "interessados", "Interessados do Guia (Quero ser listado)",
+         contar("interessados"), "admin:guia_contatoconvite_changelist",
+         "origem__exact=formulario&situacao__exact=novo"),
+        ("privacidade.view_pedidotitular", "privacidade", "Pedidos de privacidade (LGPD)",
+         contar("privacidade", urgente=True), "admin:privacidade_pedidotitular_changelist",
+         "situacao__in=aberto,em_andamento"),
+        ("guia.view_pedidodoperfil", "pedidos_guia", "Pedidos do Guia de Negócios",
+         contar("pedidos_guia", urgente=True), "admin:guia_pedidodoperfil_changelist",
+         "status__in=aberto,em_andamento"),
+        ("anunciantes.view_anunciante", "lojas", "Lojas pendentes de aprovação", contar("lojas"),
          "admin:anunciantes_anunciante_changelist", "status__exact=pendente"),
+        ("pagamentos.view_fatura", "publicidade", "Pagamentos de publicidade para conferir",
+         contar("publicidade"), "admin:pagamentos_fatura_changelist", f"{aguardando}&campanha__isnull=False"),
     ]  # fmt: skip
-    return [
-        Pendencia(rotulo, consulta.count(), f"{reverse(rota)}?{filtro}")
-        for permissao, rotulo, consulta, rota, filtro in itens
-        if usuario.has_perm(permissao)
-    ]
+    cartoes = []
+    for permissao, chave, rotulo, contagem, rota, filtro in itens:
+        if not usuario.has_perm(permissao):
+            continue
+        total, urgente, detalhe = contagem()
+        nivel = ("urgente" if urgente else "atencao") if total else ""
+        cartoes.append(Pendencia(rotulo, total, _url_admin(rota, filtro), chave, nivel, detalhe))
+    return cartoes
+
+
+def fazer_agora(usuario, limite: int = 5, hoje=None) -> list[GrupoFazerAgora]:
+    """ "Fazer agora": os `limite` itens mais antigos de cada tipo que o usuário pode ver, com o botão Aprovar
+    onde a ação já existe (as mesmas permissões e o mesmo histórico da lista do admin).
+
+    Cadastros e renovações: "Aprovar" abre a tela com as datas da vigência (a equipe confere antes). Fila de
+    moderação: "Aprovar" aplica a ação da fila na hora. Denúncias, faturas em atraso, interessados e pedidos
+    de privacidade: "Abrir" (a decisão tem motivo ou várias saídas).
+    """
+    hoje = hoje or timezone.localdate()
+    q = _consultas_do_painel(hoje)
+    pode = usuario.has_perm
+    grupos = []
+
+    def grupo(titulo: str, consulta, ordem: str, rota_lista: str, filtro: str, linha) -> None:
+        itens = [linha(obj) for obj in consulta.order_by(ordem, "pk")[:limite]]
+        if itens:
+            grupos.append(GrupoFazerAgora(titulo, itens, _url_admin(rota_lista, filtro)))
+
+    if pode("pagamentos.view_pedidoaguardando"):
+        aprova = pode("pagamentos.change_pedidoaguardando")
+
+        def pedido(fatura):
+            url = _url_admin("admin:pagamentos_pedidoaguardando_aprovar", args=(fatura.pk,))
+            texto = f"{fatura.codigo} · {fatura.cliente_nome} · {fatura.descricao} · R$ {fatura.valor}"
+            return ItemFazerAgora(
+                texto, fatura.comprovante_enviado_em, url, url if aprova else "", pk=fatura.pk
+            )
+
+        tipos = (
+            ("cadastros", "Cadastros aguardando conferência", "novo"),
+            ("renovacoes", "Renovações aguardando conferência", "renovacao"),
+        )
+        for chave, titulo, tipo in tipos:
+            grupo(
+                titulo,
+                q[chave].select_related("assinatura__anunciante"),
+                "comprovante_enviado_em",
+                "admin:pagamentos_pedidoaguardando_changelist",
+                f"tipo={tipo}&situacao__exact=aguardando_confirmacao",
+                pedido,
+            )
+    if pode("anuncios.view_anuncioemmoderacao"):
+        aprova = pode("anuncios.change_anuncioemmoderacao")
+        grupo(
+            "Anúncios na fila de moderação",
+            q["fila"].select_related("anunciante"),
+            "atualizado_em",
+            "admin:anuncios_anuncioemmoderacao_changelist",
+            "",
+            lambda anuncio: ItemFazerAgora(
+                f"{anuncio.codigo} · {anuncio.titulo} · {anuncio.anunciante.nome_publico}",
+                anuncio.atualizado_em,
+                _url_admin("admin:anuncios_anuncioemmoderacao_change", args=(anuncio.pk,)),
+                aprovar_agora="anuncio" if aprova else "",
+                pk=anuncio.pk,
+            ),
+        )
+    abrir = (  # (permissão, título, consulta, ordem, rota da ficha, rota da lista, filtro)
+        ("moderacao.view_denuncia", "Denúncias abertas", q["denuncias"].select_related("anuncio"),
+         "criado_em", "admin:moderacao_denuncia_change", "admin:moderacao_denuncia_changelist",
+         "situacao__exact=pendente"),
+        ("pagamentos.view_fatura", "Faturas em atraso", q["atraso"], "vencimento",
+         "admin:pagamentos_fatura_change", "admin:pagamentos_fatura_changelist", "situacao__exact=vencida"),
+        ("guia.view_contatoconvite", "Interessados do Guia", q["interessados"], "criado_em",
+         "admin:guia_contatoconvite_change", "admin:guia_contatoconvite_changelist",
+         "origem__exact=formulario&situacao__exact=novo"),
+        ("privacidade.view_pedidotitular", "Pedidos de privacidade (LGPD)", q["privacidade"], "prazo",
+         "admin:privacidade_pedidotitular_change", "admin:privacidade_pedidotitular_changelist",
+         "situacao__in=aberto,em_andamento"),
+    )  # fmt: skip
+    for permissao, titulo, consulta, ordem, rota_ficha, rota_lista, filtro in abrir:
+        if pode(permissao):
+            grupo(
+                titulo,
+                consulta,
+                ordem,
+                rota_lista,
+                filtro,
+                lambda obj, rota=rota_ficha, campo=ordem: ItemFazerAgora(
+                    str(obj), getattr(obj, campo), _url_admin(rota, args=(obj.pk,)), pk=obj.pk
+                ),
+            )
+    return grupos
