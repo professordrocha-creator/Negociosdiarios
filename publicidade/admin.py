@@ -14,7 +14,7 @@ from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from simple_history.admin import SimpleHistoryAdmin
 
 from core.services import textos_ajuda
@@ -46,17 +46,17 @@ class BannerInline(admin.StackedInline):
     form = BannerForm
     extra = 0
     readonly_fields = ("previa",)
-    fields = (
-        "formato",
-        "previa",
-        "envio_imagem",
-        "envio_imagem_celular",
-        "texto_alternativo",
-        "titulo",
-        "texto",
-        "link",
-        "ativo",
+    fieldsets = (
+        (None, {"fields": ("formato", "previa", "envio_imagem", "texto_alternativo")}),
+        (
+            "Avançado: imagem própria para celular",
+            {"classes": ("collapse",), "fields": ("envio_imagem_celular",)},
+        ),
+        (None, {"fields": ("titulo", "texto", "link", "ativo")}),
     )
+
+    class Media:
+        js = ("js/publicidade-admin.js",)  # esconde os campos que não valem para o formato escolhido
 
     def has_delete_permission(self, request: HttpRequest, obj=None) -> bool:
         """Para tirar uma peça do ar, desmarque "ativo" (métricas ficam)."""
@@ -64,14 +64,35 @@ class BannerInline(admin.StackedInline):
 
     @admin.display(description="prévia")
     def previa(self, banner: Banner) -> str:
-        """Miniatura da imagem processada (ou o aviso de processamento)."""
+        """Imagens atuais da peça (computador e celular) com link para o arquivo, ou o aviso de processamento.
+
+        Os campos de envio não são os arquivos guardados (o Celery gera os WebP), então o "arquivo atual"
+        aparece aqui, não no campo de envio.
+        """
         if not banner.pk or banner.formato == "nativo":
             return "—"
         if banner.imagem_original or banner.imagem_celular_original:
             return "Processando a imagem enviada… recarregue em instantes."
-        if banner.imagem:
-            return format_html('<img src="{}" alt="" width="240">', banner.imagem.url)
-        return "Sem imagem."
+        imagens = [
+            (rotulo, arquivo.url)
+            for rotulo, arquivo in (("Computador", banner.imagem), ("Celular", banner.imagem_celular))
+            if arquivo
+        ]
+        if not imagens:
+            return "Sem imagem."
+        html = format_html_join(
+            "",
+            '<p>{}: <a href="{}" target="_blank" rel="noopener">arquivo atual</a><br>'
+            '<img src="{}" alt="" width="240"></p>',
+            ((rotulo, url, url) for rotulo, url in imagens),
+        )
+        if not banner.pronto:  # banner sem uma das versões fica fora do rodízio sem outro sinal
+            html = format_html(
+                "{}<p><strong>Falta a imagem do computador ou do celular: esta peça não entra no ar. "
+                "Envie a imagem de novo.</strong></p>",
+                html,
+            )
+        return html
 
 
 @admin.register(Campanha)
@@ -86,6 +107,10 @@ class CampanhaAdmin(SimpleHistoryAdmin):
     list_select_related = ("patrocinador",)
     autocomplete_fields = ("patrocinador",)
     filter_horizontal = ("cidades",)
+    fieldsets = (
+        (None, {"fields": ("patrocinador", "nome", "onde", "cidades", "inicio", "fim", "valor", "situacao")}),
+        ("Avançado: páginas da faixa de imagem", {"classes": ("collapse",), "fields": ("paginas_da_faixa",)}),
+    )
     change_list_template = "admin/publicidade/campanha/change_list.html"
     actions = ["gerar_fatura"]
 
@@ -97,6 +122,16 @@ class CampanhaAdmin(SimpleHistoryAdmin):
     def no_ar_hoje(self, campanha: Campanha) -> bool:
         """Ativa e dentro do período."""
         return campanha.no_ar()
+
+    def change_view(self, request: HttpRequest, object_id: str, form_url: str = "", extra_context=None):
+        """Avisa quando a fatura já foi paga e a campanha continua em rascunho (não ativa sozinha)."""
+        if request.method == "GET":
+            campanha = self.get_object(request, object_id)
+            if campanha and services.paga_e_em_rascunho(campanha):
+                self.message_user(
+                    request, "Pagamento confirmado: ative a campanha para ela entrar no ar.", messages.WARNING
+                )
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def save_related(self, request: HttpRequest, form, formsets, change: bool) -> None:
         """Depois de salvar as peças, manda as imagens novas para o Celery (WebP, sem EXIF)."""

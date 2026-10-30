@@ -103,9 +103,21 @@ def imagem_no_tamanho(arquivo, tamanho: Tamanho, nome: str) -> ContentFile:
 
 
 def processar_banner(banner: Banner) -> bool:
-    """Gera os WebP da peça a partir dos envios e apaga os originais (Celery). False se não abriu."""
+    """Gera os WebP da peça a partir dos envios e apaga os originais (Celery). False se não abriu.
+
+    Banner sem imagem própria para celular: a do celular sai da mesma imagem enviada (recorte central na
+    proporção do celular), então o dono envia uma imagem só.
+    """
     feito = False
-    pares = [("imagem_original", "imagem", False), ("imagem_celular_original", "imagem_celular", True)]
+    origem_celular = "imagem_celular_original"
+    if (
+        banner.formato == Formato.BANNER
+        and not banner.celular_propria
+        and banner.imagem_original
+        and not banner.imagem_celular_original
+    ):
+        origem_celular = "imagem_original"
+    pares = [("imagem_original", "imagem", False), (origem_celular, "imagem_celular", True)]
     for origem, destino, celular in pares:
         original = getattr(banner, origem)
         if not original:
@@ -114,14 +126,15 @@ def processar_banner(banner: Banner) -> bool:
             conteudo = imagem_no_tamanho(original, tamanho_da_imagem(banner.formato, celular), destino)
         except Exception:
             logger.exception("Imagem de publicidade não pôde ser processada (peça id=%s).", banner.pk)
-            original.delete(save=False)
             continue
         antiga = getattr(banner, destino)
         if antiga:
             antiga.delete(save=False)
         getattr(banner, destino).save(f"{destino}.webp", conteudo, save=False)
-        original.delete(save=False)
         feito = True
+    for origem in ("imagem_original", "imagem_celular_original"):  # só depois: um envio pode gerar duas
+        if getattr(banner, origem):
+            getattr(banner, origem).delete(save=False)
     banner.save()
     return feito
 
@@ -212,6 +225,16 @@ def conferir_patrocinador(campanha: Campanha) -> None:
         raise ValidationError(
             f"{loja} é uma loja do site sem assinatura ativa: loja só compra publicidade se for assinante."
         )
+
+
+def paga_e_em_rascunho(campanha: Campanha) -> bool:
+    """Fatura confirmada mas a campanha ainda em rascunho: a equipe precisa ativá-la (não é automático)."""
+    from pagamentos.models import Fatura
+
+    return (
+        campanha.situacao == Campanha.Situacao.RASCUNHO
+        and campanha.faturas.filter(situacao=Fatura.Situacao.PAGA).exists()
+    )
 
 
 # --- Rotina diária -----------------------------------------------------------------------------------

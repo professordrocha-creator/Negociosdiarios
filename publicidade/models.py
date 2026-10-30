@@ -125,12 +125,19 @@ class Campanha(MarcaDemo):
         related_name="campanhas",
         verbose_name="cidades",
         limit_choices_to={"liberada": True},
-        help_text="Opcional: só nas buscas e anúncios destas cidades. Vazio = em todo o site.",
+        help_text="Vazio = aparece no site todo, inclusive na home. Com cidades escolhidas, aparece só nas "
+        "buscas e anúncios dessas cidades, e NÃO aparece na home.",
     )
     inicio = models.DateField("início")
     fim = models.DateField("fim")
     valor = models.DecimalField(
-        "valor (R$)", max_digits=9, decimal_places=2, validators=[MinValueValidator(0)]
+        "valor (R$)",
+        max_digits=9,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        help_text="Valor que será cobrado do patrocinador (usado na fatura Pix).",
     )
     situacao = models.CharField(
         "situação", max_length=10, choices=Situacao.choices, default=Situacao.RASCUNHO, db_index=True
@@ -170,7 +177,8 @@ class Campanha(MarcaDemo):
 
 class Banner(MarcaDemo):
     """A peça de uma campanha, num formato. Imagens passam pelo mesmo tratamento das fotos (Celery: WebP
-    no tamanho da Configuracao, sem EXIF, original apagado). Nativo é só texto."""
+    no tamanho da Configuracao, sem EXIF, original apagado). Nativo é só texto. No banner, o dono envia uma
+    imagem só e a do celular é gerada dela, a menos que envie uma própria (`celular_propria`)."""
 
     campanha = models.ForeignKey(
         Campanha, on_delete=models.PROTECT, related_name="banners", verbose_name="campanha"
@@ -181,6 +189,12 @@ class Banner(MarcaDemo):
     imagem_celular_original = models.FileField(upload_to=caminho_banner, blank=True, editable=False)
     imagem_celular = models.FileField(
         "imagem do celular (WebP)", upload_to=caminho_banner, blank=True, editable=False
+    )
+    celular_propria = models.BooleanField(
+        "imagem própria para celular",
+        default=False,
+        editable=False,
+        help_text="Falso = a imagem do celular é gerada da imagem principal sempre que ela muda.",
     )
     texto_alternativo = models.CharField(
         "texto alternativo",
@@ -209,8 +223,14 @@ class Banner(MarcaDemo):
         """Card: frase até 80; nativo: título e texto obrigatórios."""
         if self.formato == Formato.CARD and len(self.texto) > 80:
             raise ValidationError({"texto": "No card, a frase tem até 80 caracteres."})
-        if self.formato == Formato.NATIVO and not (self.titulo and self.texto):
-            raise ValidationError("O anúncio nativo precisa de título e texto.")
+        if self.formato == Formato.NATIVO:
+            faltando = {
+                campo: f"Preencha {nome} do anúncio de texto (nativo)."
+                for campo, nome in (("titulo", "o título"), ("texto", "o texto"))
+                if not getattr(self, campo)
+            }
+            if faltando:
+                raise ValidationError(faltando)
 
     @property
     def pronto(self) -> bool:

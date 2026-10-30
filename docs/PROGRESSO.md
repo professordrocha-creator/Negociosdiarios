@@ -1,19 +1,19 @@
 # Progresso (checkpoint)
 
-**Em andamento:** Lote 3 (A, B e C) CONCLUÍDO, aguardando conferência e commit do Daniel.
+**Em andamento:** ajustes no cadastro de publicidade (admin), aguardando conferência e commit do Daniel.
 
-**Feito 3C:** "Painel de hoje" na home do admin (core.services.pendencias_da_equipe = cartões com urgência;
-fazer_agora = 5 mais antigos com Aprovar); menu enxuto por grupo (config/menu_admin.py; "Mais opções" só para
-Administrador/superusuário; AdminSiteND.get_app_list/index/aprovar_agora); filtro "tipo" em Cadastros
-aguardando; renovação única por dias de vigência (planos.services.fim_da_vigencia); e-mail único na aprovação
-de loja nova (templates/emails/loja_aprovada_plano_ativo.txt). Docs: MANUAL_ADMIN ("Minha rotina de todo dia"),
-ARQUITETURA, RUNBOOK, CHANGELOG.
+**Feito:** Prévia da peça com as duas imagens + "arquivo atual"; banner com UMA imagem (celular gerado por corte
+central; imagem própria do celular em "Avançado", campo `Banner.celular_propria`, migration 0003 marca as peças
+antigas); campos escondidos por formato (static/js/publicidade-admin.js); "Onde aparece" em 3 escolhas simples
+(forms.POSICOES_DA_ESCOLHA, páginas da faixa em "Avançado"); Valor opcional (padrão 0) com ajuda da fatura Pix;
+aviso "Pagamento confirmado: ative a campanha" (services.paga_e_em_rascunho); ajuda nova de Cidades. Rodízio igual.
 
-**Testes:** core/tests/test_painel_hoje.py (18), +2 em pagamentos/tests/test_pedido_pix.py; ajustes em
-test_lote_admin, test_cobranca, planos/test_regras.
+**Depois:** campanha Domínio não aparecia: o worker (Celery não recarrega código) rodava a versão antiga e gerou só
+a imagem do computador. Worker reiniciado, peça 8 reprocessada; a Prévia agora avisa peça incompleta (+1 teste).
 
-**Falta:** nada do lote 3. Próximo: a definir pelo Daniel.
+**Falta:** Daniel conferir no navegador (Ctrl+F5 por causa do JS novo) e decidir se campanha com cidade aparece na home.
 
-**Último comando que passou:** `pytest -n auto core pagamentos planos anunciantes contas` → 623 passed; ruff limpo;
-makemigrations --check sem mudanças. Suíte completa: 1148 passed + 1 do guia corrigido
-(`pytest guia/tests/test_captacao.py` → 12 passed).
+**Arquivos:** publicidade/{admin,forms,models,services,README}.py/md, migrations/0003, tests/test_publicidade.py,
+static/js/publicidade-admin.js, docs/ARQUITETURA.md.
+
+**Último comando que passou:** `pytest -q publicidade` → 39 passed; `ruff check publicidade` limpo; makemigrations --check ok.

@@ -310,7 +310,7 @@ def test_loja_do_site_so_compra_publicidade_se_for_assinante(criar_anunciante, l
             data={
                 "patrocinador": p.pk,
                 "nome": "Destaque",
-                "posicoes": ["home_topo"],
+                "onde": ["faixa"],
                 "inicio": HOJE(),
                 "fim": HOJE() + timedelta(days=30),
                 "valor": "300",
@@ -370,6 +370,16 @@ def test_acao_gerar_fatura_no_admin(entrar_no_admin, equipe_comercial, campanha)
     assert c.faturas.count() == 1
 
 
+def test_previa_da_peca_mostra_as_imagens_atuais(entrar_no_admin, equipe_comercial, campanha):
+    """Depois de processada, a tela da campanha mostra as duas imagens da peça com o arquivo atual."""
+    peca = campanha().banners.get()
+    client = entrar_no_admin(equipe_comercial)
+
+    html = client.get(reverse("admin:publicidade_campanha_change", args=[peca.campanha_id])).content.decode()
+    assert f'<img src="{peca.imagem.url}"' in html and f'<img src="{peca.imagem_celular.url}"' in html
+    assert "arquivo atual" in html
+
+
 # --- Painel do admin e CSV ------------------------------------------------------------------------------
 
 
@@ -418,3 +428,156 @@ def test_publicidade_demo(settings):
 
     services.apagar_publicidade_demo()
     assert not Campanha.objects.exists() and not Banner.objects.exists() and not Patrocinador.objects.exists()
+
+
+# --- Cadastro simplificado (escolhas simples, imagem única, avisos) -------------------------------------
+
+
+def dados_campanha(patrocinador, **extra) -> dict:
+    """Dados mínimos do formulário da campanha."""
+    return {
+        "patrocinador": patrocinador.pk,
+        "nome": "Simples",
+        "onde": ["faixa"],
+        "inicio": HOJE(),
+        "fim": HOJE() + timedelta(days=30),
+        "situacao": "rascunho",
+        **extra,
+    }
+
+
+@pytest.mark.parametrize(
+    ("onde", "paginas", "posicoes"),
+    [
+        (["faixa"], [], ["home_topo", "busca_topo", "anuncio_topo"]),
+        (["faixa"], ["home_topo"], ["home_topo"]),
+        (["texto", "cartao"], [], ["busca_nativo", "rodape_card"]),
+    ],
+)
+def test_escolhas_simples_viram_as_posicoes_internas(patrocinador, onde, paginas, posicoes):
+    """ "Faixa de imagem" liga as 3 páginas (ou só as do Avançado); texto e cartão, a sua posição."""
+    form = CampanhaForm(data=dados_campanha(patrocinador, onde=onde, paginas_da_faixa=paginas))
+    assert form.is_valid(), form.errors
+    assert form.save().posicoes == posicoes
+
+
+def test_campanha_nova_vem_com_faixa_e_valor_vazio_vira_zero(patrocinador):
+    """Nova: "Faixa de imagem" marcada; Valor opcional (0) e com a ajuda da fatura Pix."""
+    assert CampanhaForm().fields["onde"].initial == ["faixa"]
+    form = CampanhaForm(data=dados_campanha(patrocinador, valor=""))
+    assert form.is_valid(), form.errors
+    assert form.save().valor == 0
+    assert "fatura Pix" in str(form.fields["valor"].help_text)
+
+
+def test_campanha_antiga_abre_com_as_escolhas_certas(campanha):
+    """Posições gravadas antes continuam valendo e aparecem nas escolhas simples."""
+    c = campanha(posicoes=("home_topo", "busca_nativo"))
+    form = CampanhaForm(instance=c)
+    assert form.initial["onde"] == ["faixa", "texto"] and form.initial["paginas_da_faixa"] == ["home_topo"]
+
+
+def test_sem_escolha_de_onde_da_erro_claro(patrocinador):
+    """Nenhuma escolha: erro no campo, sem quebrar a validação do modelo."""
+    form = CampanhaForm(data=dados_campanha(patrocinador, onde=[]))
+    assert not form.is_valid() and "onde" in form.errors
+
+
+def test_banner_com_uma_imagem_so_gera_computador_e_celular(campanha):
+    """Uma imagem só: o Celery gera as duas versões; a peça fica pronta."""
+    form = BannerForm(
+        data={
+            "formato": "banner",
+            "texto_alternativo": "Oferta",
+            "link": "https://x.exemplo.com/",
+            "ativo": True,
+        },
+        files={"envio_imagem": SimpleUploadedFile("b.png", png(1940, 180), "image/png")},
+        instance=Banner(campanha=campanha()),
+    )
+    assert form.is_valid(), form.errors
+    banner = form.save()
+    services.processar_banner(banner)
+    banner.refresh_from_db()
+
+    assert banner.pronto and not banner.imagem_original and not banner.celular_propria
+    with Image.open(banner.imagem.path) as grande, Image.open(banner.imagem_celular.path) as pequena:
+        assert grande.size == (970, 90) and pequena.size == (320, 100)
+
+
+def test_imagem_propria_do_celular_nao_e_sobrescrita(campanha):
+    """Com imagem própria para celular, trocar só a principal mantém a do celular."""
+    banner = campanha().banners.get()
+    banner.celular_propria = True
+    banner.save()
+    do_celular = banner.imagem_celular.name
+    form = BannerForm(
+        data={
+            "formato": "banner",
+            "texto_alternativo": "Nova",
+            "link": "https://x.exemplo.com/",
+            "ativo": True,
+        },
+        files={"envio_imagem": SimpleUploadedFile("b.png", png(970, 90), "image/png")},
+        instance=banner,
+    )
+    assert form.is_valid(), form.errors
+    services.processar_banner(form.save())
+    banner.refresh_from_db()
+    assert banner.imagem_celular.name == do_celular
+
+
+def test_mensagens_claras_por_formato(campanha):
+    """Banner sem imagem e nativo sem título/texto dizem o que falta, no campo certo."""
+    c = campanha()
+    base = {"link": "https://x.exemplo.com/", "ativo": True}
+    banner = BannerForm(data={"formato": "banner", **base}, instance=Banner(campanha=c))
+    nativo = BannerForm(data={"formato": "nativo", **base}, instance=Banner(campanha=c))
+    assert not banner.is_valid() and "Envie a imagem do banner." in banner.errors["envio_imagem"]
+    assert not nativo.is_valid()
+    assert "título" in str(nativo.errors["titulo"]) and "texto" in str(nativo.errors["texto"])
+
+
+def test_tela_da_campanha_formato_banner_patrocinador_e_aviso_de_pagamento(
+    entrar_no_admin, equipe_comercial, campanha
+):
+    """Peça nova vem como Banner; "+" do patrocinador abre a janela; fatura paga em rascunho gera aviso."""
+    c = campanha(situacao="rascunho")
+    client = entrar_no_admin(equipe_comercial)
+    url = reverse("admin:publicidade_campanha_change", args=[c.pk])
+
+    html = client.get(url).content.decode()
+    assert 'id="add_id_patrocinador"' in html and "js/publicidade-admin.js" in html
+    vazia = html[html.index('id="banners-empty"') :]
+    assert '<option value="banner" selected>' in vazia
+    assert "Pagamento confirmado" not in html
+
+    confirmar_pagamento(gerar_fatura_campanha(c), None)
+    assert "Pagamento confirmado: ative a campanha" in client.get(url).content.decode()
+
+
+def test_patrocinador_novo_pela_janela_volta_selecionado(entrar_no_admin, equipe_comercial):
+    """O "+" salva o patrocinador e devolve à campanha a resposta da janela (que já o seleciona)."""
+    client = entrar_no_admin(equipe_comercial)
+    resposta = client.post(
+        reverse("admin:publicidade_patrocinador_add") + "?_to_field=id&_popup=1",
+        {"nome": "Nova Empresa", "email": "nova@exemplo.com", "_popup": "1", "_to_field": "id"},
+    )
+    novo = Patrocinador.objects.get(nome="Nova Empresa")
+    assert "popup_response" in resposta.content.decode() and str(novo.pk) in resposta.content.decode()
+
+
+def test_banner_sem_imagem_do_celular_fica_fora_e_previa_avisa(entrar_no_admin, equipe_comercial, campanha):
+    """Peça de banner só com a imagem do computador (ex.: processada por worker desatualizado): não entra no
+    rodízio e a Prévia diz o que falta, em vez de ficar invisível sem explicação."""
+    c = campanha()
+    peca = c.banners.get()
+    peca.imagem_celular.delete(save=True)
+
+    assert services.escolher("home_topo") == []
+    html = (
+        entrar_no_admin(equipe_comercial)
+        .get(reverse("admin:publicidade_campanha_change", args=[c.pk]))
+        .content.decode()
+    )
+    assert "esta peça não entra no ar" in html

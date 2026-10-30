@@ -9,7 +9,9 @@ métricas por dia sem dado pessoal, rotina diária e painel do admin com CSV. Se
 
 **Serviços (`services.py`):**
 - `tamanhos`, `validar_imagem`, `processar_banner` (tarefa `tasks.processar_banner`): tamanho e peso da
-  `Configuracao`, recorte central na proporção, WebP sem EXIF, original apagado.
+  `Configuracao`, recorte central na proporção, WebP sem EXIF, original apagado. Banner: uma imagem só gera a do
+  computador e a do celular (salvo se a peça tiver imagem própria para celular, `celular_propria`).
+- `paga_e_em_rascunho`: aviso no admin "Pagamento confirmado: ative a campanha" (não ativa sozinha).
 - `no_ar`, `escolher(posicao, cidade, quantos)` (rodízio por sorteio, uma peça por campanha), `registrar`
   (impressão/clique do dia, sem robôs e sem HTMX), `link_seguro` (só http/https).
 - `conferir_patrocinador` (loja do site só compra com assinatura ativa).
@@ -21,6 +23,8 @@ métricas por dia sem dado pessoal, rotina diária e painel do admin com CSV. Se
 parcial `templates/publicidade/_espaco.html`. **Clique:** `/publicidade/clique/<id>/`.
 
 **Admin:** Patrocinadores, Campanhas (peças na mesma tela, ação "Gerar fatura (Pix)"), Painel de publicidade e CSV.
+"Onde aparece" em 3 escolhas simples (`forms.POSICOES_DA_ESCOLHA`; páginas da faixa em "Avançado"); campos que
+não valem para o formato da peça ficam escondidos (`static/js/publicidade-admin.js`).
 A fatura da campanha é a `pagamentos.Fatura` (página pública `/fatura/<token>/` para o patrocinador pagar).
 
 **Testes:** `tests/test_publicidade.py`.

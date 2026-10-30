@@ -224,11 +224,13 @@ Isolado dos classificados (não usa `Anunciante`; vínculo opcional `PerfilGuia.
 - `Patrocinador`: `nome`, `cnpj` (opcional), `contato_nome`, `email`, `whatsapp`, `anunciante` (loja do site,
   opcional; só compra com assinatura ativa), `observacao`, `demo`, histórico.
 - `Campanha`: `patrocinador` (PROTECT), `nome`, `posicoes` (ArrayField: home_topo, busca_topo, busca_nativo,
-  anuncio_topo, rodape_card), `cidades` (M2M, só liberadas; vazio = site todo), `inicio`, `fim`, `valor`
-  (Decimal), `situacao` (rascunho | ativa | pausada | encerrada | cancelada), `aviso_fim_enviado`, `demo`,
+  anuncio_topo, rodape_card; no admin escolhidas como "Faixa de imagem" / "Texto na busca" / "Cartão no
+  rodapé"), `cidades` (M2M, só liberadas; vazio = site todo, inclusive a home), `inicio`, `fim`, `valor`
+  (Decimal, padrão 0; valor da fatura Pix), `situacao` (rascunho | ativa | pausada | encerrada | cancelada), `aviso_fim_enviado`, `demo`,
   histórico.
 - `Banner` (a peça): `campanha` (PROTECT), `formato` (banner | card | nativo), `imagem`/`imagem_celular`
-  (WebP no tamanho da `Configuracao`) e os envios `*_original` (apagados no Celery), `texto_alternativo`,
+  (WebP no tamanho da `Configuracao`) e os envios `*_original` (apagados no Celery), `celular_propria`
+  (falso = a imagem do celular é gerada da principal, com corte central), `texto_alternativo`,
   `titulo`, `texto`, `link` (só http/https), `ativo`, `demo`.
 - `MetricaDiaria`: `banner`, `dia`, `impressoes`, `cliques` (única por peça e dia). Nenhum dado do visitante.
 - `Fatura` (pagamentos) passou a ser de uma `assinatura` **ou** de uma `campanha` (restrição no banco) e ganhou
