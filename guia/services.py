@@ -1411,12 +1411,17 @@ def marcar_contato(contato, situacao: str) -> None:
 def criar_perfil_do_contato(contato, por=None) -> PerfilGuia:
     """Quem disse "sim" (ou pediu pelo "Quero ser listado"): vira rascunho de `PerfilGuia`, que a equipe
     completa e envia o link de aceite. Origem: lista antiga (lista/indicação) ou cadastro assistido
-    (formulário do site). Reaproveita o perfil já criado para o contato. Número bloqueado ("não contatar") não
-    vira ficha."""
+    (formulário do site). Reaproveita o perfil já criado para o contato. Número bloqueado ("não contatar") e
+    pedido de cidade não atendida (sem `cidade`) não viram ficha."""
     if contato.perfil_id:
         return contato.perfil
     if contato.bloqueado or numero_bloqueado(contato.whatsapp):
         raise ValueError("Este número recusou ou pediu para não ser contatado.")
+    if not contato.cidade_id:
+        raise ValueError(
+            f'Pedido de outra cidade ("{contato.cidade_informada}"): o guia só cria ficha em cidade '
+            "atendida. Se a cidade for liberada, escolha-a no contato e crie a ficha."
+        )
     do_site = contato.origem == contato.Origem.FORMULARIO
     perfil = PerfilGuia.objects.create(
         nome_publico=contato.nome,
@@ -1615,9 +1620,21 @@ def _equipe_do_guia() -> list[str]:
     )
 
 
-def registrar_interessado(nome: str, categoria, cidade: Cidade, whatsapp: str, responsavel_nome: str):
+def registrar_interessado(
+    nome: str,
+    categoria,
+    cidade: Cidade | None,
+    whatsapp: str,
+    responsavel_nome: str,
+    cidade_informada: str = "",
+    categoria_informada: str = "",
+):
     """ "Quero ser listado": entra na lista de convites (origem formulário do site, situação "novo") com a
     data em que a pessoa autorizou o contato. Não publica nada.
+
+    "Outra cidade" / "Outra (escrever)": `cidade`/`categoria` vazias e o texto (já limpo no formulário) em
+    `cidade_informada`/`categoria_informada`; a equipe decide. Cidade fora das atendidas nunca vira ficha
+    sozinha (ver `criar_perfil_do_contato`).
 
     Número que está na lista "não contatar": registra sem ação (observação de alerta; o convite continua
     bloqueado) e avisa a equipe por e-mail para decidir com cuidado."""
@@ -1630,6 +1647,8 @@ def registrar_interessado(nome: str, categoria, cidade: Cidade, whatsapp: str, r
         whatsapp=whatsapp,
         cidade=cidade,
         categoria=categoria,
+        cidade_informada=cidade_informada[:80],
+        categoria_informada=categoria_informada[:80],
         responsavel_nome=responsavel_nome.strip()[:120],
         origem=ContatoConvite.Origem.FORMULARIO,
         autorizou_contato_em=timezone.now(),

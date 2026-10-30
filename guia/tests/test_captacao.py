@@ -12,6 +12,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from core.models import Cidade
 from guia import services
 from guia.models import ContatoConvite, PerfilGuia
 
@@ -199,3 +200,96 @@ def test_interessados_sem_ficha_saem_depois_de_180_dias(tangara, categorias, per
     restantes = set(ContatoConvite.objects.values_list("pk", flat=True))
     assert restantes == {com_ficha.pk, bloqueado.pk, lista.pk, recente.pk}
     assert not ContatoConvite.history.filter(id=velho.pk).exists()
+
+
+# --- "Outra cidade" e "Outra (escrever)" -------------------------------------------------------------------
+
+
+def test_opcao_outra_obriga_o_texto(client, guia_ligado, tangara, categorias):
+    """As listas terminam em "Outra"; escolhida sem o texto, o formulário diz o que falta e nada é gravado."""
+    pagina = client.get(URL, **PESSOA).content.decode()
+    assert '<option value="outra">Outra cidade</option>' in pagina
+    assert '<option value="outra">Outra (escrever)</option>' in pagina
+    assert "js/quero-ser-listado.js" in pagina
+
+    resposta = client.post(URL, dados(tangara, categorias, cidade="outra", categoria="outra"), **PESSOA)
+
+    html = resposta.content.decode()
+    assert resposta.status_code == 400
+    assert "Escreva qual é a sua cidade." in html and "Escreva o que você faz." in html
+    assert not ContatoConvite.objects.exists()
+
+
+def test_cidade_fora_da_lista_vai_para_a_fila_sem_ficha(client, guia_ligado, tangara, categorias):
+    """Outra cidade e outra categoria: contato sem cidade/categoria oficiais, com os textos; nada é publicado
+    e a ficha não pode ser criada enquanto a equipe não escolher uma cidade atendida."""
+    envio = dados(
+        tangara,
+        categorias,
+        cidade="outra",
+        cidade_informada="  Sinop/MT ",
+        categoria="outra",
+        categoria_informada="<b>Afiação</b> de   ferramentas",
+    )
+    assert client.post(URL, envio, **PESSOA).status_code == 200
+
+    contato = ContatoConvite.objects.get()
+    assert contato.cidade is None and contato.categoria is None
+    assert contato.cidade_informada == "Sinop/MT" and contato.categoria_informada == "Afiação de ferramentas"
+    assert not PerfilGuia.objects.exists()
+    with pytest.raises(ValueError, match="cidade atendida"):
+        services.criar_perfil_do_contato(contato)
+
+
+def test_cidade_nao_liberada_e_texto_com_link_sao_recusados(client, guia_ligado, tangara, categorias):
+    """Cidade fora da lista só pelo "Outra"; link, e-mail ou texto longo no campo livre são recusados."""
+    guia_ligado.interessados_por_hora = 50  # envios recusados também contam no limite
+    guia_ligado.save()
+    fechada = Cidade.objects.create(
+        codigo_ibge=5107909, nome="Sinop", slug="sinop", uf=tangara.uf, liberada=False, ponto=tangara.ponto
+    )
+    assert client.post(URL, dados(tangara, categorias, cidade=fechada.pk), **PESSOA).status_code == 400
+    for texto in ("veja www.spam.com", "http://x.y", "fale@comigo", "a" * 81):
+        envio = dados(tangara, categorias, cidade="outra", cidade_informada=texto)
+        assert client.post(URL, envio, **PESSOA).status_code == 400, texto
+    assert not ContatoConvite.objects.exists()
+
+
+def test_texto_livre_so_vale_com_outra(client, guia_ligado, tangara, categorias):
+    """Cidade da lista escolhida: o texto que sobrou no campo escondido é descartado."""
+    envio = dados(tangara, categorias, cidade_informada="Sinop", categoria_informada="Outra coisa")
+    assert client.post(URL, envio, **PESSOA).status_code == 200
+    contato = ContatoConvite.objects.get()
+    assert contato.cidade == tangara and contato.cidade_informada == "" and contato.categoria_informada == ""
+
+
+def test_admin_mostra_informadas_e_filtra_outra_cidade(admin_guia, tangara, categorias):
+    """Fila do admin: "Cidade informada" e "Categoria informada" em destaque e o filtro de outra cidade."""
+    services.registrar_interessado("Na lista", None, tangara, "+5565999990721", "A")
+    services.registrar_interessado(
+        "De fora",
+        None,
+        None,
+        "+5565999990722",
+        "B",
+        cidade_informada="Sinop/MT",
+        categoria_informada="Afiação",
+    )
+    lista = reverse("admin:guia_contatoconvite_changelist")
+
+    html = admin_guia.get(lista).content.decode()
+    assert "<b>Cidade informada:</b> Sinop/MT" in html and "<b>Categoria informada:</b> Afiação" in html
+    filtrada = admin_guia.get(lista + "?outra_cidade=sim").content.decode()
+    assert "De fora" in filtrada and "Na lista" not in filtrada and "Pedidos de outra cidade" in filtrada
+
+
+def test_pedido_de_outra_cidade_tambem_sai_depois_de_180_dias(tangara):
+    """LGPD: os textos novos saem junto com o contato (e do histórico)."""
+    contato = services.registrar_interessado(
+        "De fora", None, None, "+5565999990731", "C", cidade_informada="Sinop", categoria_informada="Afiação"
+    )
+    ContatoConvite.objects.filter(pk=contato.pk).update(criado_em=timezone.now() - timedelta(days=181))
+
+    assert services.limpar_interessados_antigos() == 1
+    assert not ContatoConvite.objects.exists()
+    assert not ContatoConvite.history.filter(cidade_informada="Sinop").exists()

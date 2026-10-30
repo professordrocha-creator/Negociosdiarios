@@ -355,6 +355,8 @@ def quero_ser_listado(request: HttpRequest) -> HttpResponse:
                     dados["cidade"],
                     dados["whatsapp"],
                     dados["responsavel_nome"],
+                    cidade_informada=dados["cidade_informada"],
+                    categoria_informada=dados["categoria_informada"],
                 )
             return _noindex(render(request, "guia/quero_ser_listado_recebido.html", contexto))
         return _noindex(render(request, "guia/quero_ser_listado.html", contexto, status=400))

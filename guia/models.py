@@ -654,7 +654,15 @@ class ContatoConvite(MarcaDemo):
     whatsapp = models.CharField(
         "WhatsApp", max_length=16, db_index=True, help_text="Com DDD; guardado em E.164."
     )
-    cidade = models.ForeignKey(Cidade, on_delete=models.PROTECT, related_name="+", verbose_name="cidade")
+    cidade = models.ForeignKey(
+        Cidade,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="cidade",
+        help_text='Vazia só em pedido de "Outra cidade" (ver "Cidade informada").',
+    )
     categoria = models.ForeignKey(
         CategoriaServico,
         on_delete=models.SET_NULL,
@@ -662,6 +670,20 @@ class ContatoConvite(MarcaDemo):
         blank=True,
         related_name="+",
         verbose_name="categoria",
+    )
+    # "Outra cidade" / "Outra (escrever)" no "Quero ser listado": texto livre já limpo (sem HTML nem link).
+    # A categoria e a cidade oficiais continuam sendo escolhidas pela equipe.
+    cidade_informada = models.CharField(
+        "cidade informada",
+        max_length=80,
+        blank=True,
+        help_text="Cidade fora das atendidas, como a pessoa escreveu.",
+    )
+    categoria_informada = models.CharField(
+        "categoria informada",
+        max_length=80,
+        blank=True,
+        help_text='O que a pessoa faz, quando escolheu "Outra".',
     )
     origem = models.CharField("origem", max_length=14, choices=Origem.choices, default=Origem.LISTA_ANTIGA)
     situacao = models.CharField(
@@ -697,7 +719,12 @@ class ContatoConvite(MarcaDemo):
 
     def __str__(self) -> str:
         """Ex.: 'João Eletricista (Tangará da Serra/MT)'."""
-        return f"{self.nome} ({self.cidade})"
+        return f"{self.nome} ({self.cidade or self.cidade_informada})"
+
+    def clean(self) -> None:
+        """Cidade atendida ou, no pedido de outra cidade, a cidade informada."""
+        if not self.cidade_id and not self.cidade_informada:
+            raise ValidationError({"cidade": "Escolha a cidade."})
 
     @property
     def bloqueado(self) -> bool:

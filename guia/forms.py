@@ -4,9 +4,12 @@ Validação de formato aqui; regras (máximo de categorias, regulamentada sem fr
 `guia/services.py`. Todo campo tem help_text; limites vêm da `ConfiguracaoGuia`/`Configuracao`.
 """
 
+import re
+
 from django import forms
 from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
 
 from anunciantes.validators import normalizar_cnpj, normalizar_whatsapp
 from anuncios.localizacao import longe_da_cidade
@@ -445,6 +448,21 @@ class ImportarConvitesForm(forms.Form):
         return dados
 
 
+OUTRA = "outra"  # valor da opção "Outra" nas listas do "Quero ser listado"
+LIMITE_TEXTO_LIVRE = 80
+_LINK = re.compile(r"https?:|www\.|\.(com|net|org|br|io|info|me)\b|@", re.IGNORECASE)
+
+
+def limpar_texto_livre(texto: str) -> str:
+    """Texto digitado pelo visitante: sem HTML, espaços normais, sem links (spam) e no tamanho máximo."""
+    limpo = " ".join(strip_tags(texto or "").replace("<", " ").replace(">", " ").split())
+    if _LINK.search(limpo):
+        raise ValidationError("Escreva só o nome, sem links, e-mails ou endereços de site.")
+    if len(limpo) > LIMITE_TEXTO_LIVRE:
+        raise ValidationError(f"Use até {LIMITE_TEXTO_LIVRE} caracteres.")
+    return limpo
+
+
 class QueroSerListadoForm(forms.Form):
     """ "Quero ser listado" (/guia/quero-ser-listado/): o mínimo para a equipe montar a ficha. Sem CPF e sem
     endereço (de casa ou não): a equipe pede o resto no contato. Campo-armadilha contra robôs."""
@@ -455,19 +473,29 @@ class QueroSerListadoForm(forms.Form):
         widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "organization"}),
         help_text="Como os clientes conhecem você. Até 120 caracteres.",
     )
-    categoria = forms.ModelChoiceField(
-        queryset=CategoriaServico.objects.none(),
+    categoria = forms.ChoiceField(
         label="O que você faz",
-        empty_label="Escolha a categoria",
         widget=forms.Select(attrs={"class": "form-select"}),
-        help_text="Escolha a mais próxima; a equipe ajusta depois.",
+        help_text='Escolha a mais próxima; a equipe ajusta depois. Não achou? Escolha "Outra (escrever)".',
     )
-    cidade = forms.ModelChoiceField(
-        queryset=Cidade.objects.none(),
+    categoria_informada = forms.CharField(
+        label="O que você faz?",
+        required=False,
+        max_length=LIMITE_TEXTO_LIVRE,
+        widget=forms.TextInput(attrs={"class": "form-control", "maxlength": LIMITE_TEXTO_LIVRE}),
+        help_text=f"Ex.: afiação de ferramentas. Até {LIMITE_TEXTO_LIVRE} caracteres, sem links.",
+    )
+    cidade = forms.ChoiceField(
         label="Cidade",
-        empty_label="Escolha a cidade",
         widget=forms.Select(attrs={"class": "form-select"}),
-        help_text="Só as cidades atendidas pelo site.",
+        help_text='As cidades atendidas pelo site. A sua não está na lista? Escolha "Outra cidade".',
+    )
+    cidade_informada = forms.CharField(
+        label="Qual cidade?",
+        required=False,
+        max_length=LIMITE_TEXTO_LIVRE,
+        widget=forms.TextInput(attrs={"class": "form-control", "maxlength": LIMITE_TEXTO_LIVRE}),
+        help_text=f"Ex.: Sinop/MT (a UF é opcional). Até {LIMITE_TEXTO_LIVRE} caracteres.",
     )
     whatsapp = forms.CharField(
         label="WhatsApp para contato",
@@ -494,13 +522,48 @@ class QueroSerListadoForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        """Categorias ativas (por grupo e nome) e só as cidades liberadas."""
+        """Categorias ativas e só as cidades liberadas, cada lista com a opção "Outra" no fim."""
         super().__init__(*args, **kwargs)
-        self.fields["categoria"].queryset = CategoriaServico.objects.filter(ativa=True).order_by("nome")
-        self.fields["cidade"].queryset = Cidade.objects.filter(liberada=True, uf__liberado=True).order_by(
-            "nome"
-        )
+        self.categorias = {str(c.pk): c for c in CategoriaServico.objects.filter(ativa=True).order_by("nome")}
+        self.cidades = {
+            str(c.pk): c for c in Cidade.objects.filter(liberada=True, uf__liberado=True).order_by("nome")
+        }
+        self.fields["categoria"].choices = [
+            ("", "Escolha a categoria"),
+            *[(pk, str(c)) for pk, c in self.categorias.items()],
+            (OUTRA, "Outra (escrever)"),
+        ]
+        self.fields["cidade"].choices = [
+            ("", "Escolha a cidade"),
+            *[(pk, str(c)) for pk, c in self.cidades.items()],
+            (OUTRA, "Outra cidade"),
+        ]
 
     def clean_whatsapp(self) -> str:
         """WhatsApp brasileiro em E.164 (+55...)."""
         return normalizar_whatsapp(self.cleaned_data["whatsapp"])
+
+    def clean_categoria_informada(self) -> str:
+        """Texto livre limpo (sem HTML, sem link)."""
+        return limpar_texto_livre(self.cleaned_data["categoria_informada"])
+
+    def clean_cidade_informada(self) -> str:
+        """Texto livre limpo (sem HTML, sem link)."""
+        return limpar_texto_livre(self.cleaned_data["cidade_informada"])
+
+    def clean(self) -> dict:
+        """Escolha da lista vira o objeto; "Outra" obriga o texto (e o texto só vale com "Outra")."""
+        dados = super().clean()
+        for campo, informado, opcoes, falta in (
+            ("categoria", "categoria_informada", self.categorias, "Escreva o que você faz."),
+            ("cidade", "cidade_informada", self.cidades, "Escreva qual é a sua cidade."),
+        ):
+            escolha = dados.get(campo)
+            if escolha == OUTRA:
+                dados[campo] = None
+                if not dados.get(informado) and informado not in self.errors:
+                    self.add_error(informado, falta)
+            elif escolha:
+                dados[campo] = opcoes[escolha]  # ChoiceField já recusou valor fora da lista
+                dados[informado] = ""
+        return dados

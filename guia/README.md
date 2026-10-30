@@ -18,6 +18,8 @@ Etapas feitas: **G1 (base)**, **G2 (páginas públicas)** e **G3 (LGPD e operaç
 - `AceitePublicacao` (histórico): nome digitado, data e hora, versão, IP truncado, navegador resumido; foto do
   termo em papel no storage **privado**; revogação.
 - `ContatoConvite` (G3): lista de convites, sem página pública; recusou / não contatar bloqueiam o número.
+  "Quero ser listado" com "Outra cidade" / "Outra (escrever)": `cidade` vazia e `cidade_informada` /
+  `categoria_informada` (texto limpo); filtro "Pedidos de outra cidade" no admin; sem cidade atendida não vira ficha.
 - `EstatisticaGuiaDia` (visualizações e cliques por dia, sem IP), `PedidoDoPerfil` (MarcaDemo; pela ficha ou registrado pela equipe),
   `ConfiguracaoGuia` (registro único).
 

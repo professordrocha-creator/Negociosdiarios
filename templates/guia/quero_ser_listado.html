@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% load nd %}
+{% load nd static %}
 {# "Quero ser listado" (captação do guia): formulário curto, mobile primeiro. Não publica nada: vai para a #}
 {# lista de convites do admin. Campo site_empresa = armadilha para robôs (.nd-armadilha). Sem CPF e sem endereço. #}
+{# "Outra cidade" / "Outra (escrever)": o texto aparece só com essa opção (js/quero-ser-listado.js). #}
 
 {% block titulo %}Quero ser listado · {{ nome_guia }}{% endblock %}
 {% block descricao %}Peça para entrar no {{ nome_guia }}: grátis. A equipe monta a ficha e você autoriza antes de publicar.{% endblock %}
@@ -25,7 +26,9 @@
       {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
       {% include "anunciantes/_campo.html" with campo=form.nome %}
       {% include "anunciantes/_campo.html" with campo=form.categoria %}
+      <div data-outra-de="{{ form.categoria.html_name }}">{% include "anunciantes/_campo.html" with campo=form.categoria_informada %}</div>
       {% include "anunciantes/_campo.html" with campo=form.cidade %}
+      <div data-outra-de="{{ form.cidade.html_name }}">{% include "anunciantes/_campo.html" with campo=form.cidade_informada %}</div>
       {% include "anunciantes/_campo.html" with campo=form.whatsapp %}
       {% include "anunciantes/_campo.html" with campo=form.responsavel_nome %}
       <div class="form-check">
@@ -42,3 +45,5 @@
   </div>
 </main>
 {% endblock %}
+
+{% block scripts %}<script src="{% static 'js/quero-ser-listado.js' %}" defer></script>{% endblock %}

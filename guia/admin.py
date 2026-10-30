@@ -822,6 +822,23 @@ class PedidoDoPerfilAdmin(SimpleHistoryAdmin):
         )
 
 
+class OutraCidadeFilter(admin.SimpleListFilter):
+    """ "Pedidos de outra cidade": quem pediu pelo site numa cidade que o guia ainda não atende."""
+
+    title = "pedidos de outra cidade"
+    parameter_name = "outra_cidade"
+
+    def lookups(self, request, model_admin):
+        """Só a opção que interessa (a lista inteira é o "Todos")."""
+        return [("sim", "Pedidos de outra cidade")]
+
+    def queryset(self, request, queryset):
+        """Com cidade informada (fora da lista)."""
+        if self.value() == "sim":
+            return queryset.exclude(cidade_informada="")
+        return queryset
+
+
 @admin.register(ContatoConvite)
 class ContatoConviteAdmin(SimpleHistoryAdmin):
     """Lista de convites (docs/GUIA.md §9): importar CSV com prévia, convidar um por vez pelo WhatsApp, marcar
@@ -831,22 +848,24 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
     list_display = (
         "nome",
         "whatsapp_legivel",
-        "cidade",
-        "categoria",
+        "cidade_da_lista",
+        "categoria_da_lista",
         "origem",
         "situacao",
         "convidado_em",
         "acoes",
         "demo",
     )
-    list_filter = ("situacao", "origem", "cidade", "demo")
-    search_fields = ("nome", "whatsapp")
+    list_filter = ("situacao", "origem", OutraCidadeFilter, "cidade", "demo")
+    search_fields = ("nome", "whatsapp", "cidade_informada", "categoria_informada")
     list_select_related = ("cidade", "categoria", "perfil")
     fields = (
         "nome",
         "whatsapp",
         "cidade",
+        "cidade_informada",
         "categoria",
+        "categoria_informada",
         "origem",
         "situacao",
         "convidado_em",
@@ -862,6 +881,20 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
     def whatsapp_legivel(self, contato: ContatoConvite) -> str:
         """(65) 99999-0000."""
         return services.telefone_legivel(contato.whatsapp)
+
+    @admin.display(description="cidade", ordering="cidade__nome")
+    def cidade_da_lista(self, contato: ContatoConvite) -> str:
+        """A cidade atendida ou, em pedido de outra cidade, "Cidade informada: ..."."""
+        if contato.cidade_informada:
+            return format_html("<b>Cidade informada:</b> {}", contato.cidade_informada)
+        return str(contato.cidade or "—")
+
+    @admin.display(description="categoria", ordering="categoria__nome")
+    def categoria_da_lista(self, contato: ContatoConvite) -> str:
+        """A categoria da lista ou "Categoria informada: ..." (a oficial a equipe escolhe)."""
+        if contato.categoria_informada:
+            return format_html("<b>Categoria informada:</b> {}", contato.categoria_informada)
+        return str(contato.categoria or "—")
 
     @admin.display(description="ações")
     def acoes(self, contato: ContatoConvite) -> str:

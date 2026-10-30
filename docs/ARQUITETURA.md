@@ -203,7 +203,8 @@ Isolado dos classificados (não usa `Anunciante`; vínculo opcional `PerfilGuia.
 - G3: `PedidoDoPerfil.origem` (ficha | email | outro); `PerfilGuia.removido_em`; `CategoriaServico.estabelecimento`
   (regulada que mostra horário: `PerfilGuia.mostra_horario`); `TermoGuia` com `MarcaDemo`; `ConfiguracaoGuia`
   ganhou `dias_aceite_termo_novo` (30) e `pedidos_por_hora` (5); `ContatoConvite` (MarcaDemo + histórico:
-  nome, WhatsApp E.164, cidade, categoria, origem, situação novo | convidado | aceitou | recusou | nao_contatar,
+  nome, WhatsApp E.164, cidade (vazia só em pedido de outra cidade), `cidade_informada` e `categoria_informada`
+  (texto livre do "Outra" no Quero ser listado), categoria, origem, situação novo | convidado | aceitou | recusou | nao_contatar,
   `convidado_em`, `perfil`). Rotina diária `guia.tasks.rotina_do_guia` (4:30): links do termo novo, pausa de quem
   passou do prazo, limpeza depois do prazo de prova.
 

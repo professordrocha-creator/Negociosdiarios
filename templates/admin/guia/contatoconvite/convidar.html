@@ -5,7 +5,7 @@
 {% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'admin:guia_contatoconvite_changelist' %}">Lista de convites</a> › {{ title }}</div>{% endblock %}
 {% block content %}
 <div class="module nd-guia-painel">
-  <p><b>{{ contato.nome }}</b> · {{ contato.cidade }}{% if contato.categoria %} · {{ contato.categoria }}{% endif %}{% if contato.convidado_em %} · já convidado em {{ contato.convidado_em|date:"d/m/Y" }}{% endif %}</p>
+  <p><b>{{ contato.nome }}</b> · {{ contato.cidade|default:contato.cidade_informada }}{% if contato.categoria %} · {{ contato.categoria }}{% endif %}{% if contato.convidado_em %} · já convidado em {{ contato.convidado_em|date:"d/m/Y" }}{% endif %}</p>
   {% if bloqueado %}
     <p class="nd-guia-erro"><b>Este número recusou ou pediu para não ser contatado.</b> Não envie convite.</p>
   {% else %}
