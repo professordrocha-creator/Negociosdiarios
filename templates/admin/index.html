@@ -37,6 +37,8 @@
           <span class="nd-fazer-texto"><a href="{{ item.url_abrir }}">{{ item.texto }}</a>{% if item.desde %} <small>desde {{ item.desde|date:"d/m/Y" }}</small>{% endif %}</span>
           {% if item.aprovar_agora %}
             <form method="post" action="{% url 'admin:aprovar_agora' item.aprovar_agora item.pk %}">{% csrf_token %}<button type="submit" class="button default">Aprovar</button></form>
+          {% elif item.url_aprovar_post %}
+            <form method="post" action="{{ item.url_aprovar_post }}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin:index' %}"><button type="submit" class="button default">Aprovar</button></form>
           {% elif item.url_aprovar %}
             <a class="button default" href="{{ item.url_aprovar }}">Aprovar</a>
           {% else %}
@@ -59,5 +61,26 @@
     {% include "admin/app_list.html" with app_list=mais_opcoes show_changelinks=True %}
   </details>
   {% endif %}
+</div>
+{% endblock %}
+
+{# "Ações recentes" (Parte 4): as 5 mais novas, com as repetidas juntas (core.services.acoes_recentes). #}
+{% block sidebar %}
+<div id="content-related">
+  <div class="module" id="recent-actions-module">
+    <h2>Ações recentes</h2>
+    {% if not acoes_recentes %}
+    <p>Nenhuma ainda.</p>
+    {% else %}
+    <ul class="actionlist">
+      {% for acao in acoes_recentes %}{% with entry=acao.entrada %}
+      <li class="{% if entry.is_addition %}addlink{% elif entry.is_change %}changelink{% elif entry.is_deletion %}deletelink{% endif %}">
+        {% if entry.is_deletion or not entry.get_admin_url %}{{ entry.object_repr }}{% else %}<a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>{% endif %}{% if acao.vezes > 1 %} <b>({{ acao.vezes }}×)</b>{% endif %}
+        <br><span class="mini quiet">{% if entry.content_type %}{{ entry.content_type.name|capfirst }}{% endif %} · {{ entry.action_time|date:"d/m H:i" }}</span>
+      </li>
+      {% endwith %}{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

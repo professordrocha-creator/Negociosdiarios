@@ -78,8 +78,9 @@ def test_pendente_escolhe_plano_confere_dados_e_ve_o_pix(cliente, pendente):
     assert pendente.whatsapp == "+5565988880002" and pendente.status == Anunciante.Status.PENDENTE
 
     pagina = cliente.get(resposta.url).content.decode()
-    assert "data:image/svg+xml" in pagina and "br.gov.bcb.pix" in pagina and "Já paguei" in pagina
-    assert "acesso é liberado" in pagina
+    assert "data:image/svg+xml" in pagina and "br.gov.bcb.pix" in pagina
+    assert "Fiz o Pix, avisar a equipe" in pagina
+    assert "a loja é aprovada e o plano fica ativo" in pagina
 
 
 def test_sem_email_confirmado_nao_escolhe_plano(client, criar_anunciante):
@@ -468,3 +469,147 @@ def test_pagamento_manual_anual_soma_365_dias(loja):
     services.registrar_pagamento_manual(assinatura_de(anunciante), None, "Pix conferido no extrato")
 
     assert assinatura_de(anunciante).vencimento == vencimento + timedelta(days=365)
+
+
+# --- Parte 4: fluxo único (cadastro com plano → Pix → uma aprovação) --------------------------------------
+
+
+def test_cadastro_com_plano_leva_direto_ao_pix_depois_de_entrar(client, tangara):
+    """O plano escolhido viaja no cadastro e vira o pedido; confirmado o e-mail, ao entrar o cliente cai na
+    tela do Pix desse pedido (sem escolher o plano de novo)."""
+    import re
+    from urllib.parse import urlsplit
+
+    plano = Plano.objects.get(slug="profissional")
+    pagina = client.get(
+        reverse("anunciantes:cadastro") + "?plano=profissional&periodo=anual"
+    ).content.decode()
+    assert "Você escolheu o plano <b>Profissional</b>, anual" in pagina
+    client.post(
+        reverse("anunciantes:cadastro"),
+        {
+            "nome": "Ana Dona",
+            "email": "ana@loja.example",
+            "senha": SENHA,  # constante de teste compartilhada (anunciantes/tests/conftest.py)
+            "tipo": "revenda",
+            "nome_publico": "Loja da Ana",
+            "documento": "90.000.001/0001-29",
+            "whatsapp": "(65) 99999-4321",
+            "cidade": tangara.pk,
+            "plano": plano.pk,
+            "periodicidade": "anual",
+            "aceite": "on",
+            "site_empresa": "",
+        },
+    )
+    loja = Anunciante.objects.get(nome_publico="Loja da Ana")
+    pedido = services.pedido_em_aberto(loja)
+    assert pedido.valor == plano.preco_anual and assinatura_de(loja).periodicidade == "anual"
+
+    confirme = next(m for m in mail.outbox if m.subject.startswith("Confirme seu e-mail"))
+    client.get(urlsplit(re.search(r"http\S+/cadastro/confirmar/\S+", confirme.body)[0]).path)
+    aviso = next(m for m in mail.outbox if m.subject.startswith("Novo cadastro aguardando"))
+    assert "Profissional (anual)" in aviso.body and pedido.identificador_pix in aviso.body
+    assert reverse("admin:pagamentos_pedidoaguardando_aprovar", args=[pedido.pk]) in aviso.body
+
+    # Login de verdade pela tela /entrar/ (sem force_login): é o que o navegador faz.
+    resposta = client.post(
+        reverse("contas:entrar"),
+        {"username": "ana@loja.example", "password": SENHA},
+        follow=True,
+    )
+    assert resposta.redirect_chain[-1][0] == reverse("pagamentos:pagar", args=[pedido.codigo])
+    assert "Fiz o Pix, avisar a equipe" in resposta.content.decode()
+
+
+def test_login_sem_email_confirmado_ou_com_senha_errada_explica(client, criar_anunciante):
+    """Loja com o e-mail ainda não confirmado não entra (pede para confirmar); senha errada diz que o e-mail
+    ou a senha estão incorretos. As duas mensagens aparecem em destaque de erro."""
+    loja = criar_anunciante("pendente@exemplo.com", "Loja P", status=Anunciante.Status.PENDENTE)
+    Usuario.objects.filter(pk=loja.usuario_id).update(email_confirmado_em=None)
+    entrar = reverse("contas:entrar")
+
+    sem_confirmar = client.post(entrar, {"username": "pendente@exemplo.com", "password": SENHA})
+    assert (
+        sem_confirmar.status_code == 200 and "Falta confirmar o seu e-mail" in sem_confirmar.content.decode()
+    )
+    assert "_auth_user_id" not in client.session
+
+    errada = client.post(
+        entrar, {"username": "pendente@exemplo.com", "password": SENHA + "-errada"}
+    ).content.decode()
+    assert "E-mail ou senha incorretos" in errada and 'class="alert alert-danger"' in errada
+
+
+def test_aprovar_com_um_clique_na_lista(equipe_admin, pendente):
+    """ "Aprovar" é a primeira coluna e aprova sem tela extra (datas sugeridas): loja, pagamento e plano."""
+    fatura = services.fazer_pedido(pendente, basico(), Periodicidade.MENSAL)
+    client, comercial = equipe_admin("Comercial")
+    lista_url = reverse("admin:pagamentos_pedidoaguardando_changelist")
+    rapido = reverse("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=[fatura.pk])
+
+    lista = client.get(lista_url).content.decode()
+    assert f'formaction="{rapido}"' in lista and fatura.identificador_pix in lista
+
+    resposta = client.post(rapido)
+
+    assert resposta.status_code == 302 and resposta.url == lista_url
+    pendente.refresh_from_db()
+    assinatura = assinatura_de(pendente)
+    assert pendente.status == Anunciante.Status.ATIVO and assinatura.situacao == "ativa"
+    assert assinatura.inicio == timezone.localdate()
+    assert Fatura.objects.get(pk=fatura.pk).confirmado_por == comercial
+
+
+def test_sem_email_confirmado_nao_aprova_e_oferece_reenviar(equipe_admin, criar_anunciante):
+    """Decisão do dono: a aprovação continua exigindo o e-mail confirmado; a linha oferece "Reenviar link"."""
+    loja = criar_anunciante("semconfirmar@exemplo.com", "Loja X", status=Anunciante.Status.PENDENTE)
+    Usuario.objects.filter(pk=loja.usuario_id).update(email_confirmado_em=None)
+    fatura = services.fazer_pedido(loja, basico(), Periodicidade.MENSAL)
+    client, _ = equipe_admin("Comercial")
+
+    lista = client.get(reverse("admin:pagamentos_pedidoaguardando_changelist")).content.decode()
+    assert "Aguardando o cliente confirmar o e-mail" in lista and "Reenviar link" in lista
+
+    mail.outbox.clear()
+    client.post(reverse("admin:pagamentos_pedidoaguardando_reenviar", args=[fatura.pk]))
+    assert [m.subject for m in mail.outbox][0].startswith("Confirme seu e-mail")
+
+    client.post(reverse("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=[fatura.pk]))
+    loja.refresh_from_db()
+    assert loja.status == Anunciante.Status.PENDENTE and assinatura_de(loja).situacao == "pendente"
+
+
+def test_ficha_da_loja_mostra_o_pedido_com_aprovar(equipe_admin, pendente):
+    """Na ficha da loja: plano, valor, identificador do Pix e o botão que aprova tudo e volta para a ficha."""
+    fatura = services.fazer_pedido(pendente, basico(), Periodicidade.MENSAL)
+    client, _ = equipe_admin("Comercial")
+    ficha = reverse("admin:anunciantes_anunciante_change", args=[pendente.pk])
+
+    pagina = client.get(ficha).content.decode()
+    assert "Pedido aguardando aprovação" in pagina and fatura.identificador_pix in pagina
+    rapido = reverse("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=[fatura.pk])
+    assert f'formaction="{rapido}"' in pagina
+
+    resposta = client.post(rapido, {"next": ficha})
+    assert resposta.url == ficha and assinatura_de(pendente).situacao == "ativa"
+
+
+def test_confirmar_pagamento_das_faturas_nao_aprova_cadastro_novo(equipe_admin, pendente):
+    """A ação da lista de Faturas deixa de fora o pedido de cadastro novo e aponta para Cadastros
+    aguardando."""
+    from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
+
+    fatura = services.fazer_pedido(pendente, basico(), Periodicidade.MENSAL)
+    client, _ = equipe_admin("Financeiro")
+
+    resposta = client.post(
+        reverse("admin:pagamentos_fatura_changelist"),
+        {"action": "confirmar_pagamento_acao", ACTION_CHECKBOX_NAME: [fatura.pk]},
+        follow=True,
+    )
+
+    assert "Cadastros aguardando" in resposta.content.decode()
+    assert Fatura.objects.get(pk=fatura.pk).situacao == Fatura.Situacao.ABERTA
+    pendente.refresh_from_db()
+    assert pendente.status == Anunciante.Status.PENDENTE

@@ -19,7 +19,7 @@
         <h1 class="h4 m-0 me-auto">Página da loja</h1>
         <a class="btn btn-outline-secondary btn-sm" href="{% url 'anunciantes:loja' anunciante.slug %}" target="_blank" rel="noopener">Ver como o cliente vê ›</a>
       </div>
-      <div class="mb-3">{% include "_ajuda.html" %}</div>
+      <div class="mb-3">{% include "_ajuda.html" with compacta=True %}</div>
       {% if messages %}{% for m in messages %}<div class="alert alert-success py-2" role="status">{{ m }}</div>{% endfor %}{% endif %}
       {% if anunciante.imagens_processando %}
         <div class="alert alert-info py-2" role="status">{% icone "relogio" %} Estamos otimizando as imagens enviadas. Recarregue a página em alguns segundos.</div>

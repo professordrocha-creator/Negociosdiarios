@@ -12,7 +12,7 @@
 <main class="container mt-4">
   <div class="mx-auto d-grid gap-4 nd-assinar">
     <h1 class="h4 m-0">Escolher plano</h1>
-    {% include "_ajuda.html" %}
+    {% include "_ajuda.html" with compacta=True %}
     {% if messages %}{% for m in messages %}<div class="alert alert-info py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
     {% if aberto %}
       <div class="alert alert-info py-2 mb-0" role="status">
@@ -62,7 +62,7 @@
 
       <div class="d-grid gap-2">
         <div><button type="submit" class="btn btn-ipe">Continuar para o pagamento</button></div>
-        <span class="small text-suave">Na próxima tela aparecem o QR Code e o Pix copia e cola. O acesso é liberado depois que a equipe conferir o pagamento.</span>
+        <span class="small text-suave">Na próxima tela aparecem o QR Code e o Pix copia e cola. Conferido o Pix, a equipe aprova a loja e ativa o plano de uma vez.</span>
       </div>
     </form>
   </div>

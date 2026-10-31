@@ -16,7 +16,7 @@
     {% endfor %}
   </ol>
 </nav>
-{% include "_ajuda.html" %}
+{% include "_ajuda.html" with compacta=True %}
 {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
 {% if anuncio and anuncio.situacao == "rascunho" and anuncio.motivo_moderacao %}
   <div class="alert alert-warning py-2 mb-0" role="alert">{% icone "alerta" %} <b>A equipe pediu ajustes:</b> <span class="nd-texto-livre">{{ anuncio.motivo_moderacao }}</span> Corrija e envie de novo na revisão.</div>

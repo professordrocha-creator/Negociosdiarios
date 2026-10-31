@@ -8,7 +8,7 @@
   {% elif assinatura.situacao == "cancelada" %}
     <div class="alert alert-secondary py-2 mb-0" role="status">{% icone "alerta" %} <b>Assinatura cancelada.</b> <a href="{% url 'pagamentos:assinar' %}">Escolha um plano e pague pelo Pix</a> para voltar a anunciar.</div>
   {% elif assinatura.situacao == "pendente" %}
-    <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} <b>Plano aguardando pagamento.</b> O acesso é liberado assim que a equipe conferir o Pix. <a href="{% url 'pagamentos:assinar' %}">Ver pagamento</a>.</div>
+    <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} <b>Plano aguardando pagamento.</b> O plano fica ativo assim que a equipe conferir o Pix. <a href="{% url 'pagamentos:assinar' %}">Ver pagamento</a>.</div>
   {% elif assinatura.vigencia_encerrada %}
     <div class="alert alert-warning py-2 mb-0" role="alert">{% icone "alerta" %} <b>Seu plano venceu em {{ assinatura.vencimento|date:"d/m/Y" }}.</b> Os anúncios no ar continuam, mas anúncios novos só depois do pagamento. <a href="{% url 'pagamentos:faturas' %}">Pagar a fatura</a>.</div>
   {% endif %}

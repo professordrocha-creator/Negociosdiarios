@@ -493,13 +493,16 @@ def test_criar_dados_demo_cria_regiao_bairros_e_solicitacao(dev):
 
     regiao = Regiao.objects.get(slug="regiao-de-tangara")
     assert regiao.demo and regiao.cidades.count() == 4
-    assert set(Bairro.objects.filter(cidade__codigo_ibge=TANGARA).values_list("nome", flat=True)) == {
+    da_equipe = Bairro.objects.filter(cidade__codigo_ibge=TANGARA, criado_por__isnull=True)
+    assert set(da_equipe.values_list("nome", flat=True)) == {
         "Centro",
         "Jardim Europa",
         "Vila Alta",
         "Jardim Tarumã",
         "Estrada da Serra",
     }
+    # Parte 4: um bairro "criado por loja" (repetido de propósito) para testar o "Juntar" no admin.
+    assert Bairro.objects.get(slug="jd-centro-demo").criado_por.demo
     solicitacao = SolicitacaoCidade.objects.get()
     assert solicitacao.cidade.nome == "Sinop" and solicitacao.status == "pendente" and solicitacao.demo
     assert not solicitacao.cidade.liberada

@@ -133,7 +133,13 @@ Planejado: `telefone`.
   corretor autônomo também com N anúncios já aprovados). Edição de preço, cidade ou tipo de anúncio publicado:
   histórico "Campos sensíveis"; sem confiança, volta para a fila.
 
-### Pedido de plano com Pix e "Cadastros aguardando" (lote 3B)
+### Pedido de plano com Pix e "Cadastros aguardando" (lote 3B; fluxo único na Parte 4)
+- Parte 4: o plano escolhido em `/planos/` (`?plano=<slug>&periodo=`) ou no próprio `CadastroForm` vira o pedido já
+  no cadastro (`cadastrar_anunciante` chama `fazer_pedido`); loja pendente com pedido não pago vai direto à tela
+  Pagar (`anunciante_ativo`). "Aprovar" com um clique (`PedidoAguardandoAdmin.aprovar_rapido`, datas de
+  `datas_sugeridas`; "ajustar datas" abre a tela antiga), também no topo da ficha da loja e no Painel de hoje
+  (`ItemFazerAgora.url_aprovar_post`). Sem e-mail confirmado não aprova ("Reenviar link"). "Confirmar pagamento"
+  das Faturas ignora pedido de assinatura `pendente`. "Novo anúncio" sem plano vigente para no começo.
 - Sem modelo novo de pedido: o pedido é a `Fatura` (situação `aberta` = aguardando pagamento,
   `aguardando_confirmacao` = aguardando conferência) de uma `Assinatura` `pendente`.
 - `Configuracao`: `pix_chave`, `pix_nome` (25), `pix_cidade` (15), `pix_instrucao` (editados pelo proxy
@@ -435,7 +441,7 @@ Hoje: só Mato Grosso. Amanhã: qualquer estado, **sem mudar código nem URLs**.
 ```
 Estado (uf, nome, liberado)            ← 27 estados, carga IBGE
   └─N Cidade (codigo_ibge, nome, slug, uf→Estado.uf, liberada, ponto)   ← 5.571 cidades, carga IBGE
-        ├─N Bairro (nome, slug, ativo)
+        ├─N Bairro (nome, slug, ativo, criado_por → Anunciante, criado_em)
         └─N Regiao (nome, slug) via M2M  ← agrupamentos criados pelo admin
 SolicitacaoCidade (anunciante, cidade, status, decidido_por, motivo)   ← app anunciantes
 ```
@@ -443,6 +449,11 @@ Implementado na Sprint 1 (parte 3): `Regiao` (nome, slug, cidades M2M; demo), `B
 slug único por cidade, ativo; demo) no app `core`; `SolicitacaoCidade` (status pendente | liberada |
 recusada, motivo, decidido_por/em, criado_em; demo) no app `anunciantes`. Liberar a cidade atende todas
 as solicitações pendentes dela; loja só é aprovada (ativa) em cidade liberada.
+Parte 4: `Bairro.criado_por` (loja que criou pelo "Outro bairro" do anúncio; vazio = equipe) e `criado_em`;
+`Configuracao.bairros_novos_por_dia` (3). Serviços: `normalizar_nome_bairro`, `bairro_informado` (sem duplicar
+por slug, limite por dia, inativo não volta) e `juntar_bairros` (anúncios com histórico e fichas do guia passam
+para o que fica; os outros ficam inativos). Admin de Bairros: filtro por cidade e "criado por loja", ação
+"Juntar bairros duplicados".
 
 Regras:
 1. Site, filtros e cadastro mostram **só** cidades `liberada=True` de estados `liberado=True`.

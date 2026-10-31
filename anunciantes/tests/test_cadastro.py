@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from anunciantes.models import Anunciante
 from contas.models import AceiteDocumento, Usuario
+from planos.models import Plano
 
 pytestmark = pytest.mark.django_db
 
@@ -19,7 +20,8 @@ def dados(tangara):
         "nome": "Maria Souza",
         "email": "Maria@Revenda.example",
         "senha": SENHA_NOVA,
-        "senha_confirmacao": SENHA_NOVA,
+        "plano": Plano.objects.get(slug="basico").pk,
+        "periodicidade": "mensal",
         "tipo": "revenda",
         "nome_publico": "Revenda da Maria",
         "documento": "90.000.001/0001-29",
@@ -97,10 +99,11 @@ def test_corretor_se_cadastra_com_creci(client, dados):
 
 
 def test_obrigado_explica_os_proximos_passos(client, db):
-    """A tela de obrigado fala de confirmar o e-mail e da análise."""
+    """A tela de obrigado fala de confirmar o e-mail, do Pix e da conferência (Parte 4)."""
     html = client.get(reverse("anunciantes:cadastro_obrigado")).content.decode()
 
-    assert "Confirme seu e-mail" in html and "48 horas" in html and "análise" in html.lower()
+    assert "Confirme seu e-mail" in html and "48 horas" in html
+    assert "Pague o plano pelo Pix" in html and "conferência" in html.lower()
 
 
 def test_slug_repetido_ganha_sufixo(client, dados, criar_anunciante):
@@ -119,8 +122,8 @@ def test_slug_repetido_ganha_sufixo(client, dados, criar_anunciante):
 @pytest.mark.parametrize(
     ("mudanca", "campo", "trecho"),
     [
-        ({"senha_confirmacao": "Outra-Senha-2026"}, "senha_confirmacao", "não são iguais"),
-        ({"senha": "12345678", "senha_confirmacao": "12345678"}, "senha", ""),
+        ({"senha": "12345678"}, "senha", ""),
+        ({"plano": ""}, "plano", "obrigatório"),
         ({"documento": "90.000.001/0001-28"}, "documento", "verificadores"),
         ({"tipo": "corretor_autonomo"}, "documento", "CRECI inválido"),  # corretor com CNPJ
         ({"whatsapp": "1234"}, "whatsapp", "WhatsApp inválido"),
@@ -245,3 +248,24 @@ def test_anunciante_logado_vai_para_o_painel(client, criar_anunciante):
     client.force_login(criar_anunciante("a@exemplo.com", "Loja A").usuario)
 
     assert client.get(reverse("anunciantes:cadastro"))["Location"] == reverse("anunciantes:painel")
+
+
+def test_email_de_confirmacao_traz_o_link_que_confirma(client, dados, settings):
+    """Do cadastro ao clique: o e-mail "Confirme" traz o link completo (com o SITE_URL) e o texto certo; abrir
+    o link confirma o e-mail. "Recebemos" diz "quando a loja for aprovada"."""
+    import re
+    from urllib.parse import urlsplit
+
+    settings.SITE_URL = "https://negociosdiarios.com.br"
+    cadastrar(client, dados)
+    confirme = next(m for m in mail.outbox if m.subject.startswith("Confirme seu e-mail"))
+    recebemos = next(m for m in mail.outbox if m.subject.startswith("Recebemos seu cadastro"))
+
+    links = re.findall(r"https://negociosdiarios\.com\.br/\S+", confirme.body)
+    assert len(links) == 1 and "/cadastro/confirmar/" in links[0]
+    assert "funciona uma vez só" in confirme.body
+    assert "quando a loja for aprovada" in recebemos.body
+
+    client.get(urlsplit(links[0]).path)
+
+    assert Usuario.objects.get(email="maria@revenda.example").email_confirmado_em is not None

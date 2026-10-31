@@ -39,19 +39,28 @@ def test_senha_errada_nao_entra(client, criar_anunciante):
     assert "_auth_user_id" not in client.session
 
 
-@pytest.mark.parametrize(
-    ("status", "trecho"),
-    [(Anunciante.Status.PENDENTE, "em análise"), (Anunciante.Status.SUSPENSO, "suspensa")],
-)
-def test_anunciante_pendente_ou_suspenso_nao_entra(client, criar_anunciante, status, trecho):
-    """Loja não ativa: senha certa, mas o login é recusado com mensagem que explica."""
-    criar_anunciante("loja@exemplo.com", "Loja X", status=status)
+def test_anunciante_suspenso_nao_entra(client, criar_anunciante):
+    """Loja suspensa: senha certa, mas o login é recusado com mensagem que explica."""
+    criar_anunciante("loja@exemplo.com", "Loja X", status=Anunciante.Status.SUSPENSO)
 
     resposta = entrar(client, "loja@exemplo.com")
 
     assert resposta.status_code == 200
-    assert trecho in resposta.content.decode()
+    assert "suspensa" in resposta.content.decode()
     assert "_auth_user_id" not in client.session
+
+
+def test_pendente_com_email_confirmado_entra_e_ve_o_proximo_passo(client, criar_anunciante):
+    """Loja pendente com o e-mail confirmado entra (paga o plano pelo Pix antes da aprovação). Sem pedido de
+    plano, o painel mostra "em análise" com o botão para escolher o plano (com pedido: vai direto ao Pix, ver
+    pagamentos/tests/test_pedido_pix.py)."""
+    criar_anunciante("loja@exemplo.com", "Loja X", status=Anunciante.Status.PENDENTE)
+
+    resposta = entrar(client, "loja@exemplo.com")
+
+    assert resposta.status_code == 302 and "_auth_user_id" in client.session
+    painel = client.get(resposta.url).content.decode()
+    assert "em análise" in painel and "Escolher plano e pagar" in painel
 
 
 def test_equipe_pelo_login_do_cliente_vai_ao_admin(client, db):

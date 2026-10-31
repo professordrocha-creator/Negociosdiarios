@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{# Ação "Juntar bairros duplicados" (Parte 4): escolha qual nome fica. Os anúncios e fichas do guia dos outros #}
+{# passam para ele e os outros ficam inativos (nada se apaga; fica no histórico). #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Painel</a> › <a href="{% url 'admin:core_bairro_changelist' %}">Bairros</a> › {{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<form method="post">{% csrf_token %}
+  <p>Bairros de <b>{{ bairros.0.cidade }}</b>. Escolha o nome que fica:</p>
+  <ul>
+    {% for bairro in bairros %}
+    <li><label><input type="radio" name="manter" value="{{ bairro.pk }}"{% if forloop.first %} checked{% endif %}> {{ bairro.nome }}{% if bairro.criado_por %} <small>(criado pela loja {{ bairro.criado_por.nome_publico }})</small>{% endif %}{% if not bairro.ativo %} <small>(inativo)</small>{% endif %}</label></li>
+    {% endfor %}
+  </ul>
+  <p class="help">Os anúncios e as fichas do guia dos outros bairros passam para o escolhido; os outros ficam inativos.</p>
+  {% for bairro in bairros %}<input type="hidden" name="{{ action_checkbox_name }}" value="{{ bairro.pk }}">{% endfor %}
+  <input type="hidden" name="action" value="juntar_duplicados">
+  <input type="hidden" name="aplicar" value="1">
+  <div class="submit-row">
+    <input type="submit" class="default" value="Juntar">
+    <a href="{% url 'admin:core_bairro_changelist' %}" class="button cancel-link">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

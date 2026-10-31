@@ -35,6 +35,7 @@ from core.services import (
 
 if TYPE_CHECKING:
     from contas.models import Usuario
+    from planos.models import Plano
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,8 @@ MENSAGENS_SEM_ACESSO = {
         "Falta confirmar o seu e-mail: abra o link que enviamos. Depois disso o cadastro vai para análise."
     ),
     Anunciante.Status.PENDENTE: (
-        "Seu cadastro está em análise. Escolha seu plano e pague pelo Pix: o acesso é liberado assim que a "
-        "equipe conferir o pagamento e o documento. Avisaremos por e-mail."
+        "Seu cadastro está em análise. Escolha seu plano e pague pelo Pix: assim que a equipe conferir o "
+        "pagamento e o documento, a loja é aprovada e o plano fica ativo. Avisaremos por e-mail."
     ),
     Anunciante.Status.SUSPENSO: "Sua loja está suspensa. Fale com a gente para entender o motivo.",
     Anunciante.Status.ENCERRADO: "Esta conta foi excluída a pedido do titular.",
@@ -359,6 +360,8 @@ class DadosCadastro:
     documento_numero: str
     whatsapp: str
     cidade: Cidade
+    plano: Plano | None = None  # Parte 4: o plano escolhido vira o pedido do Pix já no cadastro
+    periodicidade: str = "mensal"
 
 
 def slug_livre(nome_publico: str) -> str:
@@ -372,11 +375,13 @@ def slug_livre(nome_publico: str) -> str:
 
 
 def cadastrar_anunciante(dados: DadosCadastro) -> Anunciante:
-    """Cria a conta, a loja (pendente) e os aceites dos documentos; depois envia os e-mails.
+    """Cria a conta, a loja (pendente), os aceites dos documentos e o pedido do plano escolhido (fatura do
+    Pix "aguardando pagamento"); depois envia os e-mails.
 
     Tudo numa transação: com erro, nada fica pela metade. Os e-mails ("confirme seu
     e-mail" e "recebemos seu cadastro") só saem depois que o banco gravou. A equipe só
-    é avisada quando o e-mail for confirmado (`confirmar_email`).
+    é avisada quando o e-mail for confirmado (`confirmar_email`). Ao entrar, o cliente vai direto à tela do
+    Pix desse pedido; a aprovação em "Cadastros aguardando" aprova a loja e ativa o plano de uma vez.
     """
     Usuario = get_user_model()
     with transaction.atomic():
@@ -402,6 +407,10 @@ def cadastrar_anunciante(dados: DadosCadastro) -> Anunciante:
         from privacidade.services import documentos_vigentes, registrar_aceites
 
         registrar_aceites(usuario, documentos_vigentes())  # as versões em vigor dos Termos e da Privacidade
+        if dados.plano is not None:
+            from pagamentos.services import fazer_pedido  # import local: pagamentos importa este módulo
+
+            fazer_pedido(anunciante, dados.plano, dados.periodicidade, checar_limite=False)
     enviar_confirmacao(usuario)
     enviar_email_modelo(
         "cadastro_recebido", "Recebemos seu cadastro", [usuario.email], {"anunciante": anunciante}
@@ -488,12 +497,21 @@ def confirmar_email(token: str) -> ResultadoConfirmacao:
     usuario.save(update_fields=["email_confirmado_em"])
     anunciante = Anunciante.objects.filter(usuario=usuario).first()
     if anunciante and anunciante.status == Anunciante.Status.PENDENTE:
+        from pagamentos.services import pedido_em_aberto  # import local: pagamentos importa este módulo
+
+        pedido = pedido_em_aberto(anunciante)  # Parte 4: plano, valor e o link para aprovar de uma vez
         enviar_email_modelo(
             "novo_cadastro_equipe",
             "Novo cadastro aguardando aprovação",
             destinatarios_equipe(),
             {
                 "anunciante": anunciante,
+                "pedido": pedido,
+                "assinatura": pedido.assinatura if pedido else None,
+                "link_aprovar": settings.SITE_URL
+                + reverse("admin:pagamentos_pedidoaguardando_aprovar", args=[pedido.pk])
+                if pedido
+                else "",
                 "link_admin": settings.SITE_URL
                 + reverse("admin:anunciantes_anunciante_change", args=[anunciante.pk]),
             },

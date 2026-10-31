@@ -14,7 +14,7 @@
     <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
     <div class="col-lg-9 d-grid gap-4">
       <h1 class="h4 m-0">Meu plano</h1>
-      {% include "_ajuda.html" %}
+      {% include "_ajuda.html" with compacta=True %}
       {% if messages %}{% for m in messages %}<div class="alert alert-success py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
 
       {% include "planos/_resumo_plano.html" %}
@@ -29,7 +29,7 @@
       {% if not assinatura or assinatura.situacao == "pendente" or assinatura.situacao == "cancelada" %}
       <section class="nd-caixa">
         <h2 class="h5">Escolher um plano</h2>
-        <p class="small text-suave">Escolha o plano, pague pelo Pix (QR Code ou copia e cola) e toque em "Já paguei". O plano fica ativo assim que a equipe conferir o pagamento.</p>
+        <p class="small text-suave">Escolha o plano, pague pelo Pix (QR Code ou copia e cola) e toque em "Fiz o Pix, avisar a equipe" (opcional). O plano fica ativo assim que a equipe conferir o pagamento.</p>
         <a class="btn btn-ipe" href="{% url 'pagamentos:assinar' %}">Escolher plano e pagar</a>
       </section>
       {% else %}

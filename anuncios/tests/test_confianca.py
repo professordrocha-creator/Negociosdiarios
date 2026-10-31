@@ -199,3 +199,33 @@ def test_edicao_sensivel_sem_confianca_volta_para_a_fila(loja, imovel):
     services.atualizar_anuncio(anuncio, {}, {"tipo": "apartamento"})
     anuncio.refresh_from_db()
     assert anuncio.situacao == Situacao.EM_MODERACAO
+
+
+def test_nenhum_publica_direto_so_com_plano_em_dia(loja, imovel, criar_anunciante):
+    """Moderação "Nenhum": loja aprovada com plano em dia publica direto; sem plano ou com o plano vencido,
+    não publica (nada muda no anúncio)."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from planos.services import SemAssinaturaAtiva
+
+    mudar_config(moderacao="nenhum")
+    em_dia = imovel(loja())
+    assert services.enviar_para_publicacao(em_dia) == Situacao.PUBLICADO
+
+    sem_plano = imovel(criar_anunciante("sem@exemplo.com", "Loja Sem Plano"))
+    with pytest.raises(SemAssinaturaAtiva):
+        services.enviar_para_publicacao(sem_plano)
+
+    vencida = loja("vencida@exemplo.com", "Loja Vencida")
+    assinatura = assinatura_de(vencida)
+    assinatura.vencimento = timezone.localdate() - timedelta(days=1)
+    assinatura.save()
+    anuncio_vencido = imovel(vencida)
+    with pytest.raises(SemAssinaturaAtiva):
+        services.enviar_para_publicacao(anuncio_vencido)
+
+    for anuncio in (sem_plano, anuncio_vencido):
+        anuncio.refresh_from_db()
+        assert anuncio.situacao == Situacao.RASCUNHO

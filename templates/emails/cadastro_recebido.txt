@@ -4,8 +4,8 @@ Recebemos o cadastro da loja "{{ anunciante.nome_publico }}" no {{ site_nome }}.
 
 Próximos passos:
 1. Confirme seu e-mail pelo link que enviamos em outra mensagem.
-2. Nossa equipe confere o {{ anunciante.get_documento_tipo_display }} informado.
-3. Você recebe um e-mail quando a loja for aprovada, com o link para entrar.
+2. Entre com seu e-mail e senha e pague o plano pelo Pix (a tela já abre com o plano escolhido).
+3. Nossa equipe confere o pagamento e o {{ anunciante.get_documento_tipo_display }} de uma vez; você recebe um e-mail quando a loja for aprovada e o plano estiver ativo.
 
 Dúvidas: {{ site_url }}/contato/
 {% endautoescape %}

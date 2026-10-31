@@ -165,12 +165,14 @@ def test_planos_tem_alternancia_mensal_anual_sem_javascript(client):
 
 
 def test_botao_quero_anunciar_leva_ao_cadastro(client):
-    """Cada plano tem "Quero anunciar": o visitante vai ao cadastro (lote 3B; logado, a Escolher plano)."""
+    """Cada plano tem "Quero anunciar" (mensal e anual): o visitante vai ao cadastro já com o plano e o
+    período escolhidos (Parte 4; logado, a Escolher plano)."""
     html = html_de(client, "planos")
     botoes = re.findall(r'href="([^"]+)">Quero anunciar</a>', html)
 
-    assert len(botoes) == 3
-    assert all(b == reverse("anunciantes:cadastro") for b in botoes)
+    assert len(botoes) == 6
+    assert all(b.startswith(reverse("anunciantes:cadastro") + "?plano=") for b in botoes)
+    assert f"{reverse('anunciantes:cadastro')}?plano=basico&amp;periodo=anual" in botoes
 
 
 def test_planos_vem_do_banco(client):

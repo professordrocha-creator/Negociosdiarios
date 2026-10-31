@@ -13,7 +13,7 @@
     <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
     <div class="col-lg-9 d-grid gap-3">
       <h1 class="h4 m-0">Quais anúncios ficam no ar?</h1>
-      {% include "_ajuda.html" %}
+      {% include "_ajuda.html" with compacta=True %}
       <p class="mb-0">O plano <b>{{ pedido.plano_novo.nome }}</b> permite <b>{{ pedido.plano_novo.limite_anuncios }}</b> anúncios. Você tem {{ anuncios|length }} publicados ou em análise. Marque até {{ pedido.plano_novo.limite_anuncios }}; os outros ficam pausados (nada é apagado) e você pode reativá-los depois, se couberem.</p>
       {% if erro %}<div class="alert alert-warning py-2 mb-0" role="alert">{{ erro }}</div>{% endif %}
       <form method="post" class="nd-caixa p-0">

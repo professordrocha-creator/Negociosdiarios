@@ -13,10 +13,10 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from anunciantes.views import anunciante_ativo
 from anuncios import services
-from anuncios.forms import DadosImovelForm, DadosVeiculoForm, FotosForm, LocalizacaoForm
+from anuncios.forms import OUTRO_BAIRRO, DadosImovelForm, DadosVeiculoForm, FotosForm, LocalizacaoForm
 from anuncios.models import Anuncio
 from anuncios.tasks import processar_foto
-from core.services import configuracao, textos_ajuda
+from core.services import bairro_informado, configuracao, textos_ajuda
 from planos.services import LimiteDoPlano, SemAssinaturaAtiva, assinatura_de, pode_publicar
 
 ETAPAS = [
@@ -71,6 +71,9 @@ def novo(request: HttpRequest) -> HttpResponse:
     Ao salvar vira rascunho e segue para a próxima etapa da categoria.
     """
     anunciante = request.user.anunciante
+    sem_plano = _sem_plano_vigente(request, anunciante)
+    if sem_plano:
+        return sem_plano
     categoria = request.GET.get("categoria", "")
     permitidas = services.categorias_permitidas(anunciante)
     if categoria not in permitidas:
@@ -107,6 +110,27 @@ def novo(request: HttpRequest) -> HttpResponse:
     )
 
 
+def _sem_plano_vigente(request: HttpRequest, anunciante) -> HttpResponse | None:
+    """Parte 4: sem plano ativo e em dia, "Novo anúncio" para logo no começo (antes de montar o anúncio) com o
+    aviso e o caminho certo. Plano no limite continua podendo montar rascunho (o aviso fica na tela)."""
+    from planos.services import vigente
+
+    assinatura = assinatura_de(anunciante)
+    if vigente(assinatura):
+        return None
+    if assinatura is not None and assinatura.situacao in ("ativa", "em_atraso"):
+        messages.warning(
+            request,
+            f"Seu plano venceu em {assinatura.vencimento:%d/%m/%Y}. Para criar anúncios novos, pague a "
+            "fatura pelo Pix: assim que a equipe conferir, você volta a anunciar.",
+        )
+        return redirect("pagamentos:faturas")
+    messages.warning(
+        request, "Para criar anúncios, você precisa de um plano ativo. Escolha o seu plano abaixo."
+    )
+    return redirect("planos:meu_plano")
+
+
 @require_http_methods(["GET", "POST"])
 @anunciante_ativo
 def editar(request: HttpRequest, codigo: str) -> HttpResponse:
@@ -140,12 +164,18 @@ def localizacao(request: HttpRequest, codigo: str) -> HttpResponse:
     _editavel(anuncio)
     if anuncio.e_veiculo:
         return redirect("anuncios:editar", anuncio.codigo)  # veículo: a cidade fica nos dados
-    form = LocalizacaoForm(request.POST or None, initial=LocalizacaoForm.inicial(anuncio))
+    form = LocalizacaoForm(
+        request.POST or None, initial=LocalizacaoForm.inicial(anuncio), anunciante=anuncio.anunciante
+    )
     if request.method == "POST" and form.is_valid():
         dados = form.cleaned_data
+        bairro = dados["bairro"]
+        if bairro == OUTRO_BAIRRO:  # Parte 4: a loja criou (ou achou) o bairro pelo nome
+            bairro = bairro_informado(dados["cidade"], dados["bairro_novo"], anuncio.anunciante, criar=True)
+            messages.info(request, f"Bairro {bairro.nome} salvo na lista de {dados['cidade'].nome}.")
         services.atualizar_anuncio(
             anuncio,
-            {"cidade": dados["cidade"], "bairro": dados["bairro"]},
+            {"cidade": dados["cidade"], "bairro": bairro},
             {
                 "endereco": dados["endereco"],
                 "ponto": services.ponto(dados["latitude"], dados["longitude"]),

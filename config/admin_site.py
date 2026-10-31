@@ -92,10 +92,11 @@ class AdminSiteND(admin.AdminSite):
     def index(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
         """Página inicial: "Painel de hoje" (cartões só do que o usuário pode ver e "Fazer agora"), o menu do
         grupo e, para o Administrador, o bloco recolhido "Mais opções"."""
-        from core.services import fazer_agora, pendencias_da_equipe
+        from core.services import acoes_recentes, fazer_agora, pendencias_da_equipe
 
         cartoes = pendencias_da_equipe(request.user)
         contexto = {
+            "acoes_recentes": acoes_recentes(request.user),
             "pendencias": cartoes,
             "algo_pendente": any(cartao.total for cartao in cartoes),
             "fazer_agora": fazer_agora(request.user),

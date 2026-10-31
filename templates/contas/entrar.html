@@ -14,7 +14,7 @@
     <p class="text-suave">Entre com o e-mail e a senha da sua loja.</p>
 
     {% if form.non_field_errors %}
-      <div class="alert alert-warning" role="alert">{% for erro in form.non_field_errors %}{{ erro }}{% endfor %}</div>
+      <div class="alert alert-danger" role="alert">{% for erro in form.non_field_errors %}{{ erro }}{% endfor %}</div>
     {% endif %}
 
     <form method="post" class="d-grid gap-3" novalidate>

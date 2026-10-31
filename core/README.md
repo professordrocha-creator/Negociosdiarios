@@ -16,7 +16,9 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
 - `MarcaDemo` (abstrato): campo `demo` herdado por todo modelo com dados de
   demonstração. `Cidade.liberada_pela_demo` marca as cidades que a demonstração ligou.
 
-- `Regiao` (cidades M2M) e `Bairro` (por cidade, ativo/inativo), ambos com `demo`.
+- `Regiao` (cidades M2M) e `Bairro` (por cidade, ativo/inativo), ambos com `demo`. Parte 4: `Bairro.criado_por`
+  (loja que criou pelo "Outro bairro") e os serviços `normalizar_nome_bairro`, `bairro_informado`,
+  `juntar_bairros`; `acoes_recentes` ("Ações recentes" agrupadas no Painel de hoje).
 - `Configuracao` (registro único: identidade do site, contatos, textos da Sobre, limites de mídia),
   `ValorEmpresa` (valores da Sobre, ordenáveis) e `TextoAjuda` (caixa "Sobre esta tela" por chave).
 

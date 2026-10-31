@@ -10,20 +10,36 @@
 <main class="container mt-4">
   <div class="nd-cadastro mx-auto">
     <h1 class="h2 mb-1">Cadastre sua loja</h1>
-    <p class="text-suave">Depois do cadastro, confirme seu e-mail e nossa equipe confere o CRECI ou o CNPJ. Aprovado, você entra e começa a anunciar.</p>
+    <p class="text-suave">Depois do cadastro: confirme o e-mail, entre e pague o plano pelo Pix. A equipe confere o pagamento e o CRECI ou o CNPJ de uma vez só e a loja já fica ativa para anunciar.</p>
 
     <form method="post" novalidate class="d-grid gap-4">
       {% csrf_token %}
       {% if form.non_field_errors %}<div class="alert alert-warning">{{ form.non_field_errors }}</div>{% endif %}
 
+      {% with escolhido=form.plano_escolhido %}
+      {% if escolhido %}
+      <div class="alert alert-info mb-0" role="status">
+        Você escolheu o plano <b>{{ escolhido.0.nome }}</b>, {{ escolhido.1|lower }}, <b>{{ escolhido.2|moeda }}</b>.
+        <a href="{% url 'core:planos' %}">Trocar</a>
+        {{ form.plano.as_hidden }}{{ form.periodicidade.as_hidden }}
+      </div>
+      {% else %}
+      <fieldset class="nd-caixa d-grid gap-3">
+        <legend class="h5 mb-0">Seu plano</legend>
+        <div class="row g-3">
+          <div class="col-md-8">{% include "anunciantes/_campo.html" with campo=form.plano %}</div>
+          <div class="col-md-4">{% include "anunciantes/_campo.html" with campo=form.periodicidade %}</div>
+        </div>
+        <span class="small text-suave">Compare os planos em <a href="{% url 'core:planos' %}">Planos</a>.</span>
+      </fieldset>
+      {% endif %}
+      {% endwith %}
+
       <fieldset class="nd-caixa d-grid gap-3">
         <legend class="h5 mb-0">Sua conta</legend>
         {% include "anunciantes/_campo.html" with campo=form.nome %}
         {% include "anunciantes/_campo.html" with campo=form.email %}
-        <div class="row g-3">
-          <div class="col-md-6">{% include "anunciantes/_campo.html" with campo=form.senha %}</div>
-          <div class="col-md-6">{% include "anunciantes/_campo.html" with campo=form.senha_confirmacao %}</div>
-        </div>
+        {% include "anunciantes/_campo.html" with campo=form.senha %}
       </fieldset>
 
       <fieldset class="nd-caixa d-grid gap-3">

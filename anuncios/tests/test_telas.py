@@ -400,3 +400,29 @@ def test_escolha_sem_pedido_da_404(client, loja):
     client.force_login(loja().usuario)
 
     assert client.get(reverse("planos:escolher_anuncios")).status_code == 404
+
+
+def test_novo_sem_plano_para_no_comeco_com_o_caminho(client, criar_anunciante, loja):
+    """Parte 4: sem plano ativo, "Novo anúncio" para logo no começo (antes de montar o anúncio) e leva ao
+    plano; com o plano vencido, às faturas. Plano em dia abre a tela normal."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from planos.services import assinatura_de
+
+    sem_plano = criar_anunciante("semplano@exemplo.com", "Loja Sem Plano", tipo="imobiliaria")
+    client.force_login(sem_plano.usuario)
+    resposta = client.get(NOVO_IMOVEL, follow=True)
+    assert resposta.redirect_chain[-1][0] == reverse("planos:meu_plano")
+    assert "Para criar anúncios, você precisa de um plano ativo" in resposta.content.decode()
+
+    vencida = loja("vencida@exemplo.com", "Loja Vencida", tipo="imobiliaria")
+    assinatura = assinatura_de(vencida)
+    assinatura.vencimento = timezone.localdate() - timedelta(days=1)
+    assinatura.save()
+    client.force_login(vencida.usuario)
+    assert client.get(NOVO_IMOVEL)["Location"] == reverse("pagamentos:faturas")
+
+    client.force_login(loja("emdia@exemplo.com", "Loja Em Dia", tipo="imobiliaria").usuario)
+    assert client.get(NOVO_IMOVEL).status_code == 200

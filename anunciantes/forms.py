@@ -11,6 +11,7 @@ from contas.services import normalizar_email
 from core import imagens
 from core.models import Cidade
 from core.services import configuracao
+from planos.models import Periodicidade, Plano
 
 
 class MotivoStatusForm(forms.Form):
@@ -55,11 +56,6 @@ class CadastroForm(forms.Form):
         widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
         help_text="Mínimo de 8 caracteres; não use só números nem senhas comuns.",
     )
-    senha_confirmacao = forms.CharField(
-        label="Repita a senha",
-        strip=False,
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
-    )
     # Loja
     tipo = forms.ChoiceField(label="Você é", choices=Anunciante.Tipo.choices)
     nome_publico = forms.CharField(
@@ -80,6 +76,16 @@ class CadastroForm(forms.Form):
             "avaliamos a liberação e avisamos por e-mail."
         ),
     )
+    # Plano (Parte 4): vem de /planos/ ("Quero anunciar") ou é escolhido aqui; vira o pedido do Pix.
+    plano = forms.ModelChoiceField(
+        label="Plano",
+        queryset=Plano.objects.none(),
+        empty_label="Escolha o plano",
+        help_text="Você paga pelo Pix depois de confirmar o e-mail. Dá para trocar de plano depois.",
+    )
+    periodicidade = forms.ChoiceField(
+        label="Pagamento", choices=Periodicidade.choices, initial=Periodicidade.MENSAL
+    )
     aceite = forms.BooleanField(
         label="Li e aceito os Termos de Uso e a Política de Privacidade",
         error_messages={
@@ -90,8 +96,11 @@ class CadastroForm(forms.Form):
     site_empresa = forms.CharField(required=False, label="Deixe este campo vazio")
 
     def __init__(self, *args, **kwargs):
-        """Cidades liberadas e classes do Bootstrap nos campos."""
+        """Cidades liberadas, planos à venda e classes do Bootstrap nos campos."""
+        from planos.services import planos_a_venda
+
         super().__init__(*args, **kwargs)
+        self.fields["plano"].queryset = planos_a_venda()
         # Atendidas primeiro, depois as demais do(s) estado(s) liberado(s), em ordem alfabética.
         self.fields["cidade"].queryset = (
             Cidade.objects.filter(uf__liberado=True).select_related("uf").order_by("-liberada", "nome")
@@ -101,10 +110,23 @@ class CadastroForm(forms.Form):
                 campo.widget.attrs["class"] = "form-check-input"
             elif nome != "site_empresa":
                 campo.widget.attrs.setdefault(
-                    "class", "form-select" if nome in ("tipo", "cidade") else "form-control"
+                    "class",
+                    "form-select" if nome in ("tipo", "cidade", "plano", "periodicidade") else "form-control",
                 )
         self.fields["email"].widget.attrs.update(autocomplete="email")
         self.fields["site_empresa"].widget.attrs.update(autocomplete="off", tabindex="-1")
+
+    @property
+    def plano_escolhido(self) -> tuple | None:
+        """(plano, periodicidade, valor) já escolhidos (em /planos/ ou num envio anterior), para o aviso do
+        topo; None mostra a escolha no formulário."""
+        fonte = self.data if self.is_bound else self.initial
+        bruto, periodicidade = str(fonte.get("plano") or ""), fonte.get("periodicidade")
+        plano = self.fields["plano"].queryset.filter(pk=bruto).first() if bruto.isdigit() else None
+        if plano is None or periodicidade not in Periodicidade.values:
+            return None
+        valor = plano.preco_anual if periodicidade == Periodicidade.ANUAL else plano.preco_mensal
+        return plano, Periodicidade(periodicidade).label, valor
 
     @property
     def e_robo(self) -> bool:
@@ -125,12 +147,11 @@ class CadastroForm(forms.Form):
         return normalizar_whatsapp(self.cleaned_data["whatsapp"])
 
     def clean(self) -> dict:
-        """Senhas iguais e fortes; documento certo para o tipo, válido e ainda não cadastrado."""
+        """Senha forte (o botão "Mostrar" substitui o "Repita a senha"); documento certo para o tipo,
+        válido e ainda não cadastrado."""
         dados = super().clean()
-        senha, repetida = dados.get("senha"), dados.get("senha_confirmacao")
-        if senha and repetida and senha != repetida:
-            self.add_error("senha_confirmacao", "As duas senhas não são iguais.")
-        elif senha:
+        senha = dados.get("senha")
+        if senha:
             provisorio = get_user_model()(email=dados.get("email", ""), nome=dados.get("nome", ""))
             try:
                 validate_password(senha, provisorio)
@@ -287,6 +308,12 @@ class AnuncianteAdminForm(forms.ModelForm):
         model = Anunciante
         # Os campos mostrados são os dos fieldsets do AnuncianteAdmin (o admin monta o form com eles).
         fields = "__all__"  # noqa: DJ007
+        # Parte 4: "endereço da loja" era o nome dos dois campos; o do topo é o link da página.
+        labels = {"slug": "Link da loja no site", "endereco_publico": "Endereço da loja"}
+        help_texts = {
+            "slug": "A página da loja fica em /loja/<link>/. Só letras minúsculas, números e hífen.",
+            "endereco_publico": "Endereço físico. Ex.: Av. Brasil, 1.250 · Centro.",
+        }
 
     def __init__(self, *args, **kwargs):
         """Ajuda com os limites atuais (os mesmos do painel)."""

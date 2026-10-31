@@ -147,6 +147,10 @@ h1, h2, h3, h4 { font-family: var(--nd-fonte-titulo); font-weight: 700; letter-s
 .nd-ajuda summary::after { content: "mostrar"; float: right; font-weight: 500; font-size: 12px; color: var(--nd-texto-suave); }
 .nd-ajuda[open] summary::after { content: "ocultar"; }
 .nd-ajuda ul { margin: 0; padding: 0 16px 12px 36px; display: grid; gap: 4px; }
+.nd-ajuda-compacta { background: transparent; border: 0; font-size: 13px; }
+.nd-ajuda-compacta summary { padding: 0; font-weight: 500; color: var(--nd-texto-suave); }
+.nd-ajuda-compacta summary::after { float: none; margin-left: 6px; }
+.nd-ajuda-compacta ul { padding: 6px 0 0 20px; }
 
 /* ---------- Página Sobre ---------- */
 .nd-sobre-hero { background: var(--nd-petroleo); color: #fff; position: relative; overflow: hidden; }

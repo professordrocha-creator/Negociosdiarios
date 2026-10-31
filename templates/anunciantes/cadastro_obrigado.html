@@ -3,7 +3,7 @@
 {# Depois do cadastro: próximos passos. Também é a tela que o robô do honeypot vê (nada foi criado). #}
 
 {% block titulo %}Cadastro recebido{% endblock %}
-{% block descricao %}Próximos passos depois do cadastro da loja no {{ site.nome }}.{% endblock %}
+{% block descricao %}Próximos passos depois do cadastro da loja no {{ site.nome }}: confirmar o e-mail, pagar pelo Pix e aguardar a conferência.{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 
 {% block conteudo %}
@@ -14,9 +14,9 @@
     <p>Falta pouco para sua loja entrar no ar:</p>
     <ol class="d-grid gap-2">
       <li><b>Confirme seu e-mail.</b> Enviamos um link para o e-mail informado. Ele vale por {{ horas }} horas e funciona uma vez só. Não chegou? Veja a caixa de spam.</li>
-      <li><b>Análise do cadastro.</b> Depois da confirmação, nossa equipe confere o CRECI ou o CNPJ.</li>
-      <li><b>Aprovação.</b> Você recebe um e-mail avisando que a loja foi aprovada, com o link para entrar.</li>
-      <li><b>Pronto.</b> Entre com seu e-mail e senha e comece a anunciar.</li>
+      <li><b>Pague o plano pelo Pix.</b> Entre com seu e-mail e senha: a tela do Pix já abre com o plano escolhido (QR Code ou copia e cola).</li>
+      <li><b>Conferência.</b> Nossa equipe confere o Pix e o CRECI ou o CNPJ de uma vez só.</li>
+      <li><b>Pronto.</b> Você recebe um e-mail com a loja aprovada e o plano ativo, e já pode anunciar.</li>
     </ol>
     <p class="small text-suave mb-0">Dúvidas? <a href="{% url 'core:contato' %}">Fale com a gente</a>.</p>
   </div>

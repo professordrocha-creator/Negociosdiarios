@@ -10,6 +10,7 @@ from pathlib import PurePath
 from django.contrib.gis.db import models
 from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
 
 
 class MarcaDemo(models.Model):
@@ -126,7 +127,12 @@ class Regiao(MarcaDemo):
 
 
 class Bairro(MarcaDemo):
-    """Bairro de uma cidade (escolhido no anúncio; nunca texto livre). Inativo some das listas."""
+    """Bairro de uma cidade (escolhido no anúncio; nunca texto livre). Inativo some das listas.
+
+    Parte 4: a loja pode criar um bairro novo no anúncio ("Outro bairro"): vale na hora para todos da
+    cidade, já padronizado (`core.services.bairro_informado`), com `criado_por` marcado para a equipe juntar
+    duplicados.
+    """
 
     cidade = models.ForeignKey(
         Cidade, on_delete=models.PROTECT, related_name="bairros", verbose_name="cidade"
@@ -136,6 +142,17 @@ class Bairro(MarcaDemo):
     ativo = models.BooleanField(
         "ativo", default=True, help_text="Desmarque para tirar das listas sem apagar."
     )
+    # Import tardio por texto: anunciantes depende de core.
+    criado_por = models.ForeignKey(
+        "anunciantes.Anunciante",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="bairros_criados",
+        verbose_name="criado pela loja",
+        help_text='Vazio = cadastrado pela equipe. Preenchido = a loja criou pelo "Outro bairro" do anúncio.',
+    )
+    criado_em = models.DateTimeField("criado em", null=True, blank=True, default=timezone.now, editable=False)
 
     class Meta:
         verbose_name = "bairro"
@@ -425,6 +442,12 @@ class Configuracao(models.Model):
         validators=[MinValueValidator(1)],
         help_text="Quantos pedidos de plano (com Pix) a mesma loja pode abrir em uma hora. Protege contra "
         "cliques repetidos e abuso.",
+    )
+    bairros_novos_por_dia = models.PositiveSmallIntegerField(
+        "bairros novos por dia (por loja)",
+        default=3,
+        validators=[MinValueValidator(1)],
+        help_text='Quantos bairros novos a mesma loja pode criar por dia pelo "Outro bairro" do anúncio.',
     )
     # Pix da empresa (lote 3B): editado em "Pagamentos › Configuração do Pix" (só Administrador e Financeiro);
     # fica fora da tela geral de Configurações do site. Nunca no código nem no Git.

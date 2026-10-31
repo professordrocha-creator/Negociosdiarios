@@ -11,6 +11,7 @@ from django.contrib.auth.forms import (
     UserChangeForm,
 )
 
+from anunciantes.models import Anunciante
 from anunciantes.services import MENSAGENS_SEM_ACESSO, motivo_sem_painel
 from contas.models import Usuario
 from contas.services import normalizar_email
@@ -44,12 +45,14 @@ class EntrarForm(AuthenticationForm):
         )
 
     def confirm_login_allowed(self, user) -> None:
-        """Recusa quem não tem loja e loja pendente, suspensa ou encerrada (a equipe passa)."""
+        """Recusa quem não tem loja, loja com o e-mail ainda não confirmado, suspensa ou encerrada (a equipe
+        passa). Loja pendente com e-mail confirmado entra (lote 3B/Parte 4): ela paga o plano pelo Pix antes
+        da aprovação e, com o pedido ainda não pago, o painel a leva direto à tela do Pix."""
         super().confirm_login_allowed(user)
         if user.is_staff:  # equipe: entra e segue para o admin (verificação em contas.views.EntrarView)
             return
         motivo = motivo_sem_painel(user)
-        if motivo:
+        if motivo and motivo != Anunciante.Status.PENDENTE:
             raise forms.ValidationError(MENSAGENS_SEM_ACESSO[motivo], code=motivo)
 
 

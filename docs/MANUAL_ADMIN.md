@@ -175,6 +175,20 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
 2. **O que preencher:** um item por linha, sem HTML. Em branco, a caixa some.
 3. **O que acontece depois:** a caixa "Sobre esta tela" daquela página muda na hora.
 
+### Bairros criados pelas lojas
+
+No anúncio, a loja escolhe o bairro da cidade ou "Outro bairro" e escreve o nome. O bairro novo vale **na hora**
+para todos os anunciantes da cidade, já padronizado (ex.: "jardim DAS flores" vira "Jardim das Flores"), sem
+links, telefones ou símbolos, e no máximo "bairros novos por dia (por loja)" (Configurações do site).
+
+1. **Onde clicar:** "Mais opções" › "Site e configurações" › "Bairros". Filtre por cidade e por **"criado por
+   loja: Sim"** para ver os que as lojas criaram.
+2. **O que fazer:** achou repetidos (ex.: "Jd Europa" e "Jardim Europa")? Marque os dois, escolha a ação
+   **"Juntar bairros duplicados (mesma cidade)"**, escolha o nome que fica e clique em "Juntar".
+3. **O que acontece depois:** os anúncios (e as fichas do guia) dos outros passam para o bairro escolhido e os
+   outros ficam inativos (nada é apagado; fica no histórico). Para tirar um bairro errado das listas, desmarque
+   "ativo": a loja não consegue criá-lo de novo.
+
 ### Ligar e desligar recursos
 
 - **Cidades no site:** "Lojas (anunciantes)" › "Cidades", marque "liberada" (ou ação "Liberar cidades
@@ -284,14 +298,14 @@ Pedidos de troca de plano: "Planos e assinaturas" › "Pedidos de troca de plano
 
 ### Verificar (aprovar) um cadastro
 
-O caminho mais comum agora é **"Cadastros aguardando"** (capítulo 6): o cliente escolhe o plano, paga pelo Pix e
-a equipe confere o documento e o pagamento e aprova tudo numa tela só. O caminho abaixo continua valendo para
-aprovar só o documento (sem pagamento).
+O caminho normal é **"Cadastros aguardando"** (capítulo 6): o cliente escolhe o plano já no cadastro, paga pelo
+Pix e a equipe confere o documento e o pagamento e aprova tudo com **um clique**. O caminho abaixo é só uma
+**exceção** (aprovar a loja sem plano).
 
 1. **Onde clicar:** "Anunciantes" › "Anunciantes". Use o filtro de aprovação para ver quem já confirmou o e-mail
    (esses estão prontos).
 2. **O que preencher:** abra o cadastro, confira o CRECI ou o CNPJ nos sites oficiais. Volte à lista, marque e use
-   "Aprovar selecionados (CRECI/CNPJ conferido)". O motivo é opcional.
+   "Exceção: aprovar só a loja, sem plano (o normal é Cadastros aguardando)". O motivo é opcional.
 3. **O que acontece depois:** a loja fica "Ativo" e o anunciante pode entrar no painel. A loja só é aprovada em
    cidade liberada.
 
@@ -338,7 +352,10 @@ aprovar só o documento (sem pagamento).
 ### Se der errado
 
 - Não consigo aprovar: a cidade da loja não está liberada.
-- Anunciante diz que não entra: veja a situação (Pendente, Suspenso, Encerrado) e se confirmou o e-mail.
+- Anunciante diz que não entra: veja se confirmou o e-mail (sem isso não entra) e a situação: Pendente com e-mail
+  confirmado entra e vai para a tela do Pix; Suspenso e Encerrado não entram. Bloqueio por tentativas erradas
+  (axes): "Mais opções" › "Bloqueios de login" › "Tentativas bloqueadas", apague a linha da pessoa (ou, no
+  servidor, `python manage.py axes_reset_username <e-mail>`).
 
 ---
 
@@ -348,11 +365,13 @@ As faturas das lojas **nascem sozinhas**: a rotina das 6h gera a fatura X dias a
 (dias antes do vencimento)"). A fatura de publicidade nasce na campanha (capítulo 7). Pagamento é por Pix
 (copia e cola e QR Code) ou boleto (link digitado pela equipe).
 
-**Como o cliente contrata (sozinho):** cadastra-se em `/cadastro/`, confirma o e-mail, entra e toca em "Escolher
-plano e pagar". Escolhe o plano (mensal ou anual), confere o nome da loja e o WhatsApp e cai na tela **Pagar**,
-com o valor, o QR Code e o Pix copia e cola (o identificador do pedido, ex. `NDFT00042`, vai junto). Depois de
-pagar, toca em **"Já paguei"** (o comprovante é opcional). O pedido aparece em "Cadastros aguardando" e na caixa
-"Painel de hoje", e a equipe recebe e-mail. O acesso só é liberado quando a equipe aprovar.
+**Como o cliente contrata (sozinho):** em `/planos/` toca em "Quero anunciar" (o plano e o período vão junto;
+quem abre `/cadastro/` direto escolhe o plano no próprio formulário). Faz o cadastro, confirma o e-mail e, ao
+entrar, cai direto na tela **Pagar** do plano escolhido, com o valor, o QR Code e o Pix copia e cola (o
+identificador do pedido, ex. `NDFT00042`, vai junto). Depois de pagar, pode tocar em **"Fiz o Pix, avisar a
+equipe"** (opcional; o comprovante também). O pedido aparece em "Cadastros aguardando" e no "Painel de hoje", e a
+equipe recebe o e-mail "Novo cadastro aguardando aprovação" com plano, período, valor, identificador do Pix e o
+link para aprovar. A equipe pode aprovar mesmo sem o aviso do cliente, se já viu o Pix no banco.
 
 ### Configurar o Pix (uma vez)
 
@@ -370,10 +389,12 @@ pagar, toca em **"Já paguei"** (o comprovante é opcional). O pedido aparece em
    cartão no "Painel de hoje". Primeiro vêm os **"Aguardando conferência"** (o cliente disse que pagou), depois os
    **"Aguardando pagamento"** (pediram o plano e ainda não pagaram). Cada linha mostra loja, documento, plano,
    valor, data e o comprovante (se mandou; só Financeiro e Administrador abrem).
-2. **O que preencher:** confira no extrato do banco um Pix com o **valor** e o **identificador** do pedido (e, se a
-   loja ainda é nova, o CRECI/CNPJ nos sites oficiais). Clique em **"Aprovar"** na linha. A tela já traz o
-   "início da vigência" (hoje; na renovação, o vencimento anterior) e o "fim" (início + dias de vigência do
-   plano); ajuste se precisar e clique em "Aprovar".
+2. **O que preencher:** confira no extrato do banco um Pix com o **valor** e o **identificador do Pix** do pedido
+   (e, se a loja ainda é nova, o CRECI/CNPJ nos sites oficiais). Clique em **"Aprovar"** (primeira coluna): aprova
+   na hora, sem outra tela, com o início hoje (na renovação, o vencimento anterior) e o fim pelos dias do plano.
+   Para mudar as datas, use "ajustar datas" embaixo do botão. O mesmo botão aparece no topo da ficha da loja
+   ("Anunciantes" › a loja) e no "Painel de hoje". Se o cliente ainda não confirmou o e-mail, a linha avisa e
+   oferece **"Reenviar link"**: a aprovação só vale com o e-mail confirmado.
 3. **O que acontece depois:** de uma vez só, a fatura fica paga, o plano fica ativo até o "fim", a loja é aprovada
    (se era nova) e o cliente recebe **um** e-mail ("loja aprovada e plano ativo"; na renovação, "pagamento
    confirmado"). Fica no histórico quem
@@ -381,7 +402,7 @@ pagar, toca em **"Já paguei"** (o comprovante é opcional). O pedido aparece em
 
 **Recusar ou marcar como não pago:** marque a linha e use a ação:
 - **"Marcar como não pago"**: o Pix não apareceu no banco. O pedido volta a "Aguardando pagamento" e o cliente
-  recebe o motivo (pode pagar e tocar em "Já paguei" de novo).
+  recebe o motivo (pode pagar e tocar em "Fiz o Pix, avisar a equipe" de novo).
 - **"Recusar pedido"**: não vai aprovar (documento errado, desistência...). O pedido é cancelado, o cliente recebe
   o motivo e pode fazer outro pedido. Nada é apagado.
 
@@ -397,7 +418,9 @@ novo. Nada mudou enquanto isso.
   manual" (Assinaturas). Pagar antes ou depois não muda a data.
 - X dias antes do fim ("fatura gerada (dias antes do vencimento)", capítulo 3), a rotina gera a fatura da
   renovação e manda o e-mail "Fatura disponível" (texto em "E-mails de cobrança"). O cliente paga pelo Pix em
-  "Faturas" e toca em "Já paguei"; a fatura aparece em "Cadastros aguardando" e a aprovação é igual à de cima.
+  "Faturas" e toca em "Fiz o Pix, avisar a equipe"; a fatura aparece em "Cadastros aguardando" e a aprovação é
+  igual à de cima. A ação "Confirmar pagamento" da lista de Faturas não vale para cadastro novo: ela deixa o pedido
+  de fora e aponta para "Cadastros aguardando".
 
 ### Ver o panorama
 

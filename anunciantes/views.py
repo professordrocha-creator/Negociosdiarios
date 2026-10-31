@@ -44,7 +44,8 @@ def anunciante_ativo(
     """Só deixa passar anunciante ativo. Anônimo vai ao /entrar/; pendente e suspenso veem 403.
 
     Com `aceitar_pendente` (lote 3B: Escolher plano e Pagar), passa também a loja pendente que já confirmou o
-    e-mail: ela escolhe o plano e paga antes da aprovação. Na tela 403 do pendente aparece o botão para isso.
+    e-mail: ela escolhe o plano e paga antes da aprovação. Pendente com pedido ainda não pago vai direto à
+    tela do Pix (Parte 4); com o pagamento já avisado, vê a tela 403 com "Ver pagamento".
 
     Equipe (staff, mesmo sem loja) é levada ao admin pelo mesmo caminho do login do admin
     (`config.admin_site.encaminhar_equipe`: código em navegador novo; sem atalho): o painel dela é o admin.
@@ -69,9 +70,13 @@ def anunciante_ativo(
         if motivo:
             contexto = {"tela": "painel", "mensagem": MENSAGENS_SEM_ACESSO[motivo], "motivo": motivo}
             if motivo == Anunciante.Status.PENDENTE:  # botão "Escolher plano e pagar" ou "Ver pagamento"
+                from pagamentos.models import Fatura
                 from pagamentos.services import pedido_em_aberto  # import local: pagamentos usa este módulo
 
                 contexto["pedido"] = pedido_em_aberto(request.user.anunciante)
+                if contexto["pedido"] and contexto["pedido"].situacao in Fatura.A_PAGAR:
+                    # Parte 4: cadastro com plano ainda não pago vai direto à tela do Pix (depois de entrar).
+                    return redirect("pagamentos:pagar", contexto["pedido"].codigo)
             return render(request, "anunciantes/sem_acesso.html", contexto, status=403)
         if exigir_aceite:
             from privacidade.services import pendencias_de_aceite  # import local: privacidade usa este módulo
@@ -153,16 +158,31 @@ def cadastro(request: HttpRequest) -> HttpResponse:
                     documento_numero=dados["documento_numero"],
                     whatsapp=dados["whatsapp"],
                     cidade=dados["cidade"],
+                    plano=dados["plano"],
+                    periodicidade=dados["periodicidade"],
                 )
             )
             return redirect("anunciantes:cadastro_obrigado")
     else:
-        form = CadastroForm()
+        form = CadastroForm(initial=_plano_da_url(request))
     return render(
         request,
         "anunciantes/cadastro.html",
         {"tela": "cadastro", "ajuda_itens": textos_ajuda("cadastro"), "form": form},
     )
+
+
+def _plano_da_url(request: HttpRequest) -> dict:
+    """ "Quero anunciar" de /planos/ manda ?plano=<slug>&periodo=mensal|anual: já vem escolhido no
+    cadastro."""
+    from planos.models import Periodicidade
+    from planos.services import planos_a_venda
+
+    plano = planos_a_venda().filter(slug=request.GET.get("plano", "")).first()
+    if plano is None:
+        return {}
+    periodo = request.GET.get("periodo", "")
+    return {"plano": plano.pk, "periodicidade": periodo if periodo in Periodicidade.values else "mensal"}
 
 
 @require_GET

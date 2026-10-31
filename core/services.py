@@ -3,6 +3,7 @@
 import csv
 import json
 import logging
+import re
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -452,6 +453,22 @@ def criar_dados_demo(senha: str, arquivo: Path = ARQUIVO_DEMO) -> ResumoDemo:
                     cidade=cidade, slug=slugify(nome), defaults={"nome": nome, "ativo": True, "demo": True}
                 )
         lojas = criar_anunciantes_demo(dados["lojas"] + dados.get("lojas_pendentes", []), senha)
+        # Parte 4: um bairro "criado por loja" (repetido de propósito) para testar o filtro e o "Juntar".
+        from anunciantes.models import Anunciante
+
+        primeira_cidade = next(iter(dados.get("bairros", {})), None)
+        loja_demo = Anunciante.objects.filter(demo=True, status=Anunciante.Status.ATIVO).first()
+        if primeira_cidade and loja_demo:
+            Bairro.objects.update_or_create(
+                cidade=Cidade.objects.get(codigo_ibge=int(primeira_cidade)),
+                slug="jd-centro-demo",
+                defaults={
+                    "nome": "Jd Centro (demonstração)",
+                    "ativo": True,
+                    "demo": True,
+                    "criado_por": loja_demo,
+                },
+            )
         from planos.services import criar_assinaturas_demo
 
         criar_assinaturas_demo(dados.get("assinaturas_em_atraso", []))
@@ -783,8 +800,9 @@ class Pendencia:
 class ItemFazerAgora:
     """Uma linha do "Fazer agora": o que é, desde quando e os botões.
 
-    `url_aprovar`: link para a tela de aprovação que já existe (ex.: datas do pedido). `aprovar_agora`: tipo
-    para o botão que aplica a ação "Aprovar" do admin direto na linha (`config.admin_site.APROVAR_AGORA`).
+    `url_aprovar`: link para a tela de aprovação que já existe. `url_aprovar_post`: endereço que aprova com um
+    clique (POST; ex.: pedido do Pix com as datas sugeridas, Parte 4). `aprovar_agora`: tipo para o botão que
+    aplica a ação "Aprovar" do admin direto na linha (`config.admin_site.APROVAR_AGORA`).
     """
 
     texto: str
@@ -793,6 +811,7 @@ class ItemFazerAgora:
     url_aprovar: str = ""
     aprovar_agora: str = ""
     pk: int = 0
+    url_aprovar_post: str = ""
 
 
 @dataclass(frozen=True)
@@ -926,9 +945,15 @@ def fazer_agora(usuario, limite: int = 5, hoje=None) -> list[GrupoFazerAgora]:
 
         def pedido(fatura):
             url = _url_admin("admin:pagamentos_pedidoaguardando_aprovar", args=(fatura.pk,))
+            rapido = _url_admin("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=(fatura.pk,))
             texto = f"{fatura.codigo} · {fatura.cliente_nome} · {fatura.descricao} · R$ {fatura.valor}"
             return ItemFazerAgora(
-                texto, fatura.comprovante_enviado_em, url, url if aprova else "", pk=fatura.pk
+                texto,
+                fatura.comprovante_enviado_em,
+                url,
+                url if aprova else "",
+                pk=fatura.pk,
+                url_aprovar_post=rapido if aprova else "",
             )
 
         tipos = (
@@ -986,3 +1011,120 @@ def fazer_agora(usuario, limite: int = 5, hoje=None) -> list[GrupoFazerAgora]:
                 ),
             )
     return grupos
+
+
+# --- "Ações recentes" do Painel de hoje (Parte 4) -----------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class AcaoRecente:
+    """Uma linha de "Ações recentes": a ação (com a mais nova das repetidas) e quantas vezes se repetiu."""
+
+    entrada: object  # django.contrib.admin.models.LogEntry
+    vezes: int
+
+
+def acoes_recentes(usuario, quantas: int = 5, olhar: int = 60) -> list[AcaoRecente]:
+    """As `quantas` ações mais recentes do usuário no admin, juntando as repetidas (mesmo tipo de ação no
+    mesmo item, ex.: salvar a mesma ficha várias vezes) numa linha só com o total. Olha as últimas `olhar`."""
+    from django.contrib.admin.models import LogEntry
+
+    grupos: dict[tuple, list] = {}
+    for entrada in LogEntry.objects.filter(user=usuario).select_related("content_type")[:olhar]:
+        chave = (entrada.content_type_id, entrada.object_id, entrada.action_flag)
+        if chave in grupos:
+            grupos[chave][1] += 1
+        elif len(grupos) < quantas:
+            grupos[chave] = [entrada, 1]
+    return [AcaoRecente(entrada, vezes) for entrada, vezes in grupos.values()]
+
+
+# --- Bairros criados pela loja ("Outro bairro" no anúncio, Parte 4) -------------------------------------
+
+LIMITE_NOME_BAIRRO = 60
+_PALAVRAS_MINUSCULAS = {"de", "da", "do", "das", "dos", "e"}
+_LINK_OU_CONTATO = re.compile(r"https?:|www\.|\.(com|net|org|br|io)\b|@|\d{6,}", re.IGNORECASE)
+_SO_PERMITIDO = re.compile(r"^[^\W_][\w .'ºª-]*$")  # letras/números e pontuação de nome; nada de símbolos
+
+
+def normalizar_nome_bairro(texto: str) -> str:
+    """ "  jardim   DAS flores " → "Jardim das Flores". Recusa (ValidationError) link, telefone, símbolos,
+    texto curto, longo ou só com números: o nome vai para a lista pública da cidade."""
+    from django.core.exceptions import ValidationError
+    from django.utils.html import strip_tags
+
+    limpo = " ".join(strip_tags(texto or "").split())
+    if len(limpo) < 3:
+        raise ValidationError("Escreva o nome do bairro (pelo menos 3 letras).")
+    if len(limpo) > LIMITE_NOME_BAIRRO:
+        raise ValidationError(f"Use até {LIMITE_NOME_BAIRRO} caracteres.")
+    if _LINK_OU_CONTATO.search(limpo) or not _SO_PERMITIDO.match(limpo) or limpo.replace(" ", "").isdigit():
+        raise ValidationError("Escreva só o nome do bairro, sem links, telefones ou símbolos.")
+    palavras = limpo.lower().split(" ")
+    return " ".join(
+        p if (i and p in _PALAVRAS_MINUSCULAS) else p[:1].upper() + p[1:] for i, p in enumerate(palavras)
+    )
+
+
+def bairro_informado(cidade: Cidade, texto: str, anunciante, *, criar: bool) -> Bairro | None:
+    """O bairro digitado no "Outro bairro": o que já existe na cidade com o mesmo nome (sem diferença de
+    acento, maiúscula ou espaço) ou, com `criar`, um novo ligado à cidade e marcado com a loja. Vale na hora
+    para todos.
+
+    Limite de bairros novos por loja por dia (`Configuracao.bairros_novos_por_dia`). Bairro desativado pela
+    equipe não volta. Sem `criar`, só valida e devolve o existente (ou None se seria novo). Levanta
+    ValidationError com a mensagem para o campo.
+    """
+    from django.core.exceptions import ValidationError
+
+    nome = normalizar_nome_bairro(texto)
+    slug = slugify(nome)[:100]
+    existente = Bairro.objects.filter(cidade=cidade, slug=slug).first()
+    if existente is not None:
+        if not existente.ativo:
+            raise ValidationError(
+                "Este bairro não está disponível. Escolha outro da lista ou fale com a gente."
+            )
+        return existente
+    hoje = timezone.localdate()
+    criados_hoje = Bairro.objects.filter(criado_por=anunciante, criado_em__date=hoje).count()
+    if criados_hoje >= configuracao().bairros_novos_por_dia:
+        raise ValidationError("Você já criou o máximo de bairros novos por hoje. Escolha um da lista.")
+    if not criar:
+        return None
+    try:
+        with transaction.atomic():
+            return Bairro.objects.create(cidade=cidade, nome=nome, slug=slug, criado_por=anunciante)
+    except IntegrityError:  # outra loja criou o mesmo bairro no mesmo instante
+        return Bairro.objects.get(cidade=cidade, slug=slug)
+
+
+def juntar_bairros(manter: Bairro, duplicados: list[Bairro], por) -> int:
+    """Junta bairros repetidos da mesma cidade: anúncios e fichas do guia passam para `manter` (com
+    histórico) e os outros ficam inativos (nada se apaga). Registra no histórico do admin. Devolve quantos
+    foram juntados."""
+    from django.contrib.admin.models import CHANGE, LogEntry
+    from django.core.exceptions import ValidationError
+
+    from anuncios.models import Anuncio
+    from guia.models import PerfilGuia
+
+    outros = [b for b in duplicados if b.pk != manter.pk]
+    if any(b.cidade_id != manter.cidade_id for b in outros):
+        raise ValidationError("Só dá para juntar bairros da mesma cidade.")
+    with transaction.atomic():
+        for anuncio in Anuncio.objects.filter(bairro__in=outros):
+            anuncio.bairro = manter
+            anuncio._change_reason = f"Bairro juntado em {manter.nome}."
+            anuncio.save(update_fields=["bairro"])
+        PerfilGuia.objects.filter(bairro__in=outros).update(bairro=manter)
+        Bairro.objects.filter(pk__in=[b.pk for b in outros]).update(ativo=False)
+        if por is not None and outros:
+            LogEntry.objects.log_actions(
+                por.pk,
+                Bairro.objects.filter(pk=manter.pk),
+                CHANGE,
+                "Juntou: " + ", ".join(b.nome for b in outros),
+                single_object=True,
+            )
+    return len(outros)

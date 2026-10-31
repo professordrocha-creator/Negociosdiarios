@@ -14,6 +14,8 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 from simple_history.admin import SimpleHistoryAdmin
 
 from core.admin_acoes import tela_motivo
@@ -201,7 +203,25 @@ class FaturaAdmin(SimpleHistoryAdmin):
         description="Confirmar pagamento (renova a assinatura e reativa os anúncios)", permissions=["change"]
     )
     def confirmar_pagamento_acao(self, request: HttpRequest, queryset: QuerySet[Fatura]):
-        """Tela intermediária com forma de pagamento e observação; depois baixa cada fatura em aberto."""
+        """Tela intermediária com forma de pagamento e observação; depois baixa cada fatura em aberto.
+
+        Pedido de cadastro novo (plano ainda aguardando o primeiro pagamento) fica de fora: ele é aprovado em
+        "Cadastros aguardando", que aprova a loja e ativa o plano de uma vez (Parte 4)."""
+        novos = queryset.filter(assinatura__situacao=Assinatura.Situacao.PENDENTE)
+        if novos.exists():
+            self.message_user(
+                request,
+                format_html(
+                    '{} pedido(s) de cadastro novo ficaram de fora: aprove em <a href="{}">Cadastros '
+                    "aguardando</a> (aprova a loja e ativa o plano de uma vez).",
+                    novos.count(),
+                    reverse("admin:pagamentos_pedidoaguardando_changelist"),
+                ),
+                messages.WARNING,
+            )
+            queryset = queryset.exclude(pk__in=novos.values("pk"))
+            if not queryset.exists():
+                return None
         form = ConfirmarPagamentoForm(request.POST if "aplicar" in request.POST else None)
         if "aplicar" in request.POST and form.is_valid():
             feitos = 0
@@ -305,22 +325,24 @@ class TipoPedidoFiltro(admin.SimpleListFilter):
 class PedidoAguardandoAdmin(admin.ModelAdmin):
     """Cadastros aguardando: pedidos pagos pelo Pix esperando a equipe conferir no banco.
 
-    "Aprovar" em cada linha abre a tela com a vigência sugerida (a equipe ajusta) e faz tudo de uma vez:
-    fatura paga, vigência, loja aprovada e plano ativo. Ações: Recusar e Marcar como não pago (com motivo).
+    "Aprovar" (primeira coluna) aprova com um clique, com a vigência sugerida, e faz tudo de uma vez: fatura
+    paga, vigência, loja aprovada (CRECI/CNPJ conferido) e plano ativo. "ajustar datas" abre a tela da
+    vigência para os casos raros. Loja que ainda não confirmou o e-mail não é aprovada: a linha mostra isso
+    e o botão "Reenviar link". Ações: Recusar e Marcar como não pago (com motivo).
     Grupos Administrador, Financeiro e Comercial; o comprovante só abre para quem vê as faturas (Financeiro e
     Administrador: pode ter dados de quem pagou).
     """
 
     list_display = (
-        "codigo",
+        "botao_aprovar",
         "loja",
         "documento",
         "descricao",
         "valor",
+        "identificador",
         "pedido_em",
         "situacao_do_pedido",
         "comprovante_do_pedido",
-        "botao_aprovar",
     )
     list_display_links = None
     list_filter = (TipoPedidoFiltro, "situacao")
@@ -329,7 +351,7 @@ class PedidoAguardandoAdmin(admin.ModelAdmin):
         "assinatura__anunciante__nome_publico",
         "assinatura__anunciante__usuario__email",
     )
-    list_select_related = ("assinatura__anunciante", "assinatura__plano")
+    list_select_related = ("assinatura__anunciante__usuario", "assinatura__plano")
     # Aguardando conferência primeiro (o cliente já disse que pagou), depois os mais antigos.
     ordering = (
         Case(When(situacao=Fatura.Situacao.AGUARDANDO, then=Value(0)), default=Value(1)),
@@ -385,11 +407,29 @@ class PedidoAguardandoAdmin(admin.ModelAdmin):
         url = reverse("admin:pagamentos_fatura_comprovante", args=[fatura.pk])
         return format_html('<a href="{}" target="_blank" rel="noopener">abrir</a>', url)
 
-    @admin.display(description="")
+    @admin.display(description="identificador do Pix", ordering="codigo")
+    def identificador(self, fatura: Fatura) -> str:
+        """O que aparece no extrato do banco (txid do Pix)."""
+        return fatura.identificador_pix
+
+    @admin.display(description="aprovar")
     def botao_aprovar(self, fatura: Fatura) -> str:
-        """Botão "Aprovar" da linha (abre a tela com as datas)."""
-        url = reverse("admin:pagamentos_pedidoaguardando_aprovar", args=[fatura.pk])
-        return format_html('<a class="button" href="{}">Aprovar</a>', url)
+        """Aprovar com um clique (botão do próprio formulário da lista, enviado para outro endereço com
+        `formaction`) e o link "ajustar datas". Sem e-mail confirmado: o aviso e "Reenviar link"."""
+        usuario = fatura.assinatura.anunciante.usuario
+        if not usuario.email_confirmado_em:
+            return format_html(
+                "<small>Aguardando o cliente confirmar o e-mail.</small><br>"
+                '<button type="submit" class="button" formaction="{}" formmethod="post">'
+                "Reenviar link</button>",
+                reverse("admin:pagamentos_pedidoaguardando_reenviar", args=[fatura.pk]),
+            )
+        return format_html(
+            '<button type="submit" class="button default" formaction="{}" formmethod="post">Aprovar</button>'
+            '<br><small><a href="{}">ajustar datas</a></small>',
+            reverse("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=[fatura.pk]),
+            reverse("admin:pagamentos_pedidoaguardando_aprovar", args=[fatura.pk]),
+        )
 
     def get_list_display(self, request: HttpRequest):
         """Sem a coluna do comprovante para quem não vê faturas (Comercial): pode ter dados de quem pagou."""
@@ -398,15 +438,64 @@ class PedidoAguardandoAdmin(admin.ModelAdmin):
         return tuple(coluna for coluna in self.list_display if coluna != "comprovante_do_pedido")
 
     def get_urls(self):
-        """Tela "Aprovar" de cada pedido."""
+        """Aprovar com um clique, a tela "ajustar datas" e o reenvio do link de confirmação."""
+        protegida = self.admin_site.admin_view
         extras = [
+            path("<int:pk>/aprovar/", protegida(self.aprovar), name="pagamentos_pedidoaguardando_aprovar"),
             path(
-                "<int:pk>/aprovar/",
-                self.admin_site.admin_view(self.aprovar),
-                name="pagamentos_pedidoaguardando_aprovar",
+                "<int:pk>/aprovar-agora/",
+                protegida(require_POST(self.aprovar_rapido)),
+                name="pagamentos_pedidoaguardando_aprovar_rapido",
+            ),
+            path(
+                "<int:pk>/reenviar-link/",
+                protegida(require_POST(self.reenviar_link)),
+                name="pagamentos_pedidoaguardando_reenviar",
             ),
         ]
         return extras + super().get_urls()
+
+    def _voltar(self, request: HttpRequest) -> HttpResponse:
+        """Volta para onde o botão estava (lista, ficha da loja ou painel de hoje), só dentro do site."""
+        destino = request.POST.get("next") or request.GET.get("next") or ""
+        if destino and url_has_allowed_host_and_scheme(destino, {request.get_host()}, request.is_secure()):
+            return redirect(destino)
+        return redirect("admin:pagamentos_pedidoaguardando_changelist")
+
+    def aprovar_rapido(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """Aprovar com um clique: vigência sugerida (`datas_sugeridas`), sem motivo. Faz tudo de uma vez:
+        fatura paga, loja aprovada (CRECI/CNPJ conferido) e plano ativo; o cliente recebe um e-mail."""
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        fatura = get_object_or_404(self.get_queryset(request), pk=pk)
+        inicio, fim = datas_sugeridas(fatura)
+        try:
+            aprovar_pedido_pago(fatura, request.user, inicio, fim)
+        except ValueError as erro:
+            self.message_user(request, str(erro), messages.ERROR)
+        else:
+            self.message_user(
+                request,
+                f"{fatura.codigo} aprovado: {fatura.assinatura.anunciante.nome_publico} com plano ativo até "
+                f"{fim:%d/%m/%Y}. Cliente avisado por e-mail.",
+                messages.SUCCESS,
+            )
+        return self._voltar(request)
+
+    def reenviar_link(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """Manda um link novo de confirmação de e-mail ao cliente do pedido (se ainda não confirmou)."""
+        from anunciantes.services import enviar_confirmacao
+
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        fatura = get_object_or_404(self.get_queryset(request), pk=pk)
+        usuario = fatura.assinatura.anunciante.usuario
+        if usuario.email_confirmado_em:
+            self.message_user(request, "Este cliente já confirmou o e-mail.", messages.INFO)
+        else:
+            enviar_confirmacao(usuario)
+            self.message_user(request, "Link de confirmação reenviado ao cliente.", messages.SUCCESS)
+        return self._voltar(request)
 
     def aprovar(self, request: HttpRequest, pk: int) -> HttpResponse:
         """Confere as datas sugeridas (a equipe ajusta) e aprova: fatura paga, vigência, loja e plano."""

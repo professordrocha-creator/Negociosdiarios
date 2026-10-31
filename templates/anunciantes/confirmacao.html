@@ -12,7 +12,8 @@
   <div class="nd-caixa nd-cadastro mx-auto">
     {% if situacao == "confirmado" %}
       <h1 class="h3">E-mail confirmado!</h1>
-      <p>Seu cadastro foi para análise. Nossa equipe vai conferir o CRECI ou o CNPJ e avisar por e-mail quando a loja for aprovada.</p>
+      <p>Agora entre com seu e-mail e senha e pague o plano escolhido pelo Pix. A equipe confere o pagamento e o CRECI ou o CNPJ de uma vez e a loja já fica ativa para anunciar.</p>
+      <p class="mb-0"><a class="btn btn-ipe" href="{% url 'contas:entrar' %}">Entrar e pagar pelo Pix</a></p>
     {% elif situacao == "ja_confirmado" %}
       <h1 class="h3">Este e-mail já foi confirmado</h1>
       <p>O link é de uso único e já foi usado. Se a loja já foi aprovada, é só <a href="{% url 'contas:entrar' %}">entrar</a>.</p>

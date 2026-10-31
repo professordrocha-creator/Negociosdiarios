@@ -22,6 +22,8 @@
           <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.cidade %}</div>
           <div class="col-sm-6">{% include "anunciantes/_campo.html" with campo=form.bairro %}</div>
         </div>
+        {# "Outro bairro" (Parte 4): aparece só com essa opção escolhida (static/js/bairros.js). #}
+        <div id="bairro-novo">{% include "anunciantes/_campo.html" with campo=form.bairro_novo %}</div>
         {% include "anunciantes/_campo.html" with campo=form.endereco %}
         <div>
           <span class="form-label d-block">Ponto no mapa</span>
@@ -51,4 +53,5 @@
 {% block scripts %}
 <script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
 <script src="{% static 'js/mapa-ponto.js' %}" defer></script>
+<script src="{% static 'js/bairros.js' %}" defer></script>
 {% endblock %}

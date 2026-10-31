@@ -320,12 +320,45 @@ class DadosVeiculoForm(forms.Form):
         }
 
 
+OUTRO_BAIRRO = "outro"  # opção "Outro bairro" do seletor (Parte 4): a loja escreve o nome
+
+
+class SelectBairro(forms.Select):
+    """Seletor de bairro com `data-cidade` em cada opção: o static/js/bairros.js mostra só os da cidade."""
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        """Marca a cidade do bairro na opção."""
+        opcao = super().create_option(name, value, label, selected, index, subindex, attrs)
+        instancia = getattr(value, "instance", None)
+        if instancia is not None:
+            opcao["attrs"]["data-cidade"] = instancia.cidade_id
+        return opcao
+
+
 class BairroField(forms.ModelChoiceField):
-    """Bairro mostrado como "Bairro (Cidade)", agrupado no seletor pela cidade."""
+    """Bairro mostrado como "Bairro (Cidade)" (sem JavaScript aparecem todos), com a opção "Outro bairro"
+    no fim."""
+
+    widget = SelectBairro
 
     def label_from_instance(self, bairro: Bairro) -> str:
         """Nome com a cidade, para não confundir bairros homônimos."""
         return f"{bairro.nome} ({bairro.cidade.nome})"
+
+    def _get_choices(self):
+        """Os bairros e, no fim, "Outro bairro"."""
+        return [*super()._get_choices(), (OUTRO_BAIRRO, "Outro bairro (escrever o nome)")]
+
+    choices = property(_get_choices, forms.ChoiceField.choices.fset)
+
+    def to_python(self, value):
+        """ "outro" passa como está (o nome vem no campo bairro_novo)."""
+        return OUTRO_BAIRRO if value == OUTRO_BAIRRO else super().to_python(value)
+
+    def validate(self, value):
+        """ "outro" não está no banco: a regra fica no clean do formulário."""
+        if value != OUTRO_BAIRRO:
+            super().validate(value)
 
 
 class LocalizacaoForm(forms.Form):
@@ -336,7 +369,14 @@ class LocalizacaoForm(forms.Form):
         label="Bairro",
         queryset=Bairro.objects.none(),
         required=False,
-        help_text="Não achou o bairro? Fale com a gente para cadastrarmos.",
+        help_text='Só os bairros da cidade escolhida. Não achou? Escolha "Outro bairro" e escreva o nome.',
+    )
+    bairro_novo = forms.CharField(
+        label="Nome do bairro",
+        max_length=60,
+        required=False,
+        help_text="Fica disponível na hora para os próximos anúncios desta cidade. Até 60 caracteres, "
+        "sem links.",
     )
     endereco = forms.CharField(
         label="Endereço (privado)",
@@ -354,9 +394,11 @@ class LocalizacaoForm(forms.Form):
         help_text="Recomendado: aproximada. Exata só se o dono do imóvel concordar.",
     )
 
-    def __init__(self, *args, **kwargs):
-        """Só cidades liberadas e bairros ativos delas (CLAUDE.md, regras de telas)."""
+    def __init__(self, *args, anunciante=None, **kwargs):
+        """Só cidades liberadas e bairros ativos delas (CLAUDE.md, regras de telas). `anunciante`: quem cria o
+        "Outro bairro" (limite por dia)."""
         super().__init__(*args, **kwargs)
+        self.anunciante = anunciante
         self.fields["cidade"].queryset = Cidade.objects.filter(liberada=True, uf__liberado=True).order_by(
             "nome"
         )
@@ -368,12 +410,24 @@ class LocalizacaoForm(forms.Form):
         for nome in ("cidade", "bairro"):
             self.fields[nome].widget.attrs["class"] = "form-select"
         self.fields["endereco"].widget.attrs["class"] = "form-control"
+        self.fields["bairro_novo"].widget.attrs.update({"class": "form-control", "maxlength": 60})
 
     def clean(self) -> dict:
-        """Bairro da cidade escolhida; ponto perto da cidade; "só o bairro" exige bairro."""
+        """Bairro da cidade escolhida (ou "Outro bairro" com nome válido); ponto perto da cidade; "só o
+        bairro" exige bairro."""
+        from core.services import bairro_informado
+
         dados = super().clean()
         cidade, bairro = dados.get("cidade"), dados.get("bairro")
-        if cidade and bairro and bairro.cidade_id != cidade.pk:
+        if bairro == OUTRO_BAIRRO:
+            if not dados.get("bairro_novo", "").strip():
+                self.add_error("bairro_novo", "Escreva o nome do bairro.")
+            elif cidade:
+                try:  # só valida aqui; a view cria o bairro depois de tudo certo
+                    bairro_informado(cidade, dados["bairro_novo"], self.anunciante, criar=False)
+                except ValidationError as erro:
+                    self.add_error("bairro_novo", erro)
+        elif cidade and bairro and bairro.cidade_id != cidade.pk:
             self.add_error("bairro", f"Este bairro não é de {cidade.nome}.")
         lat, lng = dados.get("latitude"), dados.get("longitude")
         if (lat is None) != (lng is None):

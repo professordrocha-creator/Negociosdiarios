@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+{% load nd %}
+{# Ficha da loja (Parte 4): no topo, o pedido de plano aguardando, com Aprovar (um clique: loja, pagamento e #}
+{# plano de uma vez) e Recusar (na lista de Cadastros aguardando, que pede o motivo). Os botões usam formaction: #}
+{# ficam dentro do formulário da ficha, que já tem o token CSRF, e vão para outro endereço. #}
+{% block form_top %}
+{% if pedido %}
+<fieldset class="module aligned">
+  <h2>Pedido aguardando aprovação</h2>
+  <div class="form-row">
+    <p>Plano <b>{{ pedido.assinatura.plano.nome }}</b> ({{ pedido.assinatura.get_periodicidade_display|lower }}) ·
+      <b>{{ pedido.valor|moeda }}</b> · identificador do Pix <b>{{ pedido.identificador_pix }}</b> ·
+      {{ pedido.get_situacao_display }} · {{ original.get_documento_tipo_display }} <b>{{ original.documento_numero }}</b></p>
+    {% if original.usuario.email_confirmado_em %}
+      <button type="submit" class="button default" formaction="{{ url_aprovar }}" formmethod="post" formnovalidate name="next" value="{{ url_ficha }}">Aprovar (loja, pagamento e plano)</button>
+      <a class="button" href="{{ url_recusar }}">Recusar…</a>
+      <small><a href="{{ url_ajustar }}">ajustar datas</a></small>
+    {% else %}
+      <p>Aguardando o cliente confirmar o e-mail (só depois dá para aprovar).</p>
+      <button type="submit" class="button" formaction="{{ url_reenviar }}" formmethod="post" formnovalidate name="next" value="{{ url_ficha }}">Reenviar link de confirmação</button>
+    {% endif %}
+  </div>
+</fieldset>
+{% endif %}
+{{ block.super }}
+{% endblock %}

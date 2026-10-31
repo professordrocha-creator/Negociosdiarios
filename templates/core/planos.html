@@ -42,8 +42,10 @@
             <li>{% icone "verificado" %} Selo de anunciante verificado</li>
             <li>{% icone "olho" %} Visualizações e cliques no WhatsApp</li>
           </ul>
-          {# Lote 3B: logado escolhe o plano e paga pelo Pix; visitante faz o cadastro antes. #}
-          <a class="btn btn-ipe mt-auto" href="{% if user.is_authenticated and not user.is_staff %}{% url 'pagamentos:assinar' %}?plano={{ plano.slug }}{% else %}{% url 'anunciantes:cadastro' %}{% endif %}">Quero anunciar</a>
+          {# Parte 4: o plano e o período escolhidos viajam (logado: Escolher plano; visitante: cadastro). #}
+          {% if user.is_authenticated and not user.is_staff %}{% url 'pagamentos:assinar' as destino %}{% else %}{% url 'anunciantes:cadastro' as destino %}{% endif %}
+          <a class="btn btn-ipe mt-auto so-mensal" href="{{ destino }}?plano={{ plano.slug }}&amp;periodo=mensal">Quero anunciar</a>
+          <a class="btn btn-ipe mt-auto so-anual" href="{{ destino }}?plano={{ plano.slug }}&amp;periodo=anual">Quero anunciar</a>
         </article>
       </div>
       {% endfor %}
@@ -54,9 +56,9 @@
     <div class="col-md-6"><div class="nd-caixa h-100">
       <h2 class="h5">Como funciona</h2>
       <ol class="mb-0 d-grid gap-1">
-        <li>Fale com a gente e escolha o plano.</li>
-        <li>Envie o CRECI (corretor) ou o CNPJ (empresa) para a verificação.</li>
-        <li>Aprovado, sua loja ganha a página própria e você começa a anunciar.</li>
+        <li>Escolha o plano e faça o cadastro com o CRECI (corretor) ou o CNPJ (empresa).</li>
+        <li>Confirme o e-mail, entre e pague pelo Pix.</li>
+        <li>A equipe confere o pagamento e o documento de uma vez: a loja já fica ativa e você começa a anunciar.</li>
       </ol>
     </div></div>
     <div class="col-md-6"><div class="nd-caixa h-100">

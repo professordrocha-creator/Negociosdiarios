@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load nd static %}
 {# Pagar (lote 3B; docs/TELAS.md): valor, QR Code e Pix copia e cola (gerados no servidor, sem serviço externo) e #}
-{# "Já paguei" (comprovante opcional). Sempre uma fatura da loja logada. Botão Copiar em static/js/copiar.js. #}
+{# "Fiz o Pix, avisar a equipe" (antes "Já paguei"; opcional, comprovante opcional). Sempre uma fatura da loja logada. Botão Copiar em static/js/copiar.js. #}
 
 {% block titulo %}Pagar · {{ fatura.codigo }}{% endblock %}
 {% block descricao %}Pague seu plano pelo Pix.{% endblock %}
@@ -12,7 +12,7 @@
 <main class="container mt-4">
   <div class="mx-auto d-grid gap-4 nd-assinar">
     <h1 class="h4 m-0">Pagar</h1>
-    {% include "_ajuda.html" %}
+    {% include "_ajuda.html" with compacta=True %}
     {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
 
     <section class="nd-caixa d-grid gap-3" aria-labelledby="titulo-fatura">
@@ -32,7 +32,7 @@
       {% elif fatura.situacao == "cancelada" %}
         <div class="alert alert-warning py-2 mb-0" role="status">Este pedido foi cancelado. <a href="{% url 'pagamentos:assinar' %}">Escolher o plano de novo</a>.</div>
       {% elif fatura.situacao == "aguardando_confirmacao" %}
-        <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} Recebemos o aviso de pagamento em {{ fatura.comprovante_enviado_em|date:"d/m/Y \à\s H:i" }}. <b>O acesso é liberado assim que a equipe conferir o pagamento</b>; avisaremos por e-mail.</div>
+        <div class="alert alert-info py-2 mb-0" role="status">{% icone "relogio" %} Recebemos o aviso de pagamento em {{ fatura.comprovante_enviado_em|date:"d/m/Y \à\s H:i" }}. <b>{% if anunciante.status == "pendente" %}A loja é aprovada e o plano fica ativo{% else %}O plano é renovado{% endif %} assim que a equipe conferir o pagamento</b>; avisaremos por e-mail.</div>
       {% else %}
         {% if fatura.motivo_recusa %}
           <div class="alert alert-warning py-2 mb-0" role="status"><b>Não encontramos o pagamento:</b> {{ fatura.motivo_recusa }}</div>
@@ -59,8 +59,8 @@
           {% if form.non_field_errors %}<div class="alert alert-warning py-2 mb-0">{{ form.non_field_errors|join:" " }}</div>{% endif %}
           {% include "anunciantes/_campo.html" with campo=form.comprovante %}
           {% include "anunciantes/_campo.html" with campo=form.recado %}
-          <div><button type="submit" class="btn btn-ipe">Já paguei</button></div>
-          <span class="small text-suave">O acesso é liberado depois que a equipe conferir o pagamento no banco.</span>
+          <div><button type="submit" class="btn btn-ipe">Fiz o Pix, avisar a equipe</button></div>
+          <span class="small text-suave">Avisar é opcional, mas agiliza a conferência. Conferido o Pix no banco, {% if anunciante.status == "pendente" %}a loja é aprovada e o plano fica ativo{% else %}o plano é renovado{% endif %}; avisamos por e-mail.</span>
         </form>
         {% if anunciante.status == "pendente" %}<p class="small mb-0"><a href="{% url 'pagamentos:assinar' %}">Trocar de plano</a></p>{% endif %}
       {% endif %}

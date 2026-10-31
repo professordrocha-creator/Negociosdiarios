@@ -79,17 +79,10 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
         "situacao_da_confianca",
     )
     fieldsets = (
-        ("Loja", {"fields": ("usuario", "tipo", "nome_publico", "slug", "sigla", "cor", "cidade")}),
+        ("Loja", {"fields": ("usuario", "tipo", "nome_publico", "slug", "cidade")}),
         ("Verificação", {"fields": ("documento_tipo", "documento_numero", "status", "motivo_status")}),
         ("Plano", {"fields": ("plano_e_assinatura",)}),
-        (
-            "Publicação por confiança",
-            {
-                "description": "Com confiança, os anúncios novos publicam direto (Configurações do site). "
-                'Sem confiança, todos passam pela fila. Use as ações "Retirar/Devolver confiança" da lista.',
-                "fields": ("situacao_da_confianca",),
-            },
-        ),
+        ("Publicação por confiança", {"fields": ("situacao_da_confianca",)}),
         (
             "Página da loja",
             {
@@ -107,14 +100,36 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
             },
         ),
         ("Contato público", {"fields": ("whatsapp", "email_publico")}),
+        ("Avançado", {"classes": ("collapse",), "fields": ("sigla", "cor")}),
         ("Registro", {"fields": ("demo", "criado_em", "atualizado_em")}),
     )
     actions = [
-        "aprovar_selecionados",
         "suspender_selecionados",
         "retirar_confianca_selecionados",
         "devolver_confianca_selecionados",
+        "aprovar_selecionados",  # exceção: o caminho normal é "Cadastros aguardando" (Parte 4)
     ]
+
+    change_form_template = "admin/anunciantes/anunciante/change_form.html"
+
+    def change_view(self, request: HttpRequest, object_id: str, form_url: str = "", extra_context=None):
+        """Topo da ficha (Parte 4): o pedido de plano aguardando, com Aprovar (um clique) e Recusar."""
+        from pagamentos.services import pedido_em_aberto
+
+        anunciante = self.get_object(request, object_id)
+        pedido = pedido_em_aberto(anunciante) if anunciante else None
+        if pedido is not None and request.user.has_perm("pagamentos.change_pedidoaguardando"):
+            extra_context = {
+                **(extra_context or {}),
+                "pedido": pedido,
+                "url_aprovar": reverse("admin:pagamentos_pedidoaguardando_aprovar_rapido", args=[pedido.pk]),
+                "url_ajustar": reverse("admin:pagamentos_pedidoaguardando_aprovar", args=[pedido.pk]),
+                "url_reenviar": reverse("admin:pagamentos_pedidoaguardando_reenviar", args=[pedido.pk]),
+                "url_recusar": reverse("admin:pagamentos_pedidoaguardando_changelist")
+                + f"?q={pedido.codigo}",
+                "url_ficha": request.get_full_path(),
+            }
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def save_model(self, request: HttpRequest, obj: Anunciante, form, change: bool) -> None:
         """Salva a ficha e, se a equipe mandou logo ou capa, processa como o painel (Celery: WebP, sem
@@ -218,9 +233,13 @@ class AnuncianteAdmin(SimpleHistoryAdmin):
         """Anunciante nunca é apagado pelo admin (exclusão lógica: suspender)."""
         return False
 
-    @admin.action(description="Aprovar selecionados (CRECI/CNPJ conferido)", permissions=["change"])
+    @admin.action(
+        description="Exceção: aprovar só a loja, sem plano (o normal é Cadastros aguardando)",
+        permissions=["change"],
+    )
     def aprovar_selecionados(self, request: HttpRequest, queryset: QuerySet[Anunciante]):
-        """Pede o motivo (opcional) e aprova."""
+        """Exceção (loja sem pedido de plano): pede o motivo (opcional) e aprova só a loja. O caminho normal é
+        "Cadastros aguardando", que aprova loja, pagamento e plano de uma vez."""
         return self._mudar_com_motivo(request, queryset, "aprovar_selecionados", aprovar, obrigatorio=False)
 
     @admin.action(description="Suspender selecionados (motivo obrigatório)", permissions=["change"])

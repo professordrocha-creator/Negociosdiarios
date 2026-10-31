@@ -1,6 +1,7 @@
 """Admin do core: estados, cidades ("Cidades atendidas"), regiões, bairros e identidade do site."""
 
 from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.db.models import Count, Q, QuerySet
 from django.http import HttpRequest
 from django.shortcuts import redirect
@@ -127,18 +128,80 @@ class RegiaoAdmin(admin.ModelAdmin):
         return False
 
 
+class CriadoPorLojaFilter(admin.SimpleListFilter):
+    """ "Criado por loja": bairros que as lojas criaram pelo "Outro bairro" do anúncio (para conferir e
+    juntar)."""
+
+    title = "criado por loja"
+    parameter_name = "criado_por_loja"
+
+    def lookups(self, request, model_admin):
+        """Sim (criado por loja) ou não (cadastrado pela equipe)."""
+        return [("sim", "Sim"), ("nao", "Não (equipe)")]
+
+    def queryset(self, request, queryset):
+        """Filtra pelo campo `criado_por`."""
+        if self.value() == "sim":
+            return queryset.filter(criado_por__isnull=False)
+        if self.value() == "nao":
+            return queryset.filter(criado_por__isnull=True)
+        return queryset
+
+
 @admin.register(Bairro)
 class BairroAdmin(admin.ModelAdmin):
-    """Bairros por cidade. Inativo some das listas sem ser apagado."""
+    """Bairros por cidade. Inativo some das listas sem ser apagado. Parte 4: lojas criam bairros pelo "Outro
+    bairro" do anúncio (marcados "criado por loja"); a ação "Juntar bairros duplicados" junta os repetidos."""
 
-    list_display = ("nome", "cidade", "ativo", "demo")
-    list_filter = ("ativo", "demo", "cidade__uf")
+    list_display = ("nome", "cidade", "ativo", "criado_pela_loja", "criado_em", "demo")
+    list_filter = ("ativo", CriadoPorLojaFilter, ("cidade", admin.RelatedOnlyFieldListFilter), "demo")
     list_editable = ("ativo",)
     search_fields = ("nome", "cidade__nome")
-    list_select_related = ("cidade",)
+    list_select_related = ("cidade", "criado_por")
     autocomplete_fields = ("cidade",)
     prepopulated_fields = {"slug": ("nome",)}
-    readonly_fields = ("demo",)
+    readonly_fields = ("demo", "criado_por", "criado_em")
+    actions = ["juntar_duplicados"]
+
+    @admin.display(description="criado por loja", ordering="criado_por__nome_publico")
+    def criado_pela_loja(self, bairro: Bairro) -> str:
+        """Nome da loja que criou (vazio = equipe)."""
+        return bairro.criado_por.nome_publico if bairro.criado_por_id else "—"
+
+    @admin.action(description="Juntar bairros duplicados (mesma cidade)", permissions=["change"])
+    def juntar_duplicados(self, request: HttpRequest, queryset: QuerySet[Bairro]):
+        """Tela para escolher qual nome fica; os anúncios dos outros passam para ele e os outros ficam
+        inativos."""
+        from django.core.exceptions import ValidationError
+        from django.template.response import TemplateResponse
+
+        from core.services import juntar_bairros
+
+        bairros = list(queryset.select_related("cidade").order_by("nome"))
+        if len(bairros) < 2 or len({b.cidade_id for b in bairros}) > 1:
+            self.message_user(request, "Marque 2 ou mais bairros da mesma cidade.", messages.WARNING)
+            return None
+        manter = next((b for b in bairros if str(b.pk) == request.POST.get("manter")), None)
+        if "aplicar" in request.POST and manter is not None:
+            try:
+                total = juntar_bairros(manter, bairros, request.user)
+            except ValidationError as erro:
+                self.message_user(request, erro.messages[0], messages.ERROR)
+            else:
+                self.message_user(
+                    request,
+                    f"{total} bairro(s) juntado(s) em {manter.nome}; anúncios atualizados.",
+                    messages.SUCCESS,
+                )
+            return None
+        contexto = {
+            **self.admin_site.each_context(request),
+            "title": "Juntar bairros duplicados",
+            "opts": self.model._meta,
+            "bairros": bairros,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+        }
+        return TemplateResponse(request, "admin/core/juntar_bairros.html", contexto)
 
     def has_delete_permission(self, request: HttpRequest, obj: Bairro | None = None) -> bool:
         """Bairro nunca é apagado (desmarque "ativo")."""
@@ -255,6 +318,7 @@ class ConfiguracaoAdmin(admin.ModelAdmin):
                     "confianca_ativa",
                     "confianca_aprovados_pessoa_fisica",
                     "pedidos_por_hora",
+                    "bairros_novos_por_dia",
                     "atualizado_em",
                 ),
             },

@@ -1,10 +1,17 @@
-{% autoescape off %}Novo cadastro aguardando aprovação (e-mail já confirmado):
+{% load nd %}{% autoescape off %}Novo cadastro aguardando aprovação (e-mail já confirmado):
 
 Loja: {{ anunciante.nome_publico }}
 Tipo: {{ anunciante.get_tipo_display }}
 {{ anunciante.get_documento_tipo_display }}: {{ anunciante.documento_numero }}
 Cidade: {{ anunciante.cidade }}{% if not anunciante.cidade.liberada %} (AINDA NÃO ATENDIDA: há uma solicitação de cidade para liberar ou recusar antes de aprovar){% endif %}
+{% if pedido %}
+Plano: {{ assinatura.plano.nome }} ({{ assinatura.get_periodicidade_display|lower }})
+Valor: {{ pedido.valor|moeda }}
+Identificador do Pix: {{ pedido.identificador_pix }}
 
-Conferir o documento e aprovar ou recusar no admin:
+Quando o Pix entrar no banco, confira o documento e aprove de uma vez (loja aprovada, plano ativo e anúncios liberados):
+{{ link_aprovar }}
+{% else %}
+Ainda sem plano escolhido. Ficha da loja no admin:
 {{ link_admin }}
-{% endautoescape %}
+{% endif %}{% endautoescape %}

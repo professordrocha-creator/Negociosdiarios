@@ -14,10 +14,10 @@
     <aside class="col-lg-3">{% include "anunciantes/_painel_menu.html" %}</aside>
     <div class="col-lg-9 d-grid gap-4">
       <h1 class="h4 m-0">Faturas</h1>
-      {% include "_ajuda.html" %}
+      {% include "_ajuda.html" with compacta=True %}
       {% if messages %}{% for m in messages %}<div class="alert {% if m.tags == 'warning' or m.tags == 'error' %}alert-warning{% else %}alert-success{% endif %} py-2 mb-0" role="status">{{ m }}</div>{% endfor %}{% endif %}
 
-      {% if not a_pagar and not aguardando %}
+      {% if not a_pagar and not aguardando and historico %}{# sem histórico, a mensagem única fica no Histórico #}
         <div class="nd-caixa">
           <b class="d-block">{% icone "verificado" %} Nenhuma fatura em aberto.</b>
           {% if assinatura %}<span class="small text-suave">Próximo vencimento: {{ assinatura.vencimento|date:"d/m/Y" }}. A fatura chega por e-mail alguns dias antes.</span>{% endif %}
@@ -68,7 +68,7 @@
         {% endif %}
 
         <details class="nd-ja-paguei" {% if form_de == fatura.codigo %}open{% endif %}>
-          <summary class="btn btn-ipe">Já paguei: enviar comprovante</summary>
+          <summary class="btn btn-ipe">Fiz o Pix, avisar a equipe</summary>
           <form method="post" action="{% url 'pagamentos:ja_paguei' fatura.codigo %}" enctype="multipart/form-data" class="d-grid gap-3 mt-3" novalidate>
             {% csrf_token %}
             {% include "anunciantes/_campo.html" with campo=item.form.comprovante %}
@@ -111,7 +111,7 @@
           </table>
         </div>
         {% else %}
-          <p class="small text-suave mb-0">As faturas pagas aparecem aqui.</p>
+          <p class="small text-suave mb-0">{% if not a_pagar and not aguardando %}Você ainda não tem faturas. {% if assinatura %}Próximo vencimento: {{ assinatura.vencimento|date:"d/m/Y" }}; a fatura chega por e-mail alguns dias antes. {% endif %}{% endif %}As faturas pagas aparecem aqui.</p>
         {% endif %}
       </section>
     </div>

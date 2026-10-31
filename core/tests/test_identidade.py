@@ -109,6 +109,7 @@ def postar_config(client, **mudancas):
             "confianca_ativa",
             "confianca_aprovados_pessoa_fisica",
             "pedidos_por_hora",
+            "bairros_novos_por_dia",
         ]
     }
     dados.update(mudancas)

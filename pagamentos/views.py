@@ -157,7 +157,9 @@ def assinar(request: HttpRequest) -> HttpResponse:
         planos=planos,
         initial={
             "plano": sugerido,
-            "periodicidade": assinatura.periodicidade if assinatura else None,
+            "periodicidade": request.GET.get("periodo")
+            if request.GET.get("periodo") in ("mensal", "anual")
+            else (assinatura.periodicidade if assinatura else None),
             "nome_publico": anunciante.nome_publico,
             "whatsapp": anunciante.whatsapp,
         },
