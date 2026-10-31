@@ -246,9 +246,12 @@ TENTATIVAS_POR_HORA = 10
 
 
 def _privada(resposta: HttpResponse) -> HttpResponse:
-    """Link secreto: fora dos buscadores, sem cache e sem vazar o endereço (com o token) para outros sites."""
+    """Link secreto: fora dos buscadores, sem cache e sem vazar o endereço (com o token) para outros sites.
+
+    `strict-origin` manda só o domínio como Referer. Não usar `no-referrer`: com ele o navegador envia
+    `Origin: null` no POST (envio do comprovante) e o CSRF recusa (403)."""
     resposta["X-Robots-Tag"] = "noindex, nofollow"
-    resposta["Referrer-Policy"] = "no-referrer"
+    resposta["Referrer-Policy"] = "strict-origin"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
 

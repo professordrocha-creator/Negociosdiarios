@@ -1,5 +1,9 @@
 /* Admin do Guia de Negócios (cadastro assistido no celular). Sem style inline: CSP. */
 .nd-guia-mapa { height: 320px; max-width: 640px; border-radius: 6px; margin: 4px 0 8px; }
+/* "Ponto no mapa": o admin põe rótulo e campo lado a lado (flex). Sem isto o mapa (div vazia) fica com
+   largura 0 e o botão "Tirar o ponto" estica na altura da linha. Aqui o mapa ocupa a linha inteira. */
+.field-latitude .flex-container { flex-wrap: wrap; align-items: flex-start; }
+.field-latitude .nd-guia-mapa, .field-latitude #mapa-situacao { flex: 1 1 100%; width: 100%; }
 .nd-oculto { display: none !important; }
 .nd-guia-painel { padding: 12px 16px; margin-bottom: 16px; }
 .nd-guia-painel ul { margin: 4px 0 8px 18px; padding: 0; }
@@ -7,6 +11,8 @@
 .nd-guia-ajuda { padding: 8px 16px; margin-bottom: 12px; }
 .nd-guia-ajuda summary { cursor: pointer; font-weight: 600; }
 .nd-guia-falta { margin-bottom: 0; font-weight: 600; }
+.nd-guia-opcoes { list-style: none; margin: 4px 0 8px; padding: 0; }
+.nd-guia-opcoes li { margin: 4px 0; }
 .nd-guia-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
 .nd-guia-botoes form { margin: 0; }
 .nd-guia-botoes button[disabled], .nd-desabilitado { opacity: .5; cursor: not-allowed; }

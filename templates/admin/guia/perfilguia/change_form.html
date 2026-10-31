@@ -35,7 +35,7 @@
 
   {% if pendencias %}
   <p class="nd-guia-falta">Para publicar, falta:</p>
-  <ul>{% for falta in pendencias %}<li>{{ falta }}</li>{% endfor %}</ul>
+  <ul>{% for falta in pendencias %}<li>{{ falta }}{% if falta == pendencia_cidade and liberar_cidade %} <a class="button" href="{% url 'admin:guia_perfil_liberar_cidade' original.pk %}">Liberar {{ liberar_cidade.nome }}</a>{% endif %}</li>{% endfor %}</ul>
   {% endif %}
 
   {% if pode_mudar and original.status != "removido" %}

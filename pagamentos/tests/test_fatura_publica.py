@@ -81,13 +81,13 @@ def test_formato_antigo_ou_inventado_da_404(client, fatura):
 
 
 def test_cabecalhos_privados_e_fora_do_sitemap(client, fatura):
-    """noindex, no-referrer (cabeçalho e meta) e sem cache; o sitemap não lista faturas."""
+    """noindex, Referer só com o domínio (cabeçalho e meta) e sem cache; o sitemap não lista faturas."""
     resposta = client.get(url(fatura))
 
     assert resposta["X-Robots-Tag"] == "noindex, nofollow"
-    assert resposta["Referrer-Policy"] == "no-referrer"
+    assert resposta["Referrer-Policy"] == "strict-origin"
     assert resposta["Cache-Control"] == "private, no-store"
-    assert '<meta name="referrer" content="no-referrer">' in resposta.content.decode()
+    assert '<meta name="referrer" content="strict-origin">' in resposta.content.decode()
     assert "/fatura/" not in client.get(reverse("sitemap")).content.decode()
 
 
@@ -153,3 +153,21 @@ def test_clique_nunca_usa_url_da_requisicao(client, fatura):
     )
 
     assert resposta.status_code == 302 and resposta["Location"] == "https://site.exemplo.com/"
+
+
+def test_envio_do_comprovante_pelo_navegador_passa_no_csrf(fatura):
+    """Como o navegador faz (token CSRF da página e `Origin` do site): a página não usa `no-referrer`, que
+    faria o navegador mandar `Origin: null` e o Django recusar o envio com 403."""
+    from django.test import Client
+
+    navegador = Client(enforce_csrf_checks=True)
+    assert navegador.get(url(fatura))["Referrer-Policy"] != "no-referrer"
+    dados = {
+        "comprovante": SimpleUploadedFile("c.png", png(), "image/png"),
+        "csrfmiddlewaretoken": navegador.cookies["csrftoken"].value,
+    }
+
+    resposta = navegador.post(url(fatura, envio=True), dados, HTTP_ORIGIN="http://testserver")
+
+    fatura.refresh_from_db()
+    assert resposta.status_code != 403 and fatura.comprovante

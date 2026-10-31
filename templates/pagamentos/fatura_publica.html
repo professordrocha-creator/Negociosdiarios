@@ -6,7 +6,7 @@
 
 {% block titulo %}{% if fatura.situacao == "paga" %}Fatura paga{% else %}Fatura {{ fatura.codigo }}{% endif %}{% endblock %}
 {% block descricao %}Pagamento de fatura.{% endblock %}
-{% block robots %}<meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer">{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow"><meta name="referrer" content="strict-origin">{% endblock %}
 {% block ajuda %}{% endblock %}
 
 {% block conteudo %}

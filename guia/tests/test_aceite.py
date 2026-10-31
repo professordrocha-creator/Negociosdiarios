@@ -1,6 +1,6 @@
 """Testes do convite e do aceite (docs/GUIA.md §8 e §10; GUIA_LGPD_E_TERMO.md §2): link de uso único com
-validade, página noindex e no-referrer com CSRF e limite por hora, registro do aceite e publicação, aceite em
-papel (foto privada), revogação e o botão do WhatsApp no admin."""
+validade, página noindex e Referer só com o domínio, com CSRF e limite por hora, registro do aceite e
+publicação, aceite em papel (foto privada), revogação e o botão do WhatsApp no admin."""
 
 import io
 from datetime import timedelta
@@ -45,7 +45,7 @@ def foto_jpeg(nome: str = "termo.jpg") -> SimpleUploadedFile:
 
 
 def test_pagina_mostra_previa_e_termo_e_e_privada(client, perfil_pronto, termo):
-    """Prévia, versão e data do termo; noindex, no-referrer e sem cache. O CNPJ não aparece."""
+    """Prévia, versão e data do termo; noindex, Referer só com o domínio e sem cache. O CNPJ não aparece."""
     perfil = perfil_pronto()
     _, token = services.gerar_convite(perfil)
 
@@ -59,7 +59,7 @@ def test_pagina_mostra_previa_e_termo_e_e_privada(client, perfil_pronto, termo):
     )  # vigência do fixture: 01/01/2026
     assert "01/01/2026" in pagina
     assert resposta["X-Robots-Tag"] == "noindex, nofollow"
-    assert resposta["Referrer-Policy"] == "no-referrer"
+    assert resposta["Referrer-Policy"] == "strict-origin"
     assert "no-store" in resposta["Cache-Control"]
     assert '<meta name="robots" content="noindex, nofollow">' in pagina
     assert "90000001000129" not in pagina and "maria@exemplo.com" not in pagina
@@ -246,3 +246,19 @@ def test_revogar_aceite_despublica_na_hora(admin_guia, perfil_pronto, termo):
     assert aceite.revogado_em is not None and aceite.motivo_revogacao == "Pediu por WhatsApp."
     with pytest.raises(services.PublicacaoRecusada):
         services.publicar(perfil)
+
+
+def test_aceite_pelo_navegador_passa_no_csrf(perfil_pronto, termo):
+    """Como o navegador faz: pega o token CSRF na página e manda o `Origin` do site. A página não pode usar
+    `no-referrer` (com ele o navegador manda `Origin: null` no POST e o Django recusa com 403)."""
+    _, token = services.gerar_convite(perfil_pronto())
+    navegador = Client(enforce_csrf_checks=True)
+    pagina = navegador.get(url(token), **NAVEGADOR)
+    assert pagina["Referrer-Policy"] != "no-referrer"
+    csrf = navegador.cookies["csrftoken"].value
+    dados = {"nome": "Maria Responsável", "autorizo": "on", "site_empresa": "", "csrfmiddlewaretoken": csrf}
+
+    assert navegador.post(url(token), dados, HTTP_ORIGIN="null", **NAVEGADOR).status_code == 403
+    resposta = navegador.post(url(token), dados, HTTP_ORIGIN="http://testserver", **NAVEGADOR)
+
+    assert resposta.status_code == 200 and AceitePublicacao.objects.count() == 1

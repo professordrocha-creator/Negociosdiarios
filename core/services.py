@@ -158,6 +158,49 @@ def liberar_cidades(cidades: QuerySet[Cidade]) -> int:
 
 
 @dataclass(frozen=True)
+class Liberacao:
+    """Resultado de `liberar_cidade`: a cidade e se o estado dela também foi liberado agora."""
+
+    cidade: Cidade
+    estado_liberado: bool
+
+
+def liberar_cidade(cidade: Cidade, por, origem: str) -> Liberacao:
+    """Libera uma cidade pelo atalho da equipe (Guia), junto com o estado se ele estiver fechado.
+
+    Registra no histórico do admin (LogEntry: quem e quando, com a `origem`), que aparece em "Histórico" da
+    cidade e do estado. Tira a marca `liberada_pela_demo`: cidade liberada de verdade não volta a fechar no
+    `apagar_dados_demo`. Efeito: a cidade passa a aparecer no site (anúncios, lojas, buscas e guia).
+    """
+    from django.contrib.admin.models import CHANGE, LogEntry
+
+    with transaction.atomic():
+        estado = cidade.uf
+        estado_liberado = not estado.liberado
+        if estado_liberado:
+            Estado.objects.filter(pk=estado.pk).update(liberado=True)
+            estado.liberado = True
+            LogEntry.objects.log_actions(
+                por.pk,
+                Estado.objects.filter(pk=estado.pk),
+                CHANGE,
+                f"Estado liberado junto com {cidade.nome} ({origem}).",
+                single_object=True,
+            )
+        if not cidade.liberada or cidade.liberada_pela_demo:
+            Cidade.objects.filter(pk=cidade.pk).update(liberada=True, liberada_pela_demo=False)
+            cidade.liberada, cidade.liberada_pela_demo = True, False
+            LogEntry.objects.log_actions(
+                por.pk,
+                Cidade.objects.filter(pk=cidade.pk),
+                CHANGE,
+                f"Cidade liberada ({origem}).",
+                single_object=True,
+            )
+    return Liberacao(cidade=cidade, estado_liberado=estado_liberado)
+
+
+@dataclass(frozen=True)
 class EstadoAtendido:
     """Um estado liberado e as suas cidades liberadas, para exibir no site."""
 

@@ -271,6 +271,11 @@ class PerfilGuiaAdminForm(forms.ModelForm):
             if intervalos:
                 horarios[chave] = intervalos
         self._horarios = horarios
+        if self.errors and self.files.get("logo_envio") and "logo_envio" not in self.errors:
+            # O navegador não guarda o arquivo quando a tela volta com erro: sem o aviso, o logo some calado.
+            self.add_error(
+                "logo_envio", "Corrija os outros campos e escolha o logo de novo (o arquivo não foi salvo)."
+            )
         return dados
 
     def save(self, commit: bool = True) -> PerfilGuia:

@@ -27,6 +27,8 @@ O site mostra só cidades `liberada=True` de estados `liberado=True`
   nunca mexe em `liberado`/`liberada`. Na primeira carga, só MT nasce liberado
   e nenhuma cidade. Roda numa transação: com uma linha errada, nada é gravado.
 - `liberar_cidades(queryset)`: libera cidades e devolve quantas mudaram.
+- `liberar_cidade(cidade, por, origem)`: atalho da equipe (Guia): libera a cidade e o estado, se fechado, tira a
+  marca da demo e registra no "Histórico" do admin quem liberou e quando (`LogEntry`).
 - `cidades_atendidas()`: cidades que aparecem no site (liberadas, de estados
   liberados), agrupadas por estado e em ordem alfabética. Usado pela home.
 - `email_para_fila(mensagem)` / `enviar_email_agora(dados)`: transformam um e-mail do

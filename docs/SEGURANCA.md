@@ -69,7 +69,7 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
       origem não repete denúncia do mesmo anúncio no dia; X denúncias de golpe de origens diferentes
       tiram o anúncio do ar "em revisão" (o anunciante não reativa) até a equipe decidir.
       Aceite do Guia de Negócios (`/guia/aceite/<token>/`): token de 32 bytes, uso único e com validade
-      (nunca o id), `noindex`, `Referrer-Policy: no-referrer`, sem cache, CSRF, campo-armadilha, limite por
+      (nunca o id), `noindex`, `Referrer-Policy: strict-origin`, sem cache, CSRF, campo-armadilha, limite por
       visitante por hora (`ConfiguracaoGuia`, IP só como resumo); usado, vencido ou inexistente dão a mesma
       resposta sem dados. Convite de WhatsApp montado no servidor e enviado um a um pela equipe.
 - [ ] reCAPTCHA **não**. Hoje sem captcha nenhum (honeypot + limites); se o abuso aparecer, Cloudflare
@@ -89,7 +89,7 @@ Referência: OWASP Top 10 e "Deployment checklist" do Django
 
 ### Pagamentos
 - [x] Link público da fatura de publicidade `/fatura/<token>/`: token de 32 bytes do `secrets` (nunca id nem código),
-      URL só aceita o formato do token, `noindex`, `Referrer-Policy: no-referrer`, sem cache, fora do sitemap, só o
+      URL só aceita o formato do token, `noindex`, `Referrer-Policy: strict-origin`, sem cache, fora do sitemap, só o
       necessário na página (paga: só "Fatura paga"), envio de comprovante com os mesmos limites e 10 tentativas/hora
       por IP.
 - [x] Clique da publicidade: destino só do banco (pelo id da peça) e só http/https: sem redirecionamento aberto.

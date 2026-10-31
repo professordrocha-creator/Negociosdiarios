@@ -16,6 +16,7 @@ from django.utils.html import format_html
 from django.views.decorators.http import require_POST
 from simple_history.admin import SimpleHistoryAdmin
 
+from config.menu_admin import e_administrador
 from core.admin_acoes import tela_motivo
 from core.services import textos_ajuda
 from guia import services
@@ -42,6 +43,26 @@ AVISO_RASCUNHO_TERMO = (
     "Termo do guia em RASCUNHO: revisão jurídica pendente (o advogado revisa na Sprint 9). "
     "O público não vê este aviso."
 )
+
+
+def contexto_liberacao(cidade, contatos: int | None = None) -> dict:
+    """Textos da confirmação de "Liberar cidade" (com o estado junto, se fechado)."""
+    return {
+        "cidade": cidade,
+        "estado_fechado": not cidade.uf.liberado,
+        "contatos_afetados": contatos,
+    }
+
+
+def mensagem_liberacao(liberacao, contatos: int | None = None) -> str:
+    """ "Cuiabá/MT liberada (e o estado MT também). 2 contato(s) vinculado(s)."."""
+    texto = f"{liberacao.cidade} liberada"
+    if liberacao.estado_liberado:
+        texto += f" (e o estado {liberacao.cidade.uf_id} também)"
+    texto += "."
+    if contatos is not None:
+        texto += f" {contatos} contato(s) vinculado(s) à cidade."
+    return texto
 
 
 @admin.register(GrupoCategoria)
@@ -387,7 +408,12 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
         """Painel de publicação (pendências, duplicidade, botões) e dados do mapa e das categorias."""
         from core.models import Cidade
 
-        cidades = Cidade.objects.filter(liberada=True, uf__liberado=True).exclude(ponto=None)
+        # As mesmas cidades do campo "Cidade": as liberadas e a atual da ficha (mesmo se ainda não liberada),
+        # para o mapa abrir na cidade da ficha.
+        cidades = Cidade.objects.filter(liberada=True, uf__liberado=True)
+        if obj is not None and obj.cidade_id:
+            cidades = cidades | Cidade.objects.filter(pk=obj.cidade_id)
+        cidades = cidades.exclude(ponto=None).distinct()
         context.update(
             {
                 "ajuda_itens": textos_ajuda("guia_cadastro"),
@@ -407,6 +433,11 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
                     "duplicidades": services.duplicidades(obj),
                     "aceite": services.aceite_vigente(obj),
                     "pode_mudar": self.has_change_permission(request, obj),
+                    # Botão "Liberar <cidade>" ao lado da pendência (só Administrador/superusuário).
+                    "pendencia_cidade": services.PENDENCIA_CIDADE,
+                    "liberar_cidade": obj.cidade
+                    if services.PENDENCIA_CIDADE in faltas and obj.cidade_id and e_administrador(request.user)
+                    else None,
                 }
             )
         return super().render_change_form(request, context, add, change, form_url, obj)
@@ -423,6 +454,11 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
                 "<int:pk>/publicar/", protegida(require_POST(self.publicar_view)), name="guia_perfil_publicar"
             ),
             path("<int:pk>/pausar/", protegida(require_POST(self.pausar_view)), name="guia_perfil_pausar"),
+            path(
+                "<int:pk>/liberar-cidade/",
+                protegida(self.liberar_cidade_view),
+                name="guia_perfil_liberar_cidade",
+            ),
             path("aceite/<int:pk>/revogar/", protegida(self.revogar_view), name="guia_aceite_revogar"),
             path("aceite/<int:pk>/foto/", protegida(self.foto_view), name="guia_aceite_foto"),
             path("pausar-em-lote/", protegida(self.pausar_lote_view), name="guia_pausar_lote"),
@@ -530,6 +566,31 @@ class PerfilGuiaAdmin(SimpleHistoryAdmin):
         else:
             messages.success(request, "Perfil pausado (fora do ar).")
         return self._voltar(perfil)
+
+    def liberar_cidade_view(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """ "Liberar <cidade>" da ficha: confirmação (e o estado junto, se fechado) e liberação com histórico.
+        Só Administrador/superusuário."""
+        from core.services import liberar_cidade
+
+        perfil = self._perfil(request, pk)
+        if not e_administrador(request.user):
+            raise PermissionDenied
+        cidade = perfil.cidade
+        if cidade is None or (cidade.liberada and cidade.uf.liberado and not cidade.liberada_pela_demo):
+            messages.info(request, "A cidade da ficha já está liberada.")
+            return self._voltar(perfil)
+        if request.method == "POST":
+            liberacao = liberar_cidade(cidade, request.user, f"ficha do Guia: {perfil.nome_publico}")
+            messages.success(request, mensagem_liberacao(liberacao))
+            return self._voltar(perfil)
+        return self._tela(
+            request,
+            perfil,
+            "admin/core/liberar_cidade.html",
+            title=f"Liberar {cidade.nome}",
+            **contexto_liberacao(cidade),
+            url_voltar=reverse("admin:guia_perfilguia_change", args=[perfil.pk]),
+        )
 
     def revogar_view(self, request: HttpRequest, pk: int) -> HttpResponse:
         """Revoga um aceite (pedido do titular): despublica na hora; o registro fica como prova."""
@@ -833,9 +894,9 @@ class OutraCidadeFilter(admin.SimpleListFilter):
         return [("sim", "Pedidos de outra cidade")]
 
     def queryset(self, request, queryset):
-        """Com cidade informada (fora da lista)."""
+        """Com cidade informada e ainda sem cidade atendida (depois de vincular, sai do filtro)."""
         if self.value() == "sim":
-            return queryset.exclude(cidade_informada="")
+            return queryset.filter(cidade__isnull=True).exclude(cidade_informada="")
         return queryset
 
 
@@ -884,10 +945,28 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
 
     @admin.display(description="cidade", ordering="cidade__nome")
     def cidade_da_lista(self, contato: ContatoConvite) -> str:
-        """A cidade atendida ou, em pedido de outra cidade, "Cidade informada: ..."."""
-        if contato.cidade_informada:
+        """A cidade atendida ou, em pedido de outra cidade ainda não vinculado, "Cidade informada: ..."."""
+        if contato.cidade_informada and not contato.cidade_id:
             return format_html("<b>Cidade informada:</b> {}", contato.cidade_informada)
         return str(contato.cidade or "—")
+
+    @admin.display(description="cidade", ordering="cidade__nome")
+    def cidade_da_lista_admin(self, contato: ContatoConvite) -> str:
+        """Igual a `cidade_da_lista`, com o atalho "Liberar cidade e vincular" (só para o Administrador)."""
+        if contato.cidade_informada and not contato.cidade_id:
+            return format_html(
+                '{} · <a href="{}">Liberar cidade e vincular</a>',
+                self.cidade_da_lista(contato),
+                reverse("admin:guia_contato_liberar_cidade", args=[contato.pk]),
+            )
+        return self.cidade_da_lista(contato)
+
+    def get_list_display(self, request: HttpRequest):
+        """Administrador/superusuário vê o atalho de liberar a cidade pedida (mesma coluna)."""
+        colunas = super().get_list_display(request)
+        if e_administrador(request.user):
+            colunas = tuple("cidade_da_lista_admin" if c == "cidade_da_lista" else c for c in colunas)
+        return colunas
 
     @admin.display(description="categoria", ordering="categoria__nome")
     def categoria_da_lista(self, contato: ContatoConvite) -> str:
@@ -988,6 +1067,11 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
             path("importar/", protegida(self.importar_view), name="guia_contato_importar"),
             path("<int:pk>/convidar/", protegida(self.convidar_view), name="guia_contato_convidar"),
             path("<int:pk>/perfil/", protegida(self.criar_perfil_view), name="guia_contato_criar_perfil"),
+            path(
+                "<int:pk>/liberar-cidade/",
+                protegida(self.liberar_cidade_view),
+                name="guia_contato_liberar_cidade",
+            ),
             *super().get_urls(),
         ]
 
@@ -1060,6 +1144,44 @@ class ContatoConviteAdmin(SimpleHistoryAdmin):
             return redirect("admin:guia_contatoconvite_changelist")
         messages.success(request, "Perfil criado como rascunho. Complete os dados e envie o link de aceite.")
         return redirect("admin:guia_perfilguia_change", perfil.pk)
+
+    def liberar_cidade_view(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """ "Liberar cidade e vincular": acha a cidade do IBGE pelo texto informado (a equipe escolhe se
+        houver mais de uma), confirma mostrando quantos contatos serão ligados, libera e vincula. Só
+        Administrador."""
+        contato = get_object_or_404(ContatoConvite, pk=pk)
+        if not (self.has_change_permission(request, contato) and e_administrador(request.user)):
+            raise PermissionDenied
+        voltar = redirect("admin:guia_contatoconvite_changelist")
+        if contato.cidade_id or not contato.cidade_informada:
+            messages.info(request, "Este contato já está ligado a uma cidade.")
+            return voltar
+        opcoes = services.cidades_do_ibge(contato.cidade_informada)
+        if not opcoes:
+            messages.error(
+                request,
+                f'Não achei "{contato.cidade_informada}" na lista do IBGE. Corrija a cidade informada na '
+                "ficha do contato ou escolha a cidade à mão.",
+            )
+            return voltar
+        por_pk = {str(c.pk): c for c in opcoes}
+        escolhida = por_pk.get(request.POST.get("cidade", "")) or (opcoes[0] if len(opcoes) == 1 else None)
+        if request.method == "POST" and escolhida is not None:
+            liberacao, total = services.vincular_cidade_informada(escolhida, request.user, contato)
+            messages.success(request, mensagem_liberacao(liberacao, total))
+            return voltar
+        afetados = {  # os que pediram a mesma cidade + este contato
+            c.pk: len({x.pk for x in services.contatos_da_cidade_informada(c)} | {contato.pk}) for c in opcoes
+        }
+        contexto = self._contexto(
+            request,
+            "Liberar cidade e vincular",
+            **contexto_liberacao(opcoes[0], afetados[opcoes[0].pk]),
+            opcoes=[(c, afetados[c.pk]) for c in opcoes] if len(opcoes) > 1 else [],
+            contato=contato,
+            url_voltar=reverse("admin:guia_contatoconvite_changelist"),
+        )
+        return TemplateResponse(request, "admin/core/liberar_cidade.html", contexto)
 
 
 @admin.register(ConfiguracaoGuia)

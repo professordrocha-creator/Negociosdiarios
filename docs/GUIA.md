@@ -198,7 +198,7 @@ Ações em lote: pausar por cidade ou categoria. Exportar CSV (neutralizar fórm
 
 ## 10. Segurança
 
-- Token de aceite: 32 bytes aleatórios, uso único, expira, nunca o id. Página com `noindex` e `Referrer-Policy: no-referrer`.
+- Token de aceite: 32 bytes aleatórios, uso único, expira, nunca o id. Página com `noindex` e `Referrer-Policy: strict-origin` (só o domínio; `no-referrer` faz o navegador mandar `Origin: null` no POST e o CSRF recusa).
 - Formulários públicos (pedido, aceite): CSRF, honeypot, limite por visitante e por hora (hash de IP com sal diário; sem gravar IP).
 - Texto livre (frase, descrição, nome) é sempre escapado. Sem links nem HTML na frase.
 - Logo: mesmo tratamento das fotos (tipo real do arquivo, EXIF removido, WebP, tamanho limitado).

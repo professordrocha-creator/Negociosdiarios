@@ -119,14 +119,14 @@ endereço ou por um link. No topo: "Ajuda" (este manual), "Ver o site", "Alterar
 | Faturas e pagamentos | "Cadastros aguardando", "Faturas" (com o "Painel de cobrança"), "Configuração do Pix" |
 | Anúncios | Todos os anúncios e a "Fila de moderação" (aprovar ou recusar) |
 | Denúncias | Denúncias de anúncios |
-| Lojas (anunciantes) | Lojas e corretores e os pedidos de cidade nova ("Solicitações de cidade") |
+| Lojas (anunciantes) | Lojas e corretores, os pedidos de cidade nova ("Solicitações de cidade") e, logo abaixo, "Cidades" (liberar a cidade no site) |
 | Planos e assinaturas | Planos (preços, limites e dias de vigência), assinaturas e pedidos de troca de plano |
 | Publicidade | Patrocinadores e campanhas (com as peças e o "Painel de publicidade") |
 | Guia de Negócios | Perfis do guia, "Convites e interessados" e pedidos dos titulares |
 | Privacidade (LGPD) | Pedidos dos titulares (os Termos e a Política ficam em "Mais opções") |
 | Site e configurações | "Configurações do site" (limites, prazos, contatos e textos) |
 | Equipe e usuários | "Usuários": equipe e clientes |
-| Mais opções (só Administrador) | Catálogo de veículos (FIPE), estados, cidades, regiões, bairros, textos de ajuda, valores da empresa, e-mails de cobrança, termos e documentos legais, categorias e configuração do guia, grupos, bloqueios de login e códigos de acesso |
+| Mais opções (só Administrador) | Catálogo de veículos (FIPE), estados, regiões, bairros, textos de ajuda, valores da empresa, e-mails de cobrança, termos e documentos legais, categorias e configuração do guia, grupos, bloqueios de login e códigos de acesso |
 
 Quase nada é apagado de verdade: lojas são suspensas, faturas são canceladas, perfis são pausados ou removidos.
 Toda mudança importante tem "Histórico" (botão no canto da ficha).
@@ -177,7 +177,11 @@ de Negócios tem a sua própria em **"Guia de Negócios" › "Configuração do 
 
 ### Ligar e desligar recursos
 
-- **Cidades no site:** "Núcleo" › "Cidades", marque "liberada" (ou ação "Liberar cidades selecionadas").
+- **Cidades no site:** "Lojas (anunciantes)" › "Cidades", marque "liberada" (ou ação "Liberar cidades
+  selecionadas"). Atalhos do Guia (só Administrador): na ficha, o botão "Liberar <cidade>" ao lado da pendência
+  "A cidade precisa estar liberada no site"; na fila de convites, "Liberar cidade e vincular" num pedido de outra
+  cidade (acha a cidade do IBGE, mostra quantos contatos serão ligados e liga todos). Os dois pedem confirmação,
+  liberam o estado junto se ele estiver fechado e ficam no "Histórico" da cidade (quem e quando).
   Estados: "Núcleo" › "Estados" › "liberado". O seletor de estado aparece sozinho com 2 ou mais liberados.
 - **Guia de Negócios:** "Guia de Negócios" › "Configuração do guia" › "guia no ar" (capítulo 10).
 - **E-mails de cobrança:** "Faturas e pagamentos" › "E-mails de cobrança", desmarque "enviar" (coluna "ativo") no e-mail

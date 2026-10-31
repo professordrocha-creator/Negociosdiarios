@@ -1,14 +1,15 @@
 # Progresso (checkpoint)
 
-**Em andamento:** Guia, "Quero ser listado" com "Outra cidade" / "Outra (escrever)", aguardando conferência e commit.
+**Em andamento:** atalhos de "Liberar cidade" (Guia), aguardando conferência e commit.
 
-**Feito:** `ContatoConvite.cidade` opcional + `cidade_informada` e `categoria_informada` (migration guia 0009);
-formulário com as opções "Outra" e o texto limpo (sem HTML, sem link, até 80; `forms.limpar_texto_livre`);
-static/js/quero-ser-listado.js mostra o texto só com "Outra"; admin com "Cidade/Categoria informada" e o filtro
-"Pedidos de outra cidade"; `criar_perfil_do_contato` recusa contato sem cidade atendida; apagamento de 180 dias
-cobre os campos novos (teste). Docs: LGPD, ARQUITETURA, guia/README.
-Antes (sem commit ainda): ajustes da publicidade (imagem única, escolhas simples, aviso de pagamento).
+**Feito:** core.services.liberar_cidade (estado junto, tira marca da demo, LogEntry com quem/quando); botão
+"Liberar <cidade>" ao lado da pendência na ficha do Guia (só Administrador/superusuário, confirmação em
+templates/admin/core/liberar_cidade.html); "Liberar cidade e vincular" na fila de convites (cidades_do_ibge,
+escolha entre homônimas, liga todos os contatos que pediram a mesma cidade); "Cidades" no menu do dia a dia logo
+depois de "Solicitações de cidade" (config/menu_admin.py, JUNTO_DE). Testes: guia/tests/test_liberar_cidade.py (7).
+Docs: MANUAL_ADMIN, core/README, guia/README.
+Antes (sem commit ainda): publicidade, Guia "Outra cidade", CSRF strict-origin, mapa e logo do Guia.
 
-**Falta:** Daniel decidir se liga pedido de outra cidade à demanda de cidade (SolicitacaoCidade é só de anunciante).
+**Falta:** conferir no navegador e fazer o commit.
 
-**Último comando que passou:** `pytest -q guia` → 100 passed (com os 6 testes novos); `ruff check guia` limpo.
+**Último comando que passou:** `pytest guia/tests/test_liberar_cidade.py core/tests/test_painel_hoje.py` → 25 passed; ruff limpo.

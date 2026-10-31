@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{# Confirmação de "Liberar cidade" (ficha do Guia e "Liberar cidade e vincular" dos convites). Só Administrador. #}
+{# Libera o estado junto se estiver fechado; o histórico da cidade guarda quem liberou e quando. #}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/guia-admin.css' %}">{% endblock %}
+{% block breadcrumbs %}{% if perfil %}{% include "admin/guia/perfilguia/_trilha.html" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block content %}
+<form method="post" class="module nd-guia-painel" novalidate>{% csrf_token %}
+  {% if opcoes %}
+    <p>Encontrei mais de uma cidade para "<b>{{ contato.cidade_informada }}</b>". Escolha a certa:</p>
+    <ul class="nd-guia-opcoes">
+      {% for opcao, total in opcoes %}
+      <li><label><input type="radio" name="cidade" value="{{ opcao.pk }}"> <b>{{ opcao }}</b>: {{ total }} contato(s) serão vinculados{% if not opcao.uf.liberado %}; o estado {{ opcao.uf_id }} está fechado e será liberado junto{% endif %}.</label></li>
+      {% endfor %}
+    </ul>
+    <p><b>Liberar a cidade abre o site para anúncios, lojas e buscas dessa cidade. Confirmar?</b></p>
+  {% else %}
+    <input type="hidden" name="cidade" value="{{ cidade.pk }}">
+    <p><b>Liberar {{ cidade.nome }} abre o site para anúncios, lojas e buscas dessa cidade. Confirmar?</b></p>
+    {% if estado_fechado %}<p class="nd-guia-alerta">O estado {{ cidade.uf.nome }} ({{ cidade.uf_id }}) ainda está fechado no site e será liberado junto.</p>{% endif %}
+    {% if contatos_afetados is not None %}<p>{{ contatos_afetados }} contato(s) que pediram esta cidade serão vinculados a ela.</p>{% endif %}
+  {% endif %}
+  <p class="help">Fica registrado no histórico da cidade quem liberou e quando.</p>
+  <div class="nd-guia-botoes">
+    <button type="submit" class="button default">Confirmar e liberar</button>
+    <a class="button" href="{{ url_voltar }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

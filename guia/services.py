@@ -33,7 +33,7 @@ from django.utils.crypto import salted_hmac
 from django.utils.text import slugify
 
 from core import imagens
-from core.models import Cidade
+from core.models import Cidade, Estado
 from guia.models import (
     CHAVE_CACHE_CONFIGURACAO_GUIA,
     AceitePublicacao,
@@ -320,6 +320,9 @@ def duplicidades(perfil: PerfilGuia) -> list[str]:
     return avisos
 
 
+PENDENCIA_CIDADE = "A cidade precisa estar liberada no site."  # o admin mostra "Liberar <cidade>" ao lado
+
+
 def pendencias(perfil: PerfilGuia, exigir_aceite: bool = True) -> list[str]:
     """O que falta para publicar (vazio = pode). Usada pelo admin (botão desabilitado com explicação)."""
     faltas = []
@@ -329,7 +332,7 @@ def pendencias(perfil: PerfilGuia, exigir_aceite: bool = True) -> list[str]:
         faltas.append("Escolha ao menos 1 categoria ativa.")
     cidade = perfil.cidade if perfil.cidade_id else None
     if cidade is None or not (cidade.liberada and cidade.uf.liberado):
-        faltas.append("A cidade precisa estar liberada no site.")
+        faltas.append(PENDENCIA_CIDADE)
     if not any(TELEFONE_E164.match(n or "") for n in (perfil.whatsapp, perfil.telefone)):
         faltas.append("Informe um WhatsApp ou telefone válido, com DDD.")
     if perfil.atendimento == PerfilGuia.Atendimento.ENDERECO:
@@ -1618,6 +1621,68 @@ def _equipe_do_guia() -> list[str]:
         .values_list("email", flat=True)
         .distinct()
     )
+
+
+def separar_cidade_informada(texto: str) -> tuple[str, str]:
+    """ "Sinop/MT", "Sinop - MT", "Sinop, MT" ou "Sinop MT" → ("Sinop", "MT"); sem UF → ("Sinop", "")."""
+    limpo = " ".join((texto or "").split())
+    achou = re.match(r"^(.*?)[\s,/-]+([A-Za-z]{2})$", limpo)
+    if achou and Estado.objects.filter(uf=achou.group(2).upper()).exists():
+        return achou.group(1).strip(" ,/-"), achou.group(2).upper()
+    return limpo, ""
+
+
+def _sem_acento(texto: str) -> str:
+    """Para comparar nomes de cidade: minúsculas, sem acento e com espaços simples."""
+    import unicodedata
+
+    decomposto = unicodedata.normalize("NFKD", texto or "")
+    return " ".join("".join(c for c in decomposto if not unicodedata.combining(c)).lower().split())
+
+
+def cidades_do_ibge(texto: str) -> list[Cidade]:
+    """Cidades do IBGE para o nome informado (com a UF, se veio). Nome exato (sem acento) primeiro; sem
+    nenhum, as que contêm o nome (até 10). Mais de uma: a equipe escolhe."""
+    nome, uf = separar_cidade_informada(texto)
+    if len(nome) < 2:
+        return []
+    base = Cidade.objects.select_related("uf").order_by("nome", "uf_id")
+    if uf:
+        base = base.filter(uf_id=uf)
+    exatas = list(base.filter(nome__unaccent__iexact=nome))
+    return exatas or list(base.filter(nome__unaccent__icontains=nome)[:10])
+
+
+def contatos_da_cidade_informada(cidade: Cidade) -> list:
+    """Contatos que pediram esta cidade pelo "Outra cidade" e ainda não estão ligados a uma cidade (mesmo
+    nome sem acento; com UF escrita, só se for a da cidade)."""
+    from guia.models import ContatoConvite
+
+    alvo = _sem_acento(cidade.nome)
+    contatos = []
+    for contato in ContatoConvite.objects.filter(cidade__isnull=True).exclude(cidade_informada=""):
+        nome, uf = separar_cidade_informada(contato.cidade_informada)
+        if _sem_acento(nome) == alvo and uf in ("", cidade.uf_id):
+            contatos.append(contato)
+    return contatos
+
+
+def vincular_cidade_informada(cidade: Cidade, por, contato=None):
+    """ "Liberar cidade e vincular": libera a cidade (e o estado, se fechado; histórico no admin) e grava a
+    cidade nos contatos que a pediram, inclusive `contato` (escolhido à mão na lista do IBGE). O texto que a
+    pessoa escreveu fica guardado. Devolve (Liberacao, quantos contatos foram ligados)."""
+    from core.services import liberar_cidade
+
+    with transaction.atomic():
+        liberacao = liberar_cidade(cidade, por, "pedido de outra cidade no Guia")
+        contatos = contatos_da_cidade_informada(cidade)
+        if contato is not None and contato.cidade_id is None and contato not in contatos:
+            contatos.append(contato)
+        for item in contatos:
+            item.cidade = cidade
+            item._change_reason = f"Cidade {cidade} liberada e vinculada."
+            item.save(update_fields=["cidade"])
+    return liberacao, len(contatos)
 
 
 def registrar_interessado(

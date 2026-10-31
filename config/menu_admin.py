@@ -42,7 +42,11 @@ DIA_A_DIA_ADMINISTRADOR: set[str] = set().union(*MENU_POR_GRUPO.values()) | {
     "core.configuracao",
     "contas.usuario",
     "anunciantes.solicitacaocidade",
+    "core.cidade",
 }
+
+# Item mostrado no bloco de outro app, logo depois do item com que se usa junto (só no menu do dia a dia).
+JUNTO_DE = {"core.cidade": "anunciantes.solicitacaocidade"}
 
 # Ordem dos blocos no menu (o trabalho do dia primeiro); os outros vêm depois, em ordem alfabética.
 ORDEM_DOS_APPS = [
@@ -124,4 +128,19 @@ def separar_menu(usuario, app_list: list[dict]) -> tuple[list[dict], list[dict]]
             principal.append(_renomear(app, dia))
         if resto and administrador:
             mais.append(_renomear(app, resto))
-    return _ordenar(principal), _ordenar(mais)
+    return _ordenar(_juntar(principal)), _ordenar(mais)
+
+
+def _juntar(blocos: list[dict]) -> list[dict]:
+    """Move cada item de `JUNTO_DE` para logo depois do item vizinho (se os dois estão no menu); bloco que
+    fica vazio sai do menu."""
+    for chave, vizinho in JUNTO_DE.items():
+        origem = next((b for b in blocos for m in b["models"] if _chave(b, m) == chave), None)
+        destino = next((b for b in blocos for m in b["models"] if _chave(b, m) == vizinho), None)
+        if origem is None or destino is None or origem is destino:
+            continue
+        item = next(m for m in origem["models"] if _chave(origem, m) == chave)
+        origem["models"] = [m for m in origem["models"] if m is not item]
+        posicao = next(i for i, m in enumerate(destino["models"]) if _chave(destino, m) == vizinho)
+        destino["models"] = [*destino["models"][: posicao + 1], item, *destino["models"][posicao + 1 :]]
+    return [b for b in blocos if b["models"]]

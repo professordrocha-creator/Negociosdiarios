@@ -20,6 +20,9 @@ Etapas feitas: **G1 (base)**, **G2 (páginas públicas)** e **G3 (LGPD e operaç
 - `ContatoConvite` (G3): lista de convites, sem página pública; recusou / não contatar bloqueiam o número.
   "Quero ser listado" com "Outra cidade" / "Outra (escrever)": `cidade` vazia e `cidade_informada` /
   `categoria_informada` (texto limpo); filtro "Pedidos de outra cidade" no admin; sem cidade atendida não vira ficha.
+- Liberar cidade (só Administrador/superusuário, com confirmação e histórico): botão "Liberar <cidade>" ao lado da
+  pendência da ficha e "Liberar cidade e vincular" na fila de convites (`cidades_do_ibge`,
+  `contatos_da_cidade_informada`, `vincular_cidade_informada`; liga todos os contatos que pediram a mesma cidade).
 - `EstatisticaGuiaDia` (visualizações e cliques por dia, sem IP), `PedidoDoPerfil` (MarcaDemo; pela ficha ou registrado pela equipe),
   `ConfiguracaoGuia` (registro único).
 
@@ -44,6 +47,6 @@ Etapas feitas: **G1 (base)**, **G2 (páginas públicas)** e **G3 (LGPD e operaç
 ## Telas
 - Admin (grupo **Guia**): cadastro assistido em uma coluna com mapa, painel de publicação, "Enviar por WhatsApp",
   "Aceite em papel", revogar. Moderador vê os pedidos; Financeiro e Comercial não veem o guia.
-- Público: `/guia/aceite/<token>/` (noindex, no-referrer, CSRF, campo-armadilha, limite por hora); `/guia/`,
+- Público: `/guia/aceite/<token>/` (noindex, Referer só com o domínio, CSRF, campo-armadilha, limite por hora); `/guia/`,
   `/guia/<uf>/<cidade>/`, `/guia/<uf>/<cidade>/<categoria>/`, `/guia/empresa/<slug>/` e os contatos
   `/guia/contato/<id>/whatsapp|telefone/`. Menu, cartão da home e rodapé por `guia.context_processors.guia`.

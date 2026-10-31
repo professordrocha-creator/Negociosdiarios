@@ -417,3 +417,48 @@ def test_rotina_do_guia_roda_todas_as_partes(perfil_publicado):
         "removidos_de_vez",
         "interessados_apagados",
     }
+
+
+# --- Ficha no admin: mapa e logo ---------------------------------------------------------------------------
+
+
+def test_mapa_ocupa_a_linha_e_abre_na_cidade_da_ficha(admin_guia, perfil_pronto, tangara):
+    """O mapa do "Ponto no mapa" fica na linha inteira (no flex do admin ele ficava com largura 0) e o centro
+    da cidade da ficha vai para o mapa mesmo se a cidade ainda não estiver liberada."""
+    from django.contrib.staticfiles import finders
+
+    perfil = perfil_pronto()
+    tangara.liberada = False
+    tangara.save()
+
+    pagina = admin_guia.get(reverse("admin:guia_perfilguia_change", args=[perfil.pk])).content.decode()
+
+    assert 'id="mapa"' in pagina and "css/guia-admin.css" in pagina
+    centros = pagina[pagina.index('id="centros-cidades"') :]
+    assert f'"{tangara.pk}": [{tangara.ponto.y}, {tangara.ponto.x}]' in centros[: centros.index("</script>")]
+    css = Path(finders.find("css/guia-admin.css")).read_text(encoding="utf-8")
+    assert ".field-latitude .flex-container { flex-wrap: wrap; align-items: flex-start; }" in css
+
+
+def test_logo_enviado_com_erro_na_tela_avisa_para_escolher_de_novo(admin_guia, perfil_pronto):
+    """Tela que volta com erro não guarda o arquivo: o campo do logo diz para escolher de novo; sem erro, o
+    logo é salvo em WebP."""
+    from guia.tests.conftest import dados_do_formulario
+
+    perfil = perfil_pronto()
+    url = reverse("admin:guia_perfilguia_change", args=[perfil.pk])
+    base = dados_do_formulario(
+        perfil,
+        cidade=str(perfil.cidade_id),
+        categorias=[str(pk) for pk in perfil.categorias.values_list("pk", flat=True)],
+    )
+
+    com_erro = admin_guia.post(url, {**base, "cnpj": "", "logo_envio": _logo()})
+    assert com_erro.status_code == 200 and "escolha o logo de novo" in com_erro.content.decode()
+    perfil.refresh_from_db()
+    assert not perfil.logo
+
+    certo = admin_guia.post(url, {**base, "logo_envio": _logo()})
+    assert certo.status_code == 302
+    perfil.refresh_from_db()
+    assert perfil.logo.name.endswith(".webp")

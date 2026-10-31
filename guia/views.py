@@ -25,9 +25,11 @@ from guia.models import CategoriaServico, PerfilGuia
 
 
 def _privada(resposta: HttpResponse) -> HttpResponse:
-    """noindex, no-referrer e sem cache (o endereço tem o token)."""
+    """noindex, sem cache e sem vazar o endereço (com o token): `strict-origin` manda só o domínio como
+    Referer. Não usar `no-referrer`: com ele o navegador envia `Origin: null` no POST e o CSRF recusa
+    (403)."""
     resposta["X-Robots-Tag"] = "noindex, nofollow"
-    resposta["Referrer-Policy"] = "no-referrer"
+    resposta["Referrer-Policy"] = "strict-origin"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
 
